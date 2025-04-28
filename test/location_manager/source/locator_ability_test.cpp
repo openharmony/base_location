@@ -1266,7 +1266,7 @@ HWTEST_F(LocatorAbilityTest, SetLocationWorkingStateEvent_Test_001, TestSize.Lev
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] SetLocationWorkingStateEvent_Test_001 start");
     // Arrange
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    ASSERT_TRUE(locatorAbility != nullptr);    
+    ASSERT_TRUE(locatorAbility != nullptr);
     // Act
     ErrCode result = ERRCODE_SUCCESS;
     result = locatorAbility->SetSwitchState(true);
