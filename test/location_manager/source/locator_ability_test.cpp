@@ -73,7 +73,8 @@
 #undef private
 
 #include "mock_i_remote_object.h"
-
+#include "bluetooth_scan_result_callback_napi.h"
+#include "locating_required_data_callback_napi.h"
 using namespace testing::ext;
 namespace OHOS {
 namespace Location {
@@ -984,6 +985,378 @@ HWTEST_F(LocatorAbilityTest, LocatorHandler004, TestSize.Level1)
         AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
     locatorHandler->SyncStillMovementState(event);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler004 end");
+}
+
+HWTEST_F(LocatorAbilityTest, TestLocalPermission, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] TestLocalPermission start");
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    // test local permisson
+    AppIdentity identity;
+    locatorAbility->GetAppIdentityInfo(identity);
+    LBSLOGI(LOCATOR, "identity: %{public}s", identity.ToString().c_str());
+
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+    }
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] TestLocalPermission end");
+}
+
+HWTEST_F(LocatorAbilityTest, EnableAbilityForUser_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] EnableAbilityForUser_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    int32_t userId = 100;
+
+    // Act
+    ErrCode result = locatorAbility->EnableAbilityForUser(false, userId);
+    result = locatorAbility->EnableAbilityForUser(true, userId);
+
+    // Assert
+    EXPECT_EQ(result, ERRCODE_SUCCESS);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] EnableAbilityForUser_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, GetCachedGnssLocationsSize_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCachedGnssLocationsSize_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    int32_t size = -1;
+
+    // Act
+    ErrCode result = locatorAbility->GetCachedGnssLocationsSize(size);
+    // Assert
+    EXPECT_EQ(true, size >= -1);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCachedGnssLocationsSize_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, FlushCachedGnssLocations_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] FlushCachedGnssLocations_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    // Act
+    ErrCode result = locatorAbility->FlushCachedGnssLocations();
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] FlushCachedGnssLocations_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, Add_RemoveFence_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] RemoveFence_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+
+    // Act
+    ErrCode result = locatorAbility->AddFence(*request);
+    result = locatorAbility->RemoveFence(*request);
+    
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] RemoveFence_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, Add_RemoveGnssFence_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] Add_RemoveGnssFence_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    int32_t fenceId = 100;
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetFenceId(fenceId);
+
+    // Act
+    ErrCode result = locatorAbility->AddGnssGeofence(*request);
+    result = locatorAbility->RemoveGnssGeofence(fenceId);
+    
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] Add_RemoveGnssFence_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, StartLocating_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] StartLocating_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    locatorAbility->proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    // Act
+    ErrCode result = locatorAbility->StartLocating(*requestConfig, callbackStub);
+    result = locatorAbility->StopLocating(callbackStub);
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] StartLocating_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, NeedReportCacheLocation_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] NeedReportCacheLocation_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    locatorAbility->proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    request->requestConfig_->scenario_ = SCENE_UNSET;
+    request->requestConfig_->priority_ = PRIORITY_LOW_POWER;
+
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    // Act
+    ErrCode result = locatorAbility->NeedReportCacheLocation(request, callbackStub);
+    
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] NeedReportCacheLocation_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, ReportSingleCacheLocation_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] ReportSingleCacheLocation_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    locatorAbility->proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    request->requestConfig_->scenario_ = SCENE_UNSET;
+    request->requestConfig_->priority_ = PRIORITY_LOW_POWER;
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    
+    auto cacheLocation = locatorAbility->reportManager_->GetCacheLocation(request);
+    // Act
+    ErrCode result = locatorAbility->ReportSingleCacheLocation(request, callbackStub, cacheLocation);
+    
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] ReportSingleCacheLocation_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, GetCacheLocation_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCacheLocation_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    
+    // Act
+    ErrCode result = locatorAbility->GetCacheLocation(*location);
+    result = locatorAbility->ReportLocation(NETWORK_ABILITY, *location);
+    result = locatorAbility->ReportLocationStatus(callbackStub, result);
+    result = locatorAbility->ReportErrorStatus(callbackStub, result);
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCacheLocation_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, GeoConvert_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GeoConvert_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    bool isAvailable = false;
+    // Act
+    ErrCode result = locatorAbility->IsGeoConvertAvailable(isAvailable);
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GeoConvert_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, GetAddressByLocationName_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetAddressByLocationName_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    auto geoConvertRequest = std::make_unique<GeocodeConvertAddressRequest>();
+    sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    // Act
+    ErrCode result = locatorAbility->GetAddressByLocationName(callback, *geoConvertRequest);
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetAddressByLocationName_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, BluetoothScan_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] BluetoothScan_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    std::vector<CoordinateType> coordinateTypes;
+    auto bluetoothScanResultCallbackHost =
+        sptr<BluetoothScanResultCallbackNapi>(new (std::nothrow) BluetoothScanResultCallbackNapi());
+    auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
+    // Act
+    ErrCode result = locatorAbility->QuerySupportCoordinateSystemType(coordinateTypes);
+    result = locatorAbility->SubscribeBluetoothScanResultChange(nullptr);
+    result = locatorAbility->SubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+    result = locatorAbility->UnSubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] BluetoothScan_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, RemoveInvalidRequests_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] RemoveInvalidRequests_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    AppIdentity identity;
+    auto requestManager_ = RequestManager::GetInstance();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeStamp(0);
+    requestConfig->SetFixNumber(1);
+    requestConfig->SetScenario(SCENE_NAVIGATION);
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub, identity);
+    
+    // Act
+    ErrCode result = locatorAbility->IsInvalidRequest(request);
+    ASSERT_TRUE(result);
+    locatorAbility->StartLocating(*requestConfig, callbackStub);
+    result = locatorAbility->RemoveInvalidRequests();
+    locatorAbility->StopLocating(callbackStub);
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] RemoveInvalidRequests_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, SyncStillMovementState_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SyncStillMovementState_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+
+    // Act
+    locatorAbility->SyncStillMovementState(true);
+
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SyncStillMovementState_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, SetLocationSwitchIgnored_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SetLocationSwitchIgnored_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    ErrCode result = ERRCODE_SUCCESS;
+    AppIdentity identity;
+    locatorAbility->GetAppIdentityInfo(identity);
+
+    // Act
+    bool switchFlag = locatorAbility->GetLocationSwitchIgnoredFlag(identity.GetTokenId());
+    result = locatorAbility->SetLocationSwitchIgnored(true);
+    sleep(1);
+    result = locatorAbility->SetLocationSwitchIgnored(false);
+    sleep(1);
+    locatorAbility->SetLocationSwitchIgnoredFlag(identity.GetTokenId(), true);
+    sleep(1);
+    locatorAbility->SetLocationSwitchIgnoredFlag(identity.GetTokenId(), false);
+
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SetLocationSwitchIgnored_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, SetLocationWorkingStateEvent_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SetLocationWorkingStateEvent_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    // Act
+    ErrCode result = ERRCODE_SUCCESS;
+    result = locatorAbility->SetSwitchState(true);
+    sleep(1);
+    result = locatorAbility->SetSwitchState(false);
+    sleep(1);
+    result = locatorAbility->SetSwitchState(true);
+    sleep(1);
+
+    result = locatorAbility->SetSwitchStateForUser(true, 100);
+    sleep(1);
+    result = locatorAbility->SetSwitchStateForUser(false, 100);
+    sleep(1);
+    result = locatorAbility->SetSwitchStateForUser(true, 100);
+
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SetLocationWorkingStateEvent_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, RegisterLocatingRequiredDataCallback_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] RegisterLocatingRequiredDataCallback_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    std::unique_ptr<LocatingRequiredDataConfig> requestConfig = std::make_unique<LocatingRequiredDataConfig>();
+    requestConfig->SetFixNumber(1);
+    auto callbackHost =
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
+    callbackHost->SetFixNumber(1);
+    auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
+    // Act
+    ErrCode result = ERRCODE_SUCCESS;
+    result = locatorAbility->RegisterLocatingRequiredDataCallback(*requestConfig, nullptr);
+    result = locatorAbility->RegisterLocatingRequiredDataCallback(*requestConfig, callbackPtr);
+
+    result = locatorAbility->UnRegisterLocatingRequiredDataCallback(callbackPtr);
+    // Assert
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] RegisterLocatingRequiredDataCallback_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, SubscribeLocationError_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SubscribeLocationError_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+
+    // Act
+    ErrCode result = ERRCODE_SUCCESS;
+    result = locatorAbility->SubscribeLocationError(nullptr);
+    result = locatorAbility->UnSubscribeLocationError(nullptr);
+
+    result = locatorAbility->SubscribeLocationError(callbackStub);
+    result = locatorAbility->UnSubscribeLocationError(callbackStub);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] SubscribeLocationError_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, GetCurrentWifiBssidForLocating_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCurrentWifiBssidForLocating_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    std::string bssid = "0112:110:123";
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+
+    // Act
+    ErrCode result = ERRCODE_SUCCESS;
+    result = locatorAbility->GetCurrentWifiBssidForLocating(bssid);
+    result = locatorAbility->GetCurrentWifiBssidForLocating(bssid);
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCurrentWifiBssidForLocating_Test_001 end");
+}
+
+HWTEST_F(LocatorAbilityTest, COMMON_Test_001, TestSize.Level1)
+{
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCurrentWifiBssidForLocating_Test_001 start");
+    // Arrange
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ASSERT_TRUE(locatorAbility != nullptr);
+    std::string bssid = "0112:110:123";
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+
+    // Act
+    ErrCode result = ERRCODE_SUCCESS;
+    result = locatorAbility->CheckPreciseLocationPermissions(123123, 123123); // INVALID token-id test
+
+    LBSLOGI(LOCATOR, "[LocatorAbilityTest] GetCurrentWifiBssidForLocating_Test_001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
