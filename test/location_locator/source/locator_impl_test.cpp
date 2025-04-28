@@ -52,6 +52,7 @@
 #include "permission_manager.h"
 #include "geofence_request.h"
 #include "geofence_sdk.h"
+#include "location_data_rdb_manager.h"
 
 using namespace testing::ext;
 
@@ -196,6 +197,21 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject()));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplEnableAbilityV9002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 begin");
+    sptr<IRemoteObject> callback;
+    locatorImpl_->RegisterSwitchCallbackV9(callback);
+    sleep(1);
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(true));
+    bool isEnabled = false;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
+    locatorImpl_->UnregisterSwitchCallbackV9(callback);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9002 end");
 }
 
@@ -862,17 +878,43 @@ HWTEST_F(LocatorImplTest, HasGnssNetworkRequest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] HasGnssNetworkRequest001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplEnableAbilityForUser, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplEnableAbilityForUser001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplEnableAbilityForUser, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser begin");
+        << "LocatorImplTest, locatorImplEnableAbilityForUser001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser001 begin");
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(false, DEFAULT_USER));
     bool isEnabled = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledForUser(isEnabled, DEFAULT_USER));
     EXPECT_EQ(false, isEnabled);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(true, DEFAULT_USER));
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser end");
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplEnableAbilityForUser002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplEnableAbilityForUser002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser002 begin");
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(false, DEFAULT_USER));
+    LocationDataRdbManager::SetSwitchStateToDbForUser(2, DEFAULT_USER);
+    sleep(1);
+    bool isEnabled = false;
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledForUser(isEnabled, DEFAULT_USER));
+    EXPECT_EQ(false, isEnabled);
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(true, DEFAULT_USER));
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser002 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplIsLocationEnabledV9001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplIsLocationEnabledV9001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsLocationEnabledV9001 begin");
+    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(2);
+    bool isEnabled = false;
+    locatorImpl_->IsLocationEnabledV9(isEnabled);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsLocationEnabledV9001 end");
 }
 
 HWTEST_F(LocatorImplTest, GetCurrentWifiBssidForLocating, TestSize.Level1)
