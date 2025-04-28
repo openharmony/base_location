@@ -1291,7 +1291,7 @@ HWTEST_F(LocatorAbilityTest, RegisterLocatingRequiredDataCallback_Test_001, Test
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] RegisterLocatingRequiredDataCallback_Test_001 start");
     // Arrange
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    ASSERT_TRUE(locatorAbility != nullptr);  
+    ASSERT_TRUE(locatorAbility != nullptr);
     std::unique_ptr<LocatingRequiredDataConfig> requestConfig = std::make_unique<LocatingRequiredDataConfig>();
     requestConfig->SetFixNumber(1);
     auto callbackHost =
@@ -1313,7 +1313,7 @@ HWTEST_F(LocatorAbilityTest, SubscribeLocationError_Test_001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] SubscribeLocationError_Test_001 start");
     // Arrange
     auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    ASSERT_TRUE(locatorAbility != nullptr);  
+    ASSERT_TRUE(locatorAbility != nullptr);
     
     sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
 
