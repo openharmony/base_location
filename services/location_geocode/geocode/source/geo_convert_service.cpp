@@ -50,16 +50,20 @@ GeoConvertService* GeoConvertService::GetInstance()
 
 GeoConvertService::GeoConvertService() : SystemAbility(LOCATION_GEO_CONVERT_SA_ID, true)
 {
+#ifndef TDD_CASES_ENABLED
     geoConvertHandler_ =
         std::make_shared<GeoConvertHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+#endif
     LBSLOGI(GEO_CONVERT, "GeoConvertService constructed.");
 }
 
 GeoConvertService::~GeoConvertService()
 {
+#ifndef TDD_CASES_ENABLED
     if (geoConvertHandler_ != nullptr) {
         geoConvertHandler_->RemoveTask(UNLOAD_GEOCONVERT_TASK);
     }
+#endif
     conn_ = nullptr;
 }
 

@@ -108,11 +108,14 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
     gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+#ifndef TDD_CASES_ENABLED
     if (gnssHandler_ != nullptr) {
         AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
             static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI), 0);
         gnssHandler_->SendEvent(event);
     }
+#endif
+
     fenceId_ = 0;
     auto agnssNiManager = AGnssNiManager::GetInstance();
     if (agnssNiManager != nullptr) {
@@ -125,9 +128,11 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 GnssAbility::~GnssAbility()
 {
 #ifdef NET_MANAGER_ENABLE
+#ifndef TDD_CASES_ENABLED
     if (netWorkObserver_ != nullptr) {
         NetManagerStandard::NetConnClient::GetInstance().UnregisterNetConnCallback(netWorkObserver_);
     }
+#endif
 #endif
 }
 
@@ -170,7 +175,10 @@ void GnssAbility::OnStop()
     registerToAbility_ = false;
     if (CheckIfHdiConnected()) {
         auto startTime = CommonUtils::GetCurrentTimeStamp();
-        auto ret = RemoveHdi();
+        auto ret = false;
+#ifndef TDD_CASES_ENABLED
+        ret = RemoveHdi();
+#endif
         auto endTime = CommonUtils::GetCurrentTimeStamp();
         WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "DisConnectHdi",
             "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
@@ -379,7 +387,10 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     if (isAdded) {
         if (!CheckIfHdiConnected()) {
             auto startTime = CommonUtils::GetCurrentTimeStamp();
-            auto ret = ConnectHdi();
+            auto ret = false;
+#ifndef TDD_CASES_ENABLED
+            ret = ConnectHdi();
+#endif
             auto endTime = CommonUtils::GetCurrentTimeStamp();
             WriteLocationInnerEvent(HDI_EVENT, {"ret", std::to_string(ret), "type", "ConnectHdi",
                     "startTime", std::to_string(startTime), "endTime", std::to_string(endTime)});
@@ -419,7 +430,9 @@ void GnssAbility::ReConnectHdi()
 void GnssAbility::ReConnectHdiImpl()
 {
     LBSLOGD(GNSS, "%{public}s called", __func__);
+#ifndef TDD_CASES_ENABLED
     ConnectHdi();
+#endif
     EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     SetAgnssCallback();
@@ -1809,7 +1822,9 @@ void GnssHandler::HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event)
 void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
+#ifndef TDD_CASES_ENABLED
     gnssAbility->ConnectHdi();
+#endif
     gnssAbility->EnableGnss();
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     gnssAbility->SetAgnssCallback();
