@@ -28,6 +28,7 @@
 #include "request.h"
 #include "request_config.h"
 #include "permission_manager.h"
+#include "locator_callback_proxy.h"
 
 using namespace testing::ext;
 
@@ -596,6 +597,188 @@ HWTEST_F(RequestManagerTest, SyncStillMovementState001, TestSize.Level1)
     ASSERT_TRUE(requestManager_ != nullptr);
     requestManager_->SyncStillMovementState(true);
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] SyncStillMovementState001 end");
+}
+
+HWTEST_F(RequestManagerTest, UpdateUsingApproximatelyPermission001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, UpdateUsingApproximatelyPermission001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingApproximatelyPermission001 begin");
+    
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    // Arrange
+    auto request = std::make_shared<Request>();
+    request->SetPid(10023);
+
+    request->SetApproximatelyPermState(false);
+    bool result = requestManager->UpdateUsingApproximatelyPermission(request, true);
+    EXPECT_TRUE(result);
+    
+    request->SetApproximatelyPermState(false);
+    result = requestManager->UpdateUsingApproximatelyPermission(request, true);
+    EXPECT_FALSE(result);
+    
+    request->SetApproximatelyPermState(true);
+    result = requestManager->UpdateUsingApproximatelyPermission(request, false);
+    result = requestManager->UpdateUsingApproximatelyPermission(request, false);
+
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] UpdateUsingApproximatelyPermission001 end");
+}
+
+HWTEST_F(RequestManagerTest, RestorRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, RestorRequest001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] RestorRequest001 begin");
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+
+    AppIdentity identity;
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callbackStub, identity);
+
+    // Act
+    ErrCode result = locatorAbility->StartLocating(*requestConfig, callbackStub);
+     
+    requestManager->RestorRequest(nullptr);
+    requestManager->RestorRequest(request);
+
+    result = locatorAbility->StopLocating(callbackStub);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] RestorRequest001 end");
+}
+
+HWTEST_F(RequestManagerTest, HandleStopLocating_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, HandleStopLocating_001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStopLocating_001 begin");
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    sptr<ILocatorCallback> callbackStub = new (std::nothrow) LocatorCallbackStub();
+    auto request = std::make_shared<Request>();
+    request->SetLocatorCallBack(callbackStub);
+
+    requestManager->HandleStartLocating(request);
+    requestManager->HandleStopLocating(callbackStub);
+
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] HandleStopLocating_001 end");
+}
+
+HWTEST_F(RequestManagerTest, ActiveLocatingStrategies_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, ActiveLocatingStrategies_001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] ActiveLocatingStrategies_001 begin");
+    bool testRet = false;
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    auto request = std::make_shared<Request>();
+    // null branch
+    testRet = requestManager->ActiveLocatingStrategies(nullptr);
+    // valid branch
+    requestConfig->SetScenario(SCENE_UNSET);
+    request->SetRequestConfig(*requestConfig);
+    testRet = requestManager->ActiveLocatingStrategies(request);
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] ActiveLocatingStrategies_001 end");
+}
+
+HWTEST_F(RequestManagerTest, IsRequestAvailable_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, IsRequestAvailable_001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsRequestAvailable_001 begin");
+    bool testRet = false;
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    auto request = std::make_shared<Request>();
+    // false branch
+    request->SetRequesting(false);
+    testRet = requestManager->IsRequestAvailable(request);
+    
+    // true branch
+    request->SetRequesting(true);
+    request->GetRequestConfig()->SetFixNumber(1);
+    request->GetRequestConfig()->SetTimeStamp(0);
+    request->GetRequestConfig()->SetTimeOut(1000);
+    testRet = requestManager->IsRequestAvailable(request);
+    
+    request->GetRequestConfig()->SetTimeStamp(CommonUtils::GetCurrentTime());
+    testRet = requestManager->IsRequestAvailable(request);
+
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] IsRequestAvailable_001 end");
+}
+
+HWTEST_F(RequestManagerTest, AddRequestToWorkRecord_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, AddRequestToWorkRecord_001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] Template_001 begin");
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    std::shared_ptr<WorkRecord> workRecord = std::make_shared<WorkRecord>();
+    auto locatorAbility = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    auto request = std::make_shared<Request>();
+    request->GetRequestConfig()->SetFixNumber(0);
+    request->SetUid(1000);
+    request->SetPid(0);
+    request->SetTokenId(tokenId_);
+    request->SetFirstTokenId(0);
+    request->SetPackageName("RequestManagerTest");
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    
+    // null branch
+    requestManager->AddRequestToWorkRecord(GNSS_ABILITY, request, workRecord);
+    ErrCode result = locatorAbility->EnableAbility(false);
+    requestManager->AddRequestToWorkRecord(GNSS_ABILITY, request, workRecord);
+    result = locatorAbility->EnableAbility(true);
+    requestManager->AddRequestToWorkRecord(GNSS_ABILITY, request, workRecord);
+    // no permission
+    requestManager->AddRequestToWorkRecord(GNSS_ABILITY, request, workRecord);
+    //with permission
+    //with permission no reqConfig
+    request->SetRequestConfig(*requestConfig);
+    requestManager->AddRequestToWorkRecord(GNSS_ABILITY, request, workRecord);
+
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] AddRequestToWorkRecord_001 end");
+}
+
+HWTEST_F(RequestManagerTest, RegisterLocationErrorCallback_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, RegisterLocationErrorCallback_001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] RegisterLocationErrorCallback_001 begin");
+
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    sptr<LocatorCallbackHost> locatorCallbackHost =
+        sptr<LocatorCallbackHost>(new (std::nothrow)LocatorCallbackHost());
+    sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(locatorCallbackHost);
+    AppIdentity identity;
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    const int errorCode = LocationErr::LOCATING_FAILED_INTERNET_ACCESS_FAILURE;
+    request->SetUid(1000);
+    request->SetPid(0);
+    request->SetTokenId(tokenId_);
+    request->SetFirstTokenId(0);
+    request->SetPackageName("RequestManagerTest");
+    request->SetLocatorCallBack(callback);
+    // addable
+    requestManager->RegisterLocationErrorCallback(callback, identity);
+    requestManager->UpdateLocationError(request);
+    requestManager->ReportLocationError(errorCode, request);
+    requestManager->UnRegisterLocationErrorCallback(callback);
+
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] RegisterLocationErrorCallback_001 end");
+}
+
+HWTEST_F(RequestManagerTest, Template_001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "RequestManagerTest, Template_001, TestSize.Level1";
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] Template_001 begin");
+    
+    RequestManager* requestManager = new (std::nothrow) RequestManager();
+    auto request = std::make_shared<Request>();
+
+
+    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] Template_001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -29,14 +29,18 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#define private public
 #include "gnss_event_callback.h"
+#undef private
 #include "location_dumper.h"
 
 #include "mock_i_cellular_data_manager.h"
 #include "permission_manager.h"
 #include "geofence_request.h"
 
+#define private public
 #include "agnss_ni_manager.h"
+#undef private
 #include "call_manager_client.h"
 #include "string_utils.h"
 
@@ -49,10 +53,16 @@ namespace OHOS {
 namespace Location {
 using HDI::Location::Agnss::V2_0::IAGnssCallback;
 using HDI::Location::Agnss::V2_0::AGnssRefInfo;
+using HDI::Location::Agnss::V2_0::AGnssRefInfoType;
 using HDI::Location::Gnss::V2_0::IGnssCallback;
 using HDI::Location::Gnss::V2_0::LocationInfo;
 using HDI::Location::Gnss::V2_0::ConstellationCategory;
-using HDI::Location::Agnss::V2_0::AGnssRefInfoType;
+using HDI::Location::Gnss::V2_0::GNSS_NI_ENCODING_FORMAT_NULL;
+using HDI::Location::Gnss::V2_0::GNSS_NI_ENCODING_FORMAT_SUPL_GSM_DEFAULT;
+using HDI::Location::Gnss::V2_0::GNSS_NI_ENCODING_FORMAT_SUPL_UCS2;
+using HDI::Location::Gnss::V2_0::GNSS_NI_ENCODING_FORMAT_SUPL_UTF8;
+using HDI::Location::Gnss::V2_0::GnssNiNotificationRequest;
+
 const uint32_t EVENT_SEND_SWITCHSTATE_TO_HIFENCE = 0x0006;
 const int32_t LOCATION_PERM_NUM = 6;
 const std::string ARGS_HELP = "-h";
@@ -743,6 +753,11 @@ HWTEST_F(GnssAbilityTest, GnssAbilityReportSv001, TestSize.Level1)
     ASSERT_TRUE(status != nullptr);
     status->ReadFromParcel(parcel);
     ASSERT_TRUE(ability_ != nullptr);
+    pid_t uid = 1;
+    AppIdentity identity;
+    identity.SetPid(uid);
+    identity.SetUid(23);
+    ability_->RegisterGnssStatusCallback(callbackStub_->AsObject(), identity);
     ability_->ReportSv(status);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssAbilityReportSv001 end");
 }
@@ -990,6 +1005,20 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportNmea002, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportNmea002 end");
 }
 
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportNmea003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportNmea003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportNmea003 begin");
+    pid_t uid = 1;
+    AppIdentity identity;
+    identity.SetPid(uid);
+    identity.SetUid(23);
+    ability_->RegisterNmeaMessageCallback(nemaCallbackStub_->AsObject(), identity);
+    ability_->ReportNmea(1745722410, "nmea");
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportNmea003 end");
+}
+
 HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssCapabilities001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -1103,6 +1132,29 @@ HWTEST_F(GnssAbilityTest, GnssEventCallbackReportCachedLocation001, TestSize.Lev
     gnssLocations.push_back(locationInfo);
     gnssCallback->ReportCachedLocation(gnssLocations);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportCachedLocation001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackReportGnssNiNotification001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackReportGnssNiNotification001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssNiNotification001 begin");
+    sptr<IGnssCallback> gnssCallback = new (std::nothrow) GnssEventCallback();
+    EXPECT_NE(nullptr, gnssCallback);
+    GnssNiNotificationRequest notification;
+    GnssNiNotificationRequest& notificationRef = notification;
+    gnssCallback->ReportGnssNiNotification(notificationRef);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackReportGnssNiNotification001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GnssEventCallbackIsNeedSvIncrease001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GnssEventCallbackIsNeedSvIncrease001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackIsNeedSvIncrease001 begin");
+    sptr<GnssEventCallback> gnssEventCallback = new (std::nothrow) GnssEventCallback();
+    gnssEventCallback->IsNeedSvIncrease();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GnssEventCallbackIsNeedSvIncrease001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GeofenceEventCallbackReportGeofenceAvailability001, TestSize.Level1)
@@ -2111,6 +2163,86 @@ HWTEST_F(GnssAbilityTest, AgnssNiManagerSendUserResponse002, TestSize.Level1)
     EXPECT_NE(nullptr, agnssNiManager);
     agnssNiManager->SendUserResponse(GNSS_NI_RESPONSE_CMD_ACCEPT);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendUserResponse002 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerHandleNiNotification001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerHandleNiNotification001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerHandleNiNotification001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    GnssNiNotificationRequest notification;
+    GnssNiNotificationRequest& notificationRef = notification;
+    agnssNiManager->HandleNiNotification(notificationRef);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerHandleNiNotification001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerSendNiNotification001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerSendNiNotification001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendNiNotification001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    GnssNiNotificationRequest notification;
+    GnssNiNotificationRequest& notificationRef = notification;
+    agnssNiManager->SendNiNotification(notificationRef);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendNiNotification001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerBuildStartCommand001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerBuildStartCommand001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerBuildStartCommand001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    GnssNiNotificationRequest notification;
+    GnssNiNotificationRequest& notificationRef = notification;
+    agnssNiManager->BuildStartCommand(notificationRef);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerSendNiNotification001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerOpenNiDialog001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerOpenNiDialog001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerOpenNiDialog001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    GnssNiNotificationRequest notification;
+    GnssNiNotificationRequest& notificationRef = notification;
+    agnssNiManager->OpenNiDialog(notificationRef);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerOpenNiDialog001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerDecodeNiString001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerDecodeNiString001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerDecodeNiString001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    std::string original = "48656c6c6f576f726c64";
+    agnssNiManager->DecodeNiString(original, GNSS_NI_ENCODING_FORMAT_NULL);
+    agnssNiManager->DecodeNiString(original, GNSS_NI_ENCODING_FORMAT_SUPL_GSM_DEFAULT);
+    agnssNiManager->DecodeNiString(original, GNSS_NI_ENCODING_FORMAT_SUPL_UCS2);
+    agnssNiManager->DecodeNiString(original, GNSS_NI_ENCODING_FORMAT_SUPL_UTF8);
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerDecodeNiString001 end");
+}
+
+HWTEST_F(GnssAbilityTest, AgnssNiManagerIsInEmergency001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, AgnssNiManagerIsInEmergency001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerIsInEmergency001 begin");
+    auto agnssNiManager = AGnssNiManager::GetInstance();
+    EXPECT_NE(nullptr, agnssNiManager);
+    GnssNiNotificationRequest notification;
+    GnssNiNotificationRequest& notificationRef = notification;
+    agnssNiManager->IsInEmergency();
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] AgnssNiManagerIsInEmergency001 end");
 }
 
 HWTEST_F(GnssAbilityTest, AgnssNiManagerOnAddSystemAbility001, TestSize.Level1)
