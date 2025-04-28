@@ -23,7 +23,7 @@
 
 #include "mock_geo_convert_callback_host.h"
 #include <gtest/gtest.h>
-#include "geo_convert_proxy.h"
+#include "geo_convert_callback_host.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -46,7 +46,7 @@ HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest001, TestSize.Lev
     auto geoConvertCallvackHost = sptr<MockGeoConvertCallbackHost>(new (std::nothrow) MockGeoConvertCallbackHost());
     uint32_t code = 3;
     MessageParcel parcel;
-    parcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    parcel.WriteInterfaceToken(GeoConvertCallbackHost::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
     geoConvertCallvackHost->OnRemoteRequest(GeoConvertCallbackHost::RECEIVE_GEOCODE_INFO_EVENT, parcel, reply, option);
@@ -63,7 +63,7 @@ HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest002, TestSize.Lev
     auto geoConvertCallvackHost = sptr<MockGeoConvertCallbackHost>(new (std::nothrow) MockGeoConvertCallbackHost());
     uint32_t code = 3;
     MessageParcel parcel;
-    parcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    parcel.WriteInterfaceToken(GeoConvertCallbackHost::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
     geoConvertCallvackHost->OnRemoteRequest(GeoConvertCallbackHost::RECEIVE_GEOCODE_INFO_EVENT, parcel, reply, option);
@@ -80,7 +80,7 @@ HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest003, TestSize.Lev
     auto geoConvertCallvackHost = sptr<GeoConvertCallbackHost>(new (std::nothrow) GeoConvertCallbackHost());
     uint32_t code = 3;
     MessageParcel parcel;
-    parcel.WriteInterfaceToken(GeoConvertProxy::GetDescriptor());
+    parcel.WriteInterfaceToken(GeoConvertCallbackHost::GetDescriptor());
     MessageParcel reply;
     MessageOption option;
     geoConvertCallvackHost->OnRemoteRequest
@@ -121,6 +121,40 @@ HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest006, TestSize.Lev
     int errorCode = 1;
     geoConvertCallvackHost->OnErrorReport(errorCode);
     LBSLOGI(GEO_CONVERT, "[GeoConvertCallbackHostTest] GeoConvertCallbackHostTest006 end");
+}
+
+HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest007, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertCallbackHostTest, GeoConvertCallbackHostTest007, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertCallbackHostTest] GeoConvertCallbackHostTest007 begin");
+    auto geoConvertCallvackHost = sptr<GeoConvertCallbackHost>(new (std::nothrow) GeoConvertCallbackHost());
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GeoConvertCallbackHost::GetDescriptor());
+    parcel.WriteInt32(0);
+    parcel.WriteInt32(2);
+    MessageParcel reply;
+    MessageOption option;
+    geoConvertCallvackHost->OnRemoteRequest
+        (GeoConvertCallbackHost::RECEIVE_GEOCODE_INFO_EVENT, parcel, reply, option);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertCallbackHostTest] GeoConvertCallbackHostTest007 end");
+}
+
+HWTEST_F(GeoConvertCallbackHostTest, GeoConvertCallbackHostTest008, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertCallbackHostTest, GeoConvertCallbackHostTest008, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertCallbackHostTest] GeoConvertCallbackHostTest008 begin");
+    auto geoConvertCallvackHost = sptr<GeoConvertCallbackHost>(new (std::nothrow) GeoConvertCallbackHost());
+    MessageParcel parcel;
+    parcel.WriteInterfaceToken(GeoConvertCallbackHost::GetDescriptor());
+    parcel.WriteInt32(0);
+    parcel.WriteInt32(2);
+    MessageParcel reply;
+    MessageOption option;
+    geoConvertCallvackHost->OnRemoteRequest
+        (-1, parcel, reply, option);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertCallbackHostTest] GeoConvertCallbackHostTest008 end");
 }
 } // namespace Location
 } // namespace OHOS

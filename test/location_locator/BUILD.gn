@@ -29,6 +29,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$LOCATION_ROOT_DIR/test/location_locator/source/callback_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/country_code_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/fusion_controller_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/geo_convert_callback_host_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/location_approximately_permission_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/location_config_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/location_without_permission_test.cpp",
