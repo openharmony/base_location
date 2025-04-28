@@ -68,9 +68,11 @@ LocatorRequiredDataManager* LocatorRequiredDataManager::GetInstance()
 
 LocatorRequiredDataManager::~LocatorRequiredDataManager()
 {
+#ifndef TDD_CASES_ENABLED
     if (wifiSdkHandler_ != nullptr) {
         wifiSdkHandler_->SendEvent(EVENT_UNREGISTER_WIFI_CALLBACK, 0, 0);
     }
+#endif
 }
 
 void LocatorRequiredDataManager::SyncStillMovementState(bool state)

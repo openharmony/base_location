@@ -144,14 +144,19 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     reportManager_ = ReportManager::GetInstance();
     deviceId_ = CommonUtils::InitDeviceId();
 #ifdef MOVEMENT_CLIENT_ENABLE
+#ifndef TDD_CASES_ENABLED
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_MSDP_MONITOR_MANAGER, 0, 0);
     }
 #endif
+
+#endif
     requestManager_ = RequestManager::GetInstance();
+#ifndef TDD_CASES_ENABLED
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_IS_STAND_BY, 0, 0);
     }
+#endif
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
