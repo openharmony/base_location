@@ -42,6 +42,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$LOCATION_ROOT_DIR/test/location_locator/source/permission_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/report_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/work_record_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/poi_info_manager_test.cpp",
   ]
 
   include_dirs = [
@@ -86,6 +87,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "cJSON:cjson",
   ]
 
   defines = []

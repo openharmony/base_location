@@ -29,11 +29,6 @@
 namespace OHOS {
 namespace Location {
 
-typedef struct PoiInfoStruct {
-    uint64_t poiInfosTime = 0;
-    std::string latestPoiInfos = "";
-} PoiInfoStruct;
-
 class ReportManager {
 public:
     ReportManager();
@@ -53,17 +48,9 @@ public:
     bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid);
     static ReportManager* GetInstance();
     bool IsCacheGnssLocationValid();
-    void UpdatePoiInfo(const std::unique_ptr<Location>& location);
-    void ClearPoiInfos(const std::unique_ptr<Location>& finalLocation);
-    void CachedPoiInfoReportCheck(const std::unique_ptr<Location>& finalLocation);
-    void PoiInfoReportCheck(const std::shared_ptr<Request>& request, const std::unique_ptr<Location>& finalLocation);
-    uint64_t GetPoiInfoTime(const std::string& poiInfos);
-    bool IsPoiInfoValid(const std::unique_ptr<Location>& finalLocation);
-    bool IsLatestPoiInfoValid();
 
 private:
     struct timespec lastUpdateTime_;
-    PoiInfoStruct latestPoiInfoStruct_;
     double offsetRandom_;
     std::map<int, std::shared_ptr<Location>> lastLocationsMap_;
     Location cacheGnssLocation_;

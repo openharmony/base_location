@@ -81,6 +81,11 @@ void LocatorMsdpMonitorManager::UnRegisterMovementCallBack()
 
 void LocatorMsdpMonitorManager::UpdateStillMovementState(bool stillState)
 {
+    if (isDeviceStillState_.load() == false && stillState == true) {
+        enterStillTime_.store(CommonUtils::GetCurrentTimeMilSec());
+        LBSLOGI(LOCATOR, "device movement state change, enterStillTime_: %{public}lu",
+            enterStillTime_.load());
+    }
     isDeviceStillState_.store(stillState);
     LBSLOGI(LOCATOR, "device movement state change, isDeviceStillState_ %{public}d",
         isDeviceStillState_.load());
@@ -91,6 +96,11 @@ void LocatorMsdpMonitorManager::UpdateStillMovementState(bool stillState)
 bool LocatorMsdpMonitorManager::GetStillMovementState()
 {
     return isDeviceStillState_.load();
+}
+
+uint64_t LocatorMsdpMonitorManager::GetEnterStillTime()
+{
+    return enterStillTime_.load();
 }
 
 void MsdpMotionServiceStatusChange::OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId)
