@@ -260,7 +260,7 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
         UpdateCountryCode(countryCodeStr8, type);
         NotifyAllListener();
     }
-    return lastCountry_;
+    return std::make_shared<CountryCode>(*lastCountry_);
 }
 
 bool CountryCodeManager::SubscribeSimEvent()
