@@ -38,6 +38,7 @@ public:
     void MockNativePermission();
     uint64_t tokenId_;
     void LoadSystemAbility();
+    sptr<LocatorAbility> locatorAbility;
 };
 } // namespace Location
 } // namespace OHOS

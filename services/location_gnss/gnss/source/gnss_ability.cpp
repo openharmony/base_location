@@ -107,8 +107,8 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 #endif
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
     SetAbility(GNSS_ABILITY);
-    gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
 #ifndef TDD_CASES_ENABLED
+    gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     if (gnssHandler_ != nullptr) {
         AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
             static_cast<uint32_t>(GnssAbilityInterfaceCode::INIT_HDI), 0);

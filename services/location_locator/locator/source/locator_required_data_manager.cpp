@@ -55,9 +55,11 @@ LocatorRequiredDataManager::LocatorRequiredDataManager()
     scanHandler_ = std::make_shared<ScanHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     wifiSdkHandler_ =
         std::make_shared<WifiSdkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+#ifndef TDD_CASES_ENABLED
     if (wifiSdkHandler_ != nullptr) {
         wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
     }
+#endif
 }
 
 LocatorRequiredDataManager* LocatorRequiredDataManager::GetInstance()

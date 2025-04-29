@@ -128,7 +128,7 @@ HWTEST_F(LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1)
             gnssAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
     sleep(WAIT_RESPONSE_SEC);
-    gnssAbilityStub->gnssHandler_->TaskCancelAndWait();
+    gnssAbilityStub = nullptr;
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 end");
 }
 #endif
@@ -202,7 +202,7 @@ HWTEST_F(LocationMockIpcTest, MockGeoCodeStubCallingPermission001, TestSize.Leve
             geoConvertServiceStub->OnRemoteRequest(iter->first, parcel, reply, option));
     }
     sleep(WAIT_RESPONSE_SEC);
-    geoConvertServiceStub->geoConvertHandler_->TaskCancelAndWait();
+    geoConvertServiceStub = nullptr;
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoCodeStubCallingPermission001 end");
 }
 #endif
