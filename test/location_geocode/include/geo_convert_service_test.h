@@ -22,6 +22,7 @@
 #include "common_utils.h"
 #include "geo_convert_proxy.h"
 #include "geo_convert_service.h"
+#include "geo_convert_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -34,6 +35,7 @@ public:
     
     std::shared_ptr<GeoConvertProxy> proxy_;
     sptr<GeoConvertService> service_;
+    GeoConvertRequest GeoConvertRequest_;
     bool available_;
 };
 } // namespace Location

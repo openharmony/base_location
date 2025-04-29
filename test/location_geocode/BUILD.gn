@@ -26,6 +26,7 @@ if (location_feature_with_geocode) {
       "$LOCATION_ROOT_DIR/test/location_geocode/mock/include",
       "$LOCATION_GEOCONVERT_ROOT/include",
       "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_ROOT_DIR/test/mock/include",
     ]
 
     deps = [
