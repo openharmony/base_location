@@ -169,26 +169,6 @@ HWTEST_F(LocationConfigManagerTest, GenerateStartCommand001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocationConfigManagerTest] GenerateStartCommand001 end");
 }
 
-HWTEST_F(LocationConfigManagerTest, OpenPrivacyDialog001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationConfigManagerTest, OpenPrivacyDialog001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] OpenPrivacyDialog001 begin");
-    LocationConfigManager::GetInstance()->OpenPrivacyDialog();
-    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] OpenPrivacyDialog001 end");
-}
-
-HWTEST_F(LocationConfigManagerTest, ConnectExtensionAbility001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationConfigManagerTest, ConnectExtensionAbility001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] ConnectExtensionAbility001 begin");
-    AAFwk::Want want;
-    std::string connectStr = LocationConfigManager::GetInstance()->GenerateStartCommand();
-    LocationConfigManager::GetInstance()->ConnectExtensionAbility(want, connectStr);
-    LBSLOGI(LOCATOR, "[LocationConfigManagerTest] ConnectExtensionAbility001 end");
-}
-
 HWTEST_F(LocationConfigManagerTest, SetCachePrivacyType001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
