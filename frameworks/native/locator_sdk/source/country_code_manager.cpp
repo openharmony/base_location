@@ -256,7 +256,10 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
     CountryCode country;
     country.SetCountryCodeStr(countryCodeStr8);
     country.SetCountryCodeType(type);
-    if (lastCountry_ && !country.IsSame(*lastCountry_) && !lastCountry_->IsMoreReliable(type)) {
+    if (lastCountry_ == nullptr) {
+        return nullptr;
+    }
+    if (!country.IsSame(*lastCountry_) && !lastCountry_->IsMoreReliable(type)) {
         UpdateCountryCode(countryCodeStr8, type);
         NotifyAllListener();
     }
