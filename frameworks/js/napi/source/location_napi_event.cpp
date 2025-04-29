@@ -353,7 +353,7 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -374,7 +374,7 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -392,7 +392,7 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -409,7 +409,7 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
