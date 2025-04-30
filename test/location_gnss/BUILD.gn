@@ -75,8 +75,6 @@ if (location_feature_with_gnss) {
       "common_event_service:cesfwk_innerkits",
       "core_service:tel_core_service_api",
       "distributed_notification_service:ans_innerkits",
-      "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0",
-      "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0",
       "eventhandler:libeventhandler",
       "ffrt:libffrt",
       "hdf_core:libhdi",
@@ -134,6 +132,19 @@ if (location_feature_with_gnss) {
     if (net_manager_enable) {
       external_deps += [ "netmanager_base:net_conn_manager_if" ]
       defines += [ "NET_MANAGER_ENABLE" ]
+    }
+
+    if (hdf_drivers_interface_location_agnss_enable) {
+      external_deps +=
+          [ "drivers_interface_location_agnss:liblocation_agnss_proxy_2.0" ]
+      defines += [ "HDF_DRIVERS_INTERFACE_AGNSS_ENABLE" ]
+    }
+
+    if (location_feature_with_gnss &&
+        hdf_drivers_interface_location_gnss_enable) {
+      external_deps +=
+          [ "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0" ]
+      defines += [ "FEATURE_GNSS_SUPPORT" ]
     }
     module_out_path = module_output_path
   }
