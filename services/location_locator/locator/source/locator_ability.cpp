@@ -493,10 +493,10 @@ void LocatorAbility::PostUnloadTask(uint32_t code)
         code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
         return;
     }
-    if (CheckIfLocatorConnecting()) {
-        return;
-    }
     auto task = [this]() {
+        if (CheckIfLocatorConnecting()) {
+            return;
+        }
         SaLoadWithStatistic::UnInitLocationSa(LOCATION_LOCATOR_SA_ID);
     };
     if (locatorHandler_ != nullptr) {
