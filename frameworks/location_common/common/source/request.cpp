@@ -250,6 +250,7 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
         }
         case LOCATION_SCENE_LOW_POWER_CONSUMPTION:
         case LOCATION_SCENE_DAILY_LIFE_SERVICE:
+        case LOCATION_SCENE_POI_ONLY:
         case SCENE_DAILY_LIFE_SERVICE: {
             proxys->push_back(NETWORK_ABILITY);
             break;
@@ -350,7 +351,8 @@ void Request::SetNlpRequestType()
     } else {
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;
     }
-    if (requestConfig_->GetScenario() == LOCATION_SCENE_INDOOR_POI || requestConfig_->GetIsNeedPoi()) {
+    if (requestConfig_->GetScenario() == LOCATION_SCENE_INDOOR_POI || requestConfig_->GetIsNeedPoi()
+        || requestConfig_->GetScenario() == LOCATION_SCENE_POI_ONLY) {
         requestConfig_->SetIsNeedPoi(true);
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR_POI;
     }

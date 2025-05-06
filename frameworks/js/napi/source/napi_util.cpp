@@ -149,6 +149,12 @@ void BluetoohScanResultToJs(const napi_env& env, const std::unique_ptr<Bluetooth
     SetValueArrayBuffer(env, "data", bluetoothScanResult->GetData(), result);
 }
 
+void PoiToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result)
+{
+    napi_value poiJsObj = CreatePoiInfoJsObj(env, locationInfo->GetPoiInfo());
+    result = poiJsObj;
+}
+
 napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo)
 {
     napi_value jsObject = nullptr;
