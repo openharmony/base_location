@@ -38,12 +38,12 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/poi_info_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/self_request_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
-  "$SUBSYSTEM_DIR/location_locator/locator/source/poi_info_manager.cpp",
 ]
 
 ohos_shared_library("lbsservice_locator") {
@@ -79,6 +79,7 @@ ohos_shared_library("lbsservice_locator") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
+    "cJSON:cjson",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
@@ -211,6 +212,7 @@ ohos_static_library("lbsservice_locator_static") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
+    "cJSON:cjson",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",

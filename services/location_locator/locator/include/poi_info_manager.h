@@ -20,35 +20,41 @@
 #include <singleton.h>
 #include <string>
 #include <time.h>
+#include <cJSON.h>
 
 #include "location.h"
 
 namespace OHOS {
 namespace Location {
 
-typedef struct PoiInfoStruct {
+typedef struct StrPoiInfoStruct {
     uint64_t poiInfosTime = 0;
     std::string latestPoiInfos = "";
-} PoiInfoStruct;
+} StrPoiInfoStruct;
 
 class PoiInfoManager {
 public:
     PoiInfoManager();
     ~PoiInfoManager();
     static PoiInfoManager* GetInstance();
-    void UpdatePoiInfo(const std::unique_ptr<Location>& location);
+    void UpdateCachedPoiInfo(const std::unique_ptr<Location>& location);
     void ClearPoiInfos(const std::unique_ptr<Location>& finalLocation);
-    void PoiInfoReportCheck(const std::unique_ptr<Location>& finalLocation);
+    void UpdateLocationPoiInfo(const std::unique_ptr<Location>& finalLocation);
+
     std::string GetLatestPoiInfo();
-    uint64_t GetLatestPoiInfoTime();
     void SetLatestPoiInfo(std::string poiInfo);
+    uint64_t GetLatestPoiInfoTime();
     void SetLatestPoiInfoTime(uint64_t poiInfoTime);
+
     uint64_t GetPoiInfoTime(const std::string& poiInfos);
     bool IsPoiInfoValid(std::string poiInfos, uint64_t poiInfoTime);
-    void AddPoiInfo(const std::unique_ptr<Location>& finalLocation);
+    void AddCachedPoiInfoToLocation(const std::unique_ptr<Location>& finalLocation);
+    Poi ParsePoiInfo(cJSON* poiJson);
+    PoiInfo ParsePoiInfoFromStr(const std::string& jsonString);
+
 private:
     std::mutex latestPoiInfoMutex_;
-    PoiInfoStruct latestPoiInfoStruct_;
+    StrPoiInfoStruct latestPoiInfoStruct_;
 };
 } // namespace OHOS
 } // namespace Location
