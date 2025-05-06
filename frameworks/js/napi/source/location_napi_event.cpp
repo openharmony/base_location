@@ -510,6 +510,24 @@ void GenerateCompleteContext(SingleLocationAsyncContext* context)
     }
 }
 
+void GeneratePoiCompleteContext(SingleLocationAsyncContext* context)
+{
+    if (context == nullptr) {
+        return;
+    }
+    NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
+    auto callbackHost = context->callbackHost_;
+    if (callbackHost != nullptr && callbackHost->GetSingleLocation() != nullptr) {
+        std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
+        PoiToJs(context->env, location, context->result[PARAM1]);
+    } else {
+        LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
+    }
+    if (context->callbackHost_) {
+        context->callbackHost_ = nullptr;
+    }
+}
+
 SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env,
     std::unique_ptr<RequestConfig>& config, sptr<LocatorCallbackNapi> callback)
 {
@@ -535,6 +553,36 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
         }
         auto context = static_cast<SingleLocationAsyncContext*>(data);
         GenerateCompleteContext(context);
+        LBSLOGD(LOCATOR_STANDARD, "Push single location to client");
+    };
+    return asyncContext;
+}
+
+SingleLocationAsyncContext* CreateSinglePoiInfoAsyncContext(const napi_env& env,
+    std::unique_ptr<RequestConfig>& config, sptr<LocatorCallbackNapi> callback)
+{
+    auto asyncContext = new (std::nothrow) SingleLocationAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    NAPI_CALL(env, napi_create_string_latin1(env, "GetCurrentLocation",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    asyncContext->timeout_ = config->GetTimeOut();
+    asyncContext->callbackHost_ = callback;
+    asyncContext->request_ = std::move(config);
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<SingleLocationAsyncContext*>(data);
+        GenerateExecuteContext(context);
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<SingleLocationAsyncContext*>(data);
+        GeneratePoiCompleteContext(context);
         LBSLOGD(LOCATOR_STANDARD, "Push single location to client");
     };
     return asyncContext;
@@ -570,6 +618,16 @@ std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env,
     } else {
         requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     }
+    requestConfig->SetFixNumber(1);
+    requestConfig->SetTimeInterval(0);
+    return requestConfig;
+}
+
+std::unique_ptr<RequestConfig> CreatePoiRequestConfig(const napi_env& env,
+    const napi_value* argv, const size_t& objectArgsNum)
+{
+    auto requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetScenario(LOCATION_SCENE_POI_ONLY);
     requestConfig->SetFixNumber(1);
     requestConfig->SetTimeInterval(0);
     return requestConfig;
@@ -618,6 +676,32 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
     singleLocatorCallbackHost->SetLocationPriority(
         requestConfig->IsRequestForAccuracy() ? LOCATION_PRIORITY_ACCURACY : LOCATION_PRIORITY_LOCATING_SPEED);
     auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+#endif
+
+#ifdef ENABLE_NAPI_MANAGER
+napi_value RequestPoiInfoOnce(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    size_t objectArgsNum = 0;
+    objectArgsNum = static_cast<size_t>(GetObjectArgsNum(env, argc, argv));
+    auto requestConfig = CreatePoiRequestConfig(env, argv, objectArgsNum);
+    if (!IsRequestConfigValid(requestConfig)) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();
+    if (singleLocatorCallbackHost == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    singleLocatorCallbackHost->SetLocationPriority(
+        requestConfig->IsRequestForAccuracy() ? LOCATION_PRIORITY_ACCURACY : LOCATION_PRIORITY_LOCATING_SPEED);
+    auto asyncContext = CreateSinglePoiInfoAsyncContext(env, requestConfig, singleLocatorCallbackHost);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
@@ -1522,6 +1606,19 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 }
 
 #ifdef ENABLE_NAPI_MANAGER
+napi_value GetPoiInfo(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
+    LBSLOGD(LOCATION_NAPI, "Get PoiInfo Enter");
+    return RequestPoiInfoOnce(env, argc, argv);
+}
+#endif
+
+#ifdef ENABLE_NAPI_MANAGER
 LocationErrCode CheckLocationSwitchEnable()
 {
     bool isEnabled = false;
@@ -1542,7 +1639,7 @@ bool IsRequestConfigValid(std::unique_ptr<RequestConfig>& config)
         return false;
     }
     if ((config->GetScenario() > SCENE_NO_POWER || config->GetScenario() < SCENE_UNSET) &&
-        (config->GetScenario() > LOCATION_SCENE_INDOOR_POI ||
+        (config->GetScenario() > LOCATION_SCENE_POI_ONLY ||
         config->GetScenario() < LOCATION_SCENE_NAVIGATION) &&
         (config->GetScenario() > LOCATION_SCENE_NO_POWER_CONSUMPTION ||
         config->GetScenario() < LOCATION_SCENE_HIGH_POWER_CONSUMPTION)) {
