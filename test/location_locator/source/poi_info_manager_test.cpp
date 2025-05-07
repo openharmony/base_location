@@ -100,8 +100,8 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerTest001, TestSize.Level1)
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerTest001 begin");
     std::unique_ptr<Location> location = MockLocation();
     ASSERT_TRUE(poiInfoManager_ != nullptr);
-    poiInfoManager_->UpdatePoiInfo(location);
-    poiInfoManager_->PoiInfoReportCheck(location);
+    poiInfoManager_->UpdateCachedPoiInfo(location);
+    poiInfoManager_->UpdateLocationPoiInfo(location);
 
     std::string mockPoiInfo = "poiInfos:" + MockPoiString(0);
     std::u16string mockPoiInfoStr16 = Str8ToStr16(mockPoiInfo);
@@ -111,12 +111,12 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerTest001, TestSize.Level1)
     mockAdditionsStr16.push_back(mockStr16);
     location->VectorString16ToVectorString8(mockAdditionsStr16);
     
-    poiInfoManager_->UpdatePoiInfo(location);
+    poiInfoManager_->UpdateCachedPoiInfo(location);
     poiInfoManager_->SetLatestPoiInfoTime(CommonUtils::GetCurrentTimeMilSec());
-    poiInfoManager_->PoiInfoReportCheck(location);
+    poiInfoManager_->UpdateLocationPoiInfo(location);
 
     std::unique_ptr<Location> location1 = MockLocation();
-    poiInfoManager_->PoiInfoReportCheck(location1);
+    poiInfoManager_->UpdateLocationPoiInfo(location1);
     poiInfoManager_->ClearPoiInfos(location1);
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerTest001 end");
 }
@@ -128,8 +128,8 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerTest002, TestSize.Level1)
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerTest002 begin");
     ASSERT_TRUE(poiInfoManager_ != nullptr);
     std::unique_ptr<Location> location = MockLocation();
-    poiInfoManager_->UpdatePoiInfo(location);
-    poiInfoManager_->PoiInfoReportCheck(location);
+    poiInfoManager_->UpdateCachedPoiInfo(location);
+    poiInfoManager_->UpdateLocationPoiInfo(location);
     
     std::string mockPoiInfo = "poiInfos:" + MockPoiString(60000);
     std::u16string mockPoiInfoStr16 = Str8ToStr16(mockPoiInfo);
@@ -139,9 +139,9 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerTest002, TestSize.Level1)
     mockAdditionsStr16.push_back(mockStr16);
     location->VectorString16ToVectorString8(mockAdditionsStr16);
     
-    poiInfoManager_->UpdatePoiInfo(location);
+    poiInfoManager_->UpdateCachedPoiInfo(location);
     poiInfoManager_->SetLatestPoiInfoTime(CommonUtils::GetCurrentTimeMilSec() - 60000);
-    poiInfoManager_->PoiInfoReportCheck(location);
+    poiInfoManager_->UpdateLocationPoiInfo(location);
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerTest002 end");
 }
  

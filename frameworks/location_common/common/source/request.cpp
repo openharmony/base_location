@@ -354,7 +354,8 @@ void Request::SetNlpRequestType()
     } else {
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_BALANCED_POWER_ACCURACY;
     }
-    if (requestConfig_->GetScenario() == LOCATION_SCENE_INDOOR_POI) {
+    if (requestConfig_->GetScenario() == LOCATION_SCENE_INDOOR_POI || requestConfig_->GetIsNeedPoi()) {
+        requestConfig_->SetIsNeedPoi(true);
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR_POI;
     }
 }

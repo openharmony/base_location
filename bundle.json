@@ -80,7 +80,8 @@
                 "movement",
                 "device_standby",
                 "time_service",
-                "netmanager_base"
+                "netmanager_base",
+                "cJSON"
             ]
         },
         "build": {

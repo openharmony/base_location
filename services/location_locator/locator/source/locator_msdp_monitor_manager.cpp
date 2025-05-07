@@ -83,8 +83,6 @@ void LocatorMsdpMonitorManager::UpdateStillMovementState(bool stillState)
 {
     if (isDeviceStillState_.load() == false && stillState == true) {
         enterStillTime_.store(CommonUtils::GetCurrentTimeMilSec());
-        LBSLOGI(LOCATOR, "device movement state change, enterStillTime_: %{public}lu",
-            enterStillTime_.load());
     }
     isDeviceStillState_.store(stillState);
     LBSLOGI(LOCATOR, "device movement state change, isDeviceStillState_ %{public}d",

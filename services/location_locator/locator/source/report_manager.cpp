@@ -59,7 +59,7 @@ ReportManager::~ReportManager() {}
 bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, std::string abilityName)
 {
     auto fusionController = FusionController::GetInstance();
-    PoiInfoManager::GetInstance()->UpdatePoiInfo(location);
+    PoiInfoManager::GetInstance()->UpdateCachedPoiInfo(location);
     UpdateCacheLocation(location, abilityName);
     auto locatorAbility = LocatorAbility::GetInstance();
     auto requestMap = locatorAbility->GetRequests();
@@ -131,10 +131,6 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
             request->SetBestLocation(std::make_unique<Location>(cacheGnssLocation_));
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
-        int curNlpRequestType = request->GetNlpRequestType();
-        if (curNlpRequestType == PRIORITY_TYPE_INDOOR_POI) {
-            PoiInfoManager::GetInstance()->PoiInfoReportCheck(fuseLocation);
-        }
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
             return false;
         }
@@ -160,6 +156,10 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     if (finalLocation == nullptr) {
         LBSLOGE(REPORT_MANAGER, "%{public}s no need report location", __func__);
         return false;
+    }
+    bool isNeedPoi = request->GetRequestConfig()->GetIsNeedPoi();
+    if (isNeedPoi) {
+        PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(finalLocation);
     }
     request->SetLastLocation(finalLocation);
     if (!ReportLocationByCallback(request, finalLocation)) {
@@ -403,7 +403,7 @@ std::unique_ptr<Location> ReportManager::GetLastLocation()
     if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
         return nullptr;
     }
-    PoiInfoManager::GetInstance()->PoiInfoReportCheck(lastLocation);
+    PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(lastLocation);
     return lastLocation;
 }
 
@@ -426,7 +426,7 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
         return nullptr;
     }
     UpdateLocationByRequest(request->GetTokenId(), request->GetTokenIdEx(), finalLocation);
-    PoiInfoManager::GetInstance()->PoiInfoReportCheck(finalLocation);
+    PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(finalLocation);
     return finalLocation;
 }
 

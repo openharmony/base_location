@@ -27,6 +27,7 @@ namespace Location {
 static constexpr int STILL_POI_EXPIRED_TIME = 30 * 60 * 1000; // Unit ms
 static constexpr int POI_EXPIRED_TIME = 25 * 1000; // Unit ms
 static constexpr int MAX_UTC_TIME_SIZE = 16;
+static constexpr int MAX_POI_ARRAY_SIZE = 20;
 
 PoiInfoManager* PoiInfoManager::GetInstance()
 {
@@ -38,11 +39,10 @@ PoiInfoManager::PoiInfoManager() {}
 
 PoiInfoManager::~PoiInfoManager() {}
 
-void PoiInfoManager::UpdatePoiInfo(const std::unique_ptr<Location>& location)
+void PoiInfoManager::UpdateCachedPoiInfo(const std::unique_ptr<Location>& location)
 {
     std::map<std::string, std::string> additionMap = location->GetAdditionsMap();
     if (additionMap["poiInfos"] != "") {
-        LBSLOGI(REPORT_MANAGER, "Update PoiInfos");
         std::string poiInfos = std::string("poiInfos:") + additionMap["poiInfos"];
         uint64_t poiInfoTime = GetPoiInfoTime(poiInfos);
         SetLatestPoiInfo(poiInfos);
@@ -64,14 +64,15 @@ void PoiInfoManager::ClearPoiInfos(const std::unique_ptr<Location>& finalLocatio
     return;
 }
 
-void PoiInfoManager::PoiInfoReportCheck(const std::unique_ptr<Location>& finalLocation)
+void PoiInfoManager::UpdateLocationPoiInfo(const std::unique_ptr<Location>& finalLocation)
 {
-    LBSLOGI(REPORT_MANAGER, "PoiInfos Report Check");
     std::map<std::string, std::string> additionMap = finalLocation->GetAdditionsMap();
     std::string poiInfos = additionMap["poiInfos"];
     uint64_t poiInfoTime = GetPoiInfoTime(poiInfos);
     if (poiInfos != "") {
         if (IsPoiInfoValid(poiInfos, poiInfoTime)) {
+            PoiInfo poiInfo = ParsePoiInfoFromStr(poiInfos);
+            finalLocation->SetPoiInfo(poiInfo);
             return;
         } else {
             LBSLOGI(REPORT_MANAGER, "PoiInfos Expied");
@@ -79,17 +80,16 @@ void PoiInfoManager::PoiInfoReportCheck(const std::unique_ptr<Location>& finalLo
         }
     }
     std::string latestPoiInfos = GetLatestPoiInfo();
-    uint64_t latestpoiInfoTime = GetLatestPoiInfoTime();
-    if (!IsPoiInfoValid(latestPoiInfos, latestpoiInfoTime)) {
+    uint64_t latestPoiInfoTime = GetLatestPoiInfoTime();
+    if (!IsPoiInfoValid(latestPoiInfos, latestPoiInfoTime)) {
         std::unique_lock<std::mutex> lock(latestPoiInfoMutex_);
-        LBSLOGI(REPORT_MANAGER, "Latest PoiInfos Expied");
         latestPoiInfoStruct_ = {0};
         return;
     }
-    AddPoiInfo(finalLocation);
+    AddCachedPoiInfoToLocation(finalLocation);
 }
 
-void PoiInfoManager::AddPoiInfo(const std::unique_ptr<Location>& finalLocation)
+void PoiInfoManager::AddCachedPoiInfoToLocation(const std::unique_ptr<Location>& finalLocation)
 {
     LBSLOGI(REPORT_MANAGER, "Add Latest PoiInfos");
     std::string poiInfos = GetLatestPoiInfo();
@@ -97,6 +97,15 @@ void PoiInfoManager::AddPoiInfo(const std::unique_ptr<Location>& finalLocation)
     addition.push_back(poiInfos);
     finalLocation->SetAdditions(addition, false);
     finalLocation->SetAdditionSize(finalLocation->GetAdditions().size());
+    std::string poiKey = "poiInfos:";
+    std::size_t pos = poiInfos.find(poiKey);
+    if (pos != std::string::npos) {
+        std::string result = poiInfos.substr(pos + poiKey.size());
+        PoiInfo poiInfo = ParsePoiInfoFromStr(result);
+        finalLocation->SetPoiInfo(poiInfo);
+    } else {
+        LBSLOGE(REPORT_MANAGER, "Not Found poiInfos");
+    }
 }
 
 bool PoiInfoManager::IsPoiInfoValid(std::string poiInfos, uint64_t poiInfoTime)
@@ -108,16 +117,13 @@ bool PoiInfoManager::IsPoiInfoValid(std::string poiInfos, uint64_t poiInfoTime)
     isInStillState = LocatorMsdpMonitorManager::GetInstance()->GetStillMovementState();
     enterStillTime = LocatorMsdpMonitorManager::GetInstance()->GetEnterStillTime();
 #endif
-    if ((isInStillState && poiInfoTime + POI_EXPIRED_TIME < enterStillTime)
-            || (isInStillState && curTimeStamp - poiInfoTime >= STILL_POI_EXPIRED_TIME)) {
-        LBSLOGI(REPORT_MANAGER, "Clear PoiInfos When Still");
-        return false;
+    if (isInStillState && poiInfoTime > enterStillTime && curTimeStamp - poiInfoTime < STILL_POI_EXPIRED_TIME) {
+        return true;
     }
-    if (!isInStillState && curTimeStamp - poiInfoTime >= POI_EXPIRED_TIME) {
-        LBSLOGI(REPORT_MANAGER, "Clear PoiInfos When Move");
-        return false;
+    if (curTimeStamp - poiInfoTime < POI_EXPIRED_TIME) {
+        return true;
     }
-    return true;
+    return false;
 }
 
 std::string PoiInfoManager::GetLatestPoiInfo()
@@ -159,6 +165,59 @@ uint64_t PoiInfoManager::GetPoiInfoTime(const std::string& poiInfos)
         }
     }
     return 0;
+}
+
+Poi PoiInfoManager::ParsePoiInfo(cJSON* poiJson)
+{
+    Poi poi;
+    cJSON *item = cJSON_GetObjectItem(poiJson, "id");
+    poi.id = (item && item->valuestring) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(poiJson, "confidence");
+    poi.confidence = (item) ? item->valuedouble : 0.0;
+    item = cJSON_GetObjectItem(poiJson, "name");
+    poi.name = (item && item->valuestring) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(poiJson, "lat");
+    poi.latitude = (item) ? item->valuedouble : 0.0;
+    item = cJSON_GetObjectItem(poiJson, "lon");
+    poi.longitude = (item) ? item->valuedouble : 0.0;
+    item = cJSON_GetObjectItem(poiJson, "administrativeArea");
+    poi.administrativeArea = (item && item->valuestring) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(poiJson, "subAdministrativeArea");
+    poi.subAdministrativeArea = (item && item->valuestring) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(poiJson, "locality");
+    poi.locality = (item && item->valuestring) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(poiJson, "subLocality");
+    poi.subLocality = (item && item->valuestring) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(poiJson, "address");
+    poi.address = (item && item->valuestring) ? item->valuestring : "";
+    return poi;
+}
+
+PoiInfo PoiInfoManager::ParsePoiInfoFromStr(const std::string& jsonString)
+{
+    PoiInfo poiInfo;
+    cJSON* cJsonObj = cJSON_Parse(jsonString.c_str());
+    if (!cJsonObj) {
+        LBSLOGI(REPORT_MANAGER, "Poi cJson Parse Failed");
+        return poiInfo;
+    }
+    cJSON* item = cJSON_GetObjectItem(cJsonObj, "time");
+    poiInfo.timestamp = (item) ? static_cast<uint64_t>(item->valuedouble) : 0;
+    cJSON* poisArray = cJSON_GetObjectItem(cJsonObj, "pois");
+    if (poisArray && cJSON_IsArray(poisArray)) {
+        int arraySize = cJSON_GetArraySize(poisArray);
+        if (arraySize > MAX_POI_ARRAY_SIZE) {
+            arraySize = MAX_POI_ARRAY_SIZE;
+        }
+        for (int i = 0; i < arraySize; ++i) {
+            cJSON* poiJson = cJSON_GetArrayItem(poisArray, i);
+            if (poiJson) {
+                poiInfo.poiArray.push_back(ParsePoiInfo(poiJson));
+            }
+        }
+    }
+    cJSON_Delete(cJsonObj);
+    return poiInfo;
 }
 
 } // namespace OHOS
