@@ -228,7 +228,8 @@ public:
     void RemoveBluetoothScanCallback(sptr<IRemoteObject> callbackObj);
     void RemoveBluetoothScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj);
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
-    bool IsConnecting();
+    bool IsWifiConnecting();
+    bool IsBluetoothConnecting();
     static LocatorRequiredDataManager* GetInstance();
     void SyncStillMovementState(bool state);
     void SendStartBluetoothScanEvent();
