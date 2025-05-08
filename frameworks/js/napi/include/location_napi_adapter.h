@@ -66,6 +66,7 @@ napi_value DisableLocationByUserId(napi_env env, napi_callback_info info);
 napi_value SetLocationSwitchIgnored(napi_env env, napi_callback_info info);
 napi_value GetDistanceBetweenLocations(napi_env env, napi_callback_info info);
 napi_value GetPoiInfo(napi_env env, napi_callback_info info);
+napi_value IsPoiServiceSupport(napi_env env, napi_callback_info info);
 #endif
 }  // namespace Location
 }  // namespace OHOS

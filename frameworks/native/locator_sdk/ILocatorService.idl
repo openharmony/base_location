@@ -75,4 +75,5 @@ interface OHOS.Location.ILocatorService {
     [ipccode 53] void SetLocationSwitchIgnored([in] boolean isEnabled);
     [ipccode 54] void SubscribeBluetoothScanResultChange([in] IBluetoothScanResultCallback cb);
     [ipccode 55] void UnSubscribeBluetoothScanResultChange([in] IBluetoothScanResultCallback cb);
+    [ipccode 56] void IsPoiServiceSupport([out] boolean isPoiAvailable);
 }

@@ -1478,6 +1478,22 @@ LocationErrCode LocatorImpl::GetDistanceBetweenLocations(const Location& locatio
     return ERRCODE_SUCCESS;
 }
 
+bool LocatorImpl::IsPoiServiceSupport()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsPoiServiceSupport() enter");
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return false;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return false;
+    }
+    bool poiServiceSupportState = false;
+    proxy->IsPoiServiceSupport(poiServiceSupportState);
+    return poiServiceSupportState;
+}
+
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {
