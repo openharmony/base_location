@@ -17,7 +17,7 @@
       "abilities": [
         {
           "name": "BluetoothReceiveUIAbility",
-          "srcEntry": "./ets/bluetoothability/BluetoothReceiveUIAbility.ets",
+          "srcEntry": "./ets/bluetoothability/BluetoothPcReceiveUIAbility.ets",
           "launchType": "singleton",
           "icon": "$media:app_icon",
           "label": "BluetoothReceiveUIAbility",
@@ -36,7 +36,7 @@
         },
         {
           "name": "BluetoothSendUIAbility",
-          "srcEntry": "./ets/bluetoothability/BluetoothSendUIAbility.ets",
+          "srcEntry": "./ets/bluetoothability/BluetoothPcSendUIAbility.ets",
           "launchType": "singleton",
           "icon": "$media:app_icon",
           "label": "BluetoothSendUIAbility",
