@@ -312,6 +312,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("setLocationSwitchIgnored", SetLocationSwitchIgnored),
         DECLARE_NAPI_FUNCTION("getDistanceBetweenLocations", GetDistanceBetweenLocations),
         DECLARE_NAPI_FUNCTION("getPoiInfo", GetPoiInfo),
+        DECLARE_NAPI_FUNCTION("isPoiServiceSupport", IsPoiServiceSupport),
 
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
