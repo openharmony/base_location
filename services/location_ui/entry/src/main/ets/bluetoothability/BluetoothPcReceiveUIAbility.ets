@@ -408,7 +408,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     async createRecevieProgressNotification(name: string, progress: number) {
         let notificationRequest: notificationManager.NotificationRequest = {
             notificationSlotType: notificationManager.SlotType.SOCIAL_COMMUNICATION,
-            id: this.capsuleNotificationID
+            id: this.capsuleNotificationID,
             template: {
                 name: 'downloadTemplate',
                 data: {

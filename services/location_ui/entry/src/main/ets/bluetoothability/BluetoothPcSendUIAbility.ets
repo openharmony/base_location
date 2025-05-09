@@ -233,7 +233,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
     async createSendProgressNotification(name: string, progress: number) {
         let notificationRequest: notificationManager.NotificationRequest = {
             notificationSlotType: notificationManager.SlotType.SOCIAL_COMMUNICATION,
-            id: this.capsuleNotificationID
+            id: this.capsuleNotificationID,
             template: {
                 name: 'downloadTemplate',
                 data: {
