@@ -579,10 +579,19 @@ int LocatorRequiredDataManager::TriggerWifiScan()
 }
 #endif
 
-bool LocatorRequiredDataManager::IsConnecting()
+bool LocatorRequiredDataManager::IsWifiConnecting()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     if (callbacksMap_.size() > 0) {
+        return true;
+    }
+    return false;
+}
+
+bool LocatorRequiredDataManager::IsBluetoothConnecting()
+{
+    std::unique_lock<std::mutex> lock(bluetoothcallbacksMapMutex_);
+    if (bluetoothcallbacksMap_.size() > 0) {
         return true;
     }
     return false;
@@ -707,7 +716,7 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
 {
     bool needRetryScan = event->GetParam();
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (!dataManager->IsConnecting()) {
+    if (!dataManager->IsWifiConnecting()) {
         LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
         return;
     }

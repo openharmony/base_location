@@ -515,7 +515,8 @@ void LocatorAbility::SendSwitchState(const int state)
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return LocatorRequiredDataManager::GetInstance()->IsConnecting() || GetActiveRequestNum() > 0;
+    return LocatorRequiredDataManager::GetInstance()->IsWifiConnecting() ||
+        LocatorRequiredDataManager::GetInstance()->IsBluetoothConnecting() || GetActiveRequestNum() > 0;
 }
 
 ErrCode LocatorAbility::EnableAbility(bool isEnabled)
