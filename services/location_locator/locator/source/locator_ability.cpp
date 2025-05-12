@@ -133,6 +133,10 @@ LocatorAbility* LocatorAbility::GetInstance()
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
+#ifndef TDD_CASES_ENABLED
+    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true,
+        AppExecFwk::ThreadMode::FFRT));
+#endif
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
@@ -143,13 +147,10 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     deviceId_ = CommonUtils::InitDeviceId();
 #ifdef MOVEMENT_CLIENT_ENABLE
 #ifndef TDD_CASES_ENABLED
-    locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true,
-        AppExecFwk::ThreadMode::FFRT));
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_MSDP_MONITOR_MANAGER, 0, 0);
     }
 #endif
-
 #endif
     requestManager_ = RequestManager::GetInstance();
 #ifndef TDD_CASES_ENABLED
