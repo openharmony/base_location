@@ -491,22 +491,22 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         let subscriber: notificationManager.SystemLiveViewSubscriber = {
             onResponse: (id: number, option: notificationManager.ButtonOptions) => {
                 switch (option.buttonName) {
-                    case this.cancelTransEvent: {
-                        console.info(TAG, 'cancel transfer.');
-                        this.tapEventIsAllowed = true;
-                        this.oppProfile.cancelTransfer();
-                        this.cancelSendProgressNotification(0);
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
+                  case this.cancelTransEvent: {
+                      console.info(TAG, 'cancel transfer.');
+                      this.tapEventIsAllowed = true;
+                      this.oppProfile.cancelTransfer();
+                      this.cancelSendProgressNotification(0);
+                      break;
+                  }
+                  default: {
+                      break;
+                  }
                 }
             }
         };
         try {
             notificationManager.subscribeSystemLiveView(subscriber);
-        } catch(e) {
+        } catch (e) {
             console.error(TAG, 'subscriberLiveViewNotification fail');
         }
     }

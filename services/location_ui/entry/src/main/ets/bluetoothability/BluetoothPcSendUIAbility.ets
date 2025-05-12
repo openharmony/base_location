@@ -261,7 +261,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
             if (progress === 100) {
                 this.cancelSendProgressNotification(1);
             }
-        }).catch((err: Base.BusinessError) => {
+        }).catch((err: BusinessError) => {
             console.error(TAG, 'createSendProgressNotification fail');
         });
     }
@@ -310,21 +310,21 @@ export default class BluetoothSendUIAbility extends UIAbility {
         let subscriber: notificationManager.SystemLiveViewSubscriber = {
             onResponse: (id: number, option: notificationManager.ButtonOptions) => {
                 switch (option.buttonName) {
-                    case this.cancelTransEvent: {
-                        console.info(TAG, 'cancel transfer.');
-                        this.oppProfile.cancelTransfer();
-                        this.cancelSendProgressNotification(0);
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
+                  case this.cancelTransEvent: {
+                      console.info(TAG, 'cancel transfer.');
+                      this.oppProfile.cancelTransfer();
+                      this.cancelSendProgressNotification(0);
+                      break;
+                  }
+                  default: {
+                      break;
+                  }
                 }
             }
         };
         try {
             notificationManager.subscribeSystemLiveView(subscriber);
-        } catch(e) {
+        } catch (e) {
             console.error(TAG, 'subscriberLiveViewNotification fail');
         }
     }
