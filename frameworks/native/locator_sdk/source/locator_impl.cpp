@@ -1483,6 +1483,10 @@ LocationErrCode LocatorImpl::GetDistanceBetweenLocations(const Location& locatio
     LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::GetDistanceBetweenLocations() enter");
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     distance = location1.GetDistanceBetweenLocations(location1.GetLatitude(), location1.GetLongitude(),
