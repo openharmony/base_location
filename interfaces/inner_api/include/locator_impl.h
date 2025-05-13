@@ -640,6 +640,17 @@ public:
      * @return Returns ERRCODE_SUCCESS if obtain last known location succeed.
      */
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
+
+    /**
+     * @brief Gets the distance between two positions.
+     *
+     * @param loc location 1.
+     * @param loc location 2.
+     * @param loc distance.
+     * @return Returns ERRCODE_SUCCESS if obtain last known location succeed.
+     */
+    LocationErrCode GetDistanceBetweenLocations(const Location& location1,
+        const Location& location2, double& distance);
     
     /**
      * Obtaining the location switch status of a specified user.
