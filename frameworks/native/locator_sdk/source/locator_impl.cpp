@@ -1461,6 +1461,22 @@ LocationErrCode LocatorImpl::GetCurrentWifiBssidForLocating(std::string& bssid)
     return locationErrCode;
 }
 
+bool LocatorImpl::IsPoiServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsPoiServiceSupported() enter");
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return false;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return false;
+    }
+    bool poiServiceSupportState = false;
+    proxy->IsPoiServiceSupported(poiServiceSupportState);
+    return poiServiceSupportState;
+}
+
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {

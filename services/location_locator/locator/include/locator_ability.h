@@ -220,6 +220,7 @@ public:
     ErrCode SubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
     ErrCode UnSubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
     ErrCode GetCurrentWifiBssidForLocating(std::string& bssid) override;
+    ErrCode IsPoiServiceSupported(bool& poiServiceSupportState) override;
     LocationErrCode SetSwitchState(bool isEnabled);
 
 private:

@@ -122,6 +122,7 @@ LocationErrCode UnSubscribeLocatingRequiredDataChange(sptr<LocatingRequiredDataC
 LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
 napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const napi_value* argv);
 LocationErrCode CheckLocationSwitchEnable();
+napi_value RequestPoiInfoOnce(const napi_env& env, const size_t argc, const napi_value* argv);
 #endif
 }  // namespace Location
 }  // namespace OHOS

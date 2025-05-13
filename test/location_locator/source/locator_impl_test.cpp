@@ -932,6 +932,16 @@ HWTEST_F(LocatorImplTest, GetCurrentWifiBssidForLocating, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] GetCurrentWifiBssidForLocating end");
 }
 
+HWTEST_F(LocatorImplTest, IsPoiServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, IsPoiServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsPoiServiceSupported begin");
+    bool poiServiceSupportState = false;
+    poiServiceSupportState = locatorImpl_->IsPoiServiceSupported();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsPoiServiceSupported end");
+}
+
 HWTEST_F(LocatorImplTest, SetLocationSwitchIgnored001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

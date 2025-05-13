@@ -117,6 +117,16 @@ public:
         return isNeedPoi_;
     }
 
+    inline void SetIsNeedLocation(bool isNeedLocation)
+    {
+        isNeedLocation_ = isNeedLocation;
+    }
+ 
+    inline bool GetIsNeedLocation()
+    {
+        return isNeedLocation_;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -134,6 +144,7 @@ private:
     int timeOut_;
     int64_t timestamp_;
     bool isNeedPoi_;
+    bool isNeedLocation_;
 };
 } // namespace Location
 } // namespace OHOS
