@@ -649,6 +649,13 @@ public:
      */
     LocationErrCode SetLocationSwitchIgnored(bool enable);
 
+    /**
+     * Check whether the POI service is supported.
+     *
+     * @returns { boolean } Returns {@code true} if POI service is available, returns {@code false} otherwise.
+     */
+    bool IsPoiServiceSupported();
+
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<ILocatorService> GetProxy();
     bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);

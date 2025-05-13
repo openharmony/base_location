@@ -2231,6 +2231,23 @@ ErrCode LocatorAbility::GetCurrentWifiBssidForLocating(std::string& bssid)
     return locatorDataManager->GetCurrentWifiBssidForLocating(bssid);
 }
 
+ErrCode LocatorAbility::IsPoiServiceSupported(bool& poiServiceSupportState)
+{
+    std::string serviceName;
+    bool result = LocationConfigManager::GetInstance()->GetNlpServiceName(serviceName);
+    if (!result || serviceName.empty()) {
+        LBSLOGE(LOCATOR, "get service name failed!");
+        poiServiceSupportState = false;
+        return ERRCODE_SUCCESS;
+    }
+    if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+        poiServiceSupportState = false;
+    } else {
+        poiServiceSupportState = true;
+    }
+    return ERRCODE_SUCCESS;
+}
+
 LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
 {
     int modeValue = isEnabled ? ENABLED : DISABLED;

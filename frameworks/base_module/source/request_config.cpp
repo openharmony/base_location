@@ -32,6 +32,7 @@ RequestConfig::RequestConfig()
     timeOut_ = DEFAULT_TIMEOUT_5S;
     timestamp_ = 0;
     isNeedPoi_ = false;
+    isNeedLocation_ = true;
 }
 
 RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
@@ -44,6 +45,7 @@ RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
     timeOut_ = DEFAULT_TIMEOUT_5S;
     timestamp_ = 0;
     isNeedPoi_ = false;
+    isNeedLocation_ = true;
 }
 
 void RequestConfig::Set(RequestConfig& requestConfig)
@@ -57,6 +59,7 @@ void RequestConfig::Set(RequestConfig& requestConfig)
     timeOut_ = requestConfig.GetTimeOut();
     timestamp_ = requestConfig.GetTimeStamp();
     isNeedPoi_ = requestConfig.GetIsNeedPoi();
+    isNeedLocation_ = requestConfig.GetIsNeedLocation();
 }
 
 bool RequestConfig::IsSame(RequestConfig& requestConfig)
@@ -80,6 +83,7 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
     fixNumber_ = parcel.ReadInt32();
     timeOut_ = parcel.ReadInt32();
     isNeedPoi_ = parcel.ReadBool();
+    isNeedLocation_ = parcel.ReadBool();
 }
 
 RequestConfig* RequestConfig::Unmarshalling(Parcel& parcel)
@@ -98,7 +102,8 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
            parcel.WriteFloat(maxAccuracy_) &&
            parcel.WriteInt32(fixNumber_) &&
            parcel.WriteInt32(timeOut_) &&
-           parcel.WriteBool(isNeedPoi_);
+           parcel.WriteBool(isNeedPoi_) &&
+           parcel.WriteBool(isNeedLocation_);
 }
 
 bool RequestConfig::IsRequestForAccuracy()
@@ -123,7 +128,8 @@ std::string RequestConfig::ToString() const
         ", maxAccuracy : " + std::to_string(maxAccuracy_) +
         ", fixNumber : " + std::to_string(fixNumber_) +
         ", timeOut : " + std::to_string(timeOut_) +
-        ", isNeedPoiInfomation : " + std::to_string(isNeedPoi_);
+        ", isNeedPoiInfomation : " + std::to_string(isNeedPoi_) +
+        ", isNeedLocation : " + std::to_string(isNeedLocation_);
     return str;
 }
 } // namespace Location
