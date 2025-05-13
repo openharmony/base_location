@@ -285,6 +285,10 @@ public:
     static std::shared_ptr<Location> UnmarshallingShared(Parcel& parcel);
     bool LocationEqual(const std::unique_ptr<Location>& location);
     bool AdditionEqual(const std::unique_ptr<Location>& location);
+    static double GetDistanceBetweenLocations(const double lat1, const double lon1,
+        const double lat2, const double lon2);
+    static bool isValidLatitude(double latitude);
+    static bool isValidLongitude(double longitude);
     void VectorString16ToVectorString8(const std::vector<std::u16string>& additions);
     std::vector<std::u16string> VectorString8ToVectorString16() const;
     static bool WritePoiInfoToParcel(const PoiInfo& data, Parcel& parcel);

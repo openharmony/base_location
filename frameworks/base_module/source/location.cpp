@@ -18,12 +18,23 @@
 #include <parcel.h>
 #include <string>
 #include "string_ex.h"
+#include <iostream>
+#include <cmath>
 
 namespace OHOS {
 namespace Location {
 static constexpr double MIN_LATITUDE = -90.0;
 static constexpr double MIN_LONGITUDE = -180.0;
 static constexpr int MAX_POI_ARRAY_SIZE = 20;
+static constexpr double MAX_LATITUDE = 90.0;
+static constexpr double MAX_LONGITUDE = 180.0;
+const double PI = 3.1415926;
+const double DEGREE_PI = 180.0;
+const double POW_PARAMETER_TOW = 2;
+const double NUM_DOUBLE = 2;
+const double EARTH_SEMI_AXIS = 6378137.0;
+const double EARTH_FLATTENING = 6356752.3142;
+const double EARTH_SEMI_MINOR = (EARTH_SEMI_AXIS - EARTH_FLATTENING) / EARTH_SEMI_AXIS;
 
 Location::Location()
 {
@@ -275,6 +286,80 @@ bool Location::AdditionEqual(const std::unique_ptr<Location>& location)
         }
     }
     return true;
+}
+
+bool Location::isValidLatitude(double latitude)
+{
+    return latitude >= MIN_LATITUDE && latitude <= MAX_LATITUDE;
+}
+
+bool Location::isValidLongitude(double longitude)
+{
+    return longitude >= MIN_LONGITUDE && longitude <= MAX_LONGITUDE;
+}
+
+double Location::GetDistanceBetweenLocations(const double lat1, const double lon1, const double lat2, const double lon2)
+{
+    double radLat1 = lat1 * PI / DEGREE_PI;
+    double radLat2 = lat2 * PI / DEGREE_PI;
+    double radLon1 = lon1 * PI / DEGREE_PI;
+    double radLon2 = lon2 * PI / DEGREE_PI;
+
+    double deltaLon = radLon2 - radLon1;
+    double reducedLat1 = atan((1 - EARTH_SEMI_MINOR) * tan(radLat1));
+    double reducedLat2 = atan((1 - EARTH_SEMI_MINOR) * tan(radLat2));
+
+    double sinReducedLat1 = sin(reducedLat1);
+    double cosReducedLat1 = cos(reducedLat1);
+    double sinReducedLat2 = sin(reducedLat2);
+    double cosReducedLat2 = cos(reducedLat2);
+
+    double lambda = deltaLon;
+    double lambdaP = 100;
+    double iterLimit = 20;
+    double sinAlpha = 0.0;
+    double cosSqAlpha = 0.0;
+    double sinSigma = 0.0;
+    double cos2SigmaM = 0.0;
+    double cosSigma = 0.0;
+    double sigma = 0.0;
+    double sinLambda = 0.0;
+    double cosLambda = 0.0;
+
+    for (int iter = 0; iter < iterLimit; iter++) {
+        sinLambda = sin(lambda);
+        cosLambda = cos(lambda);
+        sinSigma = sqrt(pow(cosReducedLat2 * sinLambda, POW_PARAMETER_TOW) +
+            pow(cosReducedLat1 * sinReducedLat2 - sinReducedLat1 * cosReducedLat2 * cosLambda, POW_PARAMETER_TOW));
+        if (sinSigma == 0) {
+            return 0;
+        }
+        cosSigma = sinReducedLat1 * sinReducedLat2 + cosReducedLat1 * cosReducedLat2 * cosLambda;
+        sigma = atan2(sinSigma, cosSigma);
+        sinAlpha = cosReducedLat1 * cosReducedLat2 * sinLambda / sinSigma;
+        cosSqAlpha = 1 - sinAlpha * sinAlpha;
+        cos2SigmaM = (cosSqAlpha != 0) ? (cosSigma - NUM_DOUBLE * sinReducedLat1 * sinReducedLat2 / cosSqAlpha) : 0;
+        double correction = EARTH_SEMI_MINOR / 16 * cosSqAlpha * (4 + EARTH_SEMI_MINOR * (4 - 3 * cosSqAlpha));
+
+        lambdaP = lambda;
+        lambda = deltaLon + (1 - correction) * EARTH_SEMI_MINOR * sinAlpha  *
+            (sigma + correction * sinSigma *
+            (cos2SigmaM + correction * cosSigma * (-1 + NUM_DOUBLE * pow(cos2SigmaM, POW_PARAMETER_TOW))));
+        if (fabs(lambda - lambdaP) < 1e-12) {
+            break;
+        }
+    }
+    double uSquared = cosSqAlpha * (EARTH_SEMI_AXIS * EARTH_SEMI_AXIS - EARTH_FLATTENING * EARTH_FLATTENING) /
+        (EARTH_FLATTENING * EARTH_FLATTENING);
+    double highOrderCorrection = 1 + uSquared / 16384 * (4096 + uSquared * (-768 + uSquared * (320 - 175 * uSquared)));
+    double highOrderTerm = uSquared / 1024 * (256 + uSquared * (-128 + uSquared * (74 - 47 * uSquared)));
+    double deltaSigma = highOrderTerm * sinSigma *
+        (cos2SigmaM + highOrderTerm / 4 * (cosSigma * (-1 + 2 * pow(cos2SigmaM, POW_PARAMETER_TOW)) -
+            highOrderTerm / 6 * cos2SigmaM * (-3 + 4 * pow(sinSigma, POW_PARAMETER_TOW)) *
+            (-3 + 4 * pow(cos2SigmaM, POW_PARAMETER_TOW))));
+
+    double distance = EARTH_FLATTENING * highOrderCorrection * (sigma - deltaSigma);
+    return distance;
 }
 } // namespace Location
 } // namespace OHOS
