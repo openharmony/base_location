@@ -257,6 +257,22 @@ napi_value GetDistanceBetweenLocations(napi_env env, napi_callback_info info)
 }
 #endif
 
+#ifdef ENABLE_NAPI_MANAGER
+napi_value IsPoiServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    bool poiServiceSupportState = g_locatorClient->IsPoiServiceSupported();
+    NAPI_CALL(env, napi_get_boolean(env, poiServiceSupportState, &res));
+    return res;
+}
+#endif
+
 napi_value EnableLocation(napi_env env, napi_callback_info info)
 {
     LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);

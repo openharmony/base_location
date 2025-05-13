@@ -126,6 +126,9 @@ static constexpr OHOS::HiviewDFX::HiLogLabel BLUETOOTH_CALLBACK = {LOG_CORE, LOC
 static constexpr OHOS::HiviewDFX::HiLogLabel PROXY_FREEZE_MANAGER = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "ProxyFreezeManager"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel COMMON_EVENT_HELPER = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "CommonEventHelper"
+};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H
