@@ -66,6 +66,7 @@
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 #endif
+#include "common_event_helper.h"
 
 namespace OHOS {
 namespace Location {
@@ -2238,7 +2239,13 @@ LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
-    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(modeValue);
+    if (LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(modeValue)) {
+        int userId = 0;
+        if (!CommonUtils::GetCurrentUserId(userId)) {
+            userId = DEFAULT_USERID;
+        }
+        CommonEventHelper::PublishLocationModeChangeCommonEventAsUser(modeValue, userId);
+    }
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
@@ -2252,7 +2259,9 @@ LocationErrCode LocatorAbility::SetSwitchStateForUser(bool isEnabled, int32_t us
     std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
     locatorSwitchMessage->SetModeValue(modeValue);
     locatorSwitchMessage->SetUserId(userId);
-    LocationDataRdbManager::SetSwitchStateToSysparaForUser(modeValue, userId);
+    if (LocationDataRdbManager::SetSwitchStateToSysparaForUser(modeValue, userId)) {
+        CommonEventHelper::PublishLocationModeChangeCommonEventAsUser(modeValue, userId);
+    }
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
