@@ -1227,7 +1227,7 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     auto locationGnssGeofenceCallbackHost =
-        sptr<LocationGnssGeofenceCallbackNapi>(new (std::nothrow) LocationGnssGeofenceCallbackNapi());
+        sptr<LocationGnssGeofenceCallbackNapi>(new LocationGnssGeofenceCallbackNapi());
     JsObjToGeofenceTransitionCallback(env, argv[0], locationGnssGeofenceCallbackHost);
     auto callbackPtr = sptr<IGnssGeofenceCallback>(locationGnssGeofenceCallbackHost);
     gnssGeofenceRequest->SetGeofenceTransitionCallback(callbackPtr->AsObject());

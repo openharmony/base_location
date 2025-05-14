@@ -62,7 +62,7 @@ Location_ResultCode OH_Location_StartLocating(const Location_RequestConfig* requ
         return LOCATION_INVALID_PARAM;
     }
     auto locatorCallbackHost = OHOS::sptr<OHOS::Location::LocationInfoCallbackHost>(
-            new (std::nothrow) OHOS::Location::LocationInfoCallbackHost());
+            new OHOS::Location::LocationInfoCallbackHost());
     locatorCallbackHost->SetRequestConfig(requestConfig);
     auto locatorCallback = OHOS::sptr<OHOS::Location::ILocatorCallback>(locatorCallbackHost);
     auto requestConfigV9 = std::make_unique<OHOS::Location::RequestConfig>();
