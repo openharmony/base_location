@@ -128,14 +128,15 @@ void LocatorRequiredDataManager::SendWifiScanEvent()
 
 void LocatorRequiredDataManager::SendGetWifiListEvent(int timeout, bool needRetryScan)
 {
+    if (wifiSdkHandler_ == nullptr) {
+        return;
+    }
     if (timeout > 0 && wifiSdkHandler_->HasInnerEvent(EVENT_GET_WIFI_LIST)) {
         return;
     }
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_GET_WIFI_LIST, needRetryScan);
-    if (wifiSdkHandler_ != nullptr) {
-        wifiSdkHandler_->SendHighPriorityEvent(event, timeout);
-    }
+    wifiSdkHandler_->SendHighPriorityEvent(event, timeout);
 }
 
 void LocatorRequiredDataManager::RemoveGetWifiListEvent()
