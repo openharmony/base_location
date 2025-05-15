@@ -117,10 +117,6 @@ std::string WorkRecord::ToString()
             result += ",";
             result += uuid_[i];
             result += "; ";
-            result += std::to_string(tokenId_[i]);
-            result += "; ";
-            result += std::to_string(firstTokenId_[i]);
-            result += "; ";
         }
     }
     result += "]";
