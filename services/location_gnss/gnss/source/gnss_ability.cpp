@@ -380,8 +380,11 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGD(GNSS, "enter RequestRecord");
     if (isAdded) {
         int gnssEnableState  = LocationConfigManager::GetInstance()->GetGnssEnableState();
-        if (!gnssEnableState) {
-            LBSLOGE(GNSS, "gnss enable state false");
+        uint32_t tokenId = workRecord.GetTokenId(0);
+        uint32_t firstTokenId = workRecord.GetFirstTokenId(0);
+        bool ignoredSwitchPermission = PermissionManager::CheckLocationSwitchIgnoredPermission(tokenId, firstTokenId);
+        if (!gnssEnableState && !ignoredSwitchPermission) {
+            LBSLOGE(GNSS, "gnss enablestate false!");
             return;
         }
         if (!CheckIfHdiConnected()) {
