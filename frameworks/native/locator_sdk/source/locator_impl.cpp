@@ -1461,6 +1461,39 @@ LocationErrCode LocatorImpl::GetCurrentWifiBssidForLocating(std::string& bssid)
     return locationErrCode;
 }
 
+bool LocatorImpl::IsPoiServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsPoiServiceSupported() enter");
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return false;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return false;
+    }
+    bool poiServiceSupportState = false;
+    proxy->IsPoiServiceSupported(poiServiceSupportState);
+    return poiServiceSupportState;
+}
+
+LocationErrCode LocatorImpl::GetDistanceBetweenLocations(const Location& location1,
+    const Location& location2, double& distance)
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::GetDistanceBetweenLocations() enter");
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    distance = location1.GetDistanceBetweenLocations(location1.GetLatitude(), location1.GetLongitude(),
+        location2.GetLatitude(), location2.GetLongitude());
+    return ERRCODE_SUCCESS;
+}
+
 void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 {
     if (remote == nullptr) {

@@ -640,6 +640,17 @@ public:
      * @return Returns ERRCODE_SUCCESS if obtain last known location succeed.
      */
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
+
+    /**
+     * @brief Gets the distance between two positions.
+     *
+     * @param loc location 1.
+     * @param loc location 2.
+     * @param loc distance.
+     * @return Returns ERRCODE_SUCCESS if obtain last known location succeed.
+     */
+    LocationErrCode GetDistanceBetweenLocations(const Location& location1,
+        const Location& location2, double& distance);
     
     /**
      * Obtaining the location switch status of a specified user.
@@ -648,6 +659,13 @@ public:
      * @returns Returns {@code true} if the location switch on, returns {@code false} otherwise.
      */
     LocationErrCode SetLocationSwitchIgnored(bool enable);
+
+    /**
+     * Check whether the POI service is supported.
+     *
+     * @returns { boolean } Returns {@code true} if POI service is available, returns {@code false} otherwise.
+     */
+    bool IsPoiServiceSupported();
 
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<ILocatorService> GetProxy();

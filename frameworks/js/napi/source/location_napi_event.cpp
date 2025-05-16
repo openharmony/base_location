@@ -353,7 +353,7 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -374,7 +374,7 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -392,7 +392,7 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -409,7 +409,7 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    Parcel data;
+    MessageParcel data;
     wantAgent->Marshalling(data);
     fenceRequest->SetWantAgentParcelData(data);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
@@ -501,7 +501,12 @@ void GenerateCompleteContext(SingleLocationAsyncContext* context)
     auto callbackHost = context->callbackHost_;
     if (callbackHost != nullptr && callbackHost->GetSingleLocation() != nullptr) {
         std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
-        LocationToJs(context->env, location, context->result[PARAM1]);
+        bool isNeedLocation = context->request_->GetIsNeedLocation();
+        if (isNeedLocation) {
+            LocationToJs(context->env, location, context->result[PARAM1]);
+        } else {
+            PoiToJs(context->env, location, context->result[PARAM1]);
+        }
     } else {
         LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
     }
@@ -575,6 +580,17 @@ std::unique_ptr<RequestConfig> CreateRequestConfig(const napi_env& env,
     return requestConfig;
 }
 
+std::unique_ptr<RequestConfig> CreatePoiRequestConfig()
+{
+    auto requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetScenario(SCENE_DAILY_LIFE_SERVICE);
+    requestConfig->SetFixNumber(1);
+    requestConfig->SetTimeInterval(0);
+    requestConfig->SetIsNeedLocation(false);
+    requestConfig->SetIsNeedPoi(true);
+    return requestConfig;
+}
+
 sptr<LocatorCallbackNapi> CreateSingleLocationCallbackHost()
 {
     auto callbackHost =
@@ -617,6 +633,27 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
     }
     singleLocatorCallbackHost->SetLocationPriority(
         requestConfig->IsRequestForAccuracy() ? LOCATION_PRIORITY_ACCURACY : LOCATION_PRIORITY_LOCATING_SPEED);
+    auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+#endif
+
+#ifdef ENABLE_NAPI_MANAGER
+napi_value RequestPoiInfoOnce(const napi_env& env, const size_t argc, const napi_value* argv)
+{
+    size_t objectArgsNum = 0;
+    objectArgsNum = static_cast<size_t>(GetObjectArgsNum(env, argc, argv));
+    auto requestConfig = CreatePoiRequestConfig();
+    auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();
+    if (singleLocatorCallbackHost == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    singleLocatorCallbackHost->SetLocationPriority(LOCATION_PRIORITY_LOCATING_SPEED);
     auto asyncContext = CreateSingleLocationAsyncContext(env, requestConfig, singleLocatorCallbackHost);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
@@ -1522,6 +1559,19 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 }
 
 #ifdef ENABLE_NAPI_MANAGER
+napi_value GetPoiInfo(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
+    napi_value thisVar = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
+    NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
+    LBSLOGD(LOCATION_NAPI, "Get PoiInfo enter");
+    return RequestPoiInfoOnce(env, argc, argv);
+}
+#endif
+
+#ifdef ENABLE_NAPI_MANAGER
 LocationErrCode CheckLocationSwitchEnable()
 {
     bool isEnabled = false;
@@ -1632,8 +1682,8 @@ bool OffAllBluetoothScanResultChangeCallback(const napi_env& env)
         if (callbackHost == nullptr) {
             continue;
         }
-        auto bluetoohScanResultCallback = sptr<IBluetoothScanResultCallback>(callbackHost);
-        LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(bluetoohScanResultCallback);
+        auto bluetoothScanResultCallback = sptr<IBluetoothScanResultCallback>(callbackHost);
+        LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;

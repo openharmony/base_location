@@ -13,27 +13,21 @@
  * limitations under the License.
  */
 
-#ifndef BULETOOH_SCAN_RESULT_CALLBACK_PROXY_H
-#define BULETOOH_SCAN_RESULT_CALLBACK_PROXY_H
+#ifndef COMMON_EVENT_HELPER_H
+#define COMMON_EVENT_HELPER_H
 
-#include <vector>
-
-#include "iremote_proxy.h"
-#include "iremote_object.h"
-
-#include "ibluetooth_scan_result_callback.h"
-#include "bluetooth_scan_result.h"
+#include <string>
+#include <cstdint>
 
 namespace OHOS {
 namespace Location {
-class BluetoohScanResultCallbackProxy : public IRemoteProxy<IBluetoothScanResultCallback> {
+const std::string COMMON_EVENT_LOCATION_MODE_STATE_CHANGED = "usual.event.location.MODE_STATE_CHANGED";
+
+class CommonEventHelper {
 public:
-    explicit BluetoohScanResultCallbackProxy(const sptr<IRemoteObject> &impl);
-    ~BluetoohScanResultCallbackProxy() = default;
-    void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& data) override;
-private:
-    static inline BrokerDelegator<BluetoohScanResultCallbackProxy> delegator_;
+    static bool PublishLocationModeChangeCommonEventAsUser(const int &modeValue, const int32_t &userId);
 };
+
 } // namespace Location
 } // namespace OHOS
-#endif // BULETOOH_SCAN_RESULT_CALLBACK_PROXY_H
+#endif // COMMON_EVENT_HELPER_H

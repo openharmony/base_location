@@ -136,14 +136,15 @@ bool HookUtils::CheckGnssLocationValidity(const std::unique_ptr<Location>& locat
     return gnssLocationValidStruct.result;
 }
 
-bool HookUtils::ExecuteHookReportManagerGetCacheLocation(std::string packageName)
+int HookUtils::ExecuteHookReportManagerGetCacheLocation(std::string packageName, int nlpRequestType)
 {
     LocatorRequestStruct locatorRequestStruct;
     locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.nlpRequestType = nlpRequestType;
     locatorRequestStruct.result = false;
     ExecuteHook(
         LocationProcessStage::REPORT_MANAGER_GET_CACHE_LOCATION_PROCESS, (void *)&locatorRequestStruct, nullptr);
-    return locatorRequestStruct.result;
+    return locatorRequestStruct.cacheTime;
 }
 
 bool HookUtils::ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId)
@@ -206,17 +207,7 @@ bool HookUtils::ExecuteHookWhenSimStateChange(const std::string& data)
     return locatorRequestStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenApproximatelyLocation(std::string packageName)
-{
-    ApproximatelyLocationStruct approximatelyLocationStruct;
-    approximatelyLocationStruct.bundleName = packageName;
-    approximatelyLocationStruct.needApproximate = true;
-    ExecuteHook(
-        LocationProcessStage::APPROXIMATELY_LOCATION_PROCESS, (void *)&approximatelyLocationStruct, nullptr);
-    return approximatelyLocationStruct.needApproximate;
-}
-
-bool HookUtils::ExecuteHookWhenStartScanBluetoohDevice(const std::string& packageName, const std::string& type)
+bool HookUtils::ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type)
 {
     ScanStruct scanStruct;
     scanStruct.packageName = packageName;
@@ -227,7 +218,7 @@ bool HookUtils::ExecuteHookWhenStartScanBluetoohDevice(const std::string& packag
     return scanStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenReportBluetoohScanResult(const std::string& packageName, const std::string& type)
+bool HookUtils::ExecuteHookWhenReportBluetoothScanResult(const std::string& packageName, const std::string& type)
 {
     ScanStruct scanStruct;
     scanStruct.packageName = packageName;

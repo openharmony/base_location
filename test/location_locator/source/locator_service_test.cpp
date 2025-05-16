@@ -207,14 +207,14 @@ std::vector<std::shared_ptr<GeocodingMockInfo>> LocatorServiceTest::SetGeocoding
  * @tc.desc: Check if callback is in the proxy callback list
  * @tc.type: FUNC
  */
-HWTEST_F(LocatorServiceTest, IsCallbackInProxyTest001, TestSize.Level1)
+HWTEST_F(LocatorServiceTest, IsCallbackInProxyTest001, TestSize.Level0)
 {
     /*
      * @tc.steps: step1. Check if callback is in the proxy callback list
      * @tc.expected: step1. return false
      */
     GTEST_LOG_(INFO)
-        << "LocatorServiceTest, IsCallbackInProxyTest001, TestSize.Level1";
+        << "LocatorServiceTest, IsCallbackInProxyTest001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCallbackInProxyTest001 begin");
     bool result =  backgroundProxy_->IsCallbackInProxy(callbackStub_);
     EXPECT_EQ(false, result);

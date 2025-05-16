@@ -45,10 +45,10 @@ HWTEST_F(CountryCodeManagerTest, GetIsoCountryCode001, TestSize.Level1)
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] GetIsoCountryCode001 end");
 }
 
-HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level1)
+HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level1";
+        << "CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Level0";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback001 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
@@ -58,10 +58,10 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback001, TestSize.Leve
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback001 end");
 }
 
-HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level1)
+HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level1";
+        << "CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Level0";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback002 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
@@ -70,10 +70,10 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback002, TestSize.Leve
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback002 end");
 }
 
-HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level1)
+HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level1";
+        << "CountryCodeManagerTest, UnregisterCountryCodeCallback003, TestSize.Level0";
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback003 begin");
     auto countryCodeManager = CountryCodeManager::GetInstance();
     ASSERT_TRUE(countryCodeManager != nullptr);
@@ -105,6 +105,16 @@ HWTEST_F(CountryCodeManagerTest, UnregisterCountryCodeCallback004, TestSize.Leve
     countryCodeManager->UnregisterCountryCodeCallback(callback2);
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback004 callback2 unregistered");
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] UnregisterCountryCodeCallback004 end");
+}
+
+HWTEST_F(CountryCodeManagerTest, IsCountryCodeRegistered001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CountryCodeManagerTest, IsCountryCodeRegistered001, TestSize.Level1";
+    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] IsCountryCodeRegistered001 begin");
+    auto countryCodeManager = CountryCodeManager::GetInstance();
+    countryCodeManager->IsCountryCodeRegistered();
+    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] IsCountryCodeRegistered001 end");
 }
 
 HWTEST_F(CountryCodeManagerTest, RegisterCountryCodeCallback001, TestSize.Level1)
@@ -189,6 +199,24 @@ HWTEST_F(CountryCodeManagerTest, ReSubscribeEvent002, TestSize.Level1)
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReSubscribeEvent002 end");
 }
 
+HWTEST_F(CountryCodeManagerTest, ReSubscribeEvent003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CountryCodeManagerTest, ReSubscribeEvent003, TestSize.Level1";
+    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReSubscribeEvent003 begin");
+    auto countryCodeManager = CountryCodeManager::GetInstance();
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
+    AppIdentity identity;
+    int pid = 3;
+    identity.SetPid(pid);
+    identity.SetUid(pid);
+    countryCodeManager->RegisterCountryCodeCallback(callback, identity);
+    EXPECT_NE(0, countryCodeManager->countryCodeCallbacksMap_.size());
+    countryCodeManager->ReSubscribeEvent();
+    countryCodeManager->UnregisterCountryCodeCallback(callback);
+    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReSubscribeEvent003 end");
+}
+
 HWTEST_F(CountryCodeManagerTest, ReUnsubscribeEvent001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -215,6 +243,24 @@ HWTEST_F(CountryCodeManagerTest, ReUnsubscribeEvent002, TestSize.Level1)
     countryCodeManager->UnregisterCountryCodeCallback(callback);
     countryCodeManager->ReUnsubscribeEvent();
     LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent002 end");
+}
+
+HWTEST_F(CountryCodeManagerTest, ReUnsubscribeEvent003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "CountryCodeManagerTest, ReUnsubscribeEvent003, TestSize.Level1";
+    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent003 begin");
+    auto countryCodeManager = CountryCodeManager::GetInstance();
+    auto callback = sptr<CountryCodeCallbackNapi>(new (std::nothrow) CountryCodeCallbackNapi());
+    AppIdentity identity;
+    int pid = 3;
+    identity.SetPid(pid);
+    identity.SetUid(pid);
+    countryCodeManager->RegisterCountryCodeCallback(callback, identity);
+    EXPECT_NE(0, countryCodeManager->countryCodeCallbacksMap_.size());
+    countryCodeManager->ReUnsubscribeEvent();
+    countryCodeManager->UnregisterCountryCodeCallback(callback);
+    LBSLOGI(COUNTRY_CODE, "[CountryCodeManagerTest] ReUnsubscribeEvent003 end");
 }
 
 HWTEST_F(CountryCodeManagerTest, GetCountryCodeByLastLocation001, TestSize.Level1)

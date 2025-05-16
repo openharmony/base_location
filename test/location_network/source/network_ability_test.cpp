@@ -124,10 +124,10 @@ void NetworkAbilityTest::MockNativePermission()
  * @tc.desc: Build Request, marshall and unmarshall data Then Send it
  * @tc.type: FUNC
  */
-HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, SendLocationRequest001, TestSize.Level1";
+        << "NetworkAbilityTest, SendLocationRequest001, TestSize.Level0";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SendLocationRequest001 begin");
     /*
      * @tc.steps: step1. build location request data.
@@ -159,10 +159,10 @@ HWTEST_F(NetworkAbilityTest, SendLocationRequest001, TestSize.Level1)
  * @tc.desc: Test disable and enable system ability
  * @tc.type: FUNC
  */
-HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1)
+HWTEST_F(NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level1";
+        << "NetworkAbilityTest, SetEnableAndDisable001, TestSize.Level0";
     LBSLOGI(NETWORK_TEST, "[NetworkAbilityTest] SetEnableAndDisable001 begin");
     EXPECT_EQ(ERRCODE_SUCCESS, proxy_->SetEnable(false));
     /*
@@ -409,6 +409,36 @@ HWTEST_F(NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest003, TestSize.Lev
     MessageOption option;
     EXPECT_EQ(-1, callback->OnRemoteRequest(code, data, reply, option));
     LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest003 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest004, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest004 begin");
+    sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+    uint32_t code = static_cast<uint32_t>(ILocatorCallback::RECEIVE_LOCATION_INFO_EVENT_V9);
+    MessageParcel data;
+    data.WriteInterfaceToken(u"location.ILocatorCallback");
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(0, callback->OnRemoteRequest(code, data, reply, option));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest004 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NetworkCallbackHostOnRemoteRequest005, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest005 begin");
+    sptr<NetworkCallbackHost> callback = new (std::nothrow) NetworkCallbackHost();
+    uint32_t code = static_cast<uint32_t>(ILocatorCallback::RECEIVE_ERROR_INFO_EVENT);
+    MessageParcel data;
+    data.WriteInterfaceToken(u"location.ILocatorCallback");
+    MessageParcel reply;
+    MessageOption option;
+    EXPECT_EQ(0, callback->OnRemoteRequest(code, data, reply, option));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NetworkCallbackHostOnRemoteRequest005 end");
 }
 
 HWTEST_F(NetworkAbilityTest, NetworkAbilityInit001, TestSize.Level1)
@@ -738,7 +768,110 @@ HWTEST_F(NetworkAbilityTest, RegisterNlpServiceDeathRecipient002, TestSize.Level
     EXPECT_NE(nullptr, nlpServiceProxy);
     ability_->nlpServiceProxy_ = nlpServiceProxy;
     ability_->RegisterNlpServiceDeathRecipient();
+    ability_->UnregisterNlpServiceDeathRecipient();
+    ability_->UnregisterNlpServiceDeathRecipient();
+    ability_->RegisterNlpServiceDeathRecipient();
     LBSLOGI(NETWORK, "[NetworkAbilityTest] RegisterNlpServiceDeathRecipient002 end");
+}
+
+HWTEST_F(NetworkAbilityTest, InitNetworkEventProcessMap001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, InitNetworkEventProcessMap001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] InitNetworkEventProcessMap001 begin");
+    ASSERT_TRUE(ability_ != nullptr);
+    ASSERT_TRUE(ability_->networkHandler_ != nullptr);
+    ability_->networkHandler_->InitNetworkEventProcessMap();
+    ability_->networkHandler_->InitNetworkEventProcessMap();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] InitNetworkEventProcessMap001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, CheckLocationSwitchState001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, CheckLocationSwitchState001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] CheckLocationSwitchState001 begin");
+    MessageParcel reply;
+    ASSERT_TRUE(ability_ != nullptr);
+    ability_->CheckLocationSwitchState(reply);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] CheckLocationSwitchState001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, InitNetworkMsgHandleMap001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, InitNetworkMsgHandleMap001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] InitNetworkMsgHandleMap001 begin");
+    MessageParcel reply;
+    ASSERT_TRUE(ability_ != nullptr);
+    ability_->InitNetworkMsgHandleMap();
+    ability_->InitNetworkMsgHandleMap();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] InitNetworkMsgHandleMap001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, CheckCallingPermission001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, CheckCallingPermission001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] CheckCallingPermission001 begin");
+    MessageParcel data;
+    MessageParcel reply;
+    AppIdentity identity;
+    ASSERT_TRUE(ability_ != nullptr);
+    ability_->SendLocationRequestInner(data, reply, identity);
+    ability_->SetMockLocationsInner(data, reply, identity);
+    ability_->SetEnableInner(data, reply, identity);
+    ability_->EnableMockInner(data, reply, identity);
+    ability_->DisableMockInner(data, reply, identity);
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] CheckCallingPermission001 end");
+}
+ 
+HWTEST_F(NetworkAbilityTest, DisconnectAbilityConnect001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, DisconnectAbilityConnect001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectAbilityConnect001 begin");
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    EXPECT_NE(nullptr, nlpServiceProxy);
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    ability_->DisconnectAbilityConnect();
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] DisconnectAbilityConnect001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NullHandler001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NullHandler001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NullHandler001 begin");
+    ASSERT_TRUE(ability_ != nullptr);
+    ability_->networkHandler_ = nullptr;
+    ability_->ResetServiceProxy();
+    ability_->SetEnable(1);
+    ability_->UnloadNetworkSystemAbility();
+    ability_->SendReportMockLocationEvent();
+    uint32_t code = 0;
+    MessageParcel data;
+    MessageParcel reply;
+    ability_->SendMessage(code, data, reply);
+    ability_->networkHandler_ =
+        std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NullHandler001 end");
+}
+
+HWTEST_F(NetworkAbilityTest, NullNlpServer001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "NetworkAbilityTest, NullNlpServer001, TestSize.Level1";
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NullNlpServer001 begin");
+    ASSERT_TRUE(ability_ != nullptr);
+    ability_->nlpServiceProxy_ = nullptr;
+    ability_->RegisterNlpServiceDeathRecipient();
+    ability_->UnregisterNlpServiceDeathRecipient();
+    sptr<MockIRemoteObject> nlpServiceProxy =
+        sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    ability_->nlpServiceProxy_ = nlpServiceProxy;
+    LBSLOGI(NETWORK, "[NetworkAbilityTest] NullNlpServer001 end");
 }
 } // namespace Location
 } // namespace OHOS

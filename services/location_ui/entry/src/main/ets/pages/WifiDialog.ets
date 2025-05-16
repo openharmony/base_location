@@ -32,6 +32,7 @@ struct dialogPlusPage {
   private WIFI_DIALOG_CANDIDATE_CONNECT: number = 2;
   private WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN: number = 3;
   private WIFI_DIALOG_P2P_WSC_PBC: number = 4;
+  private WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN: number = 5;
 
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear')
@@ -54,6 +55,7 @@ struct dialogPlusPage {
             this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_yes_button').id);
             break;
         case this.WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN:
+        case this.WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN:
             let ssid : string = AppStorage.get('wifi5gSsid') as string;
             this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_context'), ssid);
             this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_no_button').id);

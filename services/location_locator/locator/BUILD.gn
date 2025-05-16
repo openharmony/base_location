@@ -16,7 +16,7 @@ import("//build/ohos.gni")
 
 local_base_sources = [
   "$LOCATION_GEOCONVERT_ROOT/source/geo_convert_request.cpp",
-  "$SUBSYSTEM_DIR/location_locator/callback/source/bluetooh_scan_result_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/callback/source/bluetooth_scan_result_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/cached_locations_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/country_code_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/gnss_status_callback_proxy.cpp",
@@ -25,6 +25,7 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/locator_msdp_state_change_cb.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/common_event_helper.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/gnss_ability_proxy.cpp",
@@ -38,6 +39,7 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/locator/source/network_ability_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/passive_ability_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/permission_status_change_cb.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/poi_info_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/report_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/request_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/self_request_manager.cpp",
@@ -78,6 +80,8 @@ ohos_shared_library("lbsservice_locator") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
+    "cJSON:cjson",
+    "common_event_service:cesfwk_innerkits",   
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
@@ -210,6 +214,8 @@ ohos_static_library("lbsservice_locator_static") {
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
+    "cJSON:cjson",
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",
@@ -287,7 +293,7 @@ ohos_static_library("lbsservice_locator_static") {
   if (!location_sa_recycle_strategy_low_memory) {
     defines += [ "FEATURE_DYNAMIC_OFFLOAD" ]
   }
-
+  defines += [ "TDD_CASES_ENABLED" ]
   part_name = "location"
   subsystem_name = "location"
 }

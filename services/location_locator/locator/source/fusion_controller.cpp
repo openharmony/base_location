@@ -88,7 +88,8 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
 bool FusionController::CheckIfLastGnssLocationValid(const std::unique_ptr<Location>& location,
     const std::unique_ptr<Location>& lastFuseLocation)
 {
-    if (lastFuseLocation->GetLocationSourceType() == LocationSourceType::GNSS_TYPE &&
+    if ((lastFuseLocation->GetLocationSourceType() == LocationSourceType::GNSS_TYPE ||
+        lastFuseLocation->GetLocationSourceType() == LocationSourceType::RTK_TYPE) &&
         ((location->GetTimeSinceBoot() / NANOS_PER_MILLI -
         lastFuseLocation->GetTimeSinceBoot() / NANOS_PER_MILLI) < MAX_GNSS_LOCATION_COMPARISON_MS)) {
         return true;

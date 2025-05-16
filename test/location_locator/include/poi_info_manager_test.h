@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Copyright (c) 2025 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -12,24 +12,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef IBLUETOOTH_SCAN_RESULT_CALLBACK_H
-#define IBLUETOOTH_SCAN_RESULT_CALLBACK_H
-
-#include "iremote_broker.h"
-
-#include "bluetooth_scan_result.h"
-
+ 
+#ifndef POI_INFO_MANAGER_TEST_H
+#define POI_INFO_MANAGER_TEST_H
+ 
+#include <gtest/gtest.h>
+ 
+#include "poi_info_manager.h"
+ 
 namespace OHOS {
 namespace Location {
-class IBluetoothScanResultCallback : public IRemoteBroker {
+class PoiInfoManagerTest : public testing::Test {
 public:
-enum {
-        RECEIVE_INFO_EVENT = 1,
-    };
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.IBluetoothScanResultCallback");
-    virtual void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
+    void SetUp();
+    void TearDown();
+    PoiInfoManager* poiInfoManager_;
+    std::unique_ptr<Location> MockLocation();
+    std::string MockPoiString(uint64_t delayTimeMilSec);
 };
-} // namespace Location
-} // namespace OHOS
-#endif // IBLUETOOTH_SCAN_RESULT_CALLBACK_H
+}
+}
+#endif // POI_INFO_MANAGER_TEST_H

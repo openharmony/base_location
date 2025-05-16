@@ -95,6 +95,8 @@ typedef struct {
     bool deviceStillState;
     bool deviceIdleState;
     bool result;
+    int nlpRequestType;
+    int cacheTime;
     std::string abilityName;
     std::string bundleName;
 } LocatorRequestStruct;
@@ -124,11 +126,6 @@ typedef struct {
 } AgnssStruct;
 
 typedef struct {
-    std::string bundleName;
-    bool needApproximate;
-} ApproximatelyLocationStruct;
-
-typedef struct {
     std::string packageName;
     std::string type;
     bool result;
@@ -152,16 +149,15 @@ public:
         std::string bundleName);
     static bool CheckGnssLocationValidity(const std::unique_ptr<Location>& location);
     static bool ExecuteHookWhenCheckAppForUser(std::string packageName);
-    static bool ExecuteHookReportManagerGetCacheLocation(std::string packageName);
+    static int ExecuteHookReportManagerGetCacheLocation(std::string packageName, int nlpRequestType);
     static bool ExecuteHookEnableAbility(std::string packageName, bool isEnabled, int32_t userId);
     static bool ExecuteHookWhenPreStartLocating(std::string packageName);
     static bool ExecuteHookWhenAddNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
-    static bool ExecuteHookWhenApproximatelyLocation(std::string packageName);
-    static bool ExecuteHookWhenReportBluetoohScanResult(const std::string& packageName, const std::string& type);
-    static bool ExecuteHookWhenStartScanBluetoohDevice(const std::string& packageName, const std::string& type);
+    static bool ExecuteHookWhenReportBluetoothScanResult(const std::string& packageName, const std::string& type);
+    static bool ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type);
 };
 } // namespace Location
 } // namespace OHOS

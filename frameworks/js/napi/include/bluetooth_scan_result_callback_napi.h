@@ -27,8 +27,8 @@
 
 namespace OHOS {
 namespace Location {
-bool FindBlueToohCallback(napi_ref cb);
-void DeleteBlueToohCallback(napi_ref cb);
+bool FindBlueToothCallback(napi_ref cb);
+void DeleteBlueToothCallback(napi_ref cb);
 class BluetoothScanResultCallbackNapi : public IRemoteStub<IBluetoothScanResultCallback> {
 public:
     BluetoothScanResultCallbackNapi();
@@ -37,7 +37,7 @@ public:
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
 
     void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
-    void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) override;
+    void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) override;
     void DeleteHandler();
     bool FindCallback();
     napi_ref GetHandleCb();

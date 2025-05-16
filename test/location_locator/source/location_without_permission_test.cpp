@@ -79,10 +79,10 @@ void LocationWithoutPermissionTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, TestSize.Level1)
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, TestSize.Level1";
+        << "LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermission001 begin");
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
@@ -95,10 +95,10 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutSettingsPermission001, Tes
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutSettingsPermission001 end");
 }
 
-HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, TestSize.Level1)
+HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, TestSize.Level1";
+        << "LocationWithoutPermissionTest, LocatorWithoutLocationPermission001, TestSize.Level0";
     LBSLOGI(LOCATOR, "[LocationWithoutPermissionTest] LocatorWithoutLocationPermission001 begin");
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);

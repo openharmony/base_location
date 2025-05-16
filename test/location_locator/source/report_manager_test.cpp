@@ -462,19 +462,7 @@ HWTEST_F(ReportManagerTest, ProcessRequestForReport001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "ReportManagerTest, ProcessRequestForReport001, TestSize.Level1";
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport001 begin");
-    std::shared_ptr<Request> request = std::make_shared<Request>();
-    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetTimeInterval(1);
-    request->SetUid(111);
-    request->SetPid(222);
-    request->SetPackageName("nameForTest");
-    request->SetRequestConfig(*requestConfig);
-    request->SetRequesting(true);
-    request->SetUuid(std::to_string(35279));
-    request->SetNlpRequestType(0);
-    uint32_t tokenId = static_cast<uint32_t>(tokenId_);
-    request->SetTokenId(tokenId);
-    request->SetFirstTokenId(0);
+    std::shared_ptr<Request> request;
     auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->SetUuid("35279");
@@ -502,6 +490,51 @@ HWTEST_F(ReportManagerTest, ProcessRequestForReport002, TestSize.Level1)
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport002 end");
 }
 
+HWTEST_F(ReportManagerTest, ProcessRequestForReport003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ProcessRequestForReport003, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport003 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    requestConfig->SetScenario(SCENE_NO_POWER);
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetUuid("35279");
+    reportManager_->ProcessRequestForReport(request, deadRequests, location, NETWORK_ABILITY);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport003 end");
+}
+
+HWTEST_F(ReportManagerTest, ProcessRequestForReport004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ProcessRequestForReport004, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport004 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    auto deadRequests = std::make_unique<std::list<std::shared_ptr<Request>>>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    location->SetUuid("35279");
+    reportManager_->ProcessRequestForReport(request, deadRequests, location, NETWORK_ABILITY);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ProcessRequestForReport004 end");
+}
+
 HWTEST_F(ReportManagerTest, WriteNetWorkReportEvent, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -521,6 +554,105 @@ HWTEST_F(ReportManagerTest, WriteNetWorkReportEvent, TestSize.Level1)
     location->SetUuid("35279");
     reportManager_->WriteNetWorkReportEvent(NETWORK_ABILITY, request, location);
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] WriteNetWorkReportEvent end");
+}
+
+HWTEST_F(ReportManagerTest, ReportLocationByCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ReportLocationByCallback001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ReportLocationByCallback001 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    auto locatorCallbackHostForTest =
+        sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
+    sptr<ILocatorCallback> locatorCallback =
+        sptr<ILocatorCallback>(locatorCallbackHostForTest);
+    request->SetLocatorCallBack(locatorCallback);
+    std::unique_ptr<Location> finalLocation = std::make_unique<Location>();
+    finalLocation->SetUuid("35279");
+    reportManager_->ReportLocationByCallback(request, finalLocation);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ReportLocationByCallback001 end");
+}
+
+HWTEST_F(ReportManagerTest, ReportLocationByCallback002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ReportLocationByCallback002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ReportLocationByCallback002 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    std::unique_ptr<Location> finalLocation = std::make_unique<Location>();
+    finalLocation->SetUuid("35279");
+    reportManager_->ReportLocationByCallback(request, finalLocation);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ReportLocationByCallback002 end");
+}
+
+HWTEST_F(ReportManagerTest, LocationReportDelayTimeCheck001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, LocationReportDelayTimeCheck001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] LocationReportDelayTimeCheck001 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    std::unique_ptr<Location> finalLocation = std::make_unique<Location>();
+    finalLocation->SetUuid("35279");
+    reportManager_->LocationReportDelayTimeCheck(finalLocation, request);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] LocationReportDelayTimeCheck001 end");
+}
+
+HWTEST_F(ReportManagerTest, ExecuteReportProcess001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, ExecuteReportProcess001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ExecuteReportProcess001 begin");
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
+    requestConfig->SetTimeInterval(1);
+    request->SetUid(111);
+    request->SetPid(222);
+    request->SetPackageName("nameForTest");
+    request->SetRequestConfig(*requestConfig);
+    request->SetRequesting(true);
+    request->SetUuid(std::to_string(35279));
+    request->SetNlpRequestType(0);
+    std::unique_ptr<Location> finalLocation = std::make_unique<Location>();
+    finalLocation->SetUuid("35279");
+    std::string abilityName = "ExecuteReportProcess001";
+    reportManager_->ExecuteReportProcess(request, finalLocation, abilityName);
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] ExecuteReportProcess001 end");
+}
+
+HWTEST_F(ReportManagerTest, IsCacheGnssLocationValid001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "ReportManagerTest, IsCacheGnssLocationValid001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsCacheGnssLocationValid001 begin");
+    reportManager_->IsCacheGnssLocationValid();
+    LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] IsCacheGnssLocationValid001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

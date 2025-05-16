@@ -43,10 +43,10 @@ void GnssAbilityStubTest::TearDown()
 {
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest001, TestSize.Level1)
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest001, TestSize.Level1";
+        << "GnssAbilityStubTest, GnssAbilityStubTest001, TestSize.Level0";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest001 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
     EXPECT_CALL(*gnssAbilityStub, SendMessage(_, _, _)).WillOnce(DoAll(Return()));
@@ -60,10 +60,10 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest001, TestSize.Level1)
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest001 end");
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level1)
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level1";
+        << "GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level0";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest002 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
     EXPECT_CALL(*gnssAbilityStub, SendMessage(_, _, _)).WillOnce(DoAll(Return()));
@@ -77,10 +77,10 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest002, TestSize.Level1)
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest002 end");
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest003, TestSize.Level1)
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest003, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest003, TestSize.Level1";
+        << "GnssAbilityStubTest, GnssAbilityStubTest003, TestSize.Level0";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest003 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
     EXPECT_CALL(*gnssAbilityStub, RefrashRequirements()).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
@@ -94,10 +94,10 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest003, TestSize.Level1)
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest003 end");
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest004, TestSize.Level1)
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest004, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest004, TestSize.Level1";
+        << "GnssAbilityStubTest, GnssAbilityStubTest004, TestSize.Level0";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest004 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
     EXPECT_CALL(*gnssAbilityStub, RegisterGnssStatusCallback(_, _)).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
@@ -111,10 +111,10 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest004, TestSize.Level1)
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest004 end");
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest005, TestSize.Level1)
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest005, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest005, TestSize.Level1";
+        << "GnssAbilityStubTest, GnssAbilityStubTest005, TestSize.Level0";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest005 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
     EXPECT_CALL(*gnssAbilityStub, UnregisterGnssStatusCallback(_)).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));
@@ -128,10 +128,10 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest005, TestSize.Level1)
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest005 end");
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest006, TestSize.Level1)
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest006, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest006, TestSize.Level1";
+        << "GnssAbilityStubTest, GnssAbilityStubTest006, TestSize.Level0";
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest006 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
     EXPECT_CALL(*gnssAbilityStub, RegisterNmeaMessageCallback(_, _)).WillOnce(DoAll(Return(ERRCODE_SUCCESS)));

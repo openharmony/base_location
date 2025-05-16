@@ -131,6 +131,8 @@ if (location_feature_with_geocode) {
       defines += [ "LOCATION_HICOLLIE_ENABLE" ]
     }
 
+    defines += [ "TDD_CASES_ENABLED" ]
+
     part_name = "location"
     subsystem_name = "location"
   }

@@ -77,10 +77,10 @@ void LocatorBackgroundProxyTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-HWTEST_F(LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Level1)
+HWTEST_F(LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Level1";
+        << "LocatorBackgroundProxyTest, AppStateChangeCallbackTest001, TestSize.Level0";
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] AppStateChangeCallbackTest001 begin");
     auto appStateObserver =
         sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());

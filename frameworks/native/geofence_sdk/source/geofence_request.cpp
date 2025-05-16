@@ -274,7 +274,7 @@ std::shared_ptr<GeofenceRequest> GeofenceRequest::UnmarshallingShared(Parcel& pa
 
 GeofenceRequest* GeofenceRequest::Unmarshalling(Parcel& parcel)
 {
-    auto geofenceRequest = new (std::nothrow) GeofenceRequest();
+    auto geofenceRequest = new GeofenceRequest();
     geofenceRequest->ReadFromParcel(parcel);
     return geofenceRequest;
 }

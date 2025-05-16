@@ -14,7 +14,7 @@
 import("//base/location/config.gni")
 import("//build/test.gni")
 
-module_output_path = "location/service"
+module_output_path = "location/location"
 if (location_feature_with_geocode) {
   ohos_unittest("GeocodeServiceAbilityTest") {
     module_out_path = module_output_path
@@ -26,6 +26,7 @@ if (location_feature_with_geocode) {
       "$LOCATION_ROOT_DIR/test/location_geocode/mock/include",
       "$LOCATION_GEOCONVERT_ROOT/include",
       "$LOCATION_LOCATOR_ROOT/include",
+      "$LOCATION_ROOT_DIR/test/mock/include",
     ]
 
     deps = [

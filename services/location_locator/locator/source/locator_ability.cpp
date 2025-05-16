@@ -66,6 +66,7 @@
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 #endif
+#include "common_event_helper.h"
 
 namespace OHOS {
 namespace Location {
@@ -97,8 +98,8 @@ const uint32_t EVENT_SEND_GEOREQUEST = 0x0023;
 const uint32_t EVENT_SET_SWITCH_STATE_TO_DB = 0x0024;
 const uint32_t EVENT_WATCH_SWITCH_PARAMETER = 0x0025;
 const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
-const uint32_t EVENT_START_SCAN_BLUETOOH_DEVICE = 0x0027;
-const uint32_t EVENT_STOP_SCAN_BLUETOOH_DEVICE = 0x0028;
+const uint32_t EVENT_START_SCAN_BLUETOOTH_DEVICE = 0x0027;
+const uint32_t EVENT_STOP_SCAN_BLUETOOTH_DEVICE = 0x0028;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -133,8 +134,10 @@ LocatorAbility* LocatorAbility::GetInstance()
 
 LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
 {
+#ifndef TDD_CASES_ENABLED
     locatorHandler_ = std::make_shared<LocatorHandler>(AppExecFwk::EventRunner::Create(true,
         AppExecFwk::ThreadMode::FFRT));
+#endif
     requests_ = std::make_shared<std::map<std::string, std::list<std::shared_ptr<Request>>>>();
     receivers_ = std::make_shared<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>>();
     proxyMap_ = std::make_shared<std::map<std::string, sptr<IRemoteObject>>>();
@@ -144,14 +147,18 @@ LocatorAbility::LocatorAbility() : SystemAbility(LOCATION_LOCATOR_SA_ID, true)
     reportManager_ = ReportManager::GetInstance();
     deviceId_ = CommonUtils::InitDeviceId();
 #ifdef MOVEMENT_CLIENT_ENABLE
+#ifndef TDD_CASES_ENABLED
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_INIT_MSDP_MONITOR_MANAGER, 0, 0);
     }
 #endif
+#endif
     requestManager_ = RequestManager::GetInstance();
+#ifndef TDD_CASES_ENABLED
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendHighPriorityEvent(EVENT_IS_STAND_BY, 0, 0);
     }
+#endif
     LBSLOGI(LOCATOR, "LocatorAbility constructed.");
 }
 
@@ -488,10 +495,10 @@ void LocatorAbility::PostUnloadTask(uint32_t code)
         code == static_cast<uint16_t>(LocatorInterfaceCode::RESET_ALL_PROXY)) {
         return;
     }
-    if (CheckIfLocatorConnecting()) {
-        return;
-    }
     auto task = [this]() {
+        if (CheckIfLocatorConnecting()) {
+            return;
+        }
         SaLoadWithStatistic::UnInitLocationSa(LOCATION_LOCATOR_SA_ID);
     };
     if (locatorHandler_ != nullptr) {
@@ -510,7 +517,8 @@ void LocatorAbility::SendSwitchState(const int state)
 
 bool LocatorAbility::CheckIfLocatorConnecting()
 {
-    return LocatorRequiredDataManager::GetInstance()->IsConnecting() || GetActiveRequestNum() > 0;
+    return LocatorRequiredDataManager::GetInstance()->IsWifiConnecting() ||
+        LocatorRequiredDataManager::GetInstance()->IsBluetoothConnecting() || GetActiveRequestNum() > 0;
 }
 
 ErrCode LocatorAbility::EnableAbility(bool isEnabled)
@@ -1882,7 +1890,7 @@ ErrCode LocatorAbility::SubscribeBluetoothScanResultChange(
     callbackMessage->SetCallback(cb);
     callbackMessage->SetAppIdentity(identity);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_START_SCAN_BLUETOOH_DEVICE, callbackMessage);
+        Get(EVENT_START_SCAN_BLUETOOTH_DEVICE, callbackMessage);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
@@ -1906,7 +1914,7 @@ ErrCode LocatorAbility::UnSubscribeBluetoothScanResultChange(
     callbackMessage->SetCallback(cb);
     callbackMessage->SetAppIdentity(identity);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
-        Get(EVENT_STOP_SCAN_BLUETOOH_DEVICE, callbackMessage);
+        Get(EVENT_STOP_SCAN_BLUETOOTH_DEVICE, callbackMessage);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
@@ -2223,6 +2231,23 @@ ErrCode LocatorAbility::GetCurrentWifiBssidForLocating(std::string& bssid)
     return locatorDataManager->GetCurrentWifiBssidForLocating(bssid);
 }
 
+ErrCode LocatorAbility::IsPoiServiceSupported(bool& poiServiceSupportState)
+{
+    std::string serviceName;
+    bool result = LocationConfigManager::GetInstance()->GetNlpServiceName(serviceName);
+    if (!result || serviceName.empty()) {
+        LBSLOGE(LOCATOR, "get service name failed!");
+        poiServiceSupportState = false;
+        return ERRCODE_SUCCESS;
+    }
+    if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+        poiServiceSupportState = false;
+    } else {
+        poiServiceSupportState = true;
+    }
+    return ERRCODE_SUCCESS;
+}
+
 LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
 {
     int modeValue = isEnabled ? ENABLED : DISABLED;
@@ -2231,7 +2256,13 @@ LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
-    LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(modeValue);
+    if (LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(modeValue)) {
+        int userId = 0;
+        if (!CommonUtils::GetCurrentUserId(userId)) {
+            userId = DEFAULT_USERID;
+        }
+        CommonEventHelper::PublishLocationModeChangeCommonEventAsUser(modeValue, userId);
+    }
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
@@ -2245,7 +2276,9 @@ LocationErrCode LocatorAbility::SetSwitchStateForUser(bool isEnabled, int32_t us
     std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
     locatorSwitchMessage->SetModeValue(modeValue);
     locatorSwitchMessage->SetUserId(userId);
-    LocationDataRdbManager::SetSwitchStateToSysparaForUser(modeValue, userId);
+    if (LocationDataRdbManager::SetSwitchStateToSysparaForUser(modeValue, userId)) {
+        CommonEventHelper::PublishLocationModeChangeCommonEventAsUser(modeValue, userId);
+    }
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
@@ -2529,7 +2562,7 @@ void LocatorHandler::InitLocatorHandlerEventMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { IsStandByEvent(event); };
     ConstructDbHandleMap();
     ConstructGeocodeHandleMap();
-    ConstructBluetoohScanHandleMap();
+    ConstructBluetoothScanHandleMap();
 }
 
 void LocatorHandler::ConstructGeocodeHandleMap()
@@ -2550,12 +2583,12 @@ void LocatorHandler::ConstructDbHandleMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { WatchSwitchParameter(event); };
 }
 
-void LocatorHandler::ConstructBluetoohScanHandleMap()
+void LocatorHandler::ConstructBluetoothScanHandleMap()
 {
-    locatorHandlerEventMap_[EVENT_START_SCAN_BLUETOOH_DEVICE] =
-        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartScanBluetoohDeviceEvent(event); };
-    locatorHandlerEventMap_[EVENT_STOP_SCAN_BLUETOOH_DEVICE] =
-        [this](const AppExecFwk::InnerEvent::Pointer& event) { StopScanBluetoohDeviceEvent(event); };
+    locatorHandlerEventMap_[EVENT_START_SCAN_BLUETOOTH_DEVICE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartScanBluetoothDeviceEvent(event); };
+    locatorHandlerEventMap_[EVENT_STOP_SCAN_BLUETOOTH_DEVICE] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StopScanBluetoothDeviceEvent(event); };
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
@@ -2723,25 +2756,25 @@ void LocatorHandler::UnloadSaEvent(const AppExecFwk::InnerEvent::Pointer& event)
     }
 }
 
-void LocatorHandler::StartScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void LocatorHandler::StartScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     std::unique_ptr<BluetoothScanResultCallbackMessage> callbackMessage =
         event->GetUniqueObject<BluetoothScanResultCallbackMessage>();
     if (callbackMessage == nullptr) {
         return;
     }
-    LocatorRequiredDataManager::GetInstance()->StartScanBluetoohDevice(
+    LocatorRequiredDataManager::GetInstance()->StartScanBluetoothDevice(
         callbackMessage->GetCallback(), callbackMessage->GetAppIdentity());
 }
 
-void LocatorHandler::StopScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event)
+void LocatorHandler::StopScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event)
 {
     std::unique_ptr<BluetoothScanResultCallbackMessage> callbackMessage =
         event->GetUniqueObject<BluetoothScanResultCallbackMessage>();
     if (callbackMessage == nullptr) {
         return;
     }
-    LocatorRequiredDataManager::GetInstance()->StopScanBluetoohDevice(callbackMessage->GetCallback()->AsObject());
+    LocatorRequiredDataManager::GetInstance()->StopScanBluetoothDevice(callbackMessage->GetCallback()->AsObject());
 }
 
 void LocatorHandler::RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event)

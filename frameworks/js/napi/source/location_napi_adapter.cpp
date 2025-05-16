@@ -208,6 +208,69 @@ napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_create_string_utf8(env, bssid.c_str(), NAPI_AUTO_LENGTH, &res));
     return res;
 }
+
+napi_value GetDistanceBetweenLocations(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    if (g_locatorClient == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_SERVICE_UNAVAILABLE);
+        return UndefinedNapiValue(env);
+    }
+    // 2 arguement is necessary
+    if (argc != PARAM2) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    napi_valuetype valueType;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    napi_valuetype valueType1;
+    NAPI_CALL(env, napi_typeof(env, argv[1], &valueType1));
+    if (valueType != napi_object || valueType1 != napi_object) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    Location location1;
+    Location location2;
+    if (!JsObjToLocation(env, argv[0], location1) || !JsObjToLocation(env, argv[1], location2)) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    if (!location1.isValidLatitude(location1.GetLatitude()) || !location1.isValidLongitude(location1.GetLongitude()) ||
+        !location1.isValidLatitude(location2.GetLatitude()) || !location1.isValidLongitude(location2.GetLongitude())) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    napi_value res;
+    double distance;
+    LocationErrCode errorCode = g_locatorClient->GetDistanceBetweenLocations(location1, location2, distance);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+    NAPI_CALL(env, napi_create_double(env, distance, &res));
+    return res;
+}
+#endif
+
+#ifdef ENABLE_NAPI_MANAGER
+napi_value IsPoiServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    bool poiServiceSupportState = g_locatorClient->IsPoiServiceSupported();
+    NAPI_CALL(env, napi_get_boolean(env, poiServiceSupportState, &res));
+    return res;
+}
 #endif
 
 napi_value EnableLocation(napi_env env, napi_callback_info info)

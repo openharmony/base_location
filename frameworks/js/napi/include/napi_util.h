@@ -41,7 +41,8 @@ namespace OHOS {
 namespace Location {
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
-void BluetoohScanResultToJs(const napi_env& env, const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult,
+void PoiToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
+void BluetoothScanResultToJs(const napi_env& env, const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult,
     napi_value& result);
 void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Location>>& locations, napi_value& result);
 void SatelliteStatusToJs(const napi_env& env, const std::shared_ptr<SatelliteStatus>& statusInfo, napi_value& result);
@@ -50,6 +51,7 @@ bool GeoAddressesToJsObj(const napi_env& env,
     std::list<std::shared_ptr<GeoAddress>>& replyList, napi_value& arrayResult);
 void JsObjToLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig);
+bool JsObjToLocation(const napi_env& env, const napi_value& object, Location& location);
 void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<RequestConfig>& requestConfig);
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
@@ -97,6 +99,8 @@ napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& a
 napi_status SetValueStringMap(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::string propertyName);
 napi_value CreateError(napi_env env, int32_t err, const std::string &msg);
+napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo);
+napi_status SetValuePoi(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

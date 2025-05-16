@@ -82,6 +82,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
 
     handleTerminate() {
         this.stopContinuousTask();
+        commonEventManager.unsubscribe(this.subscriber);
         this.context.terminateSelf();
     }
 
@@ -229,11 +230,21 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         });
 
         this.receiveDirectory = data.parameters.uri;
-        const uri = new fileUri.FileUri(data.parameters.uri);
-        this.sandBoxUri = uri.path + '/' + this.fileName;
-        let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
-        this.fileFd = file.fd;
-        this.oppProfile.setIncomingFileConfirmation(true, file.fd);
+        if ((data.parameters.uri === undefined) || (data.parameters.uri === null) ||
+            (data.parameters.uri.length === 0)) {
+            console.error(TAG, 'uri not right');
+            return;
+        }
+        try {
+            const uri = new fileUri.FileUri(data.parameters.uri);
+            this.sandBoxUri = uri.path + '/' + this.fileName;
+            let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
+            this.fileFd = file.fd;
+            this.oppProfile.setIncomingFileConfirmation(true, file.fd);
+        } catch (err) {
+            console.error(TAG, `openFd failed, code: ${err?.code} message:${err?.message}`);
+            return;
+        }
     }
 
     handleReceive(data: commonEventManager.CommonEventData) {
@@ -394,6 +405,42 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         });
     }
 
+    async createRecevieProgressNotification(name: string, progress: number) {
+        let notificationRequest: notificationManager.NotificationRequest = {
+            notificationSlotType: notificationManager.SlotType.SOCIAL_COMMUNICATION,
+            id: this.capsuleNotificationID,
+            template: {
+                name: 'downloadTemplate',
+                data: {
+                    title: this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_notification_title').id),
+                    fileName: this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_receive_text').id) + name,
+                    progressValue: progress,
+                    progressMaxValue: 100
+                }
+            },
+            content: {
+                notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
+                normal: {
+                    title: this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_notification_title').id),
+                    text: this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_receive_text').id) + name
+                }
+            },
+            extraInfo: {
+                hw_keep_headsup_sticky: true,
+                hw_heads_up_enable: true
+            }
+        };
+
+        notificationManager.publish(notificationRequest).then(() => {
+            console.info(TAG, 'createRecevieProgressNotification success');
+            if (progress === 100) {
+                this.cancelSendProgressNotification(1);
+            }
+        }).catch((err: Base.BusinessError) => {
+            console.error(TAG, 'createRecevieProgressNotification fail');
+        });
+    }
+
     async pullUpSendProgressNotification(percent: number, name: string) {
         const currentDate: Date = new Date();
         const currentTimeInMsUsingGetTime: number = currentDate.getTime();
@@ -417,10 +464,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             return;
         }
 
-        let wantAgentObjRemove: WantAgent;
-        wantAgentObjRemove = await this.getNotificationWantAgent('ohos.event.notification.BT.LIVEVIEW_REMOVE');
-        await this.publishTransProgessNotification(imagePixelMapButton, imagePixelMapCapsule,
-            wantAgentObjRemove, percent, name);
+        await this.createRecevieProgressNotification(name, percent);
     }
 
     cancelSendProgressNotification(successOrNot: number) {
@@ -447,22 +491,22 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         let subscriber: notificationManager.SystemLiveViewSubscriber = {
             onResponse: (id: number, option: notificationManager.ButtonOptions) => {
                 switch (option.buttonName) {
-                    case this.cancelTransEvent: {
-                        console.info(TAG, 'cancel transfer.');
-                        this.tapEventIsAllowed = true;
-                        this.oppProfile.cancelTransfer();
-                        this.cancelSendProgressNotification(0);
-                        break;
-                    }
-                    default: {
-                        break;
-                    }
+                  case this.cancelTransEvent: {
+                      console.info(TAG, 'cancel transfer.');
+                      this.tapEventIsAllowed = true;
+                      this.oppProfile.cancelTransfer();
+                      this.cancelSendProgressNotification(0);
+                      break;
+                  }
+                  default: {
+                      break;
+                  }
                 }
             }
         };
         try {
             notificationManager.subscribeSystemLiveView(subscriber);
-        } catch(e) {
+        } catch (e) {
             console.error(TAG, 'subscriberLiveViewNotification fail');
         }
     }

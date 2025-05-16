@@ -133,7 +133,7 @@ void CommonUtilsTest::LoadSystemAbility()
 #endif
 }
 
-HWTEST_F(CommonUtilsTest, AbilityConvertToIdTest001, TestSize.Level1)
+HWTEST_F(CommonUtilsTest, AbilityConvertToIdTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "CommonUtilsTest, AbilityConvertToIdTest001, TestSize.Level1";
@@ -146,7 +146,7 @@ HWTEST_F(CommonUtilsTest, AbilityConvertToIdTest001, TestSize.Level1)
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] AbilityConvertToIdTest001 end");
 }
 
-HWTEST_F(CommonUtilsTest, GetCapabilityTest001, TestSize.Level1)
+HWTEST_F(CommonUtilsTest, GetCapabilityTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "CommonUtilsTest, GetCapabilityTest001, TestSize.Level1";
@@ -165,7 +165,7 @@ HWTEST_F(CommonUtilsTest, GetCapabilityTest001, TestSize.Level1)
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetCapabilityTest001 end");
 }
 
-HWTEST_F(CommonUtilsTest, GetLabelTest001, TestSize.Level1)
+HWTEST_F(CommonUtilsTest, GetLabelTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "CommonUtilsTest, GetLabelTest001, TestSize.Level1";
@@ -199,7 +199,7 @@ HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest001 end");
 }
 
-HWTEST_F(CommonUtilsTest, GetCurrentUserIdTest001, TestSize.Level1)
+HWTEST_F(CommonUtilsTest, GetCurrentUserIdTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "CommonUtilsTest, GetCurrentUserIdTest001, TestSize.Level1";

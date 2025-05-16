@@ -63,7 +63,7 @@ public:
     void InitLocatorHandlerEventMap();
     void ConstructDbHandleMap();
     void ConstructGeocodeHandleMap();
-    void ConstructBluetoohScanHandleMap();
+    void ConstructBluetoothScanHandleMap();
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void UpdateSaEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -77,8 +77,8 @@ private:
     void StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event);
     void GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event);
-    void StartScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
-    void StopScanBluetoohDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StartScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -220,6 +220,8 @@ public:
     ErrCode SubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
     ErrCode UnSubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
     ErrCode GetCurrentWifiBssidForLocating(std::string& bssid) override;
+    ErrCode IsPoiServiceSupported(bool& poiServiceSupportState) override;
+    LocationErrCode SetSwitchState(bool isEnabled);
 
 private:
     bool Init();
@@ -241,7 +243,6 @@ private:
     bool SetLocationhubStateToSyspara(int value);
     void SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable);
     void GetAppIdentityInfo(AppIdentity& identity);
-    LocationErrCode SetSwitchState(bool isEnabled);
     LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId);
     bool CheckLocationSwitchState();
     bool CheckLocationPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid);

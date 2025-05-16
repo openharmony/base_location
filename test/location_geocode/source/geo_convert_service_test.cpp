@@ -50,6 +50,7 @@
 #include "permission_manager.h"
 #include <gtest/gtest.h>
 #include "mock_geo_convert_service.h"
+#include "mock_i_remote_object.h"
 
 #include "locationhub_ipc_interface_code.h"
 #include "location_sa_load_manager.h"
@@ -128,7 +129,7 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertAvailable001, TestSize.Level1)
  * @tc.desc: Test get address from system ability by coordinate.
  * @tc.type: FUNC
  */
-HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1";
@@ -157,7 +158,7 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByCoordinate001 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level1";
@@ -195,10 +196,10 @@ HWTEST_F(GeoConvertServiceTest, GetAddressByCoordinate002, TestSize.Level1)
  * @tc.desc: Test get address from system ability by location name.
  * @tc.type: FUNC
  */
-HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level1";
+        << "GeoConvertServiceTest, GetAddressByLocationName001, TestSize.Level0";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetAddressByLocationName001 begin");
 
     /*
@@ -298,10 +299,10 @@ HWTEST_F(GeoConvertServiceTest, GeoConvertProxyGetAddressByCoordinate002, TestSi
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertProxyGetAddressByCoordinate002 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, GeoConvertInit001, TestSize.Level1)
+HWTEST_F(GeoConvertServiceTest, GeoConvertInit001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, GeoConvertInit001, TestSize.Level1";
+        << "GeoConvertServiceTest, GeoConvertInit001, TestSize.Level0";
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoConvertInit001 begin");
     service_->registerToService_  = true;
     service_->Init();
@@ -579,6 +580,137 @@ HWTEST_F(GeoConvertServiceTest, GeoServiceDeathRecipientOnRemoteDied001, TestSiz
     recipient->OnRemoteDied(remote);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoServiceDeathRecipientOnRemoteDied001 end");
 }
+
+HWTEST_F(GeoConvertServiceTest, ProcessEvent001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, ProcessEvent001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ProcessEvent001 begin");
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(0, 0);
+    ASSERT_TRUE(service_ != nullptr);
+    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
+    service_->geoConvertHandler_->ProcessEvent(event);
+    event = AppExecFwk::InnerEvent::Get(0x0100, 0);
+    service_->geoConvertHandler_->ProcessEvent(event);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ProcessEvent001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, UnRegisterGeoServiceDeathRecipient001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, UnRegisterGeoServiceDeathRecipient001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] UnRegisterGeoServiceDeathRecipient001 begin");
+    ASSERT_TRUE(service_ != nullptr);
+    service_->UnRegisterGeoServiceDeathRecipient();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] UnRegisterGeoServiceDeathRecipient001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, InitGeoConvertHandlerEventMap001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, InitGeoConvertHandlerEventMap001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] InitGeoConvertHandlerEventMap001 begin");
+    ASSERT_TRUE(service_ != nullptr);
+    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
+    service_->geoConvertHandler_->InitGeoConvertHandlerEventMap();
+    service_->geoConvertHandler_->InitGeoConvertHandlerEventMap();
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] InitGeoConvertHandlerEventMap001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, NullHandler001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, NullHandler001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] NullHandler001 begin");
+    ASSERT_TRUE(service_ != nullptr);
+    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
+    service_->geoConvertHandler_ = nullptr;
+    service_->UnloadGeoConvertSystemAbility();
+    service_->geoConvertHandler_ =
+        std::make_shared<GeoConvertHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] NullHandler001 end");
+}
+ 
+HWTEST_F(GeoConvertServiceTest, SendGeocodeRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, SendGeocodeRequest001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] SendGeocodeRequest001 begin");
+    auto mockGeoConvertRequest = std::make_unique<GeoConvertRequest>();
+    mockGeoConvertRequest->SetLocale("test");
+    mockGeoConvertRequest->GetLocale();
+    mockGeoConvertRequest->SetLatitude(30);
+    mockGeoConvertRequest->GetLatitude();
+    mockGeoConvertRequest->SetLongitude(40);
+    mockGeoConvertRequest->GetLongitude();
+    mockGeoConvertRequest->SetMaxItems(99);
+    mockGeoConvertRequest->GetMaxItems();
+    mockGeoConvertRequest->SetDescription("test");
+    mockGeoConvertRequest->GetDescription();
+    mockGeoConvertRequest->SetMaxLatitude(180);
+    mockGeoConvertRequest->GetMaxLatitude();
+    mockGeoConvertRequest->SetMaxLongitude(90);
+    mockGeoConvertRequest->GetMaxLongitude();
+    mockGeoConvertRequest->SetMinLongitude(0);
+    mockGeoConvertRequest->GetMinLongitude();
+    mockGeoConvertRequest->SetBundleName("test");
+    mockGeoConvertRequest->GetBundleName();
+    sptr<IRemoteObject> callback = nullptr;
+    mockGeoConvertRequest->SetCallback(callback);
+    mockGeoConvertRequest->GetCallback();
+    mockGeoConvertRequest->SetCountry("Shanghai");
+    mockGeoConvertRequest->GetCountry();
+    mockGeoConvertRequest->SetMinLatitude(0);
+    mockGeoConvertRequest->GetMinLatitude();
+    mockGeoConvertRequest->SetTransId("Shanghai");
+    mockGeoConvertRequest->GetTransId();
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(0x0100, mockGeoConvertRequest);
+    ASSERT_TRUE(service_ != nullptr);
+    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
+    service_->geoConvertHandler_->SendGeocodeRequest(event);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] SendGeocodeRequest001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, Marshalling001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, Marshalling001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] Marshalling001 begin");
+    MessageParcel parcel;
+    auto mockGeoConvertRequest = std::make_unique<GeoConvertRequest>();
+    mockGeoConvertRequest->SetRequestType(GeoCodeType::REQUEST_GEOCODE);
+    mockGeoConvertRequest->Marshalling(parcel);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] Marshalling001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, ReadFromParcel001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, ReadFromParcel001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReadFromParcel001 begin");
+    MessageParcel parcel;
+    auto mockGeoConvertRequest = std::make_unique<GeoConvertRequest>();
+    mockGeoConvertRequest->SetRequestType(GeoCodeType::REQUEST_GEOCODE);
+    mockGeoConvertRequest->ReadFromParcel(parcel);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ReadFromParcel001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, OrderParcel001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, OrderParcel001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 begin");
+    MessageParcel parcelIn;
+    MessageParcel parcelOut;
+    auto mockGeoConvertRequest = std::make_unique<GeoConvertRequest>();
+    auto cb = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
+    std::string bundleName = "test";
+    GeoCodeType requestType = GeoCodeType::REQUEST_GEOCODE;
+    mockGeoConvertRequest->SetRequestType(GeoCodeType::REQUEST_GEOCODE);
+    mockGeoConvertRequest->OrderParcel(parcelIn, parcelOut, cb, requestType, bundleName);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
+}
+
 }  // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GEOCODE_SUPPORT

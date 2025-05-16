@@ -13,23 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef IBLUETOOTH_SCAN_RESULT_CALLBACK_H
-#define IBLUETOOTH_SCAN_RESULT_CALLBACK_H
+#ifndef BULETOOH_SCAN_RESULT_CALLBACK_PROXY_H
+#define BULETOOH_SCAN_RESULT_CALLBACK_PROXY_H
 
-#include "iremote_broker.h"
+#include <vector>
 
+#include "iremote_proxy.h"
+#include "iremote_object.h"
+
+#include "ibluetooth_scan_result_callback.h"
 #include "bluetooth_scan_result.h"
 
 namespace OHOS {
 namespace Location {
-class IBluetoothScanResultCallback : public IRemoteBroker {
+class BluetoothScanResultCallbackProxy : public IRemoteProxy<IBluetoothScanResultCallback> {
 public:
-enum {
-        RECEIVE_INFO_EVENT = 1,
-    };
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.IBluetoothScanResultCallback");
-    virtual void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
+    explicit BluetoothScanResultCallbackProxy(const sptr<IRemoteObject> &impl);
+    ~BluetoothScanResultCallbackProxy() = default;
+    void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& data) override;
+private:
+    static inline BrokerDelegator<BluetoothScanResultCallbackProxy> delegator_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // IBLUETOOTH_SCAN_RESULT_CALLBACK_H
+#endif // BULETOOH_SCAN_RESULT_CALLBACK_PROXY_H
