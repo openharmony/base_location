@@ -133,6 +133,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               clearTimeout(this.timerIdReceive);
               this.transfering = false;
               this.oppProfile.setIncomingFileConfirmation(false, -1);
+              this.pullUpReceiveResultNotification(0, 1);
               this.handleTerminate();
               this.tapEventIsAllowed = false;
               break;
@@ -142,6 +143,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               clearTimeout(this.timerIdReceive);
               this.transfering = false;
               this.oppProfile.setIncomingFileConfirmation(false, -1);
+              this.pullUpReceiveResultNotification(0, 1);
               this.handleTerminate();
               this.tapEventIsAllowed = true;
               break;
@@ -299,6 +301,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 console.info(TAG, 'receive notification 50 seconds but no tap');
                 this.transfering = false;
                 this.oppProfile.setIncomingFileConfirmation(false, -1);
+                this.pullUpReceiveResultNotification(0, 1);
                 this.handleTerminate();
             }, waitTime);
         }).catch((err: Base.BusinessError) => {

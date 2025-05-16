@@ -122,6 +122,9 @@ static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_CAPI = {LOG_CORE, LOCATION
 static constexpr OHOS::HiviewDFX::HiLogLabel FENCE_EXTENSION = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "FenceExtension"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel PROXY_FREEZE_MANAGER = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "ProxyFreezeManager"
+};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H

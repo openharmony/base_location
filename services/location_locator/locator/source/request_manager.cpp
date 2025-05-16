@@ -456,7 +456,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
         return false;
     }
     // for frozen app, do not add to workRecord
-    if (LocatorAbility::GetInstance()->IsProxyPid(request->GetPid())) {
+    if (ProxyFreezeManager::GetInstance()->IsProxyPid(request->GetPid())) {
         return false;
     }
     AppIdentity identity;
@@ -726,7 +726,7 @@ void RequestManager::ReportLocationError(const int errorCode, std::shared_ptr<Re
         if (locatorErrRequest == nullptr) {
             continue;
         }
-        if (LocatorAbility::GetInstance()->IsProxyPid(locatorErrRequest->GetPid()) ||
+        if (ProxyFreezeManager::GetInstance()->IsProxyPid(locatorErrRequest->GetPid()) ||
             (request->GetUid() != 0 && (request->GetUid() != locatorErrRequest->GetUid()))) {
             continue;
         }

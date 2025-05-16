@@ -42,6 +42,7 @@
 #ifdef MOVEMENT_CLIENT_ENABLE
 #include "locator_msdp_monitor_manager.h"
 #endif
+#include "proxy_freeze_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -200,7 +201,6 @@ public:
     void RegisterLocationPrivacyAction();
     LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy);
     LocationErrCode ResetAllProxy();
-    bool IsProxyPid(int32_t pid);
     int GetActiveRequestNum();
     void RegisterPermissionCallback(const uint32_t callingTokenId, const std::vector<std::string>& permissionNameList);
     void UnregisterPermissionCallback(const uint32_t callingTokenId);

@@ -31,6 +31,7 @@ local_base_sources = [
   "$LOCATION_COMMON_DIR/source/location_data_rdb_manager.cpp",
   "$LOCATION_COMMON_DIR/source/location_dumper.cpp",
   "$LOCATION_COMMON_DIR/source/permission_manager.cpp",
+  "$LOCATION_COMMON_DIR/source/proxy_freeze_manager.cpp",
   "$LOCATION_COMMON_DIR/source/request.cpp",
   "$LOCATION_COMMON_DIR/source/sa_load_with_statistic.cpp",
   "$LOCATION_COMMON_DIR/source/ui_extension_ability_connection.cpp",
