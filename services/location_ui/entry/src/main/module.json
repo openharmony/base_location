@@ -119,11 +119,6 @@
                 "scheme": "file",
                 "utd": "general.object",
                 "maxFileSupported": 1
-              },
-              {
-                "scheme": "file",
-                "utd": "general.archive",
-                "maxFileSupported": 1
               }
             ]
           }
