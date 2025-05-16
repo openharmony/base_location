@@ -122,10 +122,10 @@ void PassiveAbility::UnloadPassiveSystemAbility()
         return;
     }
     passiveHandler_->RemoveTask(UNLOAD_PASSIVE_TASK);
-    if (CheckIfPassiveConnecting()) {
-        return;
-    }
     auto task = [this]() {
+        if (CheckIfPassiveConnecting()) {
+            return;
+        }
         SaLoadWithStatistic::UnInitLocationSa(LOCATION_NOPOWER_LOCATING_SA_ID);
     };
     if (passiveHandler_ != nullptr) {
