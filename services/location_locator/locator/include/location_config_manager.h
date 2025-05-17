@@ -124,6 +124,20 @@ public:
      * @return int - agnss server port
      */
     int GetAgnssServerPort();
+
+    /*
+     * @Description get gnss enable state
+     *
+     * @return int - gnss enable state
+     */
+    int GetGnssEnableState();
+
+    /*
+     * @Description get nlp enable state
+     *
+     * @return int - nlp enable state
+     */
+    int GetNlpEnableState();
 private:
     LocationConfigManager();
     std::string GetLocationSwitchConfigPath();

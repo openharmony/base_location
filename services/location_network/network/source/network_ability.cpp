@@ -35,6 +35,7 @@
 #include "common_hisysevent.h"
 #include "location_data_rdb_manager.h"
 #include "hook_utils.h"
+#include "permission_manager.h"
 
 #ifdef LOCATION_HICOLLIE_ENABLE
 #include "xcollie/xcollie.h"
@@ -235,6 +236,11 @@ LocationErrCode NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
 LocationErrCode NetworkAbility::SetEnable(bool state)
 {
     LBSLOGD(NETWORK, "SetEnable: %{public}d", state);
+    int nlpEnableState  = LocationConfigManager::GetInstance()->GetNlpEnableState();
+    if (!nlpEnableState) {
+        LBSLOGE(NETWORK, "nlpEnableState false");
+        state = false;
+    }
     if (networkHandler_ == nullptr) {
         LBSLOGE(NETWORK, "%{public}s networkHandler is nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -300,6 +306,15 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         }
     }
     if (isAdded) {
+        int nlpEnableState  = LocationConfigManager::GetInstance()->GetNlpEnableState();
+        uint32_t tokenId = workRecord.GetTokenId(0);
+        uint32_t firstTokenId = workRecord.GetFirstTokenId(0);
+        bool ignoredSwtichPermission =
+            PermissionManager::CheckLocationSwitchIgnoredPermission(tokenId, firstTokenId);
+        if (!nlpEnableState && !ignoredSwtichPermission) { //  enter when enablestated & ignoredPermission all false
+            LBSLOGE(NETWORK, "enablestated and ignoredSwtichPermission both false");
+            return;
+        }
         RequestNetworkLocation(workRecord);
         if (networkHandler_ != nullptr) {
             networkHandler_->RemoveTask(DISCONNECT_NETWORK_TASK);

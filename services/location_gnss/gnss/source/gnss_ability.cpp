@@ -207,7 +207,8 @@ LocationErrCode GnssAbility::SendLocationRequest(WorkRecord &workrecord)
 
 LocationErrCode GnssAbility::SetEnable(bool state)
 {
-    if (state) {
+    int gnssEnableState  = LocationConfigManager::GetInstance()->GetGnssEnableState();
+    if (state && gnssEnableState) {
         EnableGnss();
         StartGnss();
     } else {
@@ -215,7 +216,8 @@ LocationErrCode GnssAbility::SetEnable(bool state)
         * GNSS will not disable and stop, if there are location requests
         * that are not restricted by the location switch state exist.
         */
-        if (GetRequestNum() == 0) {
+        if (GetRequestNum() == 0 || !gnssEnableState) {
+            LBSLOGI(GNSS, "gnssEnableState: %{public}d", gnssEnableState);
             StopGnss();
             DisableGnss();
         }
@@ -385,6 +387,14 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGD(GNSS, "enter RequestRecord");
     if (isAdded) {
+        int gnssEnableState  = LocationConfigManager::GetInstance()->GetGnssEnableState();
+        uint32_t tokenId = workRecord.GetTokenId(0);
+        uint32_t firstTokenId = workRecord.GetFirstTokenId(0);
+        bool ignoredSwitchPermission = PermissionManager::CheckLocationSwitchIgnoredPermission(tokenId, firstTokenId);
+        if (!gnssEnableState && !ignoredSwitchPermission) {
+            LBSLOGE(GNSS, "gnss enablestate false!");
+            return;
+        }
         if (!CheckIfHdiConnected()) {
             auto startTime = CommonUtils::GetCurrentTimeStamp();
             auto ret = false;

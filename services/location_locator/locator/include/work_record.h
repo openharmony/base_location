@@ -43,6 +43,8 @@ public:
     std::string GetName(int index);
     int GetUid(int index);
     int GetPid(int index);
+    uint32_t GetTokenId(int index);
+    uint32_t GetFirstTokenId(int index);
     int GetTimeInterval(int index);
     int GetNlpRequestType(int index);
     std::string GetUuid(int index);
@@ -59,6 +61,8 @@ private:
     std::vector<int> timeInterval_;
     std::vector<std::string> uuid_;
     std::vector<int> nlpRequestType_;
+    std::vector<uint32_t> tokenId_;
+    std::vector<uint32_t> firstTokenId_;
     std::string deviceId_;
     mutable std::mutex workRecordMutex_;
 };
