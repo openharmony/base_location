@@ -186,21 +186,22 @@ std::vector<std::u16string> Location::VectorString8ToVectorString16() const
 
 bool Location::WritePoiInfoToParcel(const PoiInfo& data, Parcel& parcel)
 {
-    parcel.WriteUint64(data.timestamp);
-    parcel.WriteUint32(data.poiArray.size());
+    bool parcelState = true;
+    parcelState = parcelState && parcel.WriteUint64(data.timestamp);
+    parcelState = parcelState && parcel.WriteUint32(data.poiArray.size());
     for (const auto& poi : data.poiArray) {
-        parcel.WriteString(poi.id);
-        parcel.WriteDouble(poi.confidence);
-        parcel.WriteString(poi.name);
-        parcel.WriteDouble(poi.latitude);
-        parcel.WriteDouble(poi.longitude);
-        parcel.WriteString(poi.administrativeArea);
-        parcel.WriteString(poi.subAdministrativeArea);
-        parcel.WriteString(poi.locality);
-        parcel.WriteString(poi.subLocality);
-        parcel.WriteString(poi.address);
+        parcelState = parcelState && parcel.WriteString(poi.id);
+        parcelState = parcelState && parcel.WriteDouble(poi.confidence);
+        parcelState = parcelState && parcel.WriteString(poi.name);
+        parcelState = parcelState && parcel.WriteDouble(poi.latitude);
+        parcelState = parcelState && parcel.WriteDouble(poi.longitude);
+        parcelState = parcelState && parcel.WriteString(poi.administrativeArea);
+        parcelState = parcelState && parcel.WriteString(poi.subAdministrativeArea);
+        parcelState = parcelState && parcel.WriteString(poi.locality);
+        parcelState = parcelState && parcel.WriteString(poi.subLocality);
+        parcelState = parcelState && parcel.WriteString(poi.address);
     }
-    return 0;
+    return parcelState;
 }
  
 PoiInfo Location::ReadPoiInfoFromParcel(Parcel& parcel)
