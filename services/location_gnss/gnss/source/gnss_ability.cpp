@@ -246,10 +246,10 @@ void GnssAbility::UnloadGnssSystemAbility()
         return;
     }
     gnssHandler_->RemoveTask(UNLOAD_GNSS_TASK);
-    if (CheckIfGnssConnecting()) {
-        return;
-    }
     auto task = [this]() {
+        if (CheckIfGnssConnecting()) {
+            return;
+        }
         SaLoadWithStatistic::UnInitLocationSa(LOCATION_GNSS_SA_ID);
     };
     if (gnssHandler_ != nullptr) {

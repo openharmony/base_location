@@ -272,10 +272,10 @@ void NetworkAbility::UnloadNetworkSystemAbility()
         return;
     }
     networkHandler_->RemoveTask(UNLOAD_NETWORK_TASK);
-    if (CheckIfNetworkConnecting()) {
-        return;
-    }
     auto task = [this]() {
+        if (CheckIfNetworkConnecting()) {
+            return;
+        }
         SaLoadWithStatistic::UnInitLocationSa(LOCATION_NETWORK_LOCATING_SA_ID);
     };
     if (networkHandler_ != nullptr) {

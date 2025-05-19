@@ -368,10 +368,10 @@ void GeoConvertService::UnloadGeoConvertSystemAbility()
         return;
     }
     geoConvertHandler_->RemoveTask(UNLOAD_GEOCONVERT_TASK);
-    if (CheckIfGeoConvertConnecting()) {
-        return;
-    }
     auto task = [this]() {
+        if (CheckIfGeoConvertConnecting()) {
+            return;
+        }
         SaLoadWithStatistic::UnInitLocationSa(LOCATION_GEO_CONVERT_SA_ID);
         GeoConvertService::GetInstance()->DisconnectAbilityConnect();
     };
