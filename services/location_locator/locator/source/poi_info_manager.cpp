@@ -171,25 +171,25 @@ Poi PoiInfoManager::ParsePoiInfo(cJSON* poiJson)
 {
     Poi poi;
     cJSON *item = cJSON_GetObjectItem(poiJson, "id");
-    poi.id = (item && item->valuestring) ? item->valuestring : "";
+    poi.id = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(poiJson, "confidence");
-    poi.confidence = (item) ? item->valuedouble : 0.0;
+    poi.confidence = (item && cJSON_IsNumber(item)) ? item->valuedouble : 0.0;
     item = cJSON_GetObjectItem(poiJson, "name");
-    poi.name = (item && item->valuestring) ? item->valuestring : "";
+    poi.name = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(poiJson, "lat");
-    poi.latitude = (item) ? item->valuedouble : 0.0;
+    poi.latitude = (item && cJSON_IsNumber(item)) ? item->valuedouble : 0.0;
     item = cJSON_GetObjectItem(poiJson, "lon");
-    poi.longitude = (item) ? item->valuedouble : 0.0;
+    poi.longitude = (item && cJSON_IsNumber(item)) ? item->valuedouble : 0.0;
     item = cJSON_GetObjectItem(poiJson, "administrativeArea");
-    poi.administrativeArea = (item && item->valuestring) ? item->valuestring : "";
+    poi.administrativeArea = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(poiJson, "subAdministrativeArea");
-    poi.subAdministrativeArea = (item && item->valuestring) ? item->valuestring : "";
+    poi.subAdministrativeArea = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(poiJson, "locality");
-    poi.locality = (item && item->valuestring) ? item->valuestring : "";
+    poi.locality = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(poiJson, "subLocality");
-    poi.subLocality = (item && item->valuestring) ? item->valuestring : "";
+    poi.subLocality = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(poiJson, "address");
-    poi.address = (item && item->valuestring) ? item->valuestring : "";
+    poi.address = (item && cJSON_IsString(item)) ? item->valuestring : "";
     return poi;
 }
 
@@ -202,7 +202,7 @@ PoiInfo PoiInfoManager::ParsePoiInfoFromStr(const std::string& jsonString)
         return poiInfo;
     }
     cJSON* item = cJSON_GetObjectItem(cJsonObj, "time");
-    poiInfo.timestamp = (item) ? static_cast<uint64_t>(item->valuedouble) : 0;
+    poiInfo.timestamp = (item && cJSON_IsNumber(item)) ? static_cast<uint64_t>(item->valuedouble) : 0;
     cJSON* poisArray = cJSON_GetObjectItem(cJsonObj, "pois");
     if (poisArray && cJSON_IsArray(poisArray)) {
         int arraySize = cJSON_GetArraySize(poisArray);
