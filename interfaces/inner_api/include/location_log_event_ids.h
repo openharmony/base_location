@@ -31,7 +31,8 @@ enum {
     HDI_EVENT,
     LBS_REQUEST_TOO_MUCH,
     GEOCODE_REQUEST,
-    SA_LOAD
+    SA_LOAD,
+    LBS_REQUEST_FAIL_DETAIL
 };
 
 constexpr size_t LBS_REQUEST_MAX_SIZE = 20;
