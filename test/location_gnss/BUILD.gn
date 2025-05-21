@@ -82,6 +82,7 @@ if (location_feature_with_gnss) {
       "hilog:libhilog",
       "hisysevent:libhisysevent",
       "init:libbegetutil",
+      "samgr:dynamic_cache",
     ]
 
     defines = []

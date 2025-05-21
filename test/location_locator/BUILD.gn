@@ -88,6 +88,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "cJSON:cjson",
+    "samgr:dynamic_cache",
   ]
 
   defines = []
