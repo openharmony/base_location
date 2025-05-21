@@ -69,6 +69,7 @@ if (location_feature_with_passive) {
       "init:libbegetutil",
       "ipc:ipc_core",
       "safwk:system_ability_fwk",
+      "samgr:dynamic_cache",
     ]
 
     defines = []
