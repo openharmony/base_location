@@ -6,7 +6,10 @@
         },
         {
             "name":"wifi_candidate_connect_notify_title",
-            "value":"དམིགས་བཙུགས་གྲབས་འདེམས་ WLAN ལ་སྦྲེལ་གྱི་ཡིན་ནམ།"
+            "value":"༼%s༽ལ་ཡིད་ཆེས་དང་སྦྲེལ་མཐུད་བྱེད་དགོས་སམ།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",

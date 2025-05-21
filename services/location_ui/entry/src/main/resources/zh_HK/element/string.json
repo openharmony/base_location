@@ -6,7 +6,10 @@
         },
         {
             "name":"wifi_candidate_connect_notify_title",
-            "value":"連線至指定的候選 WLAN？"
+            "value":"信任「%s」並建立連接？",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",

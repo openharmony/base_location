@@ -100,10 +100,13 @@
       "name": "wifi_three_vap_notify_yes_button",
       "value": "断开"
     },
-    {
-      "name": "wifi_candidate_connect_notify_title",
-      "value": "连接至指定的候选 WLAN？"
-    },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"是否信任“%s”并建立连接？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
     {
       "name": "wifi_candidate_connect_notify_no_button",
       "value": "取消"
