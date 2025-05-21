@@ -108,13 +108,13 @@
       "name": "wifi_three_vap_notify_yes_button",
       "value": "Disconnect"
     },
-    {
-      "name":"wifi_candidate_connect_notify_title",
-      "value":"Trust and connect to \"%s\"?",
-      "attr":{
-          "priority":"translate"
-      }
-    },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"Trust and connect to \"%s\"?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
     {
       "name": "wifi_candidate_connect_notify_no_button",
       "value": "Cancel"
