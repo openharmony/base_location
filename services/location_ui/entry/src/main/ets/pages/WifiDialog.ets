@@ -50,7 +50,8 @@ struct dialogPlusPage {
             this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_three_vap_notify_yes_button').id);
             break;
         case this.WIFI_DIALOG_CANDIDATE_CONNECT:
-           this.title = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_title').id);
+            let tartgetSsid : string = AppStorage.get('tartgetSsid') as string;
+            this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_context'), tartgetSsid);
             this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_no_button').id);
             this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_yes_button').id);
             break;

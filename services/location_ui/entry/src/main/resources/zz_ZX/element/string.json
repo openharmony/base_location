@@ -6,7 +6,7 @@
         },
         {
             "name":"wifi_candidate_connect_notify_title",
-            "value":"[TS_962293]_Connect to this WLAN network?"
+            "value":"[TS_962293]_Trust and connect to \"%s\"?"
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",

@@ -33,6 +33,7 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         AppStorage.setOrCreate('wifiDialogType', want.parameters?.['wifiDialogType']);
         AppStorage.setOrCreate('wifi5gSsid', want.parameters?.['wifi5gSsid']);
         AppStorage.setOrCreate('p2pDeviceName', want.parameters?.['p2pDeviceName']);
+        AppStorage.setOrCreate('targetSsid', want.parameters?.['targetSsid']);
 
         let param: Record<string, UIExtensionContentSession> = {
             'session': session

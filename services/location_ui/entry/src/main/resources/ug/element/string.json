@@ -6,7 +6,10 @@
         },
         {
             "name":"wifi_candidate_connect_notify_title",
-            "value":"بەلگىلەنگەن نامزات WLAN غا ئۇلامسىز؟"
+            "value":"نۆۋەتتە %s بىلەن ئۇلانماقچى، ئىشىنىپ ئۇلامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
