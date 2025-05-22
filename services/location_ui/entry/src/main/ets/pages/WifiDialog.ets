@@ -20,6 +20,7 @@ import resourceManager from '@ohos.resourceManager';
 let TAG = '[WIFI-NI:WifiDialog]==>';
 const WIFI_NI_ACCEPT_EVENT: string = 'ohos.event.wifi.DIALOG_ACCEPT';
 const WIFI_NI_REJECT_EVENT: string = 'ohos.event.wifi.DIALOG_REJECT';
+const TIMEOUT_NO_ACTION: number = 10 * 1000;
 
 @Entry
 @Component
@@ -33,11 +34,14 @@ struct dialogPlusPage {
   private WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN: number = 3;
   private WIFI_DIALOG_P2P_WSC_PBC: number = 4;
   private WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN: number = 5;
+  private noActionTimer: number | undefined = undefined;
+  private noAction: boolean = true;
 
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear')
     if (AppStorage.get('wifiDialogType') != null) {
       let type : number = AppStorage.get('wifiDialogType') as number
+      this.clearNoActionTimer()
       switch (type) {
         case this.WIFI_DIALOG_CDD:
             this.title = getContext().resourceManager.getStringSync($r('app.string.wifi_cdd_notify_title').id);
@@ -54,6 +58,7 @@ struct dialogPlusPage {
             this.title = this.getFormatString($r('app.string.wifi_candidate_connect_notify_title'), targetSsid);
             this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_no_button').id);
             this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_yes_button').id);
+            this.setNoActionTimer()
             break;
         case this.WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN:
         case this.WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN:
@@ -95,14 +100,60 @@ struct dialogPlusPage {
   }
  
   aboutToDisappear() {
+    let type : number = AppStorage.get('wifiDialogType') as number
+    if (type === this.WIFI_DIALOG_CANDIDATE_CONNECT && this.noAction) {
+      this.candidateConnectWithNoAction()
+    }
+
+    this.clearNoActionTimer()
+
     let session = AppStorage.get<UIExtensionContentSession>('ConfirmSession');
     if (session) {
       session.terminateSelf();
     }
   }
 
+  setNoActionTimer(): void {
+    console.info(TAG, 'start no action timer.')
+    this.noActionTimer = setTimeout(() => {
+      let session = AppStorage.get<UIExtensionContentSession>('ConfirmSession');
+      if (session) {
+        session.terminateSelf();
+      }
+    }, TIMEOUT_NO_ACTION);
+  }
+
+  clearNoActionTimer(): void {
+    if (this.noActionTimer !== undefined) {
+      clearTimeout(this.noActionTimer);
+      this.noActionTimer = undefined;
+    }
+  }
+
+  candidateConnectWithNoAction(): void {
+    console.info(TAG, 'Wifi candidate dialog no action notify.')
+
+    const options: commonEventManager.CommonEventPublishData = {
+      code: 0,
+      data: 'message',
+      subscriberPermissions: [],
+      isOrdered: true,
+      isSticky: false,
+      parameters: { 'dialogType': this.WIFI_DIALOG_CANDIDATE_CONNECT, 'noAction': true }
+    }
+
+    commonEventManager.publish(WIFI_NI_REJECT_EVENT, options, (err) => {
+      if (err) {
+        console.info(TAG, 'Wifi candidate dialog no action event publish failed .' + JSON.stringify(err));
+      } else {
+        console.info(TAG, 'Wifi candidate dialog no action event publish success.');
+      }
+    })
+  }
+
   onCancel(type :number) {
     console.info(TAG, 'Wifi dialog cancel clicked.')
+    this.noAction = false
 
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
@@ -129,6 +180,7 @@ struct dialogPlusPage {
 
   onAccept(type : number) {
     console.info(TAG, 'Wifi dialog accept clicked.')
+    this.noAction = false
 
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
