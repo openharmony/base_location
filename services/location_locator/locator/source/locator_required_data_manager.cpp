@@ -517,7 +517,7 @@ void LocatorRequiredDataManager::ReportBluetoohScanResult(
         if (CommonUtils::IsAppBelongCurrentAccount(identity) && CheckLocationPermission(identity) &&
             CheckScanWhiteList(identity.GetBundleName(), TYPE_WHITE_LIST_BLE) &&
             !LocatorAbility::GetInstance()->IsProxyPid(identity.GetPid())) {
-            bluetoohScanResultCallback->OnBluetoohScanResultChange(bluetoothScanResult);
+            bluetoohScanResultCallback->OnBluetoothScanResultChange(bluetoothScanResult);
         }
     }
 }

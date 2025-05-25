@@ -24,7 +24,7 @@ BluetoohScanResultCallbackProxy::BluetoohScanResultCallbackProxy(const sptr<IRem
 {
 }
 
-void BluetoohScanResultCallbackProxy::OnBluetoohScanResultChange(
+void BluetoohScanResultCallbackProxy::OnBluetoothScanResultChange(
     const std::unique_ptr<BluetoothScanResult>& data)
 {
     MessageParcel dataParcel;
@@ -37,7 +37,7 @@ void BluetoohScanResultCallbackProxy::OnBluetoohScanResultChange(
     int error = Remote()->SendRequest(RECEIVE_INFO_EVENT, dataParcel, reply, option);
     if (error != ERR_OK) {
         LBSLOGE(LOCATING_DATA_CALLBACK,
-            "BluetoohScanResultCallbackProxy::OnBluetoohScanResultChange Transact ErrCode = %{public}d", error);
+            "BluetoohScanResultCallbackProxy::OnBluetoothScanResultChange Transact ErrCode = %{public}d", error);
     }
 }
 } // namespace Location

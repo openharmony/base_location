@@ -12,24 +12,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef IBLUETOOTH_SCAN_RESULT_CALLBACK_H
-#define IBLUETOOTH_SCAN_RESULT_CALLBACK_H
-
-#include "iremote_broker.h"
-
-#include "bluetooth_scan_result.h"
-
-namespace OHOS {
-namespace Location {
-class IBluetoothScanResultCallback : public IRemoteBroker {
-public:
-enum {
-        RECEIVE_INFO_EVENT = 1,
-    };
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.IBluetoothScanResultCallback");
-    virtual void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
-};
-} // namespace Location
-} // namespace OHOS
-#endif // IBLUETOOTH_SCAN_RESULT_CALLBACK_H
+#include "ohos.geoLocationManager.ani.hpp"
+ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
+{
+    ani_env *env;
+    if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
+        return ANI_ERROR;
+    }
+    if (ANI_OK != ohos::geoLocationManager::ANIRegister(env)) {
+        std::cerr << "Error from ohos::geoLocationManager::ANIRegister" << std::endl;
+        return ANI_ERROR;
+    }
+    *result = ANI_VERSION_1;
+    return ANI_OK;
+}
