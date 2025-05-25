@@ -1216,6 +1216,8 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
         return ERRCODE_SWITCH_OFF;
     }
     if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
+            "NETWORK_FAIL_CODE", std::to_string(ERRCODE_PERMISSION_DENIED)});
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
@@ -1224,6 +1226,8 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
         if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
             identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
             !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
+                "NETWORK_FAIL_CODE", std::to_string(LOCATION_ERRCODE_BACKGROUND_PERMISSION_DENIED)});
             return LOCATION_ERRCODE_PERMISSION_DENIED;
         }
     }
@@ -1976,6 +1980,7 @@ ErrCode LocatorAbility::ReportLocationError(int32_t errCodeNum, const std::strin
     std::unique_ptr<LocatorErrorMessage> locatorErrorMessage = std::make_unique<LocatorErrorMessage>();
     locatorErrorMessage->SetUuid(uuid);
     locatorErrorMessage->SetErrCode(errCodeNum);
+    locatorErrorMessage->SetErrMsg(errMsg);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_REPORT_LOCATION_ERROR, locatorErrorMessage);
     if (locatorHandler_ != nullptr) {
@@ -2488,6 +2493,16 @@ int32_t LocatorErrorMessage::GetNetErrCode()
     return netErrCode_;
 }
 
+void LocatorErrorMessage::SetErrMsg(std::string errMsg)
+{
+    errMsg_ = errMsg;
+}
+
+std::string LocatorErrorMessage::GetErrMsg()
+{
+    return errMsg_;
+}
+
 void LocatorSwitchMessage::SetUserId(int32_t userId)
 {
     userId_ = userId;
@@ -2810,6 +2825,7 @@ void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEven
     }
     auto uuid = locatorErrorMessage->GetUuid();
     auto errCode = locatorErrorMessage->GetErrCode();
+    auto errMsg = locatorErrorMessage->GetErrMsg();
     auto requestMap = LocatorAbility::GetInstance()->GetRequests();
     if (requestMap == nullptr || requestMap->empty()) {
         LBSLOGE(REQUEST_MANAGER, "requests map is empty");
@@ -2828,6 +2844,8 @@ void LocatorHandler::ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEven
                 requestInfo = request->GetRequestConfig()->ToString();
             }
             RequestManager::GetInstance()->ReportLocationError(errCode, request);
+            WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(),
+                "TRANS_ID", request->GetUuid(), "ERR_CODE", std::to_string(errCode), "NETWORK_FAIL_CODE_MSG", errMsg});
             break;
         }
     }

@@ -457,8 +457,9 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     }
     // for frozen app, do not add to workRecord
     if (ProxyFreezeManager::GetInstance()->IsProxyPid(request->GetPid())) {
-        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(),
-            "TRANS_ID", request->GetUuid(), "ERR_CODE", std::to_string(ERRCODE_LOCATING_FREEZE)});
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
+            request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE", 
+            std::to_string(ERRCODE_LOCATING_FREEZE)});
         return false;
     }
     AppIdentity identity;
@@ -468,6 +469,9 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     if (!CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
         LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
             request->GetUid());
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
+            request->ToString().c_str(), "TRANS_ID", request->GetUuid(), 
+            "ERR_CODE", std::to_string(LOCATION_ERRCODE_NOT_CURRENT_USER_ID)});
         return false;
     }
     // for once_request app, if it has timed out, do not add to workRecord
@@ -476,6 +480,9 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
         fabs(curTime - request->GetRequestConfig()->GetTimeStamp()) >
         (request->GetRequestConfig()->GetTimeOut() / MILLI_PER_SEC)) {
         LBSLOGE(LOCATOR, "%{public}d has timed out.", request->GetPid());
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(),"REQ_INFO",
+            request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE",
+            std::to_string(LOCATION_ERRCODE_REQUEST_TIMEOUT)});
         return false;
     }
     return true;
@@ -507,6 +514,9 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
         !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_SWITCH_OFF, request);
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
+            request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE", 
+            std::to_string(ERRCODE_SWITCH_OFF)});
         LBSLOGE(LOCATOR, "%{public}s line:%{public}d the location switch is off", __func__, __LINE__);
         return false;
     }
@@ -516,6 +526,9 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (!PermissionManager::CheckLocationPermission(tokenId, firstTokenId) &&
         !PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
+            request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE",
+            std::to_string(LOCATION_ERRCODE_PERMISSION_DENIED)});
         LBSLOGI(LOCATOR, "CheckLocationPermission return false, Id=%{public}d", tokenId);
         return false;
     }
@@ -533,16 +546,25 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         request->GetTokenIdEx(), uid, pid) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED, request);
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "TRANS_ID", 
+            request->GetUuid(), "REQ_INFO", request->ToString().c_str(),  "ERR_CODE", 
+            std::to_string(LOCATION_ERRCODE_BACKGROUND_CONTINUE_PERMISSION_DENIED)});
         LBSLOGE(REPORT_MANAGER, "CheckBackgroundPermission return false, Id=%{public}d", tokenId);
         return false;
     }
     if (HookUtils::ExecuteHookWhenAddWorkRecord(isDeviceStillState_.load(), isDeviceIdleMode_.load(),
         abilityName, bundleName)) {
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "TRANS_ID",
+            request->GetUuid(), "REQ_INFO", request->ToString().c_str(), "ERR_CODE", 
+            std::to_string(LOCATION_ERRCODE_DEVICE_IDLE)});
         LBSLOGI(REQUEST_MANAGER, "Enter idle and still status, not add request");
         return false;
     }
     if (!UpdateUsingPermission(request, true)) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
+        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO", 
+            request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE", 
+            std::to_string(LOCATION_ERRCODE_USING_PERMISSION)});
         return false;
     }
     // add request info to work record
