@@ -323,10 +323,13 @@ public:
     int32_t GetErrCode();
     void SetNetErrCode(int32_t netErrCode);
     int32_t GetNetErrCode();
+    void SetErrMsg(std::string errMsg);
+    std::string GetErrMsg();
 private:
     std::string uuid_;
     int32_t errCode_;
     int32_t netErrCode_;
+	std::string errMsg_;
 };
 
 class LocatorSwitchMessage {
