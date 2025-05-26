@@ -147,6 +147,11 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 
 void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return;
+    }
+    RemoveLocationCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
@@ -155,12 +160,7 @@ void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return;
-    }
     proxy->StopLocating(callback);
-    RemoveLocationCallBack(callback);
 }
 
 std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
@@ -753,6 +753,11 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
 
 LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    RemoveLocationCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -762,12 +767,7 @@ LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     ErrCode errorCodeValue = proxy->StopLocating(callback);
-    RemoveLocationCallBack(callback);
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
