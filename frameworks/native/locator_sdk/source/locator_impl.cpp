@@ -147,6 +147,11 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
 
 void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return;
+    }
+    RemoveLocationCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
@@ -155,12 +160,7 @@ void LocatorImpl::StopLocating(sptr<ILocatorCallback>& callback)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return;
-    }
     proxy->StopLocating(callback);
-    RemoveLocationCallBack(callback);
 }
 
 std::unique_ptr<Location> LocatorImpl::GetCachedLocation()
@@ -222,6 +222,11 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
 
 bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return false;
+    }
+    RemoveSatelliteStatusChangeCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
@@ -230,12 +235,7 @@ bool LocatorImpl::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& callba
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return false;
-    }
     proxy->UnregisterGnssStatusCallback(callback);
-    RemoveSatelliteStatusChangeCallBack(callback);
     return true;
 }
 
@@ -260,6 +260,11 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
 
 bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return false;
+    }
+    RemoveNmeaCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return false;
     }
@@ -268,12 +273,7 @@ bool LocatorImpl::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>& callb
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return false;
-    }
     proxy->UnregisterNmeaMessageCallback(callback);
-    RemoveNmeaCallBack(callback);
     return true;
 }
 
@@ -753,6 +753,11 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
 
 LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    RemoveLocationCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -762,12 +767,7 @@ LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
     ErrCode errorCodeValue = proxy->StopLocating(callback);
-    RemoveLocationCallBack(callback);
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
@@ -840,6 +840,11 @@ LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObje
 
 LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteObject>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    RemoveSatelliteStatusChangeCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -849,12 +854,7 @@ LocationErrCode LocatorImpl::UnregisterGnssStatusCallbackV9(const sptr<IRemoteOb
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
     ErrCode errorCodeValue = proxy->UnregisterGnssStatusCallback(callback);
-    RemoveSatelliteStatusChangeCallBack(callback);
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
@@ -885,6 +885,11 @@ LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObj
 
 LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteObject>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        return ERRCODE_INVALID_PARAM;
+    }
+    RemoveNmeaCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -894,12 +899,7 @@ LocationErrCode LocatorImpl::UnregisterNmeaMessageCallbackV9(const sptr<IRemoteO
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_INVALID_PARAM;
-    }
     ErrCode errorCodeValue = proxy->UnregisterNmeaMessageCallback(callback);
-    RemoveNmeaCallBack(callback);
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
