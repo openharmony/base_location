@@ -520,8 +520,12 @@ SingleLocationAsyncContext* CreateSingleLocationAsyncContext(const napi_env& env
 {
     auto asyncContext = new (std::nothrow) SingleLocationAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "GetCurrentLocation",
-        NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    if (napi_create_string_latin1(env, "GetCurrentLocation",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->timeout_ = config->GetTimeOut();
     asyncContext->callbackHost_ = callback;
     asyncContext->request_ = std::move(config);
