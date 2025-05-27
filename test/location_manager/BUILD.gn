@@ -72,6 +72,7 @@ ohos_unittest("LocatorManagerAbilityTest") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
+    "samgr:dynamic_cache",
     "samgr:samgr_proxy",
   ]
 
