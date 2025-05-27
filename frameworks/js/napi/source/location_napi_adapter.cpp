@@ -43,7 +43,12 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
 #else
     auto asyncContext = new (std::nothrow) LocationAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "getLastLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    if (napi_create_string_latin1(env, "getLastLocation",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<LocationAsyncContext*>(data);
         context->loc = g_locatorClient->IsLocationEnabled() ? g_locatorClient->GetCachedLocation() : nullptr;
@@ -290,8 +295,12 @@ napi_value EnableLocation(napi_env env, napi_callback_info info)
 #endif
     auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "enableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-
+    if (napi_create_string_latin1(env, "enableLocation",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
@@ -365,8 +374,12 @@ napi_value RequestEnableLocation(napi_env env, napi_callback_info info)
 
     auto asyncContext = new (std::nothrow) SwitchAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "enableLocation", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-
+    if (napi_create_string_latin1(env, "enableLocation",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<SwitchAsyncContext*>(data);
         if (!g_locatorClient->IsLocationEnabled()) {
@@ -561,10 +574,13 @@ napi_value GetAddressesFromLocation(napi_env env, napi_callback_info info)
 #else
     NAPI_ASSERT(env, valueType == napi_object, "Wrong argument type, object is expected for parameter 1.");
 #endif
-    auto asyncContext = new (std::nothrow) ReverseGeoCodeAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "getAddressesFromLocation",
-        NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    auto asyncContext = new ReverseGeoCodeAsyncContext(env);
+    if (napi_create_string_latin1(env, "getAddressesFromLocation",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     int ret = JsObjToReverseGeoCodeRequest(env, argv[0], asyncContext->reverseGeoCodeRequest);
 #ifdef ENABLE_NAPI_MANAGER
     asyncContext->errCode = (ret == SUCCESS) ? ERRCODE_SUCCESS : ERRCODE_INVALID_PARAM;
@@ -616,8 +632,12 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
 #endif
     auto asyncContext = new (std::nothrow) GeoCodeAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env,
-        napi_create_string_latin1(env, "GetAddressesFromLocationName", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    if (napi_create_string_latin1(env, "GetAddressesFromLocationName",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->errCode = JsObjToGeoCodeRequest(env, argv[0], asyncContext->geoCodeRequest);
 #ifdef ENABLE_NAPI_MANAGER
     if (asyncContext->errCode == INPUT_PARAMS_ERROR) {
@@ -723,9 +743,12 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
 #endif
     auto asyncContext = new (std::nothrow) CachedAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env,
-        napi_create_string_latin1(env, "GetCachedGnssLocationsSize", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-
+    if (napi_create_string_latin1(env, "GetCachedGnssLocationsSize",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
@@ -772,11 +795,13 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
 #endif
-    auto asyncContext = new (std::nothrow) CachedAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env,
-        napi_create_string_latin1(env, "FlushCachedGnssLocations", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-
+    auto asyncContext = new CachedAsyncContext(env);
+    if (napi_create_string_latin1(env, "FlushCachedGnssLocations",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
@@ -871,11 +896,14 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
 #endif
-    auto asyncContext = new (std::nothrow) CommandAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    auto asyncContext = new CommandAsyncContext(env);
     asyncContext->command = std::make_unique<LocationCommand>();
-    NAPI_CALL(env, napi_create_string_latin1(env, "SendCommand", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-
+    if (napi_create_string_latin1(env, "SendCommand",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     int errCode = JsObjToCommand(env, argv[0], asyncContext->command);
 #ifdef ENABLE_NAPI_MANAGER
     if (errCode == INPUT_PARAMS_ERROR) {
@@ -1017,8 +1045,12 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
 
     LocationMockAsyncContext *asyncContext = new (std::nothrow) LocationMockAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env,
-        "SetMockedLocations", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    if (napi_create_string_latin1(env, "SetMockedLocations",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->errCode = ParseLocationMockParams(env, asyncContext, argv[0]);
     if (asyncContext->errCode == INPUT_PARAMS_ERROR) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
@@ -1117,8 +1149,12 @@ SingleScanAsyncContext* CreateSingleScanAsyncContext(const napi_env& env,
 {
     auto asyncContext = new (std::nothrow) SingleScanAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "getLocatingRequiredDataOnce",
-        NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    if (napi_create_string_latin1(env, "getLocatingRequiredDataOnce",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->timeout_ = config->GetScanTimeoutMs();
     asyncContext->callbackHost_ = callback;
     asyncContext->executeFunc = [&](void* data) -> void {
@@ -1243,9 +1279,13 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
 GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& env,
     std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackNapi> callback)
 {
-    auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    NAPI_CALL(env, napi_create_string_latin1(env, "addGnssGeofence", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
+    auto asyncContext = new GnssGeofenceAsyncContext(env);
+    if (napi_create_string_latin1(env, "addGnssGeofence",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->callbackHost_ = callback;
     asyncContext->request_ = request;
     asyncContext->executeFunc = [&](void* data) -> void {
@@ -1326,9 +1366,12 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     asyncContext->fenceId_ = fenceId;
     asyncContext->callbackHost_ = FindCallbackInGnssGeofenceCallbackHostMap(fenceId);
-    NAPI_CALL(env, napi_create_string_latin1(env,
-        "removeGnssGeofence", NAPI_AUTO_LENGTH, &asyncContext->resourceName));
-
+    if (napi_create_string_latin1(env, "removeGnssGeofence",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();

@@ -337,6 +337,9 @@ int Request::GetNlpRequestType()
 
 void Request::SetNlpRequestType()
 {
+    if (requestConfig_ == nullptr) {
+        return;
+    }
     if (requestConfig_->GetScenario() == SCENE_NAVIGATION ||
         requestConfig_->GetScenario() == SCENE_TRAJECTORY_TRACKING ||
         requestConfig_->GetScenario() == SCENE_CAR_HAILING ||
