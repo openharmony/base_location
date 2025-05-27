@@ -13,23 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef IBLUETOOTH_SCAN_RESULT_CALLBACK_H
-#define IBLUETOOTH_SCAN_RESULT_CALLBACK_H
+#ifndef LOCATION_SWITCH_CALLBACK_TAIHE_H
+#define LOCATION_SWITCH_CALLBACK_TAIHE_H
 
-#include "iremote_broker.h"
+#include "i_switch_callback.h"
 
-#include "bluetooth_scan_result.h"
+#include "iremote_stub.h"
+
+#include "ohos.geoLocationManager.proj.hpp"
+#include "ohos.geoLocationManager.impl.hpp"
+#include "taihe/runtime.hpp"
+#include "stdexcept"
 
 namespace OHOS {
 namespace Location {
-class IBluetoothScanResultCallback : public IRemoteBroker {
+class LocationSwitchCallbackTaihe : public IRemoteStub<ISwitchCallback> {
 public:
-enum {
-        RECEIVE_INFO_EVENT = 1,
-    };
-    DECLARE_INTERFACE_DESCRIPTOR(u"location.IBluetoothScanResultCallback");
-    virtual void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) = 0;
+    virtual int OnRemoteRequest(
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+    void OnSwitchChange(int switchState) override;
+    ::taihe::optional<::taihe::callback<void(bool)>> callback_;
 };
 } // namespace Location
 } // namespace OHOS
-#endif // IBLUETOOTH_SCAN_RESULT_CALLBACK_H
+#endif // LOCATION_SWITCH_CALLBACK_TAIHE_H

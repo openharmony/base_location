@@ -30,7 +30,7 @@ class BluetoohScanResultCallbackProxy : public IRemoteProxy<IBluetoothScanResult
 public:
     explicit BluetoohScanResultCallbackProxy(const sptr<IRemoteObject> &impl);
     ~BluetoohScanResultCallbackProxy() = default;
-    void OnBluetoohScanResultChange(const std::unique_ptr<BluetoothScanResult>& data) override;
+    void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& data) override;
 private:
     static inline BrokerDelegator<BluetoohScanResultCallbackProxy> delegator_;
 };

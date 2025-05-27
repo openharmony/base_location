@@ -51,7 +51,7 @@ int BluetoothScanResultCallbackNapi::OnRemoteRequest(
     switch (code) {
         case RECEIVE_INFO_EVENT: {
             std::unique_ptr<BluetoothScanResult> res = BluetoothScanResult::Unmarshalling(data);
-            OnBluetoohScanResultChange(res);
+            OnBluetoothScanResultChange(res);
             break;
         }
         default: {
@@ -162,7 +162,7 @@ void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& w
     });
 }
 
-void BluetoothScanResultCallbackNapi::OnBluetoohScanResultChange(
+void BluetoothScanResultCallbackNapi::OnBluetoothScanResultChange(
     const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult)
 {
     std::unique_lock<std::mutex> guard(mutex_);

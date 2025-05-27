@@ -13,54 +13,31 @@
  * limitations under the License.
  */
 
-#ifndef BLUETOOTH_SCAN_RESULT_CALLBACK_NAPI_H
-#define BLUETOOTH_SCAN_RESULT_CALLBACK_NAPI_H
+#ifndef BLUETOOTH_SCAN_RESULT_CALLBACK_TAIHE_H
+#define BLUETOOTH_SCAN_RESULT_CALLBACK_TAIHE_H
 
 #include "iremote_stub.h"
-#include "napi/native_api.h"
-#include "uv.h"
 
 #include "constant_definition.h"
 #include "location_log.h"
 #include "ibluetooth_scan_result_callback.h"
 #include "bluetooth_scan_result.h"
 
+#include "ohos.geoLocationManager.proj.hpp"
+#include "ohos.geoLocationManager.impl.hpp"
+#include "taihe/runtime.hpp"
+#include "stdexcept"
+
 namespace OHOS {
 namespace Location {
-bool FindBlueToohCallback(napi_ref cb);
-void DeleteBlueToohCallback(napi_ref cb);
-class BluetoothScanResultCallbackNapi : public IRemoteStub<IBluetoothScanResultCallback> {
+class BluetoothScanResultCallbackTaihe : public IRemoteStub<IBluetoothScanResultCallback> {
 public:
-    BluetoothScanResultCallbackNapi();
-    virtual ~BluetoothScanResultCallbackNapi();
+    BluetoothScanResultCallbackTaihe();
+    virtual ~BluetoothScanResultCallbackTaihe();
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
-
-    void DoSendWork(uv_loop_s *&loop, uv_work_t *&work);
     void OnBluetoothScanResultChange(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult) override;
-    void DeleteAllCallbacks();
-    void DeleteHandler();
-    bool FindCallback();
-    napi_ref GetHandleCb();
-    void SetHandleCb(const napi_ref& handlerCb);
-    napi_env GetEnv();
-    void SetEnv(const napi_env& env);
-
-    template <typename T>
-    bool InitContext(T* context)
-    {
-        if (context == nullptr) {
-            LBSLOGE(LOCATOR_CALLBACK, "context == nullptr.");
-            return false;
-        }
-        context->env = env_;
-        context->callback[SUCCESS_CALLBACK] = handlerCb_;
-        return true;
-    }
-private:
-    napi_env env_;
-    napi_ref handlerCb_;
-    std::mutex mutex_;
+    ::taihe::optional<::taihe::callback<void(::ohos::geoLocationManager::BluetoothScanResult const&)>> callback_;
 };
 } // namespace Location
 } // namespace OHOS
