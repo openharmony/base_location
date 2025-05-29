@@ -45,7 +45,7 @@ const int64_t WLAN_SCAN_RESULTS_VALIDITY_PERIOD = 2 * MILLI_PER_SEC * MICRO_PER_
 const int TIMEOUT_WATCHDOG = 60; // s
 const int32_t MAX_CALLBACKS_MAP_NUM = 1000;
 
-const std::string TYPE_WHITE_LIST_BLE = "ble";
+const std::string TYPE_BLE = "ble";
 LocatorRequiredDataManager::LocatorRequiredDataManager()
 {
 #ifdef BLUETOOTH_ENABLE
@@ -209,7 +209,7 @@ void LocatorRequiredDataManager::StartScanBluetoothDevice(sptr<IBluetoothScanRes
         LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
         return;
     }
-    if (!HookUtils::ExecuteHookWhenStartScanBluetoothDevice(identity.GetBundleName(), TYPE_WHITE_LIST_BLE)) {
+    if (!HookUtils::ExecuteHookWhenStartScanBluetoothDevice(identity.GetBundleName(), TYPE_BLE)) {
         return;
     }
 #ifdef BLUETOOTH_ENABLE
@@ -508,7 +508,7 @@ void LocatorRequiredDataManager::ReportBluetoothScanResult(
         AppIdentity identity = deathRecipientPair.first;
         if (CommonUtils::IsAppBelongCurrentAccount(identity) &&
             PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId()) &&
-            HookUtils::ExecuteHookWhenReportBluetoothScanResult(identity.GetBundleName(), TYPE_WHITE_LIST_BLE) &&
+            HookUtils::ExecuteHookWhenReportBluetoothScanResult(identity.GetBundleName(), TYPE_BLE) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(identity.GetPid())) {
             bluetoothScanResultCallback->OnBluetoothScanResultChange(bluetoothScanResult);
         }
