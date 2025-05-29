@@ -386,6 +386,10 @@ LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>&
 void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
 {
     LBSLOGD(GNSS, "enter RequestRecord");
+    if (!IsSupportGps()) {
+        LBSLOGI(GNSS, "Is Not Support Gps");
+        return false;
+    }
     if (isAdded) {
         int gnssEnableState  = LocationConfigManager::GetInstance()->GetGnssEnableState();
         uint32_t tokenId = workRecord.GetTokenId(0);
@@ -425,9 +429,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         }
     }
     std::string state = isAdded ? "start" : "stop";
-    if (IsSupportGps()) {
-        WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
-    }
+    WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
 void GnssAbility::ReConnectHdi()
