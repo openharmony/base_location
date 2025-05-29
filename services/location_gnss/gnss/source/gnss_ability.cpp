@@ -425,7 +425,9 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
         }
     }
     std::string state = isAdded ? "start" : "stop";
-    WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
+    if (IsSupportGps()) {
+        WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
+    }
 }
 
 void GnssAbility::ReConnectHdi()
