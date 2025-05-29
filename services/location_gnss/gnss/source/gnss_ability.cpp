@@ -388,7 +388,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     LBSLOGD(GNSS, "enter RequestRecord");
     if (!IsSupportGps()) {
         LBSLOGI(GNSS, "Is Not Support Gps");
-        return false;
+        return;
     }
     if (isAdded) {
         int gnssEnableState  = LocationConfigManager::GetInstance()->GetGnssEnableState();
