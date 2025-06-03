@@ -30,6 +30,14 @@ HOOK_MGR* HookUtils::GetLocationExtHookMgr()
     return locatorHookMgr_;
 }
 
+void HookUtils::ExecuteHookWhenWifiScanStateChanged(
+    const std::vector<std::shared_ptr<LocatingRequiredData>>& result)
+{
+    WifiScanResult scanResult;
+    scanResult.result = result;
+    ExecuteHook(LocationProcessStage::WIFI_SCAN_STATE_CHANGE, (void *)&scanResult, nullptr);
+}
+
 LocationErrCode HookUtils::RegisterHook(LocationProcessStage stage, int prio, OhosHook hook)
 {
     auto ret = HookMgrAdd(GetLocationExtHookMgr(), static_cast<int>(stage), prio, hook);
