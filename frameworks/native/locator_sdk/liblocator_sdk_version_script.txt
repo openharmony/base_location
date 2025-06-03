@@ -6,6 +6,7 @@
     "*LocationSwitchCallbackHost*";
     "*LocatorCallbackHost*";
     "*CountryCodeCallbackHost*";
+    "*LocatingRequiredDataCallbackHost*";
   local:
     *;
 };

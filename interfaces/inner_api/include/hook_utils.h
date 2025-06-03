@@ -20,6 +20,7 @@
 #include "constant_definition.h"
 #include "request.h"
 #include "location.h"
+#include "locating_required_data.h"
 
 namespace OHOS {
 namespace Location {
@@ -56,7 +57,12 @@ enum class LocationProcessStage {
     APPROXIMATELY_LOCATION_PROCESS,
     START_SCAN_BLUETOOTH_DEVICE_PROCESS,
     REPORT_BLUETOOTH_SCAN_RESULT_PROCESS,
+    WIFI_SCAN_STATE_CHANGE,
 };
+
+typedef struct {
+    std::vector<std::shared_ptr<LocatingRequiredData>> result;
+} WifiScanResult;
 
 typedef struct {
     Location location;
@@ -158,6 +164,8 @@ public:
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
     static bool ExecuteHookWhenReportBluetoothScanResult(const std::string& packageName, const std::string& type);
     static bool ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type);
+    static void ExecuteHookWhenWifiScanStateChanged(
+            const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
 };
 } // namespace Location
 } // namespace OHOS
