@@ -229,11 +229,25 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         });
 
         this.receiveDirectory = data.parameters.uri;
-        const uri = new fileUri.FileUri(data.parameters.uri);
-        this.sandBoxUri = uri.path + '/' + this.fileName;
-        let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
-        this.fileFd = file.fd;
-        this.oppProfile.setIncomingFileConfirmation(true, file.fd);
+        if ((data.parameters.uri === undefined) || (data.parameters.uri === null) ||
+            (data.parameters.uri.length === 0)) {
+            console.error(TAG, 'uri not right');
+            return;
+        }
+        try {
+            const uri = new fileUri.FileUri(data.parameters.uri);
+            if (!fs.accessSync(uri.path)) {
+                console.error(TAG, 'uri.path is not access', uri.path);
+                return;
+            }
+            this.sandBoxUri = uri.path + '/' + this.fileName;
+            let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
+            this.fileFd = file.fd;
+            this.oppProfile.setIncomingFileConfirmation(true, file.fd);
+        } catch (err) {
+            console.error(TAG, `openFd failed, code: ${err?.code} message:${err?.message}`);
+            return;
+        }
     }
 
     handleReceive(data: commonEventManager.CommonEventData) {

@@ -129,6 +129,10 @@ export struct BtServicesComponent {
     console.log(`${TAG} sendData is called.`);
     let fileUris = AppStorage.Get('sendFileUris');
     let length = AppStorage.Get('sendFileUrisLength');
+    if ((fileUris === undefined) || (fileUris === null) || (length === undefined) || (length === null)) {
+      console.log(TAG, 'fileUris is undefined');
+      return;
+    }
     try {
       let oppProfile = opp.createOppServerProfile();
       for (let i = 0; i < length; i++) {
