@@ -42,10 +42,14 @@ export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility
                 this.context.terminateSelf();
             })
             .catch((err: BusinessError) => {
-                console.warn(TAG, 'pullUpFileManager failed');
+                console.error(TAG, 'pullUpFileManager failed, code is ${err.code}, message is ${err.message}');
                 want.bundleName = 'com.huawei.hmos.filemanager';
                 want.abilityName = 'MainAbility';
-                this.context.startAbility(want);
+                this.context.startAbility(want)
+                .then(() => {
+                    console.info(TAG, `pullUpFileManager start MainAbility and terminateSelf`);
+                    this.context.terminateSelf();
+                });
             });
             console.info(TAG, 'pullUpFileManager end.');
             return;

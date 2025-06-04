@@ -115,22 +115,7 @@
             "uris": [
               {
                 "scheme": "file",
-                "utd": "general.media",
-                "maxFileSupported": 1
-              },
-              {
-                "scheme": "file",
-                "utd": "general.text",
-                "maxFileSupported": 1
-              },
-              {
-                "scheme": "file",
-                "utd": "general.composite-object",
-                "maxFileSupported": 1
-              },
-              {
-                "scheme": "file",
-                "utd": "general.archive",
+                "utd": "general.object",
                 "maxFileSupported": 1
               }
             ]
