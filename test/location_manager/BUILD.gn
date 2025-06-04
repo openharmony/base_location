@@ -50,11 +50,11 @@ ohos_unittest("LocatorManagerAbilityTest") {
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_stub",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator_static",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
+    "googletest:gmock_main",
+    "googletest:gtest_main",
     "ability_base:want",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",

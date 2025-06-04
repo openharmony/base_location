@@ -37,7 +37,6 @@ ohos_fuzztest("LocatorEventManagerFuzzTest") {
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
     "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator_static",
-    "//third_party/libuv:uv",
   ]
   external_deps = [
     "access_token:libaccesstoken_sdk",
@@ -50,6 +49,7 @@ ohos_fuzztest("LocatorEventManagerFuzzTest") {
     "ipc:ipc_core",
     "napi:ace_napi",
     "samgr:samgr_proxy",
+    "libuv:uv",
   ]
 }
 

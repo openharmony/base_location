@@ -64,8 +64,6 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:liblocator_interface_stub",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
     "$SUBSYSTEM_DIR/location_locator/locator:lbsservice_locator_static",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
   ]
 
   external_deps = [
@@ -89,6 +87,8 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "samgr:samgr_proxy",
     "cJSON:cjson",
     "samgr:dynamic_cache",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
   ]
 
   defines = []
