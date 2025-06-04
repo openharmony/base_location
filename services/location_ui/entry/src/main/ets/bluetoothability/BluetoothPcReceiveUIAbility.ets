@@ -464,6 +464,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             return;
         }
 
+        console.info(`percent is ` + percent);
         await this.createRecevieProgressNotification(name, percent);
     }
 
