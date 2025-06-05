@@ -748,6 +748,22 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     LBSLOGI(GNSS, "Successfully AddGnssGeofence! ret:%{public}d,fenceId:%{public}s",
         ret, std::to_string(fenceId).c_str());
 #endif
+    {
+        std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
+        if (gnssGeofenceRequestMap_.size() >= MAX_GNSS_GEOFENCE_REQUEST_NUM) {
+            LBSLOGE(GNSS, "RegisterGnssGeofenceCallback num max");
+            sptr<IGnssGeofenceCallback> gnssGeofenceCallback =
+                iface_cast<IGnssGeofenceCallback>(request->GetGeofenceTransitionCallback());
+            if (gnssGeofenceCallback == nullptr) {
+                LBSLOGE(GNSS, "gnssGeofenceCallback is nullptr");
+                return ERRCODE_SERVICE_UNAVAILABLE;
+            }
+            gnssGeofenceCallback->OnReportOperationResult(fenceId,
+                static_cast<int>(GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD),
+                static_cast<int>(GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_TOO_MANY_GEOFENCES));
+            return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
+        }
+    }
     RegisterGnssGeofenceCallback(request, request->GetGeofenceTransitionCallback());
     if (ExecuteFenceProcess(GnssInterfaceCode::ADD_GNSS_GEOFENCE, request)) {
         return ERRCODE_SUCCESS;
@@ -771,12 +787,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
-    if (gnssGeofenceRequestMap_.size() <= MAX_GNSS_GEOFENCE_REQUEST_NUM) {
-        gnssGeofenceRequestMap_.insert(std::make_pair(request, std::make_pair(callback, death)));
-    } else {
-        LBSLOGE(GNSS, "RegisterGnssGeofenceCallback num max");
-        return false;
-    }
+    gnssGeofenceRequestMap_.insert(std::make_pair(request, std::make_pair(callback, death)));
     LBSLOGI(GNSS, "After RegisterGnssGeofenceCallback size %{public}zu",
         gnssGeofenceRequestMap_.size());
     return true;
