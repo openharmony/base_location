@@ -48,7 +48,6 @@ ohos_fuzztest("LocatorCallbackHostFuzzTest") {
     "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator_static",
     "$LOCATION_ROOT_DIR/services/location_network/network:lbsservice_network_static",
     "$LOCATION_ROOT_DIR/services/location_passive/passive:lbsservice_passive_static",
-    "//third_party/libuv:uv",
   ]
   external_deps = [
     "access_token:libaccesstoken_sdk",
@@ -66,6 +65,7 @@ ohos_fuzztest("LocatorCallbackHostFuzzTest") {
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
+    "libuv:uv",
   ]
 
   defines = []

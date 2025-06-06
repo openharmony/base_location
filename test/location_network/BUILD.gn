@@ -43,21 +43,20 @@ if (location_feature_with_network) {
     branch_protector_ret = "pac_ret"
 
     deps = [
-      "$ARKUI_ROOT_DIR/napi:ace_napi",
-      "$GOOGLE_TEST_DIR:gmock_main",
-      "$GOOGLE_TEST_DIR:gtest_main",
-      "$IPC_ROOT_DIR/interfaces/innerkits/ipc_core:ipc_core",
       "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
       "$LOCATION_NETWORK_ROOT:lbsservice_network_static",
       "$LOCATION_ROOT_DIR/frameworks/js/napi:geolocation_static",
       "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common_static",
       "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
-      "$SAMGR_ROOT_DIR/safwk/interfaces/innerkits/safwk:system_ability_fwk",
-      "$SAMGR_ROOT_DIR/samgr/interfaces/innerkits/samgr_proxy:samgr_proxy",
-      "$START_UP_ROOT_DIR/init/interfaces/innerkits:libbegetutil",
     ]
 
     external_deps = [
+      "napi:ace_napi",
+      "googletest:gmock_main",
+      "googletest:gtest_main",
+      "ipc:ipc_core",
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
       "ability_base:want",
       "ability_runtime:ability_manager",
       "access_token:libaccesstoken_sdk",

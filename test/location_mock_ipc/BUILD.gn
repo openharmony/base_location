@@ -43,8 +43,6 @@ ohos_unittest("LocationMockIpcTest") {
   branch_protector_ret = "pac_ret"
 
   deps = [
-    "$GOOGLE_TEST_DIR:gmock_main",
-    "$GOOGLE_TEST_DIR:gtest_main",
     "$LOCATION_GEOCONVERT_ROOT:lbsservice_geocode_static",
     "$LOCATION_GNSS_ROOT:lbsservice_gnss_static",
     "$LOCATION_LOCATOR_ROOT:lbsservice_locator_static",
@@ -58,6 +56,8 @@ ohos_unittest("LocationMockIpcTest") {
   ]
 
   external_deps = [
+    "googletest:gmock_main",
+    "googletest:gtest_main",
     "ability_base:want",
     "ability_runtime:app_manager",
     "ability_runtime:wantagent_innerkits",
