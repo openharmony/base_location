@@ -39,14 +39,14 @@ void ProxyFreezeManager::ProxyForFreeze(const std::vector<int32_t>& pidList, boo
             proxyPids_.insert(*it);
             LBSLOGI(PROXY_FREEZE_MANAGER,
                 "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
-                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
         }
     } else {
         for (auto it = pids.begin(); it != pids.end(); it++) {
             proxyPids_.erase(*it);
             LBSLOGI(PROXY_FREEZE_MANAGER,
                 "Start locator proxy, pid: %{public}d, isProxy: %{public}d, timestamp = %{public}s",
-                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
+                *it, isProxy, std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
         }
     }
 }

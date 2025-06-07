@@ -39,7 +39,7 @@ LocationErrorCallbackNapi::~LocationErrorCallbackNapi()
 int LocationErrorCallbackNapi::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGI(LOCATION_ERR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! code = %{public}d", code);
+    LBSLOGD(LOCATION_ERR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! code = %{public}d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(LOCATION_ERR_CALLBACK, "invalid token.");
         return -1;
@@ -111,7 +111,7 @@ void DeleteErrorCallback(napi_ref cb)
 
 bool LocationErrorCallbackNapi::Send(int32_t errorCode)
 {
-    LBSLOGI(LOCATION_ERR_CALLBACK, "LocatorCallbackNapi::OnRemoteRequest! errorCode = %{public}d", errorCode);
+    LBSLOGD(LOCATION_ERR_CALLBACK, "LocatorCallbackNapi::OnRemoteRequest! errorCode = %{public}d", errorCode);
     std::unique_lock<std::mutex> guard(mutex_);
     uv_loop_s *loop = nullptr;
     NAPI_CALL_BASE(env_, napi_get_uv_event_loop(env_, &loop), false);
@@ -208,7 +208,6 @@ void LocationErrorCallbackNapi::OnLocatingStatusChange(const int status)
 
 void LocationErrorCallbackNapi::OnErrorReport(const int errorCode)
 {
-    LBSLOGI(LOCATION_ERR_CALLBACK, "LocatorCallbackNapi::OnRemoteRequest! errorCode = %{public}d", errorCode);
     Send(errorCode);
 }
 

@@ -718,7 +718,8 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
     bool needRetryScan = event->GetParam();
     auto dataManager = LocatorRequiredDataManager::GetInstance();
     if (!dataManager->IsWifiConnecting()) {
-        LBSLOGE(LOCATOR, "%{public}s no valid callback, return", __func__);
+        LBSLOGE(LOCATOR, "%{public}s no valid callback, return. time = %{public}s",
+            __func__, std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
         return;
     }
     std::vector<Wifi::WifiScanInfo> wifiScanInfo;

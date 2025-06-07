@@ -1855,7 +1855,7 @@ ErrCode LocatorAbility::QuerySupportCoordinateSystemType(std::vector<CoordinateT
 LocationErrCode LocatorAbility::SendNetworkLocation(const std::unique_ptr<Location>& location)
 {
 #ifdef FEATURE_GNSS_SUPPORT
-    LBSLOGI(LOCATOR, "%{public}s: send network location", __func__);
+    LBSLOGD(LOCATOR, "%{public}s: send network location", __func__);
     int64_t time = location->GetTimeStamp();
     int64_t timeSinceBoot = location->GetTimeSinceBoot();
     double acc = location->GetAccuracy();
@@ -2392,7 +2392,7 @@ void LocatorAbility::GetAppIdentityInfo(AppIdentity& identity)
     }
     std::string bundleName = "";
     if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
-        LBSLOGE(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
+        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
     }
     identity.SetBundleName(bundleName);
 }

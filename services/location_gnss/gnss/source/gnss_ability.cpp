@@ -1662,7 +1662,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
         }
 #endif
         case static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION): {
-            LBSLOGI(GNSS, "%{public}s: send network location", __func__);
+            LBSLOGD(GNSS, "%{public}s: send network location", __func__);
             auto request = Location::UnmarshallingMakeUnique(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
             SendEvent(event, reply);

@@ -586,8 +586,8 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
         LBSLOGE(LOCATOR, "%{public}s: remote obj is nullptr", __func__);
         return;
     }
-    LBSLOGI(LOCATOR, "%{public}s: %{public}s workRecord uid_ size %{public}d",
-        __func__, abilityName.c_str(), workRecord.Size());
+    LBSLOGI(LOCATOR, "%{public}s: %{public}s workRecord uid_ size %{public}d, time %{public}s",
+        __func__, abilityName.c_str(), workRecord.Size(), std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
     workRecord.SetDeviceId(CommonUtils::InitDeviceId());
     if (abilityName == GNSS_ABILITY) {
 #ifdef FEATURE_GNSS_SUPPORT
@@ -784,8 +784,6 @@ void RequestManager::SyncStillMovementState(bool state)
     bool oldDeviceState = false;
     oldDeviceState = isDeviceStillState_.load() && isDeviceIdleMode_.load();
     isDeviceStillState_.store(state);
-    LBSLOGI(REQUEST_MANAGER, "device movement state change, isDeviceStillState_ %{public}d",
-        isDeviceStillState_.load());
     newDeviceState = isDeviceStillState_.load() && isDeviceIdleMode_.load();
     if (newDeviceState != oldDeviceState) {
         HandleRequest();

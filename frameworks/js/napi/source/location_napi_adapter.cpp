@@ -923,7 +923,7 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
 #ifdef ENABLE_NAPI_MANAGER
 napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
 {
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s called.", __func__);
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
@@ -965,7 +965,8 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
         } else {
             LBSLOGE(LOCATOR_STANDARD, "country is nullptr!");
         }
-        LBSLOGI(LOCATOR_STANDARD, "Push GetIsoCountryCode result to client");
+        LBSLOGI(LOCATOR_STANDARD, "Push GetIsoCountryCode result to client, time = %{public}s",
+            std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
     };
 
     size_t objectArgsNum = 0;
