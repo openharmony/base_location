@@ -38,7 +38,7 @@ LocationErrorCallback::~LocationErrorCallback()
 int LocationErrorCallback::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGI(Location::LOCATION_ERR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! code = %{public}d", code);
+    LBSLOGD(Location::LOCATION_ERR_CALLBACK, "LocatorCallbackHost::OnRemoteRequest! code = %{public}d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(Location::LOCATION_ERR_CALLBACK, "invalid token.");
         return -1;

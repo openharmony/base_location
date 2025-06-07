@@ -22,8 +22,8 @@ namespace OHOS {
 namespace Location {
 void DeviceMovementCallback::OnMovementChanged(const Msdp::MovementDataUtils::MovementData &movementData)
 {
-    LBSLOGI(LOCATOR, "OnMovementChanged type=%{public}d, value=%{public}d",
-        movementData.type, movementData.value);
+    LBSLOGI(LOCATOR, "OnMovementChanged type=%{public}d, value=%{public}d, time=%{public}s",
+        movementData.type, movementData.value, std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
     if (movementData.type == Msdp::MovementDataUtils::MovementType::TYPE_STILL) {
         auto locatorMsdpMonitorManager = LocatorMsdpMonitorManager::GetInstance();
         if (movementData.value == Msdp::MovementDataUtils::MovementValue::VALUE_ENTER) {
