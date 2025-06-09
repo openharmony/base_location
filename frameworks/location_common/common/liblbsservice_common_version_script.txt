@@ -33,6 +33,7 @@
     "*ExecuteHookWhenReportBluetoothScanResult*";
     "*ProxyFreezeManager*";
     "*ExecuteHookWhenWifiScanStateChanged*";
+    "*ExecuteHookWhenCustConfigPolicyChange*";
   local:
     *;
 };

@@ -236,5 +236,12 @@ bool HookUtils::ExecuteHookWhenReportBluetoothScanResult(const std::string& pack
         LocationProcessStage::REPORT_BLUETOOTH_SCAN_RESULT_PROCESS, (void *)&scanStruct, nullptr);
     return scanStruct.result;
 }
+
+bool HookUtils::ExecuteHookWhenCustConfigPolicyChange()
+{
+    ExecuteHook(
+        LocationProcessStage::CUST_CONFIG_POLICY_CHANGE_PROCESS, nullptr, nullptr);
+    return true;
+}
 } // namespace Location
 } // namespace OHOS
