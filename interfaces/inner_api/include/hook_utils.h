@@ -58,6 +58,7 @@ enum class LocationProcessStage {
     START_SCAN_BLUETOOTH_DEVICE_PROCESS,
     REPORT_BLUETOOTH_SCAN_RESULT_PROCESS,
     WIFI_SCAN_STATE_CHANGE,
+    CUST_CONFIG_POLICY_CHANGE_PROCESS,
 };
 
 typedef struct {
@@ -166,6 +167,7 @@ public:
     static bool ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type);
     static void ExecuteHookWhenWifiScanStateChanged(
             const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
+    static bool ExecuteHookWhenCustConfigPolicyChange();
 };
 } // namespace Location
 } // namespace OHOS
