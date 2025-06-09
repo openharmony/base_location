@@ -279,6 +279,29 @@ int32_t GnssEventCallback::RequestPredictGnssData()
 
 int32_t GnssEventCallback::ReportCachedLocation(const std::vector<LocationInfo>& gnssLocations)
 {
+    auto gnssAbility = GnssAbility::GetInstance();
+    std::string identity = IPCSkeleton::ResetCallingIdentity();
+    std::vector<std::unique_ptr<Location>> gnssLocationsNew;
+    for (const LocationInfo& gnsslocation : gnssLocations) {
+        std::unique_ptr<Location> location = std::make_unique<Location>();
+        location->SetLatitude(gnsslocation.latitude);
+        location->SetLongitude(gnsslocation.longitude);
+        location->SetAltitude(gnsslocation.altitude);
+        location->SetAccuracy(gnsslocation.horizontalAccuracy);
+        location->SetSpeed(gnsslocation.speed);
+        location->SetDirection(gnsslocation.bearing);
+        location->SetAltitudeAccuracy(gnsslocation.verticalAccuracy);
+        location->SetSpeedAccuracy(gnsslocation.speedAccuracy);
+        location->SetDirectionAccuracy(gnsslocation.bearingAccuracy);
+        location->SetTimeStamp(gnsslocation.timeForFix);
+        location->SetTimeSinceBoot(gnsslocation.timeSinceBoot);
+        location->SetUncertaintyOfTimeSinceBoot(gnsslocation.timeUncertainty);
+        location->SetIsFromMock(false);
+        location->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
+        location->SetFieldValidity(gnsslocation.fieldValidity);
+        gnssLocationsNew.push_back(std::move(location));
+    }
+    IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;
 }
 
