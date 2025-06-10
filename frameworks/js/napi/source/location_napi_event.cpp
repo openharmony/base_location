@@ -121,7 +121,7 @@ void InitOffFuncMap()
 
 static void CleanUp(void* data)
 {
-    auto that = reinterpret_cast<NativeContext>(data);
+    auto that = reinterpret_cast<NativeContext*>(data);
     napi_delete_reference(that->env_, that->ref_);
     that->env_ = nullptr;
     that->ref_ = nullptr;
