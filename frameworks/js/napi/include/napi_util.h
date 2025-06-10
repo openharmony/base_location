@@ -39,6 +39,11 @@
 
 namespace OHOS {
 namespace Location {
+struct NativeContext {
+    napi_env env_ = nullptr;
+    napi_ref ref_ = nullptr;
+};
+
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 void PoiToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
