@@ -39,6 +39,20 @@
 
 namespace OHOS {
 namespace Location {
+struct NativeContext {
+    napi_env env_ = nullptr;
+    napi_ref ref_ = nullptr;
+}
+
+static void CleanUp(void* data)
+{
+    auto that = reinterpret_cast<NativeContext>(data);
+    napi_delete_reference(that->env_, that->ref_);
+    that->env_ = nullptr;
+    that->ref_ = nullptr;
+    delete that;
+}
+
 napi_value UndefinedNapiValue(const napi_env& env);
 void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
 void PoiToJs(const napi_env& env, const std::unique_ptr<Location>& locationInfo, napi_value& result);
