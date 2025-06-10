@@ -82,6 +82,7 @@ if (location_feature_with_gnss) {
       "hisysevent:libhisysevent",
       "init:libbegetutil",
       "samgr:dynamic_cache",
+      "selinux_adapter:librestorecon",
     ]
 
     defines = []

@@ -62,6 +62,7 @@ ohos_fuzztest("LocatorFuzzTest") {
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
     "libuv:uv",
+    "selinux_adapter:librestorecon",
   ]
 
   defines = []

@@ -56,6 +56,7 @@ fence_extension_ability_external_deps = [
   "os_account:os_account_innerkits",
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
+  "ipc:ipc_napi",
 ]
 
 ohos_shared_library("fence_extension_ability") {

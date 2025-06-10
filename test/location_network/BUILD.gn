@@ -70,6 +70,7 @@ if (location_feature_with_network) {
       "hisysevent:libhisysevent",
       "init:libbegetutil",
       "samgr:dynamic_cache",
+      "selinux_adapter:librestorecon",
     ]
 
     defines = []

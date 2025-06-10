@@ -63,6 +63,7 @@ ohos_unittest("GeofenceSdkTest") {
     "relational_store:native_dataability",
     "relational_store:native_rdb",
     "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
   ]
 
   defines = []

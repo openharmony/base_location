@@ -74,6 +74,7 @@ ohos_unittest("LocatorManagerAbilityTest") {
     "safwk:system_ability_fwk",
     "samgr:dynamic_cache",
     "samgr:samgr_proxy",
+    "selinux_adapter:librestorecon",
   ]
 
   defines = []
