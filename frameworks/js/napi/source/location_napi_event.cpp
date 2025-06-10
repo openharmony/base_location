@@ -119,6 +119,15 @@ void InitOffFuncMap()
     g_offFuncMap.insert(std::make_pair("countryCodeChange", &OffCountryCodeChangeCallback));
 }
 
+static void CleanUp(void* data)
+{
+    auto that = reinterpret_cast<NativeContext>(data);
+    napi_delete_reference(that->env_, that->ref_);
+    that->env_ = nullptr;
+    that->ref_ = nullptr;
+    delete that;
+}
+
 void SubscribeLocationServiceState(const napi_env& env,
     const napi_ref& handlerRef, sptr<LocationSwitchCallbackNapi>& switchCallbackHost)
 {
