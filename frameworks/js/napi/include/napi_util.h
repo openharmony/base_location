@@ -42,7 +42,7 @@ namespace Location {
 struct NativeContext {
     napi_env env_ = nullptr;
     napi_ref ref_ = nullptr;
-}
+};
 
 static void CleanUp(void* data)
 {
