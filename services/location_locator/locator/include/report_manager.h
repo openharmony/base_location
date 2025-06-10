@@ -57,7 +57,8 @@ private:
     Location cacheNlpLocation_;
     std::mutex lastLocationMutex_;
     std::atomic<int64_t> lastResetRecordTime_;
-    std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location);
+    std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location,
+        const std::shared_ptr<Request>& request);
     bool ProcessRequestForReport(std::shared_ptr<Request>& request,
         std::unique_ptr<std::list<std::shared_ptr<Request>>>& deadRequests,
         const std::unique_ptr<Location>& location, std::string abilityName);

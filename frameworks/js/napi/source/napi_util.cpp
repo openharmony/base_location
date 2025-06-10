@@ -205,6 +205,11 @@ napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo)
     return jsObject;
 }
 
+void SetUndefinedResult(const napi_env& env, napi_value& result)
+{
+    napi_get_undefined(env, &result);
+}
+
 napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& additionsMap)
 {
     napi_value global = nullptr;

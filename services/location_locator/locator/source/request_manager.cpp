@@ -738,7 +738,11 @@ void RequestManager::ReportLocationError(const int errorCode, std::shared_ptr<Re
 {
     if (errorCode == LOCATING_FAILED_INTERNET_ACCESS_FAILURE) {
         auto locatorCallback = request->GetLocatorCallBack();
-        if (locatorCallback != nullptr) {
+        bool isNeedLocation = true;
+        if (request->GetRequestConfig() != nullptr) {
+            isNeedLocation = request->GetRequestConfig()->GetIsNeedLocation();
+        }
+        if (locatorCallback != nullptr && isNeedLocation) {
             locatorCallback->OnErrorReport(LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL);
         } else {
             LBSLOGE(REQUEST_MANAGER, "RequestManager null LocatorCallback");
