@@ -52,6 +52,7 @@ if (location_feature_with_network) {
       "ffrt:libffrt",
       "hilog:libhilog",
       "ipc:ipc_single",
+      "json:nlohmann_json_static",
       "safwk:system_ability_fwk",
     ]
 
@@ -116,6 +117,7 @@ if (location_feature_with_network) {
       "ffrt:libffrt",
       "hilog:libhilog",
       "ipc:ipc_single",
+      "json:nlohmann_json_static",
       "safwk:system_ability_fwk",
     ]
 

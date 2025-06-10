@@ -81,7 +81,8 @@
                 "device_standby",
                 "time_service",
                 "netmanager_base",
-                "cJSON"
+                "cJSON",
+                "json"
             ]
         },
         "build": {
