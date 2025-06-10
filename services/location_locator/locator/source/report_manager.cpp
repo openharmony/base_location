@@ -158,7 +158,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         return false;
     }
     bool isNeedPoi = request->GetRequestConfig()->GetIsNeedPoi();
-    if (isNeedPoi) {
+    if (isNeedPoi && PermissionManager::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId())) {
         PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(finalLocation);
     }
     request->SetLastLocation(finalLocation);
@@ -288,7 +288,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     }
     if (PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
-        finalLocation = ApproximatelyLocation(location);
+        finalLocation = ApproximatelyLocation(location, request);
         return finalLocation;
     }
     LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
@@ -445,8 +445,12 @@ void ReportManager::UpdateRandom()
     }
 }
 
-std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique_ptr<Location>& location)
+std::unique_ptr<Location> ReportManager::ApproximatelyLocation(
+    const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request)
 {
+    std::string bundleName = request->GetPackageName();
+    bool isNeedLocation = request->GetRequestConfig()->GetIsNeedLocation();
+    bool isNeedPoi = request->GetRequestConfig()->GetIsNeedPoi();
     std::unique_ptr<Location> coarseLocation = std::make_unique<Location>(*location);
     double startLat = coarseLocation->GetLatitude();
     double startLon = coarseLocation->GetLongitude();
@@ -481,7 +485,17 @@ std::unique_ptr<Location> ReportManager::ApproximatelyLocation(const std::unique
     coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
     std::vector<std::string> emptyAdds;
     coarseLocation->SetAdditions(emptyAdds, false);
+    PoiInfo emptyPoiInfo;
+    coarseLocation->SetPoiInfo(emptyPoiInfo);
     coarseLocation->SetAdditionSize(0);
+    if (!isNeedLocation && isNeedPoi) {
+        auto locatorCallback = request->GetLocatorCallBack();
+        if (locatorCallback != nullptr) {
+            locatorCallback->OnErrorReport(LocationErrCode::ERRCODE_PERMISSION_DENIED);
+        } else {
+            LBSLOGI(REPORT_MANAGER, "null locatorCallback");
+        }
+    }
     return coarseLocation;
 }
 

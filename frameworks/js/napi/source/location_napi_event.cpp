@@ -441,6 +441,7 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
         return;
     }
     auto callbackHost = context->callbackHost_;
+    bool isNeedLocation = GetIsNeedLocation(context);
     if (callbackHost != nullptr) {
         auto callbackPtr = sptr<ILocatorCallback>(callbackHost);
 #ifdef ENABLE_NAPI_MANAGER
@@ -470,11 +471,12 @@ void GenerateExecuteContext(SingleLocationAsyncContext* context)
 #endif
             if (NeedReportLastLocation(context->request_, location)) {
                 callbackHost->SetSingleLocation(location);
-            } else {
+            } else if (isNeedLocation) {
                 context->errCode = ERRCODE_LOCATING_FAIL;
                 UpdateErrorCodeOfContext(context);
             }
         }
+        UpdatePoiErrorCode(isNeedLocation, context);
         callbackHost->SetCount(1);
 #ifndef ENABLE_NAPI_MANAGER
     } else {
@@ -501,16 +503,48 @@ void UpdateErrorCodeOfContext(SingleLocationAsyncContext* context)
     }
 }
 
+bool GetIsNeedLocation(SingleLocationAsyncContext* context)
+{
+    bool isNeedLocation = true;
+    if (context->request_ != nullptr) {
+        isNeedLocation = context->request_->GetIsNeedLocation();
+    }
+    return isNeedLocation;
+}
+
+void UpdatePoiErrorCode(bool isNeedLocation, SingleLocationAsyncContext* context)
+{
+    if (isNeedLocation) {
+        return;
+    }
+    if (context == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "null context");
+        return;
+    }
+    auto callbackHost = context->callbackHost_;
+    if (callbackHost == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "null callbackHost");
+        return;
+    }
+    int errorType = callbackHost->GetErrorType();
+    if (errorType == LocationErrCode::ERRCODE_PERMISSION_DENIED) {
+        context->errCode = errorType;
+    }
+}
+
 void GenerateCompleteContext(SingleLocationAsyncContext* context)
 {
     if (context == nullptr) {
         return;
     }
+    bool isNeedLocation = true;
+    if (context->request_ != nullptr) {
+        isNeedLocation = context->request_->GetIsNeedLocation();
+    }
     NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
     auto callbackHost = context->callbackHost_;
     if (callbackHost != nullptr && callbackHost->GetSingleLocation() != nullptr) {
         std::unique_ptr<Location> location = std::make_unique<Location>(*callbackHost->GetSingleLocation());
-        bool isNeedLocation = context->request_->GetIsNeedLocation();
         if (isNeedLocation) {
             LocationToJs(context->env, location, context->result[PARAM1]);
         } else {
@@ -518,6 +552,9 @@ void GenerateCompleteContext(SingleLocationAsyncContext* context)
         }
     } else {
         LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
+    }
+    if (!isNeedLocation && callbackHost->GetSingleLocation() == nullptr) {
+        SetUndefinedResult(context->env, context->result[PARAM1]);
     }
     if (context->callbackHost_) {
         context->callbackHost_ = nullptr;
