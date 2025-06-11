@@ -228,7 +228,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     }
 #endif
     callback_ = data.ReadObject<IRemoteObject>();
-    bundleName_ = data.ReadString();
+    data.ReadString(bundleName_);
     uid_ = data.ReadInt32();
     uint32_t size = data.ReadUint32();
     const uint8_t *bufferPtr = data.ReadBuffer(size);
