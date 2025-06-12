@@ -56,6 +56,8 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         if (stateCode == static_cast<int>(SIM_STATE_READY)) {
             HookUtils::ExecuteHookWhenSimStateChange(action);
         }
+    } else if (std::string(LOCATION_CUST_CONFIG_POLICY_CHANGE).compare(action) == 0) {
+        HookUtils::ExecuteHookWhenCustConfigPolicyChange();
     }
 }
 } // namespace Location
