@@ -50,7 +50,27 @@ void WorkRecordTest::VerifyMarshalling(std::unique_ptr<WorkRecord>& workrecord)
     EXPECT_EQ(0, parcel.ReadInt32()); // time interval
     EXPECT_EQ("uuid", parcel.ReadString());
     EXPECT_EQ(0, parcel.ReadInt32()); // locationRequestType
+    EXPECT_EQ(0, parcel.ReadUint32()); // tokenid
+    EXPECT_EQ(0, parcel.ReadUint32()); // first tokenid
     EXPECT_EQ("deviceId", parcel.ReadString());
+}
+
+void WorkRecordTest::VerifyWorkrecord(std::unique_ptr<WorkRecord>& workrecord)
+{
+    EXPECT_EQ(false, workrecord->Remove(SYSTEM_UID, 0, "WrongName", "0"));
+    EXPECT_EQ(1, workrecord->Size());
+    EXPECT_EQ(false, workrecord->Remove(999, 0, "name", "0"));
+    EXPECT_EQ(1, workrecord->Size());
+    EXPECT_EQ(false, workrecord->Remove(999, 0, "WrongName", "0"));
+    EXPECT_EQ(1, workrecord->Size());
+    EXPECT_EQ(false, workrecord->Remove(999, 1, "name", "0"));
+    EXPECT_EQ(1, workrecord->Size());
+    EXPECT_EQ(false, workrecord->Remove(999, 1, "WrongName", "0"));
+    EXPECT_EQ(1, workrecord->Size());
+    EXPECT_EQ(false, workrecord->Remove(SYSTEM_UID, 1, "WrongName", "0"));
+    EXPECT_EQ(1, workrecord->Size());
+    EXPECT_EQ(true, workrecord->Remove(SYSTEM_UID, 0, "name", "0"));
+    EXPECT_EQ(0, workrecord->Size()); // remove successfully
 }
 
 HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level0)
@@ -70,6 +90,8 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level0)
     parcel.WriteInt32(0); // time interval
     parcel.WriteString("uuid"); // uuid
     parcel.WriteInt32(0); // locationRequestType
+    parcel.WriteUint32(0); // tokenid
+    parcel.WriteUint32(0); // first tokenid
     parcel.WriteString("deviceId"); // deviceId
     std::unique_ptr<WorkRecord> workrecord = WorkRecord::Unmarshalling(parcel);
     VerifyMarshalling(workrecord);
@@ -91,21 +113,7 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level0)
 
     EXPECT_EQ(true, workrecord->Add(request));
     EXPECT_EQ(1, workrecord->Size());
-    EXPECT_EQ(false, workrecord->Remove(SYSTEM_UID, 0, "WrongName", "0"));
-    EXPECT_EQ(1, workrecord->Size());
-    EXPECT_EQ(false, workrecord->Remove(999, 0, "name", "0"));
-    EXPECT_EQ(1, workrecord->Size());
-    EXPECT_EQ(false, workrecord->Remove(999, 0, "WrongName", "0"));
-    EXPECT_EQ(1, workrecord->Size());
-    EXPECT_EQ(false, workrecord->Remove(999, 1, "name", "0"));
-    EXPECT_EQ(1, workrecord->Size());
-    EXPECT_EQ(false, workrecord->Remove(999, 1, "WrongName", "0"));
-    EXPECT_EQ(1, workrecord->Size());
-    EXPECT_EQ(false, workrecord->Remove(SYSTEM_UID, 1, "WrongName", "0"));
-    EXPECT_EQ(1, workrecord->Size());
-
-    EXPECT_EQ(true, workrecord->Remove(SYSTEM_UID, 0, "name", "0"));
-    EXPECT_EQ(0, workrecord->Size()); // remove successfully
+    VerifyWorkrecord(workRecord);
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddAndRemoveWorkRecord001 end");
 }
 

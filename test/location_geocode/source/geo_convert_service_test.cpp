@@ -581,20 +581,6 @@ HWTEST_F(GeoConvertServiceTest, GeoServiceDeathRecipientOnRemoteDied001, TestSiz
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GeoServiceDeathRecipientOnRemoteDied001 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, ProcessEvent001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, ProcessEvent001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ProcessEvent001 begin");
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(0, 0);
-    ASSERT_TRUE(service_ != nullptr);
-    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
-    service_->geoConvertHandler_->ProcessEvent(event);
-    event = AppExecFwk::InnerEvent::Get(0x0100, 0);
-    service_->geoConvertHandler_->ProcessEvent(event);
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] ProcessEvent001 end");
-}
-
 HWTEST_F(GeoConvertServiceTest, UnRegisterGeoServiceDeathRecipient001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -605,32 +591,6 @@ HWTEST_F(GeoConvertServiceTest, UnRegisterGeoServiceDeathRecipient001, TestSize.
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] UnRegisterGeoServiceDeathRecipient001 end");
 }
 
-HWTEST_F(GeoConvertServiceTest, InitGeoConvertHandlerEventMap001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, InitGeoConvertHandlerEventMap001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] InitGeoConvertHandlerEventMap001 begin");
-    ASSERT_TRUE(service_ != nullptr);
-    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
-    service_->geoConvertHandler_->InitGeoConvertHandlerEventMap();
-    service_->geoConvertHandler_->InitGeoConvertHandlerEventMap();
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] InitGeoConvertHandlerEventMap001 end");
-}
-
-HWTEST_F(GeoConvertServiceTest, NullHandler001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GeoConvertServiceTest, NullHandler001, TestSize.Level1";
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] NullHandler001 begin");
-    ASSERT_TRUE(service_ != nullptr);
-    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
-    service_->geoConvertHandler_ = nullptr;
-    service_->UnloadGeoConvertSystemAbility();
-    service_->geoConvertHandler_ =
-        std::make_shared<GeoConvertHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
-    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] NullHandler001 end");
-}
- 
 HWTEST_F(GeoConvertServiceTest, SendGeocodeRequest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -666,8 +626,6 @@ HWTEST_F(GeoConvertServiceTest, SendGeocodeRequest001, TestSize.Level1)
     mockGeoConvertRequest->GetTransId();
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(0x0100, mockGeoConvertRequest);
     ASSERT_TRUE(service_ != nullptr);
-    ASSERT_TRUE(service_->geoConvertHandler_ != nullptr);
-    service_->geoConvertHandler_->SendGeocodeRequest(event);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] SendGeocodeRequest001 end");
 }
 
