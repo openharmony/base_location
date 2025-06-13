@@ -113,7 +113,7 @@ HWTEST_F(WorkRecordTest, AddAndRemoveWorkRecord001, TestSize.Level0)
 
     EXPECT_EQ(true, workrecord->Add(request));
     EXPECT_EQ(1, workrecord->Size());
-    VerifyWorkrecord(workRecord);
+    VerifyWorkrecord(workrecord);
     LBSLOGI(LOCATOR, "[WorkRecordTest] AddAndRemoveWorkRecord001 end");
 }
 
