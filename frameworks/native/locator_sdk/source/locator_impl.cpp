@@ -755,7 +755,7 @@ LocationErrCode LocatorImpl::StopLocatingV9(sptr<ILocatorCallback>& callback)
 {
     if (callback == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return ERRCODE_INVALID_PARAM;
     }
     RemoveLocationCallBack(callback);
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
