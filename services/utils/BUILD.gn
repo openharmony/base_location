@@ -33,12 +33,6 @@ ohos_shared_library("lbsresources") {
 
   deps = []
 
-  external_deps = [
-    "icu:shared_icuuc",
-    "hilog:libhilog",
-    "i18n:intl_util",
-  ]
-
   public_external_deps = [ "hilog:libhilog" ]
 
   defines = []
