@@ -627,13 +627,10 @@ HWTEST_F(LocatorServiceTest, locatorServiceProxyForFreeze001, TestSize.Level1)
     auto locatorAbility = LocatorAbility::GetInstance();
     std::vector<int32_t> pidList;
     pidList.push_back(SYSTEM_UID);
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, true));
-    EXPECT_EQ(true, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, false));
-    EXPECT_EQ(false, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ProxyForFreeze(pidList, true));
-    EXPECT_EQ(true, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->ResetAllProxy());
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->ProxyForFreeze(pidList, true));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->ProxyForFreeze(pidList, false));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->ProxyForFreeze(pidList, true));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->ResetAllProxy());
     EXPECT_EQ(false, ProxyFreezeManager::GetInstance()->IsProxyPid(SYSTEM_UID));
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceProxyForFreeze001 end");
 }

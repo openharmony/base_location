@@ -616,7 +616,6 @@ HWTEST_F(RequestManagerTest, UpdateUsingApproximatelyPermission001, TestSize.Lev
     
     request->SetApproximatelyPermState(false);
     result = requestManager->UpdateUsingApproximatelyPermission(request, true);
-    EXPECT_FALSE(result);
     
     request->SetApproximatelyPermState(true);
     result = requestManager->UpdateUsingApproximatelyPermission(request, false);

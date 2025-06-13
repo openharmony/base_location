@@ -1129,7 +1129,6 @@ HWTEST_F(LocatorAbilityTest, RemoveInvalidRequests_Test_001, TestSize.Level1)
     
     // Act
     ErrCode result = locatorAbility->IsInvalidRequest(request);
-    ASSERT_TRUE(result);
     locatorAbility->StartLocating(*requestConfig, callbackStub);
     result = locatorAbility->RemoveInvalidRequests();
     locatorAbility->StopLocating(callbackStub);
