@@ -27,6 +27,7 @@ public:
     void SetUp();
     void TearDown();
     void VerifyMarshalling(std::unique_ptr<WorkRecord>& workrecord);
+    void VerifyWorkrecord(std::unique_ptr<WorkRecord>& workrecord);
 };
 } // namespace Location
 } // namespace OHOS

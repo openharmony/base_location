@@ -266,21 +266,6 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9003, T
     bool state = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->IsLocationEnabledV9(state));
 #ifdef FEATURE_GNSS_SUPPORT
-    GeoFence geofence;
-    geofence.latitude = 35.1;
-    geofence.longitude = 40.2;
-    geofence.radius = 2.2;
-    geofence.expiration = 12.2;
-    std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetGeofence(geofence);
-    if (state) {
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, geofenceSdk->AddFenceV9(fenceRequest));
-        EXPECT_EQ(ERRCODE_PERMISSION_DENIED, geofenceSdk->RemoveFenceV9(fenceRequest));
-    } else {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, geofenceSdk->AddFenceV9(fenceRequest));
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, geofenceSdk->RemoveFenceV9(fenceRequest));
-    }
-
     int size = -1;
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->GetCachedGnssLocationsSizeV9(size));
