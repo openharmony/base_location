@@ -73,6 +73,7 @@
                 "runtime_core",
                 "safwk",
                 "samgr",
+                "selinux_adapter",
                 "sms_mms",
                 "wifi",
                 "bluetooth",
