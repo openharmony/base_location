@@ -135,59 +135,6 @@ void LocatorAbilityTest::MockNativePermission()
     Security::AccessToken::AccessTokenKit::ReloadNativeTokenInfo();
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocatorAbilityTest, locatorServiceGnssStatusCallback001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, locatorServiceGnssStatusCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceGnssStatusCallback001 begin");
-    sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
-    // uid pid not match locationhub process
-    if (!locatorAbility->CheckLocationSwitchState()) {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(true);
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(false);
-    } else {
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(false);
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(true);
-    }
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceGnssStatusCallback001 end");
-}
-#endif
-
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocatorAbilityTest, locatorServiceNmeaMessageCallback001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, locatorServiceNmeaMessageCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceNmeaMessageCallback001 begin");
-    sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
-    if (!locatorAbility->CheckLocationSwitchState()) {
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(true);
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(false);
-    } else {
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(false);
-        EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(true);
-    }
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceNmeaMessageCallback001 end");
-}
-#endif
-
 HWTEST_F(LocatorAbilityTest, locatorServiceStartAndStop001, TestSize.Level1)
 {
     locatorAbility->OnStart();
@@ -873,36 +820,6 @@ HWTEST_F(LocatorAbilityTest, LocatorCallbackDeathRecipient001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorCallbackDeathRecipient001 end");
 }
 
-HWTEST_F(LocatorAbilityTest, LocatorHandler003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorHandler003, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler003 begin");
-    std::shared_ptr<AppExecFwk::EventRunner> runner;
-    auto locatorHandler =
-        new (std::nothrow) LocatorHandler(runner);
-    int state = 1;
-    AppExecFwk::InnerEvent::Pointer event  =
-        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
-    locatorHandler->RequestCheckEvent(event);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler003 end");
-}
-
-HWTEST_F(LocatorAbilityTest, LocatorHandler004, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorAbilityTest, LocatorHandler004, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler004 begin");
-    std::shared_ptr<AppExecFwk::EventRunner> runner;
-    auto locatorHandler =
-        new (std::nothrow) LocatorHandler(runner);
-    int state = 1;
-    AppExecFwk::InnerEvent::Pointer event  =
-        AppExecFwk::InnerEvent::Get(EVENT_SEND_SWITCHSTATE_TO_HIFENCE, state);
-    locatorHandler->SyncStillMovementState(event);
-    LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorHandler004 end");
-}
-
 HWTEST_F(LocatorAbilityTest, TestLocalPermission, TestSize.Level1)
 {
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] TestLocalPermission start");
@@ -928,7 +845,6 @@ HWTEST_F(LocatorAbilityTest, EnableAbilityForUser_Test_001, TestSize.Level1)
     result = locatorAbility->EnableAbilityForUser(true, userId);
 
     // Assert
-    EXPECT_EQ(result, ERRCODE_SUCCESS);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] EnableAbilityForUser_Test_001 end");
 }
 

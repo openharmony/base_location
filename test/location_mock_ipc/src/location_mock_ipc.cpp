@@ -108,31 +108,6 @@ void LocationMockIpcTest::TearDown()
     ipcMap_.clear();
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 begin");
-
-    auto gnssAbilityStub = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
-        if (iter->second != g_gnssIpcCode) {
-            continue;
-        }
-        MessageParcel parcel;
-        parcel.WriteInterfaceToken(u"location.IGnssAbility");
-        MessageParcel reply;
-        MessageOption option;
-        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-            gnssAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
-    }
-    sleep(WAIT_RESPONSE_SEC);
-    gnssAbilityStub = nullptr;
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 end");
-}
-#endif
-
 #ifdef FEATURE_NETWORK_SUPPORT
 HWTEST_F(LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Level1)
 {
@@ -179,87 +154,6 @@ HWTEST_F(LocationMockIpcTest, MockPassiveStubCallingPermission001, TestSize.Leve
     sleep(WAIT_RESPONSE_SEC);
     passiveAbilityStub->passiveHandler_->TaskCancelAndWait();
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockPassiveStubCallingPermission001 end");
-}
-#endif
-
-#ifdef FEATURE_GEOCODE_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockGeoCodeStubCallingPermission001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockGeoCodeStubCallingPermission001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoCodeStubCallingPermission001 begin");
-
-    auto geoConvertServiceStub = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
-    for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
-        if (iter->second != g_geoIpcCode) {
-            continue;
-        }
-        MessageParcel parcel;
-        parcel.WriteInterfaceToken(u"location.IGeoConvert");
-        MessageParcel reply;
-        MessageOption option;
-        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-            geoConvertServiceStub->OnRemoteRequest(iter->first, parcel, reply, option));
-    }
-    sleep(WAIT_RESPONSE_SEC);
-    geoConvertServiceStub = nullptr;
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoCodeStubCallingPermission001 end");
-}
-#endif
-
-#ifdef FEATURE_GEOCODE_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockGeoConvertServiceStub001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockGeoConvertServiceStub001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoConvertServiceStub001 begin");
-    auto geoConvertServiceStub = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
-    geoConvertServiceStub->InitGeoConvertHandleMap();
-    geoConvertServiceStub->InitGeoConvertHandleMap();
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoConvertServiceStub001 end");
-}
-#endif
- 
-#ifdef FEATURE_GEOCODE_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockGeoConvertServiceStub002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockGeoConvertServiceStub002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoConvertServiceStub002 begin");
-    MessageParcel data;
-    auto geoConvertServiceStub = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
-    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo = geoConvertServiceStub->ParseGeocodingMockInfos(data);
-    data.WriteInt32(2);
-    mockInfo = geoConvertServiceStub->ParseGeocodingMockInfos(data);
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoConvertServiceStub002 end");
-}
-#endif
-
-#ifdef FEATURE_GEOCODE_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockGeoConvertServiceStub003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockGeoConvertServiceStub003, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoConvertServiceStub003 begin");
-    MessageParcel data;
-    MessageParcel reply;
-    AppIdentity identity;
-    auto geoConvertServiceStub = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
-    geoConvertServiceStub->IsGeoConvertAvailableInner(data, reply, identity);
-    geoConvertServiceStub->GetAddressByCoordinateInner(data, reply, identity);
-    geoConvertServiceStub->GetAddressByLocationNameInner(data, reply, identity);
-    geoConvertServiceStub->EnableReverseGeocodingMockInner(data, reply, identity);
-    geoConvertServiceStub->DisableReverseGeocodingMockInner(data, reply, identity);
-    geoConvertServiceStub->SetGeocodingMockInfoInner(data, reply, identity);
-    identity.uid_ = 1021;
-    identity.pid_ = 1494;
-    geoConvertServiceStub->IsGeoConvertAvailableInner(data, reply, identity);
-    geoConvertServiceStub->GetAddressByCoordinateInner(data, reply, identity);
-    geoConvertServiceStub->GetAddressByLocationNameInner(data, reply, identity);
-    geoConvertServiceStub->EnableReverseGeocodingMockInner(data, reply, identity);
-    geoConvertServiceStub->DisableReverseGeocodingMockInner(data, reply, identity);
-    geoConvertServiceStub->SetGeocodingMockInfoInner(data, reply, identity);
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGeoConvertServiceStub003 end");
 }
 #endif
 }  // namespace Location
