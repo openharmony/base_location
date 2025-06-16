@@ -243,5 +243,15 @@ bool HookUtils::ExecuteHookWhenCustConfigPolicyChange()
         LocationProcessStage::CUST_CONFIG_POLICY_CHANGE_PROCESS, nullptr, nullptr);
     return true;
 }
+
+bool HookUtils::ExecuteHookWhenCheckIsAppBackground(const std::string& packageName)
+{
+    LocatorRequestStruct locatorRequestStruct;
+    locatorRequestStruct.bundleName = packageName;
+    locatorRequestStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::IS_APP_BACKGROUND_PROCESS, (void *)&locatorRequestStruct, nullptr);
+    return locatorRequestStruct.result;
+}
 } // namespace Location
 } // namespace OHOS
