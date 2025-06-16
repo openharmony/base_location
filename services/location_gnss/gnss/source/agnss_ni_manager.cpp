@@ -448,7 +448,6 @@ void SystemAbilityStatusChangeListener::OnRemoveSystemAbility(int32_t systemAbil
 }
 
 #ifdef NET_MANAGER_ENABLE
-
 int32_t AGnssNiNetworkCallbackEs::NetConnectionPropertiesChange(
     sptr<NetManagerStandard::NetHandle> &netHandle, const sptr<NetManagerStandard::NetLinkInfo> &info)
 {
@@ -480,7 +479,6 @@ int32_t AGnssNiNetworkCallback::NetUnavailable()
 {
     return ERR_OK;
 }
-
 #endif
 }  // namespace Location
 }  // namespace OHOS
