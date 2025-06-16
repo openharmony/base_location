@@ -25,6 +25,7 @@ namespace Location {
 constexpr const char* MODE_CHANGED_EVENT = "usual.event.location.MODE_STATE_CHANGED";
 constexpr const char* LOCATION_PRIVACY_ACCEPT_EVENT = "usual.event.LOCATION_PRIVACY_ACCEPT";
 constexpr const char* LOCATION_PRIVACY_REJECT_EVENT = "usual.event.LOCATION_PRIVACY_REJECT";
+constexpr const char* LOCATION_CUST_CONFIG_POLICY_CHANGE = "usual.event.CUST_CONFIG_POLICY_CHANGE";
 class LocatorEventSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
 public:
     explicit LocatorEventSubscriber(const OHOS::EventFwk::CommonEventSubscribeInfo &info);
