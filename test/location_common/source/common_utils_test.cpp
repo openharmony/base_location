@@ -323,7 +323,7 @@ HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
 {
     std::string name = "";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 begin");
-    bool ret = CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
+    CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 end");
 }
 
