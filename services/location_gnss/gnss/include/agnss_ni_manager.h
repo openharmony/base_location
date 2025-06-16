@@ -39,7 +39,7 @@ enum AGPS_STATUS {
     AGPS_DATA_CONNECTION_CLOSED = 0,
     AGPS_DATA_CONNECTION_OPENING,
     AGPS_DATA_CONNECTION_OPEN
-}
+};
 
 enum AGPS_DATA_STATUS {
     GPS_REQUEST_AGPS_DATA_CONN = 0,
@@ -47,7 +47,7 @@ enum AGPS_DATA_STATUS {
     GPS_AGPS_DATA_CONNECTED,
     GPS_AGPS_DATA_CONN_DONE,
     GPS_AGPS_DATA_CONN_FAILED
-}
+};
 
 using HDI::Location::Gnss::V2_0::IGnssInterface;
 using HDI::Location::Gnss::V2_0::GnssNiNotificationRequest;
