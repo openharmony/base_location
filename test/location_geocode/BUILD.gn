@@ -60,6 +60,7 @@ if (location_feature_with_geocode) {
       "ipc:ipc_core",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
+      "selinux_adapter:librestorecon",
     ]
 
     defines = []
