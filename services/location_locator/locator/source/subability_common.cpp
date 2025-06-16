@@ -139,7 +139,7 @@ void SubAbility::Enable(bool state, const sptr<IRemoteObject> ability)
     int saId = CommonUtils::AbilityConvertToId(name_);
     if (state) {
         if (sam->CheckSystemAbility(saId) == nullptr) {
-            sam->AddSystemAbility(saId, ability, ISystemAbilityManager::SAExtraProp(true, 1, capability_, u""));
+            sam->AddSystemAbility(saId, ability, ISystemAbilityManager::SAExtraProp(false, 1, capability_, u""));
             LBSLOGI(label_, "enable %{public}s ability", name_.c_str());
         }
     } else {
