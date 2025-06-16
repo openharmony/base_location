@@ -28,9 +28,27 @@
 #include "gnss_common_event_subscriber.h"
 #include "subability_common.h"
 #include "system_ability_status_change_stub.h"
+#ifdef NET_MANAGER_ENABLE
+#include "net_conn_callback_stub.h"
+#endif
 
 namespace OHOS {
 namespace Location {
+
+enum AGPS_STATUS {
+    AGPS_DATA_CONNECTION_CLOSED = 0,
+    AGPS_DATA_CONNECTION_OPENING,
+    AGPS_DATA_CONNECTION_OPEN
+}
+
+enum AGPS_DATA_STATUS {
+    GPS_REQUEST_AGPS_DATA_CONN = 0,
+    GPS_RELEASE_AGPS_DATA_CONN,
+    GPS_AGPS_DATA_CONNECTED,
+    GPS_AGPS_DATA_CONN_DONE,
+    GPS_AGPS_DATA_CONN_FAILED
+}
+
 using HDI::Location::Gnss::V2_0::IGnssInterface;
 using HDI::Location::Gnss::V2_0::GnssNiNotificationRequest;
 using HDI::Location::Gnss::V2_0::GnssNiRequestCategory;
@@ -51,6 +69,26 @@ public:
     void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
     void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
 };
+
+#ifdef NET_MANAGER_ENABLE
+class AGnssNiNetworkCallbackEs : public NetManagerStandard::NetConnCallbackStub {
+public:
+    int32_t NetConnectionPropertiesChange(
+        sptr<NetManagerStandard::NetHandle> &netHandle, const sptr<NetManagerStandard::NetLinkInfo> &info) override;
+    int32_t NetLost(sptr<NetManagerStandard::NetHandle> &netHandle) override;
+    int32_t NetUnavailable() override;
+    std::string host_;
+};
+
+class AGnssNiNetworkCallback : public NetManagerStandard::NetConnCallbackStub {
+public:
+    int32_t NetConnectionPropertiesChange(
+        sptr<NetManagerStandard::NetHandle> &netHandle, const sptr<NetManagerStandard::NetLinkInfo> &info) override;
+    int32_t NetLost(sptr<NetManagerStandard::NetHandle> &netHandle) override;
+    int32_t NetUnavailable() override;
+    std::string host_;
+};
+#endif
 
 class AGnssNiManager {
 public:

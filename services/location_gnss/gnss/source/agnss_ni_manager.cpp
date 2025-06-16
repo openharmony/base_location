@@ -447,6 +447,41 @@ void SystemAbilityStatusChangeListener::OnRemoveSystemAbility(int32_t systemAbil
     return;
 }
 
+#ifdef NET_MANAGER_ENABLE
+
+int32_t AGnssNiNetworkCallbackEs::NetConnectionPropertiesChange(
+    sptr<NetManagerStandard::NetHandle> &netHandle, const sptr<NetManagerStandard::NetLinkInfo> &info)
+{
+    return ERR_OK;
+}
+
+int32_t AGnssNiNetworkCallbackEs::NetLost(sptr<NetManagerStandard::NetHandle> &netHandle)
+{
+    return ERR_OK;
+}
+
+int32_t AGnssNiNetworkCallbackEs::NetUnavailable()
+{
+    return ERR_OK;
+}
+
+int32_t AGnssNiNetworkCallback::NetConnectionPropertiesChange(
+    sptr<NetManagerStandard::NetHandle> &netHandle, const sptr<NetManagerStandard::NetLinkInfo> &info)
+{
+    return ERR_OK;
+}
+
+int32_t AGnssNiNetworkCallback::NetLost(sptr<NetManagerStandard::NetHandle> &netHandle)
+{
+    return ERR_OK;
+}
+
+int32_t AGnssNiNetworkCallback::NetUnavailable()
+{
+    return ERR_OK;
+}
+
+#endif
 }  // namespace Location
 }  // namespace OHOS
 #endif
