@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Demandé par",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Services de localisation",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Services de localisation a besoin d'une connexion Internet et utilisent des informations GNSS ou réseau (WLAN, réseau cellulaire, Bluetooth, IP) pour vous fournir des services basés sur la localisation. Lorsque cette option est activée, les informations de localisation de votre appareil sont partagées avec les services auxquels l'accès à la localisation a été accordé. Vos informations de localisation seront également utilisées par les services du système, à des fins telles que la mise à jour de votre fuseau horaire et les appels d'urgence. Pour plus d'informations sur l'option Services de localisation, consultez la <a>Déclaration relative à la vie privée Services de localisation</a>.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

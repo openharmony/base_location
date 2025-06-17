@@ -1,113 +1,167 @@
 {
-  "string": [
-    {
-      "name": "module_desc",
-      "value": "module description"
-    },
-    {
-      "name": "MainAbility_desc",
-      "value": "manage the permissions of all applications from the permission and application dimensions"
-    },
-    {
-      "name": "MainAbility_label",
-      "value": "permission manage"
-    },
-    {
-      "name": "ConfirmUIExtAbility_label",
-      "value": "label"
-    },
-    {
-      "name": "ConfirmUIExtAbility_desc",
-      "value": "agnss ni confirm dialog"
-    },
-    {
-      "name": "LocationPrivacyExtAbility_desc",
-      "value": "location privacy dialog"
-    },
-    {
-      "name": "ConfirmCallbackAbility_desc",
-      "value": "description"
-    },
-    {
-      "name": "ConfirmCallbackAbility_label",
-      "value": "label"
-    },
-    {
-      "name": "ni_notify_title",
-      "value": "Location request"
-    },
-    {
-      "name": "ni_notify_message",
-      "value": "Requested by "
-    },
-    {
-      "name": "confirm_button",
-      "value": "Agree"
-    },
-    {
-      "name": "cancel_button",
-      "value": "Cancel"
-    },
-    {
-      "name": "location_target_statement_title",
-      "value": "Location Services"
-    },
-    {
-      "name": "location_target_statement_content",
-      "value":"Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls.For more information about Location Services, refer to the <a>Statement About Location Services and Privacy</a>."
-    },
-    {
-      "name": "LocationPrivacyExtAbility_label",
-      "value": "label"
-    },
-    {
-      "name": "wifi_portal_connected_notify_title",
-      "value": "Connected to %s"
-    },
-    {
-      "name": "wifi_portal_connected_notify_text",
-      "value": "Tap to log in."
-    },
-    {
-      "name": "wifi_portal_connect_timeout_notify_title",
-      "value": "Authentication expired"
-    },
-    {
-      "name": "wifi_portal_connect_timeout_notify_text",
-      "value": "Tap to log in to %s."
-    },
-    {
-      "name": "wifi_portal_found_notify_title",
-      "value": "Authentication required"
-    },
-    {
-      "name": "wifi_portal_found_notify_text",
-      "value": "Tap to log in to %s."
-    },
-    {
-      "name": "wifi_cdd_notify_title",
-      "value": "This WLAN network has no Internet access. Connect anyway?"
-    },
-    {
-      "name": "wifi_cdd_notify_no_button",
-      "value": "Cancel"
-    },
-    {
-      "name": "wifi_cdd_notify_yes_button",
-      "value": "Connect"
-    },
-    {
-      "name": "wifi_three_vap_notify_title",
-      "value": "Can't create a hotspot while the WLAN channel is in use. If you're using WLAN Direct or screen casting, disconnect and try again."
-    },
-    {
-      "name": "wifi_three_vap_notify_no_button",
-      "value": "Cancel"
-    },
-    {
-      "name": "wifi_three_vap_notify_yes_button",
-      "value": "Disconnect"
-    },
+    "string":[
+        {
+            "name":"module_desc",
+            "value":"module description"
+        },
+        {
+            "name":"MainAbility_desc",
+            "value":"manage the permissions of all applications from the permission and application dimensions"
+        },
+        {
+            "name":"MainAbility_label",
+            "value":"permission manage"
+        },
+        {
+            "name":"ConfirmUIExtAbility_label",
+            "value":"label"
+        },
+        {
+            "name":"ConfirmUIExtAbility_desc",
+            "value":"agnss ni confirm dialog"
+        },
+        {
+            "name":"LocationPrivacyExtAbility_desc",
+            "value":"location privacy dialog"
+        },
+        {
+            "name":"ConfirmCallbackAbility_desc",
+            "value":"description"
+        },
+        {
+            "name":"ConfirmCallbackAbility_label",
+            "value":"label"
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"Location request",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Requested by",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"confirm_button",
+            "value":"Agree",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"Cancel",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Location Services",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls. For more information about Location Services, refer to the <a>Statement About Location Services and Privacy</a>.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"LocationPrivacyExtAbility_label",
+            "value":"label"
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"Connected to %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"Tap to log in.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"Authentication expired",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"Tap to log in to %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"Authentication required",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"Tap to log in to %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_title",
+            "value":"This WLAN network has no Internet access. Connect anyway?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"Cancel",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"Connect",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"Can't create a hotspot while the WLAN channel is in use. If you're using WLAN Direct or screen casting, disconnect and try again.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"Cancel",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"Disconnect",
+            "attr":{
+                "priority":"translate"
+            }
+        },
         {
             "name":"wifi_candidate_connect_notify_title",
             "value":"Trust and connect to \"%s\"?",
@@ -115,174 +169,180 @@
                 "priority":"translate"
             }
         },
-    {
-      "name": "wifi_candidate_connect_notify_no_button",
-      "value": "Cancel"
-    },
-    {
-      "name": "wifi_candidate_connect_notify_yes_button",
-      "value": "Connect"
-    },
-    {
-      "name":"wifipro_auto_connect_dialog_context",
-      "value":"Allow connection to a better network \"%s\" using the password for the current WLAN network?",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_auto_connect_dialog_ok_button",
-      "value":"Allow",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_auto_connect_dialog_no_button",
-      "value":"Deny",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_better_network_pop_up_title",
-      "value":"Found a better WLAN network",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_better_network_notify_text",
-      "value":"Tap to connect to \"%s\".",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-        "name":"condition_netshare_hotspot_close",
-        "value":"Hotspot disabled",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"stop_idle_tether_notification_message",
-        "value":"No devices connected. Hotspot has been disabled. Battery life will be extended.",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"stop_idle_tether_notification_action_text",
-        "value":"Turn on hotspot",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_notification_title",
-        "value":"Bluetooth file transfer",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_notification_button_reject",
-        "value":"Reject",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_notification_button_accept",
-        "value":"Accept",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_finish_title",
-        "value":"Bluetooth transfer finished",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_send_finish_text",
-        "value":"%1$s, %2$s",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_finish_text",
-        "value":"%1$s, %2$s",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_transfer_notification_title",
-        "value":"Bluetooth file transfer",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_transfer_receive_text",
-        "value":"Receiving…",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_send_finish_title",
-        "value":"Bluetooth transfer finished",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_transfer_send_text",
-        "value":"Sending…",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"share_name",
-        "value":"Bluetooth",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_title",
-        "value":"Connection request",
-        "attr":{
-            "priority":"translate"
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"Cancel",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"Connect",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"Allow connection to a better network \"%s\" using the password for the current WLAN network?",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"Allow",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"Deny",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"Found a better WLAN network",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"Tap to connect to \"%s\".",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"Hotspot disabled",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"No devices connected. Hotspot has been disabled. Battery life will be extended.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Turn on hotspot",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Bluetooth file transfer",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Reject",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Accept",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Bluetooth transfer finished",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Bluetooth file transfer",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Receiving…",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"Bluetooth transfer finished",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"Sending…",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"Bluetooth",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"Connection request",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"Allow %s to connect to this device?",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"Deny",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"Allow",
+            "attr":{
+                "priority":"LT"
+            }
         }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_text",
-        "value":"Allow %s to connect to this device?",
-        "attr":{
-            "priority":"translate"
-        }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_no_button",
-        "value":"Deny",
-        "attr":{
-            "priority":"translate"
-        }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_ok_button",
-        "value":"Allow",
-        "attr":{
-            "priority":"translate"
-        }
-    }
-  ]
+    ]
 }

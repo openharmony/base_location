@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"요청 출처",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"위치 서비스",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"위치 서비스는 귀하에게 위치 기반 서비스를 제공하기 위해 인터넷 연결이 필요하며 GNSS 또는 네트워크 정보(WLAN, 셀룰러 네트워크, 블루투스, IP)를 사용합니다. 실행하면 장치의 위치 정보가 위치 액세스 권한이 허용된 서비스와 공유됩니다. 또한, 위치 정보는 표준시간대 업데이트 및 긴급 전화 등의 목적으로 시스템 서비스에서 사용됩니다. 위치 서비스에 대한 자세한 정보는 <a>위치 서비스 및 개인 정보 보호에 대한 방침</a>을 참조하십시오.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

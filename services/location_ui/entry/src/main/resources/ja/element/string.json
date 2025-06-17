@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"要求元",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"位置情報サービス",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"位置情報サービスは、インターネット接続を必要とし、GNSSまたはネットワーク情報（WLAN、セルラーネットワーク、Bluetooth、IP）を使用して位置情報ベースのサービスを提供します。これを有効にすると、ご利用のデバイスの位置情報は、位置情報へのアクセスを許可されているサービスと共有されます。ユーザーの位置情報は、タイムゾーンの更新や緊急通報などの目的でシステムサービスによっても使用されます。位置情報サービスの詳細については、<a>位置情報サービスと個人情報保護に関する声明</a>を参照してください。",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

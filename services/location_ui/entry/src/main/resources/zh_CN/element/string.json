@@ -1,105 +1,159 @@
 {
-  "string": [
-    {
-      "name": "module_desc",
-      "value": "模块描述"
-    },
-    {
-      "name": "ConfirmUIExtAbility_desc",
-      "value": "description"
-    },
-    {
-      "name": "ConfirmUIExtAbility_label",
-      "value": "label"
-    },
-    {
-      "name": "ConfirmCallbackAbility_desc",
-      "value": "description"
-    },
-    {
-      "name": "ConfirmCallbackAbility_label",
-      "value": "label"
-    },
-    {
-      "name": "ni_notify_title",
-      "value": "定位请求"
-    },
-    {
-      "name": "ni_notify_message",
-      "value": "请求人 "
-    },
-    {
-      "name": "confirm_button",
-      "value": "同意"
-    },
-    {
-      "name": "cancel_button",
-      "value": "取消"
-    },
-    {
-      "name": "location_target_statement_title",
-      "value": "定位服务"
-    },
-    {
-      "name": "location_target_statement_content",
-      "value": "“定位服务”联网并使用 GNSS 或网络信息 (WLAN、蜂窝网络、蓝牙、IP) 为您提供基于位置的服务。启用后，设备的位置信息会被分享给已授予定位权限的服务。您的位置信息也将用于系统服务，如更新时区、紧急呼叫等。关于定位服务的更多信息，请参阅<a>关于定位服务与隐私的声明</a>。"
-    },
-    {
-      "name": "LocationPrivacyExtAbility_desc",
-      "value": "description"
-    },
-    {
-      "name": "LocationPrivacyExtAbility_label",
-      "value": "label"
-    },
-    {
-      "name": "wifi_portal_connected_notify_title",
-      "value": "已连接%s"
-    },
-    {
-      "name": "wifi_portal_connected_notify_text",
-      "value": "点击进行登录/认证"
-    },
-    {
-      "name": "wifi_portal_connect_timeout_notify_title",
-      "value": "该 WLAN 网络认证已过期"
-    },
-    {
-      "name": "wifi_portal_connect_timeout_notify_text",
-      "value": "点击进行登录/认证%s"
-    },
-    {
-      "name": "wifi_portal_found_notify_title",
-      "value": "发现需认证的 WLAN 网络"
-    },
-    {
-      "name": "wifi_portal_found_notify_text",
-      "value": "点击进行登录/认证%s"
-    },
-    {
-      "name": "wifi_cdd_notify_title",
-      "value": "当前 WLAN 不可上网。是否继续使用此 WLAN？"
-    },
-    {
-      "name": "wifi_cdd_notify_no_button",
-      "value": "不使用"
-    },
-    {
-      "name": "wifi_cdd_notify_yes_button",
-      "value": "使用"
-    },
-    {
-      "name": "wifi_three_vap_notify_title",
-      "value": "检测到 WLAN 共享通道已被占用。若您正使用 WLAN 直连、多屏互动等互联应用，断开后才可开启个人热点。是否断开？"
-    },
-    {
-      "name": "wifi_three_vap_notify_no_button",
-      "value": "取消"
-    },
-    {
-      "name": "wifi_three_vap_notify_yes_button",
-      "value": "断开"
-    },
+    "string":[
+        {
+            "name":"module_desc",
+            "value":"模块描述"
+        },
+        {
+            "name":"ConfirmUIExtAbility_desc",
+            "value":"description"
+        },
+        {
+            "name":"ConfirmUIExtAbility_label",
+            "value":"label"
+        },
+        {
+            "name":"ConfirmCallbackAbility_desc",
+            "value":"description"
+        },
+        {
+            "name":"ConfirmCallbackAbility_label",
+            "value":"label"
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"定位请求",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"请求人",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"confirm_button",
+            "value":"同意",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"取消",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"定位服务",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"“定位服务”联网并使用 GNSS 或网络信息 (WLAN、蜂窝网络、蓝牙、IP) 为您提供基于位置的服务。启用后，设备的位置信息会被分享给已授予定位权限的服务。您的位置信息也将用于系统服务，如更新时区、紧急呼叫等。关于定位服务的更多信息，请参阅<a>关于定位服务与隐私的声明</a>。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"LocationPrivacyExtAbility_desc",
+            "value":"description"
+        },
+        {
+            "name":"LocationPrivacyExtAbility_label",
+            "value":"label"
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"已连接%s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"点击进行登录/认证",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"该 WLAN 网络认证已过期",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"点击进行登录/认证%s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"发现需认证的 WLAN 网络",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"点击进行登录/认证%s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_title",
+            "value":"当前 WLAN 不可上网。是否继续使用此 WLAN？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"不使用",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"使用",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"检测到 WLAN 共享通道已被占用。若您正使用 WLAN 直连、多屏互动等互联应用，断开后才可开启个人热点。是否断开？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"取消",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"断开",
+            "attr":{
+                "priority":"translate"
+            }
+        },
         {
             "name":"wifi_candidate_connect_notify_title",
             "value":"是否信任“%s”并建立连接？",
@@ -107,174 +161,180 @@
                 "priority":"translate"
             }
         },
-    {
-      "name": "wifi_candidate_connect_notify_no_button",
-      "value": "取消"
-    },
-    {
-      "name": "wifi_candidate_connect_notify_yes_button",
-      "value": "连接"
-    },
-    {
-      "name":"wifipro_auto_connect_dialog_context",
-      "value":"授权使用当前 WLAN 秘钥连接更优网络“%s”。",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_auto_connect_dialog_ok_button",
-      "value":"同意",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_auto_connect_dialog_no_button",
-      "value":"拒绝",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_better_network_pop_up_title",
-      "value":"发现更优 WLAN 网络",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-      "name":"wifipro_better_network_notify_text",
-      "value":"点击连接“%s”",
-      "attr":{
-          "priority":"translate"
-      }
-    },
-    {
-        "name":"condition_netshare_hotspot_close",
-        "value":"热点已关闭",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"stop_idle_tether_notification_message",
-        "value":"当前无设备连接，热点已关闭，续航时间将增加。",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"stop_idle_tether_notification_action_text",
-        "value":"开启热点",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_notification_title",
-        "value":"蓝牙共享文件",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_notification_button_reject",
-        "value":"拒绝",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_notification_button_accept",
-        "value":"接收",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_finish_title",
-        "value":"蓝牙共享：已接收的文件",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_send_finish_text",
-        "value":"%1$s，%2$s",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_receive_finish_text",
-        "value":"%1$s，%2$s",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_transfer_notification_title",
-        "value":"蓝牙共享",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_transfer_receive_text",
-        "value":"正在接收",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_send_finish_title",
-        "value":"蓝牙共享：已发送的文件",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"bluetooth_transfer_send_text",
-        "value":"正在发送",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"share_name",
-        "value":"蓝牙",
-        "attr":{
-            "priority":"translate"
-      }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_title",
-        "value":"连接确认",
-        "attr":{
-            "priority":"translate"
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"取消",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"连接",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"授权使用当前 WLAN 秘钥连接更优网络“%s”。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"同意",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"拒绝",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"发现更优 WLAN 网络",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"点击连接“%s”",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"热点已关闭",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"当前无设备连接，热点已关闭，续航时间将增加。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"开启热点",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"蓝牙共享文件",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"拒绝",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"接收",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"蓝牙共享：已接收的文件",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s，%2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s，%2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"蓝牙共享",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"正在接收",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"蓝牙共享：已发送的文件",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"正在发送",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"蓝牙",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"连接确认",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"是否连接\"%s\"？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"拒绝",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"连接",
+            "attr":{
+                "priority":"translate"
+            }
         }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_text",
-        "value":"是否连接\"%s\"？",
-        "attr":{
-            "priority":"translate"
-        }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_no_button",
-        "value":"拒绝",
-        "attr":{
-            "priority":"translate"
-        }
-    },
-    {
-        "name":"p2p_wsc_pbc_dialog_ok_button",
-        "value":"连接",
-        "attr":{
-            "priority":"translate"
-        }
-    }
-  ]
+    ]
 }

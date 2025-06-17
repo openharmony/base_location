@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Được yêu cầu bởi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Dịch vụ Vị trí",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Dịch vụ Vị trí yêu cầu kết nối Internet và sử dụng GNSS hoặc thông tin mạng (WLAN, mạng di động, Bluetooth, IP) để cung cấp cho bạn các dịch vụ dựa trên vị trí. Khi bật dịch vụ này, thông tin vị trí của thiết bị của bạn sẽ được chia sẻ với các dịch vụ đã được cấp quyền truy cập vị trí. Thông tin vị trí của bạn cũng sẽ được các dịch vụ hệ thống sử dụng cho các mục đích như cập nhật múi giờ và các cuộc gọi khẩn cấp. Để biết thêm thông tin về Dịch vụ Vị trí, hãy tham khảo <a>Tuyên bố về Dịch vụ Vị trí và Quyền riêng tư</a>.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
