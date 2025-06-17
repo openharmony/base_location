@@ -23,6 +23,7 @@
 #include "parameter.h"
 #include "location_data_rdb_manager.h"
 #include "ipc_skeleton.h"
+#include "nlohmann/json.hpp"
 #include "ui_extension_ability_connection.h"
 
 namespace OHOS {
