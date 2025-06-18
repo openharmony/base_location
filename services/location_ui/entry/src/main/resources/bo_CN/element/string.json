@@ -2,7 +2,10 @@
     "string":[
         {
             "name":"wifi_candidate_connect_notify_yes_button",
-            "value":"སྦྲེལ་མཐུད།"
+            "value":"སྦྲེལ་མཐུད།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_candidate_connect_notify_title",
@@ -13,113 +16,170 @@
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
-            "value":"འདོར་བ།"
+            "value":"འདོར་བ།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"confirm_button",
-            "value":"མོས་མཐུན།"
+            "value":"མོས་མཐུན།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"cancel_button",
-            "value":"འདོར་བ།"
+            "value":"འདོར་བ།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"location_target_statement_title",
-            "value":"གནས་ངེས་ཀྱི་ཞབས་ཞུ།"
+            "value":"གནས་ངེས་ཀྱི་ཞབས་ཞུ།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"ni_notify_title",
-            "value":"གནས་ངེས་རེ་ཞུ།"
+            "value":"གནས་ངེས་རེ་ཞུ།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"ni_notify_message",
-            "value":"རེ་ཞུ་མཁན།"
+            "value":"རེ་ཞུ་མཁན།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"location_target_statement_content",
-            "value":"༼གནས་ངེས་ཞབས་ཞུ་༽ལ་དྲ་སྦྲེལ་དགོས་ཤིང་ GNSS ཡང་ན་དྲ་རྒྱའི་ཆ་འཕྲིན་(WLAN དང་སྦྲང་ཚང་དྲ་རྒྱ། སོ་སྔོན། IP)བཀོལ་དགོས་ཏེ། ཁྱེད་ལ་གནས་ཡུལ་ལ་གཞིགས་པའི་ཞབས་ཞུ་མཁོ་འདོན་བྱ། སྤྱོད་འགོ་བཙུགས་རྗེས། སྒྲིག་ཆས་ཀྱི་གནས་ཡུལ་གྱི་ཆ་འཕྲིན་དེ་གནས་ཡུལ་གྱི་དབང་ཚད་སྤྲད་པའི་ཞབས་ཞུར་མཉམ་སྤྱོད་བྱ། ཁྱེད་ཀྱི་གནས་ཡུལ་གྱི་ཆ་འཕྲིན་རྒྱུད་ཁོངས་ཞབས་ཞུར་བཀོལ་སྲིད་དེ། དཔེར་ན། དུས་ཁུལ་གསར་སྒྱུར། ཛ་དྲག་འབོད་བརྡ་སོགས་ལ་བཀོལ་སྲིད། གནས་ངེས་ཀྱི་ཞབས་ཞུའི་ཆ་འཕྲིན་དེ་ལས་མང་བ་<a>གནས་ངེས་ཀྱི་ཞབས་ཞུ་དང་སྒེར་གསང་སྐོར་གྱི་གསལ་བསྒྲགས་</a>ལ་གཟིགས་རོགས།"
+            "value":"༼གནས་ངེས་ཞབས་ཞུ་༽ལ་དྲ་སྦྲེལ་དགོས་ཤིང་ GNSS ཡང་ན་དྲ་རྒྱའི་ཆ་འཕྲིན་(WLAN དང་སྦྲང་ཚང་དྲ་རྒྱ། སོ་སྔོན། IP)བཀོལ་དགོས་ཏེ། ཁྱེད་ལ་གནས་ཡུལ་ལ་གཞིགས་པའི་ཞབས་ཞུ་མཁོ་འདོན་བྱ། སྤྱོད་འགོ་བཙུགས་རྗེས། སྒྲིག་ཆས་ཀྱི་གནས་ཡུལ་གྱི་ཆ་འཕྲིན་དེ་གནས་ཡུལ་གྱི་དབང་ཚད་སྤྲད་པའི་ཞབས་ཞུར་མཉམ་སྤྱོད་བྱ། ཁྱེད་ཀྱི་གནས་ཡུལ་གྱི་ཆ་འཕྲིན་རྒྱུད་ཁོངས་ཞབས་ཞུར་བཀོལ་སྲིད་དེ། དཔེར་ན། དུས་ཁུལ་གསར་སྒྱུར། ཛ་དྲག་འབོད་བརྡ་སོགས་ལ་བཀོལ་སྲིད། གནས་ངེས་ཀྱི་ཞབས་ཞུའི་ཆ་འཕྲིན་དེ་ལས་མང་བ་<a>གནས་ངེས་ཀྱི་ཞབས་ཞུ་དང་སྒེར་གསང་སྐོར་གྱི་གསལ་བསྒྲགས་</a>ལ་གཟིགས་རོགས།",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"wifi_three_vap_notify_no_button",
-            "value":"འདོར་བ།"
+            "value":"འདོར་བ།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_three_vap_notify_yes_button",
-            "value":"གཅོད་པ།"
+            "value":"གཅོད་པ།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_text",
-            "value":"བརྡབས་ནས་%sཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།"
+            "value":"བརྡབས་ནས་%sཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_three_vap_notify_title",
-            "value":"WLAN མཉམ་སྤྱོད་བརྒྱུད་ལམ་བཟུང་སྤྱོད་བྱས་འདུག ཁྱེད་ཀྱིས་ WLAN ཐད་སྦྲེལ་དང་ཡོལ་མང་སྐུལ་རེས་སོགས་ཀྱི་སྦྲེལ་རེས་ཉེར་སྤྱོད་བཀོལ་བཞིན་ཡོད་ཚེ། སྦྲེལ་མཐུད་བཅད་རྗེས་ད་གཟོད་མི་སྒེར་གྱི་ཚ་གནས་ཁ་འབྱེད་ཐུབ། གཅོད་ཀྱི་ཡིན་ནམ།"
+            "value":"WLAN མཉམ་སྤྱོད་བརྒྱུད་ལམ་བཟུང་སྤྱོད་བྱས་འདུག ཁྱེད་ཀྱིས་ WLAN ཐད་སྦྲེལ་དང་ཡོལ་མང་སྐུལ་རེས་སོགས་ཀྱི་སྦྲེལ་རེས་ཉེར་སྤྱོད་བཀོལ་བཞིན་ཡོད་ཚེ། སྦྲེལ་མཐུད་བཅད་རྗེས་ད་གཟོད་མི་སྒེར་གྱི་ཚ་གནས་ཁ་འབྱེད་ཐུབ། གཅོད་ཀྱི་ཡིན་ནམ།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_found_notify_title",
-            "value":"ར་སྤྲོད་བྱ་དགོས་པའི་WLAN དྲ་རྒྱ་རྙེད།"
+            "value":"ར་སྤྲོད་བྱ་དགོས་པའི་WLAN དྲ་རྒྱ་རྙེད།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connected_notify_title",
-            "value":"%sལ་ཟིན།"
+            "value":"%sལ་ཟིན།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
-            "value":"WLAN དྲ་རྒྱ་དེའི་ར་སྤྲོད་ཀྱི་དུས་ཚོད་ཡོལ།"
+            "value":"WLAN དྲ་རྒྱ་དེའི་ར་སྤྲོད་ཀྱི་དུས་ཚོད་ཡོལ།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_found_notify_text",
-            "value":"བརྡབས་ནས་%sཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།"
+            "value":"བརྡབས་ནས་%sཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_cdd_notify_no_button",
-            "value":"བེད་སྤྱོད་མི་བྱེད།"
+            "value":"བེད་སྤྱོད་མི་བྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_cdd_notify_title",
-            "value":"མིག་སྔའི་ WLAN ཡིས་དྲར་ཞུགས་མི་ཐུབ། WLAN འདི་མུ་མཐུད་བེད་སྤྱོད་བྱེད་དམ།"
+            "value":"མིག་སྔའི་ WLAN ཡིས་དྲར་ཞུགས་མི་ཐུབ། WLAN འདི་མུ་མཐུད་བེད་སྤྱོད་བྱེད་དམ།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connected_notify_text",
-            "value":"བརྡབས་ནས་ཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།"
+            "value":"བརྡབས་ནས་ཐོ་འཇུག་དང་ར་སྤྲོད་བྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_cdd_notify_yes_button",
-            "value":"བེད་སྤྱོད་བྱེད།"
+            "value":"བེད་སྤྱོད་བྱེད།",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifipro_better_network_notify_text",
             "value":"བརྡབས་ནས་༼%s༽ལ་སྦྲེལ་རོགས།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"WLAN དྲ་རྒྱ་དེ་བས་ལེགས་པ་ཞིག་རྙེད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_no_button",
             "value":"དང་ལེན་མི་བྱེད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"མོས་མཐུན།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_context",
             "value":"མིག་སྔའི་ WLAN ཡི་ལྡེ་མིག་སྤྱད་དེ་དྲ་རྒྱ་སྔར་ལས་ལེགས་པ་༼%s༽ལ་འབྲེལ་མཐུད་བྱེད་པར་དབང་སྤྲོད་བྱེད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -133,119 +193,119 @@
             "name":"stop_idle_tether_notification_action_text",
             "value":"དྲ་རྒྱ་མཉམ་སྤྱོད་ཁ་ཕྱེ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"condition_netshare_hotspot_close",
             "value":"ཚ་ཚིགས་ཁ་བརྒྱབ་ཟིན།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_title",
             "value":"སོ་སྔོན་མཉམ་སྤྱོད་ཡིག་ཆ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_reject",
             "value":"དང་ལེན་མི་བྱེད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_accept",
             "value":"འབྱོར་ལེན།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_title",
             "value":"སོ་སྔོན་མཉམ་སྤྱོད། : འབྱོར་ཟིན་པའི་ཡིག་ཆ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_text",
             "value":"%1$s %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_notification_title",
             "value":"སོ་སྔོན་མཉམ་སྤྱོད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_receive_text",
             "value":"ལེན་བཞིན་པ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_title",
             "value":"སོ་སྔོན་མཉམ་སྤྱོད། : བསྐུར་ཟིན་པའི་ཡིག་ཆ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_send_text",
             "value":"སྐུར་བཞིན་པ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"share_name",
             "value":"སོ་སྔོན།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_text",
             "value":"%sལ་འབྲེལ་མཐུད་བྱེད་དམ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_ok_button",
             "value":"འབྲེལ་མཐུད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"འབྲེལ་མཐུད་གཏན་འཁེལ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"དང་ལེན་མི་བྱེད།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

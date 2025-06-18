@@ -14,7 +14,7 @@
                     "quantity":"other",
                     "value":"%d files sent",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -26,14 +26,14 @@
                     "quantity":"one",
                     "value":"%d failed",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
                     "quantity":"other",
                     "value":"%d failed",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -45,7 +45,7 @@
                     "quantity":"one",
                     "value":"%d file received",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
@@ -64,14 +64,14 @@
                     "quantity":"one",
                     "value":"%d failed",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
                     "quantity":"other",
                     "value":"%d failed",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

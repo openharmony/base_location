@@ -2,7 +2,10 @@
     "string":[
         {
             "name":"wifi_candidate_connect_notify_yes_button",
-            "value":"連接"
+            "value":"連接",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_candidate_connect_notify_title",
@@ -13,7 +16,10 @@
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
-            "value":"取消"
+            "value":"取消",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"confirm_button",
@@ -31,7 +37,10 @@
         },
         {
             "name":"location_target_statement_title",
-            "value":"定位服務"
+            "value":"定位服務",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"ni_notify_title",
@@ -49,89 +58,128 @@
         },
         {
             "name":"location_target_statement_content",
-            "value":"「定位服務」連線網絡並使用 GNSS 或網絡資訊（WLAN、蜂窩網絡、藍牙和 IP）為您提供以位置為基礎的服務。啟用後，裝置的位置資訊會分享給已授予定位權限的服務。您的位置資訊也將用於系統服務，例如更新時區、緊急電話等。如需了解更多關於定位服務的資訊，請參閱<a>關於定位服務和私隱聲明</a>。"
+            "value":"「定位服務」連線網絡並使用 GNSS 或網絡資訊（WLAN、蜂窩網絡、藍牙和 IP）為您提供以位置為基礎的服務。啟用後，裝置的位置資訊會分享給已授予定位權限的服務。您的位置資訊也將用於系統服務，例如更新時區、緊急電話等。如需了解更多關於定位服務的資訊，請參閱<a>關於定位服務和私隱聲明</a>。",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"wifi_three_vap_notify_no_button",
-            "value":"取消"
+            "value":"取消",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_three_vap_notify_yes_button",
-            "value":"中斷"
+            "value":"中斷",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_text",
-            "value":"輕觸進行登入/驗證%s"
+            "value":"輕觸進行登入/驗證%s",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_three_vap_notify_title",
-            "value":"偵測到 WLAN 分享通道已被佔用。如果您正使用 WLAN Direct、多屏互動等互聯應用程式，中斷後才可啟用個人熱點。中斷？"
+            "value":"偵測到 WLAN 分享通道已被佔用。如果您正使用 WLAN Direct、多屏互動等互聯應用程式，中斷後才可啟用個人熱點。中斷？",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_found_notify_title",
-            "value":"發現需要驗證的 WLAN 網絡"
+            "value":"發現需要驗證的 WLAN 網絡",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connected_notify_title",
-            "value":"已連線至%s"
+            "value":"已連線至%s",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
-            "value":"該 WLAN 網絡驗證已過期"
+            "value":"該 WLAN 網絡驗證已過期",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_found_notify_text",
-            "value":"輕觸進行登入/驗證%s"
+            "value":"輕觸進行登入/驗證%s",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_cdd_notify_no_button",
-            "value":"不使用"
+            "value":"不使用",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_cdd_notify_title",
-            "value":"目前 WLAN 無法上網。繼續使用此 WLAN？"
+            "value":"目前 WLAN 無法上網。繼續使用此 WLAN？",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connected_notify_text",
-            "value":"輕觸進行登入/驗證"
+            "value":"輕觸進行登入/驗證",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_cdd_notify_yes_button",
-            "value":"使用"
+            "value":"使用",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifipro_better_network_notify_text",
             "value":"輕觸以連線「%s」",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"發現更佳 WLAN 網絡",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_no_button",
             "value":"拒絕",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"同意",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_context",
             "value":"授權使用目前 WLAN 密鑰連線更佳網絡「%s」。",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -145,119 +193,119 @@
             "name":"stop_idle_tether_notification_action_text",
             "value":"啟用熱點",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"condition_netshare_hotspot_close",
             "value":"熱點已關閉",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_title",
             "value":"藍牙分享檔案",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_reject",
             "value":"拒絕",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_accept",
             "value":"接收",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_title",
             "value":"藍牙分享：已接收的檔案",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_text",
             "value":"%1$s，%2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s，%2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_notification_title",
             "value":"藍牙分享",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_receive_text",
             "value":"接收中",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_title",
             "value":"藍牙分享：已發送的檔案",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_send_text",
             "value":"發送中",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"share_name",
             "value":"藍牙",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_text",
             "value":"連接「%s」？",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_ok_button",
             "value":"連接",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"連接確認",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"拒絕",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

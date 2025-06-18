@@ -7,7 +7,7 @@
                     "quantity":"other",
                     "value":"ཡིག་ཆ་ %d བརྒྱུད་གཏོང་བྱེད་ཐུབ་སོང་།",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -19,7 +19,7 @@
                     "quantity":"other",
                     "value":"ཡིག་ཆ་ %d བརྒྱུད་གཏོང་བྱེད་མ་ཐུབ།",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -31,7 +31,7 @@
                     "quantity":"other",
                     "value":"ཡིག་ཆ་ %d བརྒྱུད་གཏོང་བྱེད་ཐུབ་སོང་།",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -43,7 +43,7 @@
                     "quantity":"other",
                     "value":"ཡིག་ཆ་ %d བརྒྱུད་གཏོང་བྱེད་མ་ཐུབ།",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

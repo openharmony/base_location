@@ -34,7 +34,7 @@
         },
         {
             "name":"location_target_statement_content",
-            "value":"[TS_962306]_Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls.For more information about the location service, please refer to the <a>Statement on Location Service and Privacy</a>."
+            "value":"[TS_962306]_Location Services requires an Internet connection and uses GNSS or network information (WLAN, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls. For more information about Location Services, refer to the <a>Statement About Location Services and Privacy</a>."
         },
         {
             "name":"wifi_three_vap_notify_no_button",
@@ -175,6 +175,42 @@
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"[TS_1053167]_Deny"
+        },
+        {
+            "name":"MainAbility_desc",
+            "value":"[TS_962316]_manage the permissions of all applications from the permission and application dimensions"
+        },
+        {
+            "name":"MainAbility_label",
+            "value":"[TS_962301]_permission manage"
+        },
+        {
+            "name":"ConfirmCallbackAbility_desc",
+            "value":"[TS_962299]_description"
+        },
+        {
+            "name":"module_desc",
+            "value":"[TS_962300]_module description"
+        },
+        {
+            "name":"LocationPrivacyExtAbility_desc",
+            "value":"[TS_962304]_location privacy dialog"
+        },
+        {
+            "name":"ConfirmUIExtAbility_label",
+            "value":"[TS_962320]_label"
+        },
+        {
+            "name":"LocationPrivacyExtAbility_label",
+            "value":"[TS_962309]_label"
+        },
+        {
+            "name":"ConfirmUIExtAbility_desc",
+            "value":"[TS_962303]_agnss ni confirm dialog"
+        },
+        {
+            "name":"ConfirmCallbackAbility_label",
+            "value":"[TS_962323]_label"
         }
     ]
 }

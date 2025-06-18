@@ -2,7 +2,10 @@
     "string":[
         {
             "name":"wifi_candidate_connect_notify_yes_button",
-            "value":"ئۇلاش"
+            "value":"ئۇلاش",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_candidate_connect_notify_title",
@@ -13,113 +16,170 @@
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
-            "value":"بىكار قىلىش"
+            "value":"بىكار قىلىش",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"confirm_button",
-            "value":"قوشۇلىمەن"
+            "value":"قوشۇلىمەن",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"cancel_button",
-            "value":"بىكار قىلىش"
+            "value":"بىكار قىلىش",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"location_target_statement_title",
-            "value":"ئورۇن مۇلازىمىتى"
+            "value":"ئورۇن مۇلازىمىتى",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"ni_notify_title",
-            "value":"ئورۇن تەلىپى"
+            "value":"ئورۇن تەلىپى",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"ni_notify_message",
-            "value":"تەلەپ قىلغۇچى"
+            "value":"تەلەپ قىلغۇچى",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"location_target_statement_content",
-            "value":"ئورۇن مۇلازىمىتى تورغا ئۇلىنىدۇ؛ GNSS ياكى تور ئۇچۇرى (WLAN، كۆنەك تور، كۆكچىش، IP) ئارقىلىق سىزگە ئورۇن مۇلازىمىتى تەمىنلەيدۇ. ئاچقاندىن كېيىن، ئۈسكۈنىنىڭ ئورۇن ئۇچۇرى ئىجازەت بېرىلگەن مۇلازىمەت بىلەن ئورتاقلىنىدۇ. ئورۇن ئۇچۇرى يەنە ۋاقىت رايونى يېڭىلاش، جىددىي قۇتقۇزۇش تېلېفونى قىلىش قاتارلىق سىستېما مۇلازىمەتلىرى ئۈچۈنمۇ ئىشلىتىلىدۇ. ئورۇن مۇلازىمىتى ھەققىدىكى تەپسىلاتلارنى <a>«ئورۇن مۇلازىمىتى ۋە مەخپىيەتلىك ھەققىدە بايانات»</a> ئارقىلىق كۆرۈڭ."
+            "value":"ئورۇن مۇلازىمىتى تورغا ئۇلىنىدۇ؛ GNSS ياكى تور ئۇچۇرى (WLAN، كۆنەك تور، كۆكچىش، IP) ئارقىلىق سىزگە ئورۇن مۇلازىمىتى تەمىنلەيدۇ. ئاچقاندىن كېيىن، ئۈسكۈنىنىڭ ئورۇن ئۇچۇرى ئىجازەت بېرىلگەن مۇلازىمەت بىلەن ئورتاقلىنىدۇ. ئورۇن ئۇچۇرى يەنە ۋاقىت رايونى يېڭىلاش، جىددىي قۇتقۇزۇش تېلېفونى قىلىش قاتارلىق سىستېما مۇلازىمەتلىرى ئۈچۈنمۇ ئىشلىتىلىدۇ. ئورۇن مۇلازىمىتى ھەققىدىكى تەپسىلاتلارنى <a>«ئورۇن مۇلازىمىتى ۋە مەخپىيەتلىك ھەققىدە بايانات»</a> ئارقىلىق كۆرۈڭ.",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"wifi_three_vap_notify_no_button",
-            "value":"بىكار قىلىش"
+            "value":"بىكار قىلىش",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_three_vap_notify_yes_button",
-            "value":"ئۈزۈش"
+            "value":"ئۈزۈش",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_text",
-            "value":"بۇ يەرنى چېكىپ %s غا تىزىملاپ كىرىڭ/دەلىللەڭ."
+            "value":"بۇ يەرنى چېكىپ %s غا تىزىملاپ كىرىڭ/دەلىللەڭ.",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_three_vap_notify_title",
-            "value":"نۆۋەتتە WLAN ئورتاقلىشىش قانىلى ئالدىراش. WLAN Direct، كۆپ ئېكران ئۆزئارالىقى قاتارلىقلارنى ئىشلىتىۋاتقان بولسىڭىز، ئاۋۋال ئۈزۈپ، ئاندىن تور نۇقتىسى ئېچىڭ."
+            "value":"نۆۋەتتە WLAN ئورتاقلىشىش قانىلى ئالدىراش. WLAN Direct، كۆپ ئېكران ئۆزئارالىقى قاتارلىقلارنى ئىشلىتىۋاتقان بولسىڭىز، ئاۋۋال ئۈزۈپ، ئاندىن تور نۇقتىسى ئېچىڭ.",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_found_notify_title",
-            "value":"دەلىللەيدىغان WLAN تورى"
+            "value":"دەلىللەيدىغان WLAN تورى",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connected_notify_title",
-            "value":"\u200f%s ئۇلاق"
+            "value":"\u200f%s ئۇلاق",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
-            "value":"بۇ WLAN دەلىللەنمىسىنىڭ ۋاقتى ئۆتكەن."
+            "value":"بۇ WLAN دەلىللەنمىسىنىڭ ۋاقتى ئۆتكەن.",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_portal_found_notify_text",
-            "value":"بۇ يەرنى چېكىپ %s غا تىزىملاپ كىرىڭ/دەلىللەڭ."
+            "value":"بۇ يەرنى چېكىپ %s غا تىزىملاپ كىرىڭ/دەلىللەڭ.",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"wifi_cdd_notify_no_button",
-            "value":"ياق"
-        },
-        {
-            "name":"wifi_cdd_notify_title",
-            "value":"نۆۋەتتىكى WLAN دا ئىنتېرنېت يوق، داۋاملىق ئىشلىتەمسىز؟"
-        },
-        {
-            "name":"wifi_portal_connected_notify_text",
-            "value":"بۇ يەرنى چېكىپ تىزىملاپ كىرىڭ/دەلىللەڭ."
-        },
-        {
-            "name":"wifi_cdd_notify_yes_button",
-            "value":"شۇنداق"
-        },
-        {
-            "name":"wifipro_better_network_notify_text",
-            "value":"چېكىپ «%s» غا ئۇلاڭ.",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"wifipro_better_network_pop_up_title",
-            "value":"ياخشىراق WLAN تېپىلدى",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"wifipro_auto_connect_dialog_no_button",
             "value":"ياق",
             "attr":{
                 "priority":"translate"
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"نۆۋەتتىكى WLAN دا ئىنتېرنېت يوق، داۋاملىق ئىشلىتەمسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"بۇ يەرنى چېكىپ تىزىملاپ كىرىڭ/دەلىللەڭ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"شۇنداق",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"چېكىپ «%s» غا ئۇلاڭ.",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"ياخشىراق WLAN تېپىلدى",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"ياق",
+            "attr":{
+                "priority":"LT"
+            }
+        },
+        {
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"قوشۇلىمەن",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_context",
             "value":"نۆۋەتتىكى WLAN ئاچقۇچ ئارقىلىق تېخىمۇ ياخشى بولغان %s غا ئۇلامسىز؟",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -133,119 +193,119 @@
             "name":"stop_idle_tether_notification_action_text",
             "value":"قىزىق نۇقتا ئېچىش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"condition_netshare_hotspot_close",
             "value":"تور نۇقتىسى ئېتىك",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_title",
             "value":"كۆكچىش ئورتاقلاشقان ھۆججەت",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_reject",
             "value":"رەت قىلىش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_accept",
             "value":"قوبۇللاش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_title",
             "value":"كۆكچىش: قوبۇللىغان ھۆججەت",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_text",
             "value":"%1$s، %2$s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s، %2$s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_notification_title",
             "value":"كۆكچىش ئورتاقلاشقۇچ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_receive_text",
             "value":"قوبۇللاۋاتىدۇ...",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_title",
             "value":"كۆكچىش يوللىغان ھۆججەت",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_send_text",
             "value":"يوللاۋاتىدۇ...",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"share_name",
             "value":"كۆكچىش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_text",
             "value":"\u200f«%s» نى ئۇلامسىز؟",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_ok_button",
             "value":"ئۇلاش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"ئۇلاشنى جەزملەش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"چەكلەش",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
