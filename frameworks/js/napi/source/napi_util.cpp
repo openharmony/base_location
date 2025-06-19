@@ -118,7 +118,7 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
     SetValueInt64(env, "additionSize", additionSize, result);
     NAPI_CALL_RETURN_VOID(env,
         napi_create_array_with_length(env, additionSize, &additionArray));
-    for (uint32_t index = 0; index < additionSize; index++) {
+    for (uint32_t index = 0; index < std::min(additionSize, static_cast<uint32_t>(additions.size())); index++) {
         napi_value value;
         NAPI_CALL_RETURN_VOID(env, napi_create_string_utf8(env, additions[index].c_str(),
             NAPI_AUTO_LENGTH, &value));
