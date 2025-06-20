@@ -726,6 +726,7 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
     dataManager->GetWifiScanList(wifiScanInfo);
     std::vector<std::shared_ptr<LocatingRequiredData>> requiredData;
     bool requiredDataValid = dataManager->GetLocatingRequiredDataByWifi(requiredData, wifiScanInfo);
+    HookUtils::ExecuteHookWhenWifiScanStateChanged(requiredData);
     if (needRetryScan && !requiredDataValid &&
         CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO - dataManager->wifiScanStartTimeStamp_ >
         DEFAULT_NOT_RETRY_TIME_10_SECONDS) {
