@@ -136,8 +136,8 @@ export struct BtServicesComponent {
     try {
       let oppProfile = opp.createOppServerProfile();
       for (let i = 0; i < length; i++) {
+        let file = fs.openSync(fileUris[i], fs.OpenMode.READ_ONLY);
         let filePath = decodeURIComponent(fileUris[i]);
-        let file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
         console.log(`${TAG} deal file:` + file.fd);
         let stat: fs.Stat = fs.statSync(file.fd);
         let fileHolder: opp.FileHolder = {
