@@ -86,6 +86,7 @@ constexpr int32_t FENCE_MAX_ID = 1000000;
 constexpr int NLP_FIX_VALID_TIME = 2;
 const int64_t INVALID_TIME = 0;
 const int TIMEOUT_WATCHDOG = 60; // s
+const int DEFAULT_FENCE_ID = -1;
 const int64_t MILL_TO_NANOS = 1000000;
 static const std::string SYSPARAM_GPS_SUPPORT = "const.location.gps.support";
 }
@@ -838,6 +839,19 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
     return true;
 }
 
+void GnssAbility::ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &request, GnssGeofenceOperateType type,
+    LocationErrCode code)
+{
+    sptr<IGnssGeofenceCallback> gnssGeofenceCallback =
+                iface_cast<IGnssGeofenceCallback>(request->GetGeofenceTransitionCallback());
+    if (gnssGeofenceCallback == nullptr) {
+        LBSLOGE(GNSS, "gnssGeofenceCallback is nullptr");
+        return;
+    }
+    gnssGeofenceCallback->OnReportOperationResult(DEFAULT_FENCE_ID,
+        static_cast<int>(type), static_cast<int>(DealOperationResult(code)));
+}
+
 bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId)
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
@@ -982,8 +996,11 @@ bool GnssAbility::ExecuteFenceProcess(
     fenceStruct.callback = geofenceCallback_;
     lock.unlock();
 #endif
-    HookUtils::ExecuteHook(
+    LocationErrCode errCode = HookUtils::ExecuteHook(
         LocationProcessStage::FENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);
+    if (errCode != ERRCODE_SUCCESS) {
+        return false;
+    }
     return fenceStruct.retCode;
 }
 
@@ -1698,6 +1715,31 @@ void GnssAbility::RegisterLocationHdiDeathRecipient()
     obj->AddDeathRecipient(death);
 }
 
+GnssGeofenceOperateResult GnssAbility::DealOperationResult(LocationErrCode code)
+{
+    GnssGeofenceOperateResult result = GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_UNKNOWN;
+    switch (code) {
+        case ERRCODE_GEOFENCE_EXCEED_MAXIMUM:
+            result = GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_TOO_MANY_GEOFENCES;
+            break;
+        case LOCATION_ERRCODE_NOT_SUPPORTED:
+            result = GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_NOT_SUPPORTED;
+            break;
+        case ERRCODE_SERVICE_UNAVAILABLE:
+            result = GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_UNKNOWN;
+            break;
+        case ERRCODE_GEOFENCE_INCORRECT_ID:
+            result = GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_GEOFENCE_ID_UNKNOWN;
+            break;
+        case ERRCODE_GEOFENCE_FAIL:
+            result = GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_OPERATE_FAILED;
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
 GnssHandler::GnssHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
 {
     InitGnssEventProcessMap();
@@ -1857,7 +1899,11 @@ void GnssHandler::HandleAddFence(const AppExecFwk::InnerEvent::Pointer& event)
     auto gnssAbility = GnssAbility::GetInstance();
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
-        gnssAbility->AddFence(request);
+        LocationErrCode code = gnssAbility->AddFence(request);
+        if (code != ERRCODE_SUCCESS) {
+            gnssAbility->ReportFailedOperationResult(request,
+                GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD, code);
+        }
     }
 }
 
@@ -1866,7 +1912,11 @@ void GnssHandler::HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event
     auto gnssAbility = GnssAbility::GetInstance();
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
-        gnssAbility->RemoveFence(request);
+        LocationErrCode code = gnssAbility->RemoveFence(request);
+        if (code != ERRCODE_SUCCESS) {
+            gnssAbility->ReportFailedOperationResult(request,
+                GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE, code);
+        }
     }
 }
 
@@ -1875,7 +1925,11 @@ void GnssHandler::HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event
     auto gnssAbility = GnssAbility::GetInstance();
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
-        gnssAbility->AddGnssGeofence(request);
+        LocationErrCode code = gnssAbility->AddGnssGeofence(request);
+        if (code != ERRCODE_SUCCESS) {
+            gnssAbility->ReportFailedOperationResult(request,
+                GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD, code);
+        }
     }
 }
 
@@ -1884,7 +1938,11 @@ void GnssHandler::HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& ev
     auto gnssAbility = GnssAbility::GetInstance();
     std::shared_ptr<GeofenceRequest> request = event->GetSharedObject<GeofenceRequest>();
     if (request != nullptr) {
-        gnssAbility->RemoveGnssGeofence(request);
+        LocationErrCode code = gnssAbility->RemoveGnssGeofence(request);
+        if (code != ERRCODE_SUCCESS) {
+            gnssAbility->ReportFailedOperationResult(request,
+                GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE, code);
+        }
     }
 }
 

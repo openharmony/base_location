@@ -359,6 +359,12 @@ LocationErrCode LocationGnssGeofenceCallbackNapi::DealGeofenceOperationResult()
         case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_GEOFENCE_ID_UNKNOWN:
             errCode = ERRCODE_GEOFENCE_INCORRECT_ID;
             break;
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_NOT_SUPPORTED:
+            errCode = ERRCODE_NOT_SUPPORTED;
+            break;
+        case GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_ERROR_OPERATE_FAILED:
+            errCode = ERRCODE_GEOFENCE_FAIL;
+            break;
         default:
             break;
     }
