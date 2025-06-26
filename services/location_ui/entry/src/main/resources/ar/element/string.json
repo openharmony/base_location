@@ -22,6 +22,20 @@
             }
         },
         {
+            "name":"bluetooth_send_finish_title",
+            "value":"اكتمل النقل عبر البلوتوث",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"جارٍ الاستلام…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"ni_notify_message",
             "value":"طُلب بواسطة",
             "attr":{
@@ -29,8 +43,71 @@
             }
         },
         {
+            "name":"bluetooth_transfer_send_text",
+            "value":"جارٍ الإرسال…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"اكتمل النقل عبر البلوتوث",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"استلام",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"نقل الملفات عبر البلوتوث",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"البلوتوث",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"رفض",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_title",
             "value":"خدمات الموقع",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s، و%2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s، و%2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"نقل الملفات عبر البلوتوث",
             "attr":{
                 "priority":"translate"
             }

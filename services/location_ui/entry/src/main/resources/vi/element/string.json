@@ -22,6 +22,20 @@
             }
         },
         {
+            "name":"bluetooth_send_finish_title",
+            "value":"Quá trình truyền qua Bluetooth đã hoàn tất",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Đang nhận…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"ni_notify_message",
             "value":"Được yêu cầu bởi",
             "attr":{
@@ -29,8 +43,71 @@
             }
         },
         {
+            "name":"bluetooth_transfer_send_text",
+            "value":"Đang gửi…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Quá trình truyền qua Bluetooth đã hoàn tất",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Chấp nhận",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Truyền tệp tin qua Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Từ chối",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_title",
             "value":"Dịch vụ Vị trí",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Truyền tệp tin qua Bluetooth",
             "attr":{
                 "priority":"translate"
             }

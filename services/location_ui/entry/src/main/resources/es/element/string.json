@@ -22,6 +22,20 @@
             }
         },
         {
+            "name":"bluetooth_send_finish_title",
+            "value":"Transferencia vía Bluetooth finalizada",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Recibiendo…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"ni_notify_message",
             "value":"La ha solicitado",
             "attr":{
@@ -29,8 +43,71 @@
             }
         },
         {
+            "name":"bluetooth_transfer_send_text",
+            "value":"Enviando…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Transferencia vía Bluetooth finalizada",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Aceptar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Transferencia de archivos vía Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Rechazar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_title",
             "value":"Servicios de localización",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Transferencia de archivos vía Bluetooth",
             "attr":{
                 "priority":"translate"
             }
