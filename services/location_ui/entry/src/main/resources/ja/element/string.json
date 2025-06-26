@@ -22,6 +22,20 @@
             }
         },
         {
+            "name":"bluetooth_send_finish_title",
+            "value":"Bluetooth転送が完了",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"受信中…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"ni_notify_message",
             "value":"要求元",
             "attr":{
@@ -29,8 +43,71 @@
             }
         },
         {
+            "name":"bluetooth_transfer_send_text",
+            "value":"送信中…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Bluetooth転送が完了",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"受信",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Bluetoothファイル転送",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"拒否",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_title",
             "value":"位置情報サービス",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s、%2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s、%2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Bluetoothファイル転送",
             "attr":{
                 "priority":"translate"
             }

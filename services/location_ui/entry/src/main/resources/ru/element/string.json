@@ -22,6 +22,20 @@
             }
         },
         {
+            "name":"bluetooth_send_finish_title",
+            "value":"Передача по Bluetooth завершена",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Получение…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"ni_notify_message",
             "value":"Запрос отправлен:",
             "attr":{
@@ -29,8 +43,71 @@
             }
         },
         {
+            "name":"bluetooth_transfer_send_text",
+            "value":"Отправка…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Передача по Bluetooth завершена",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Принять",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Передача файлов по Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Отклонить",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_title",
             "value":"Службы определения местоположения",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Передача файлов по Bluetooth",
             "attr":{
                 "priority":"translate"
             }
