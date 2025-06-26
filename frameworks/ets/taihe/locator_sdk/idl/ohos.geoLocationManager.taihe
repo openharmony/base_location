@@ -13,36 +13,36 @@
  * limitations under the License.
  */
 @!namespace("@ohos.geoLocationManager", "geoLocationManager")
-enum LocationRequestPriority: i32 { UNSET = 0x200, ACCURACY, LOW_POWER, FIRST_FIX }
-enum LocationRequestScenario: i32 { UNSET = 0x300, NAVIGATION, TRAJECTORY_TRACKING, CAR_HAILING, DAILY_LIFE_SERVICE, NO_POWER }
-enum LocatingPriority: i32 { HIGH_POWER_CONSUMPTION  = 0x601, LOW_POWER_CONSUMPTION = 0x602, NO_POWER_CONSUMPTION = 0x603 }
-enum LocationSourceType: i32 { GNSS = 1, NETWORK = 2, INDOOR = 3, RTK = 4 }
-enum LocationPrivacyType: i32 { OTHERS = 0, STARTUP = 1, CORE_LOCATION = 2 }
-enum CoordinateSystemType: i32 { WGS84 = 1, GCJ02 = 2 }
-enum SportsType: i32 {RUNNING = 1, WALKING, CYCLING}
-enum UserActivityScenario: i32 { NAVIGATION = 0x401, SPORT = 0x402, TRANSPORT = 0x403, DAILY_LIFE_SERVICE = 0x404}
-enum PowerConsumptionScenario: i32 { HIGH_POWER_CONSUMPTION = 0x601, LOW_POWER_CONSUMPTION = 0x602, NO_POWER_CONSUMPTION = 0x603}
-enum SatelliteConstellationCategory: i32 { CONSTELLATION_CATEGORY_UNKNOWN = 0, CONSTELLATION_CATEGORY_GPS = 1, CONSTELLATION_CATEGORY_SBAS = 2,
+enum LocationRequestPriority: i64 { UNSET = 0x200, ACCURACY, LOW_POWER, FIRST_FIX }
+enum LocationRequestScenario: i64 { UNSET = 0x300, NAVIGATION, TRAJECTORY_TRACKING, CAR_HAILING, DAILY_LIFE_SERVICE, NO_POWER }
+enum LocatingPriority: i64 { PRIORITY_ACCURACY = 0x501, PRIORITY_LOCATING_SPEED = 0x502 }
+enum LocationSourceType: i64 { GNSS = 1, NETWORK = 2, INDOOR = 3, RTK = 4 }
+enum LocationPrivacyType: i64 { OTHERS = 0, STARTUP = 1, CORE_LOCATION = 2 }
+enum CoordinateSystemType: i64 { WGS84 = 1, GCJ02 = 2 }
+enum SportsType: i64 {RUNNING = 1, WALKING, CYCLING}
+enum UserActivityScenario: i64 { NAVIGATION = 0x401, SPORT = 0x402, TRANSPORT = 0x403, DAILY_LIFE_SERVICE = 0x404}
+enum PowerConsumptionScenario: i64 { HIGH_POWER_CONSUMPTION = 0x601, LOW_POWER_CONSUMPTION = 0x602, NO_POWER_CONSUMPTION = 0x603}
+enum SatelliteConstellationCategory: i64 { CONSTELLATION_CATEGORY_UNKNOWN = 0, CONSTELLATION_CATEGORY_GPS = 1, CONSTELLATION_CATEGORY_SBAS = 2,
 CONSTELLATION_CATEGORY_GLONASS = 3, CONSTELLATION_CATEGORY_QZSS = 4, CONSTELLATION_CATEGORY_BEIDOU = 5, CONSTELLATION_CATEGORY_GALILEO = 6, CONSTELLATION_CATEGORY_IRNSS = 7 }
-enum CountryCodeType: i32 { COUNTRY_CODE_FROM_LOCALE = 1, COUNTRY_CODE_FROM_SIM, COUNTRY_CODE_FROM_LOCATION, COUNTRY_CODE_FROM_NETWORK }
-enum LocationError: i32 { LOCATING_FAILED_DEFAULT = -1, LOCATING_FAILED_LOCATION_PERMISSION_DENIED = -2, LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED = -3,
+enum CountryCodeType: i64 { COUNTRY_CODE_FROM_LOCALE = 1, COUNTRY_CODE_FROM_SIM, COUNTRY_CODE_FROM_LOCATION, COUNTRY_CODE_FROM_NETWORK }
+enum LocationError: i64 { LOCATING_FAILED_DEFAULT = -1, LOCATING_FAILED_LOCATION_PERMISSION_DENIED = -2, LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED = -3,
 LOCATING_FAILED_LOCATION_SWITCH_OFF = -4, LOCATING_FAILED_INTERNET_ACCESS_FAILURE = -5 }
-enum LocationIconStatus: i32 { LOCATING_NOT_STARTED = 0, LOCATING_STARTED = 1, HD_LOCATING_STARTED = 2 }
-enum LocatingRequiredDataType: i32 {WIFI = 1, BLUETOOTH}
+enum LocationIconStatus: i64 { LOCATING_NOT_STARTED = 0, LOCATING_STARTED = 1, HD_LOCATING_STARTED = 2 }
+enum LocatingRequiredDataType: i64 {WIFI = 1, BLUETOOTH}
 
 struct ReverseGeoCodeRequest {
     locale: Optional<String>;
     country: Optional<String>;
     latitude: f64;
     longitude: f64;
-    maxItems: i32;
+    maxItems: f64;
 }
 
 struct GeoCodeRequest {
     locale: Optional<String>;
     country: Optional<String>;
     description: String;
-    maxItems: Optional<i32>;
+    maxItems: Optional<f64>;
     minLatitude: Optional<f64>;
     minLongitude: Optional<f64>;
     maxLatitude: Optional<f64>;
@@ -67,7 +67,7 @@ struct GeoAddress {
     phoneNumber: String;
     addressUrl: String;
     descriptions: Array<String>;
-    descriptionsSize: i32;
+    descriptionsSize: f64;
     isFromMock: bool;
 }
 
@@ -77,7 +77,7 @@ union ContinuousLocationRequestLocationScenario {
 }
 
 struct ContinuousLocationRequest {
-    interval: i32;
+    interval: f64;
     locationScenario: ContinuousLocationRequestLocationScenario;
     sportsType: Optional<SportsType>;
     needPoi: Optional<bool>;
@@ -87,12 +87,12 @@ struct CurrentLocationRequest {
     priority: Optional<LocationRequestPriority>;
     scenario: Optional<LocationRequestScenario>;
     maxAccuracy: Optional<f64>;
-    timeoutMs: Optional<i32>;
+    timeoutMs: Optional<f64>;
 }
 
 struct SingleLocationRequest  {
     locatingPriority: Optional<LocatingPriority>;
-    locatingTimeoutMs: Optional<i32>;
+    locatingTimeoutMs: Optional<f64>;
 }
 
 union CurrentRequest {
@@ -103,8 +103,8 @@ union CurrentRequest {
 struct LocationRequest {
     priority: Optional<LocationRequestPriority>;
     scenario: Optional<LocationRequestScenario>;
-    timeInterval: Optional<i32>;
-    distanceInterval: Optional<i32>;
+    timeInterval: Optional<f64>;
+    distanceInterval: Optional<f64>;
     maxAccuracy: Optional<f64>;
 }
 
@@ -114,7 +114,7 @@ union OnRequest {
 }
 
 struct LocationMockConfig {
-    timeInterval: i32;
+    timeInterval: f64;
     locations: Array<Location>;
 }
 
@@ -124,17 +124,17 @@ struct Location {
     altitude: f64;
     accuracy: f64;
     speed: f64;
-    timeStamp: i64;
+    timeStamp: f64;
     direction: f64;
-    timeSinceBoot: i64;
+    timeSinceBoot: f64;
     additions: Array<String>;
     additionsMap: @record Map<String, String>;
-    additionSize: i32;
+    additionSize: f64;
     isFromMock: bool;
     altitudeAccuracy: f64;
     speedAccuracy: f64;
     directionAccuracy: f64;
-    uncertaintyOfTimeSinceBoot: i64;
+    uncertaintyOfTimeSinceBoot: f64;
     sourceType: LocationSourceType;
 }
 
@@ -142,7 +142,7 @@ struct Geofence {
     latitude: f64;
     longitude: f64;
     coordinateSystemType: Optional<CoordinateSystemType>;
-    radius: i32;
+    radius: f64;
     expiration: f64;
 }
 
@@ -152,18 +152,18 @@ struct GeofenceRequest {
 }
 
 struct SatelliteStatusInfo {
-    satellitesNumber: i32;
-    satelliteIds: Array<i32>;
+    satellitesNumber: f64;
+    satelliteIds: Array<f64>;
     carrierToNoiseDensitys: Array<f64>;
     altitudes: Array<f64>;
     azimuths: Array<f64>;
     carrierFrequencies: Array<f64>;
     satelliteConstellation: Optional<Array<SatelliteConstellationCategory>>;
-    satelliteAdditionalInfo: Optional<Array<i32>>;
+    satelliteAdditionalInfo: Optional<Array<f64>>;
 }
 
 struct CachedGnssLocationsRequest {
-    reportingPeriodSec: i32;
+    reportingPeriodSec: f64;
     wakeUpCacheQueueFull: bool;
 }
 
@@ -174,7 +174,7 @@ struct CountryCode {
 
 struct BluetoothScanResult {
     deviceId: String;
-    rssi: i64;
+    rssi: f64;
     data: Optional<Array<@arraybuffer Array<u8>>>;
     deviceName: String;
     connectable: bool;
@@ -183,23 +183,23 @@ struct BluetoothScanResult {
 struct LocatingRequiredDataConfig {
     type: LocatingRequiredDataType;
     needStartScan: bool;
-    scanInterval: Optional<i32>;
-    scanTimeout: Optional<i32>;
+    scanInterval: Optional<f64>;
+    scanTimeout: Optional<f64>;
 }
 
 struct WifiScanInfo {
     ssid: String;
     bssid: String;
-    rssi: i64;
-    frequency: i32;
-    timestamp: i64;
+    rssi: f64;
+    frequency: f64;
+    timestamp: f64;
 }
 
 struct BluetoothScanInfo {
     deviceName: String;
     macAddress: String;
-    rssi: i64;
-    timestamp: i64;
+    rssi: f64;
+    timestamp: f64;
 }
 
 struct LocatingRequiredData {
@@ -267,12 +267,6 @@ function OnLocationChange(request: OnRequest, callback: (data: Location) => void
 
 // @on_off("locationChange")
 function OffLocationChange(callback: Optional<(data: Location) => void>): void;
-
-/*@on_off("gnssFenceStatusChange")
-function offGnssFenceStatusChange(request: GeofenceRequest, want: WantAgent): void
-
-@on_off("gnssFenceStatusChange")
-function onGnssFenceStatusChange(request: GeofenceRequest, want: WantAgent): void*/
 
 @on_off("locatingRequiredDataChange")
 function OnLocatingRequiredDataChange(config: LocatingRequiredDataConfig, callback: (data: Array<LocatingRequiredData>) => void): void;
