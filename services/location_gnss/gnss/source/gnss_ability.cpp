@@ -986,8 +986,11 @@ bool GnssAbility::ExecuteFenceProcess(
     fenceStruct.callback = geofenceCallback_;
     lock.unlock();
 #endif
-    HookUtils::ExecuteHook(
+    LocationErrCode errCode = HookUtils::ExecuteHook(
         LocationProcessStage::FENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);
+    if (errCode != ERRCODE_SUCCESS) {
+        return false;
+    }
     return fenceStruct.retCode;
 }
 
