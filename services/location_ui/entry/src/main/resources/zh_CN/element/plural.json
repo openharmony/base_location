@@ -47,6 +47,25 @@
                     }
                 }
             ]
+        },
+        {
+            "name":"bluetooth_file_count_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"%d",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"other",
+                    "value":"%d",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
         }
     ]
 }

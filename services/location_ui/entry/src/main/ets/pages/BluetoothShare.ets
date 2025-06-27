@@ -17,6 +17,7 @@ import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSessi
 import opp from '@ohos.bluetooth.opp';
 import common from '@ohos.app.ability.common';
 import fs from '@ohos.file.fs';
+import { BusinessError } from '@ohos.base';
 
 export const CLOSE = 1;
 
@@ -158,13 +159,15 @@ export struct BtServicesComponent {
           this.fileHolders[i].fileFd = -1;
         }
       }
-      if (session === undefined) {
-        console.log(TAG, 'cannot get session.');
-        return;
-      }
-      this.closeSheetPage(session, CLOSE);
     } catch (err) {
-      console.error(`${TAG} sendData err`);
+      console.error(`${TAG} sendData err, code is ${err.code}, message is ${err.message}`);
     }
+    const session: UIExtensionContentSession | undefined =
+      LocalStorage.getShared()?.get<UIExtensionContentSession>('session');
+    if (session == undefined) {
+      console.log(TAG, 'cannot get session.');
+      return;
+    }
+    this.closeSheetPage(session, CLOSE);
   }
 }
