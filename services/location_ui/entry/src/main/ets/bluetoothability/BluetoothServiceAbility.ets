@@ -42,14 +42,14 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
             let records = data.getRecords();
             for (let i = 0; i < records.length; i++) {
                 let filePath = '';
-                if (records[i].uri === undefined && records[i].content != undefined) {
+                if (records[i].uri == undefined && records[i].content != undefined) {
                     console.log(`${TAG} share txt content`);
-                    filePath = this.context.filesDir + "/" + i+1 + ".txt";
+                    filePath = this.context.filesDir + '/' + (i + 1) + '.txt';
                     let file = fs.openSync(filePath, fs.OpenMode.READ_WRITE | fs.OpenMode.CREATE);
                     let writeLen = fs.writeSync(file.fd, records[i].content);
                     console.log(`${TAG} write data to file success and size is:` + writeLen);
                     fs.closeSync(file);
-                } else if (records[i].uri === undefined) {
+                } else if (records[i].uri == undefined) { 
                     console.log(`${TAG} records[i].uri is undefined`);
                 } else {
                     filePath = records[i].uri;

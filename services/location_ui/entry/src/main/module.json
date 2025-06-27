@@ -118,7 +118,12 @@
               {
                 "scheme": "file",
                 "utd": "general.object",
-                "maxFileSupported": 1
+                "maxFileSupported": 300
+              },
+              {
+                "scheme": "file",
+                "utd": "general.entity",
+                "maxFileSupported": 300
               }
             ]
           }

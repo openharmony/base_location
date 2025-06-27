@@ -2,6 +2,7 @@
   "layeredimage":
   {
     "background": "$media:background",
-    "foreground": "$media:foreground"
+    "foreground": "$media:foreground",
+    "foregroundSmall": "$media:foregroundSmall"
   }
 }
