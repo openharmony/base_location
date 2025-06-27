@@ -222,6 +222,9 @@ public:
     LocationErrCode InjectTime();
     LocationErrCode UpdateNtpTime(int64_t ntpTime, int64_t elapsedTime);
     void MonitorNetwork();
+    void ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &request, GnssGeofenceOperateType type,
+        LocationErrCode code);
+    GnssGeofenceOperateResult DealOperationResult(LocationErrCode code);
 
 private:
     bool Init();
