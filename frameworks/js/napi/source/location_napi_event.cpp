@@ -553,7 +553,7 @@ void GenerateCompleteContext(SingleLocationAsyncContext* context)
     } else {
         LBSLOGE(LOCATOR_STANDARD, "m_singleLocation is nullptr!");
     }
-    if (!isNeedLocation && callbackHost->GetSingleLocation() == nullptr) {
+    if (callbackHost != nullptr && !isNeedLocation && callbackHost->GetSingleLocation() == nullptr) {
         SetUndefinedResult(context->env, context->result[PARAM1]);
     }
     if (context->callbackHost_) {
