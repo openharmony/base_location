@@ -84,7 +84,7 @@ export struct BtServicesComponent {
     try {
       console.log(TAG, 'systemParameter get start');
       const info: string = systemParameter.getSync(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE);
-      return info == CONTROL_TYPE_DISALLOW_SEND_ALLOW_RECEIVE;
+      return info === CONTROL_TYPE_DISALLOW_SEND_ALLOW_RECEIVE;
     } catch (err) {
       console.error(TAG, 'systemParameter get failed, msg: ${err.message}');
       return false;
@@ -101,7 +101,7 @@ export struct BtServicesComponent {
 
   private static isPC(): boolean {
     return BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC || 
-      BtServicesComponent.getDeviceType === BtServicesComponent.DEVICE_TYPE_PC_NEW;
+      BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC_NEW;
   }
 
   /**
