@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-import systemParameter from '@ohos.systemParameter';
-import deviceInfo from 'ohos.deviceInfo';
+import systemParameter from '@ohos.systemParameterEnhance';
+import deviceInfo from '@ohos.deviceInfo';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import opp from '@ohos.bluetooth.opp';
 import common from '@ohos.app.ability.common';
@@ -83,10 +83,10 @@ export struct BtServicesComponent {
   private needDisableShare(): boolean {
     try {
       console.log(TAG, 'systemParameter get start');
-      console info: string = systemParameter.getSync(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE);
+      const info: string = systemParameter.getSync(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE);
       return info == CONTROL_TYPE_DISALLOW_SEND_ALLOW_RECEIVE;
     } catch (err) {
-      console.error(TAG, 'systemParameter get failed, msg: $(err.message)');
+      console.error(TAG, 'systemParameter get failed, msg: ${err.message}');
       return false;
     }
   }
@@ -100,8 +100,8 @@ export struct BtServicesComponent {
   }
 
   private static isPC(): boolean {
-    return BtServicesComponent.getDeviceType() == BtServicesComponent.DEVICE_TYPE_PC || 
-      BtServicesComponent.getDeviceType == BtServicesComponent.DEVICE_TYPE_PC_NEW;
+    return BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC || 
+      BtServicesComponent.getDeviceType === BtServicesComponent.DEVICE_TYPE_PC_NEW;
   }
 
   /**
@@ -136,21 +136,21 @@ export struct BtServicesComponent {
 
   aboutToAppear(): void {
     console.log(TAG, 'aboutToAppear.');
-  }
-
-  aboutToDisappear(): void {
-    console.log(TAG, 'aboutToDisappear.');
     if (BtServicesComponent.isPC() && this.needDisableShare()) {
-      console.log(TAG, 'IS PC IT device');
-      console session: UIExtensionContentSession | undefined =
+      console.log(TAG, 'is PC IT device');
+      const session: UIExtensionContentSession | undefined =
         LocalStorage.getShared()?.get<UIExtensionContentSession>('session');
-      if (session == undefined) {
+      if (session === undefined) {
         console.log(TAG, 'cannot get session');
         return;
       }
       console.log(TAG, 'closeSheetPage');
       this.closeSheetPage(session, CLOSE);
     }
+  }
+
+  aboutToDisappear(): void {
+    console.log(TAG, 'aboutToDisappear.');
   }
 
   private async dealReceivedData(data: Record<string, Object>): Promise<void> {
