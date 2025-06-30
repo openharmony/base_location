@@ -75,6 +75,7 @@ bool NetworkAbilityProxy001FuzzTest(const uint8_t* data, size_t size)
     proxy->DisableMock();
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     proxy->SetMocked(data[index++], locations);
+    ability = nullptr;
     return true;
 }
 #endif
