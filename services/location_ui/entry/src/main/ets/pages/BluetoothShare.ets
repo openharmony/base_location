@@ -13,6 +13,8 @@
  * limitations under the License.
  */
 
+import systemParameter from '@ohos.systemParameterEnhance';
+import deviceInfo from '@ohos.deviceInfo';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import opp from '@ohos.bluetooth.opp';
 import common from '@ohos.app.ability.common';
@@ -26,6 +28,9 @@ export const BACK = 0;
 const TAG: string = 'BluetoothShare: ';
 const BUNDLE_NAME: string = 'com.huawei.hmos.settings';
 const ABILITY_NAME: string = 'BluetoothOppServiceUIExtensionAbility';
+const CONTROL_TYPE_ALLOW_SEND_RECEIVE: string = '1';
+const CONTROL_TYPE_DISALLOW_SEND_ALLOW_RECEIVE: string = '2';
+const TRANSMIT_CONTROL_PROP_KEY: string = 'persist.distributed_scene.datafiles_trans_ctrl';
 
 @Entry
 @Component
@@ -33,6 +38,15 @@ export struct BtServicesComponent {
   uiExtensionProxy?: UIExtensionProxy;
   private serverMac: string = '';
   private fileHolders: Array<opp.FileHolder> = [];
+  /**
+   * 设备类型：PC
+   */
+  private static readonly DEVICE_TYPE_PC: string = 'pc';
+
+  /**
+   * 设备类型: 2in1
+   */
+  private static readonly DEVICE_TYPE_PC_NEW: string = '2in1';
 
   build() {
     Column() {
@@ -66,6 +80,30 @@ export struct BtServicesComponent {
     }
   }
 
+  private needDisableShare() : boolean {
+    try {
+      console.log(TAG, 'systemParameter get start');
+      const info: string = systemParameter.getSync(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE);
+      return info === CONTROL_TYPE_DISALLOW_SEND_ALLOW_RECEIVE;
+    } catch (err) {
+      console.error(TAG, 'systemParameter get failed, msg: ${err.message}');
+      return false;
+    }
+  }
+
+  /**
+   * 获取设备类型
+   * @return string
+   */
+  private static getDeviceType() : string {
+    return deviceInfo.deviceType;
+  }
+
+  private static isPC() : boolean {
+    return BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC ||
+      BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC_NEW;
+  }
+
   /**
    * 关闭、退出蓝牙分享页面
    */
@@ -96,11 +134,22 @@ export struct BtServicesComponent {
     }
   }
 
-  aboutToAppear(): void {
+  aboutToAppear() : void {
     console.log(TAG, 'aboutToAppear.');
+    if (BtServicesComponent.isPC() && this.needDisableShare()) {
+      console.log(TAG, 'is PC IT device');
+      const session: UIExtensionContentSession | undefined =
+        LocalStorage.getShared()?.get<UIExtensionContentSession>('session');
+      if (session === undefined) {
+        console.log(TAG, 'cannot get session');
+        return;
+      }
+      console.log(TAG, 'closeSheetPage');
+      this.closeSheetPage(session, CLOSE);
+    }
   }
 
-  aboutToDisappear(): void {
+  aboutToDisappear() : void {
     console.log(TAG, 'aboutToDisappear.');
   }
 
@@ -126,7 +175,7 @@ export struct BtServicesComponent {
     }
   }
 
-  private async sendData(): Promise<void> {
+  private async sendData() : Promise<void> {
     console.log(`${TAG} sendData is called.`);
     let fileUris = AppStorage.Get('sendFileUris');
     let length = AppStorage.Get('sendFileUrisLength');
