@@ -80,7 +80,7 @@ export struct BtServicesComponent {
     }
   }
 
-  private needDisableShare(): boolean {
+  private needDisableShare() : boolean {
     try {
       console.log(TAG, 'systemParameter get start');
       const info: string = systemParameter.getSync(TRANSMIT_CONTROL_PROP_KEY, CONTROL_TYPE_ALLOW_SEND_RECEIVE);
@@ -95,12 +95,12 @@ export struct BtServicesComponent {
    * 获取设备类型
    * @return string
    */
-  private static getDeviceType(): string {
+  private static getDeviceType() : string {
     return deviceInfo.deviceType;
   }
 
-  private static isPC(): boolean {
-    return BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC || 
+  private static isPC() : boolean {
+    return BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC ||
       BtServicesComponent.getDeviceType() === BtServicesComponent.DEVICE_TYPE_PC_NEW;
   }
 
@@ -134,7 +134,7 @@ export struct BtServicesComponent {
     }
   }
 
-  aboutToAppear(): void {
+  aboutToAppear() : void {
     console.log(TAG, 'aboutToAppear.');
     if (BtServicesComponent.isPC() && this.needDisableShare()) {
       console.log(TAG, 'is PC IT device');
@@ -149,7 +149,7 @@ export struct BtServicesComponent {
     }
   }
 
-  aboutToDisappear(): void {
+  aboutToDisappear() : void {
     console.log(TAG, 'aboutToDisappear.');
   }
 
@@ -175,7 +175,7 @@ export struct BtServicesComponent {
     }
   }
 
-  private async sendData(): Promise<void> {
+  private async sendData() : Promise<void> {
     console.log(`${TAG} sendData is called.`);
     let fileUris = AppStorage.Get('sendFileUris');
     let length = AppStorage.Get('sendFileUrisLength');
