@@ -63,8 +63,10 @@ const bool REGISTER_RESULT = NetworkAbility::MakeAndRegisterAbility(
 NetworkAbility::NetworkAbility() : SystemAbility(LOCATION_NETWORK_LOCATING_SA_ID, true)
 {
     SetAbility(NETWORK_ABILITY);
+#ifndef TDD_CASES_ENABLED
     networkHandler_ =
         std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
+#endif
     LBSLOGI(NETWORK, "ability constructed.");
 }
 
