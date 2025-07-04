@@ -1054,11 +1054,15 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     }
     asyncContext->errCode = ParseLocationMockParams(env, asyncContext, argv[0]);
     if (asyncContext->errCode == INPUT_PARAMS_ERROR) {
+        delete asyncContext;
+        asyncContext = nullptr;
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     LocationErrCode errorCode = CheckLocationSwitchState();
     if (errorCode != ERRCODE_SUCCESS) {
+        delete asyncContext;
+        asyncContext = nullptr;
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
     }
@@ -1066,6 +1070,8 @@ napi_value SetMockedLocations(napi_env env, napi_callback_info info)
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
     }
+    delete asyncContext;
+    asyncContext = nullptr;
     return UndefinedNapiValue(env);
 }
 
