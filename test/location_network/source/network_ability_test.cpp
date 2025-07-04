@@ -73,6 +73,8 @@ void NetworkAbilityTest::SetUp()
      */
     MockNativePermission();
     ability_ = new (std::nothrow) NetworkAbility();
+    ability_->networkHandler_ =
+        std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     EXPECT_NE(nullptr, ability_);
     proxy_ = new (std::nothrow) NetworkAbilityProxy(ability_);
     EXPECT_NE(nullptr, proxy_);
@@ -554,8 +556,7 @@ HWTEST_F(NetworkAbilityTest, ResetServiceProxy001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "NetworkAbilityTest, ResetServiceProxy001, TestSize.Level1";
     LBSLOGI(NETWORK, "[NetworkAbilityTest] ResetServiceProxy001 begin");
-    auto ability = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
-    EXPECT_EQ(true, ability->ResetServiceProxy()); // Connect success
+    EXPECT_EQ(true, ability_->ResetServiceProxy()); // Connect success
     LBSLOGI(NETWORK, "[NetworkAbilityTest] ResetServiceProxy001 end");
 }
 

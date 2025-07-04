@@ -28,7 +28,6 @@ ohos_unittest("LocatorManagerAbilityTest") {
   sources = [
     "$LOCATION_ROOT_DIR/test/location_manager/source/locator_ability_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_manager/source/request_manager_test.cpp",
-    "$LOCATION_ROOT_DIR/test/mock/src/mock_service_registry.cpp",
   ]
 
   include_dirs = [

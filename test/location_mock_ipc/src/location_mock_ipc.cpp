@@ -141,6 +141,8 @@ HWTEST_F(LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Leve
     LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockNetworkStubCallingPermission001 begin");
 
     auto networkAbilityStub = sptr<NetworkAbility>(new (std::nothrow) NetworkAbility());
+    networkAbilityStub->networkHandler_ =
+        std::make_shared<NetworkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
     for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
         if (iter->second != g_networkIpcCode) {
             continue;
