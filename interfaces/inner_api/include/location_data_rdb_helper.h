@@ -37,7 +37,7 @@ public:
     std::shared_ptr<DataShare::DataShareHelper> CreateDataShareHelper();
     void ReleaseDataShareHelper(std::shared_ptr<DataShare::DataShareHelper>& dataShareHelper);
     LocationErrCode GetIntelligentValueValue(
-        Uri &uri, const std::string &column, std::string &value);
+        Uri &uri, std::string &value);
 private:
     void Initialize();
 
