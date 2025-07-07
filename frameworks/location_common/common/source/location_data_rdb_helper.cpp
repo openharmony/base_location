@@ -178,7 +178,7 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocationDataRdbHelper::GetIntelligentValueValue(
+LocationErrCode LocationDataRdbHelper::GetIntelligentValue(
     Uri &uri, std::string &value)
 {
     if (remoteObj_ == nullptr) {
