@@ -1171,5 +1171,29 @@ HWTEST_F(LocationCommonTest, LbsResLoader001, TestSize.Level1)
     EXPECT_NE(countryCodeStr8, "");
     LBSLOGI(LOCATOR, "[LocationCommonTest] LbsResLoader001 end");
 }
+
+HWTEST_F(LocationCommonTest, LocationDataRdbManagerTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationDataRdbManagerTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbManagerTest001 begin");
+    std::string state;
+    bool ret =
+        LocationDataRdbManager::GetIntelligentStatus("testuri", "testuri", "testColName", state);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbManagerTest001 end");
+}
+
+HWTEST_F(LocationCommonTest, LocationDataRdbManagerTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, LocationDataRdbManagerTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbManagerTest002 begin");
+    std::string state;
+    bool ret =
+        LocationDataRdbManager::SetGnssSessionState(0, "testuri", "testColName");
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbManagerTest002 end");
+}
 } // namespace Location
 } // namespace OHOS

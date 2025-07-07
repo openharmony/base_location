@@ -179,14 +179,13 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
 }
 
 LocationErrCode LocationDataRdbHelper::GetIntelligentValue(
-    Uri &uri, std::string &value)
+    Uri &uri, const std::string &createHelperUri, const std::string &column, std::string &value)
 {
     if (remoteObj_ == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remoteObject is nullptr, reInitialize", __func__);
         Initialize();
     }
-    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObj_,
-        "datashare:///com.huawei.hmsapp.intelligent");
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObj_, createHelperUri);
     if (dataShareHelper == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "create dataShareHelper failed");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -201,7 +200,7 @@ LocationErrCode LocationDataRdbHelper::GetIntelligentValue(
     }
     rows->GoToFirstRow();
     int32_t columnIndex;
-    rows->GetColumnIndex("locationStatus", columnIndex);
+    rows->GetColumnIndex(column, columnIndex);
     std::string valueStr;
     int32_t ret = rows->GetString(columnIndex, valueStr);
     if (ret != 0) {
