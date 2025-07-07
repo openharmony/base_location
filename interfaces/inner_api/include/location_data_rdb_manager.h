@@ -45,6 +45,7 @@ public:
     static void SyncSwitchStatus();
     static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
     static bool SetGnssSessionState(int32_t state, std::string uri, std::string colName);
+    static bool GetIntelligentStatus(std::string& state);
 private:
     static std::mutex locationSwitchModeMutex_;
     static std::mutex locationWorkingStateMutex_;
