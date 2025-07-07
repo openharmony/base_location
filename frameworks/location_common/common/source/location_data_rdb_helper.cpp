@@ -179,7 +179,7 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
 }
 
 LocationErrCode LocationDataRdbHelper::GetIntelligentValueValue(
-    Uri &uri, const std::string &column, std::string &value)
+    Uri &uri, std::string &value)
 {
     if (remoteObj_ == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: remoteObject is nullptr, reInitialize", __func__);
