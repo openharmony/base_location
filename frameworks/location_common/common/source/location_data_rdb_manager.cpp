@@ -284,21 +284,11 @@ bool LocationDataRdbManager::IsUserIdInActiveIds(std::vector<int> activeIds, std
     return false;
 }
 
-bool LocationDataRdbManager::IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId)
-{
-    for (auto id : activeIds) {
-        if (std::to_string(id).compare(userId) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 bool LocationDataRdbManager::GetIntelligentStatus(std::string& state)
 {
     Uri locationIntelligentUri("foregroundLocation");
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
-        GetValue(locationIntelligentUri, state);
+        GetIntelligentValue(locationIntelligentUri, state);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(COMMON_UTILS,
             "can not get value, key = %{public}s, errcode = %{public}d", errCode);
