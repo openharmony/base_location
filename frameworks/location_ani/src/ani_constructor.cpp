@@ -27,7 +27,7 @@ static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 OHOS::sptr<OHOS::Location::LocatorCallbackAni> CreateSingleLocationCallbackHost()
 {
     auto singleLocatorCallbackHost =
-        OHOS::sptr<OHOS::Location::LocatorCallbackAni>(new (std::nothrow) OHOS::Location::LocatorCallbackAni());
+        OHOS::sptr<OHOS::Location::LocatorCallbackAni>(new OHOS::Location::LocatorCallbackAni());
     singleLocatorCallbackHost->SetFixNumber(1);
     return singleLocatorCallbackHost;
 }
