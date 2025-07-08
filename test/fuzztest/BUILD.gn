@@ -34,6 +34,7 @@ group("fuzztest") {
     "locator/locatorcallbackhost_fuzzer:LocatorCallbackHostFuzzTest",
     "locator/locatorcallbackstub_fuzzer:LocatorCallbackStubFuzzTest",
     "locator/locatoreventmanager_fuzzer:LocatorEventManagerFuzzTest",
+    "locator/locatorhandler_fuzzer:LocatorHandlerFuzzTest",
     "locator/networkability_fuzzer:NetworkAbilityFuzzTest",
     "locator/networkabilityproxy_fuzzer:NetworkAbilityProxyFuzzTest",
     "locator/networkcallbackhost_fuzzer:NetworkCallbackHostFuzzTest",
