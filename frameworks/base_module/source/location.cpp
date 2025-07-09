@@ -153,7 +153,7 @@ bool Location::Marshalling(Parcel& parcel) const
            parcel.WriteDouble(altitudeAccuracy_) &&
            parcel.WriteDouble(speedAccuracy_) &&
            parcel.WriteDouble(directionAccuracy_) &&
-           parcel.WriteDouble(uncertaintyOfTimeSinceBoot_) &&
+           parcel.WriteInt64(uncertaintyOfTimeSinceBoot_) &&
            parcel.WriteInt32(locationSourceType_) &&
            parcel.WriteString16(Str8ToStr16(uuid_)) &&
            parcel.WriteInt32(fieldValidity_);

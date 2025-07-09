@@ -163,12 +163,12 @@ public:
         isSystemApp_ = isSystemApp;
     }
 
-    inline int32_t GetUncertaintyOfTimeSinceBoot() const
+    inline int64_t GetUncertaintyOfTimeSinceBoot() const
     {
         return uncertaintyOfTimeSinceBoot_;
     }
 
-    inline void SetUncertaintyOfTimeSinceBoot(int32_t uncertaintyOfTimeSinceBoot)
+    inline void SetUncertaintyOfTimeSinceBoot(int64_t uncertaintyOfTimeSinceBoot)
     {
         uncertaintyOfTimeSinceBoot_ = uncertaintyOfTimeSinceBoot;
     }
