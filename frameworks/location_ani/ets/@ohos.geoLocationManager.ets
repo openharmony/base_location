@@ -83,7 +83,7 @@ export namespace geoLocationManager {
 
     export type LocationRequestConfig = CurrentLocationRequest | SingleLocationRequest
     export function getCurrentLocation(request?: LocationRequestConfig):Promise<Location> {
-        let p = new Promise<Location>((resolve: (v: Location) => void, reject :(error: Object) => void) =>{
+        let p = new Promise<Location>((resolve: (v: Location) => void, reject :(error: Error) => void) =>{
             let p1 = taskpool.execute(getCurrentLocationSync);
             p1.then((e: NullishType)=>{
                 let r : Location = e as Location;
