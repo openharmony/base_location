@@ -253,20 +253,6 @@
             }
         },
         {
-            "name":"bluetooth_send_count_text",
-            "value":"蓝牙共享: 正在发送 %1$s/%2$s",
-            "attr":{
-                "priority":"translate"
-            }
-          },
-          {
-            "name":"bluetooth_receive_count_text",
-            "value":"蓝牙共享: 正在接收 %1$s/%2$s",
-            "attr":{
-                "priority":"translate"
-            }
-          },
-        {
             "name":"bluetooth_receive_finish_title",
             "value":"蓝牙共享：已接收的文件",
             "attr":{

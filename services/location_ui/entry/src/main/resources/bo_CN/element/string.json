@@ -191,14 +191,14 @@
         },
         {
             "name":"stop_idle_tether_notification_action_text",
-            "value":"དྲ་རྒྱ་མཉམ་སྤྱོད་ཁ་ཕྱེ།",
+            "value":"ཚ་གནས་ཁ་འབྱེད།",
             "attr":{
                 "priority":"LT"
             }
         },
         {
             "name":"condition_netshare_hotspot_close",
-            "value":"ཚ་ཚིགས་ཁ་བརྒྱབ་ཟིན།",
+            "value":"ཚ་གནས་ཁ་བརྒྱབ་ཟིན།",
             "attr":{
                 "priority":"LT"
             }
@@ -282,21 +282,21 @@
         },
         {
             "name":"p2p_wsc_pbc_dialog_text",
-            "value":"%sལ་འབྲེལ་མཐུད་བྱེད་དམ།",
+            "value":"%s ལ་སྦྲེལ་མཐུད་བྱེད་དམ།",
             "attr":{
                 "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_ok_button",
-            "value":"འབྲེལ་མཐུད།",
+            "value":"སྦྲེལ་མཐུད།",
             "attr":{
                 "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_title",
-            "value":"འབྲེལ་མཐུད་གཏན་འཁེལ།",
+            "value":"སྦྲེལ་མཐུད་གཏན་འཁེལ་བྱེད་པ།",
             "attr":{
                 "priority":"LT"
             }

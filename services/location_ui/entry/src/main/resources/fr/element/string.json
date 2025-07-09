@@ -22,6 +22,69 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"Autoriser %s à se connecter à cet appareil ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"Touchez pour se connecter à \"%s\".",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"Touchez pour se connecter à %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"Impossible de créer un point d'accès lorsque le canal WLAN est utilisé. Si vous utilisez WLAN Direct ou la diffusion d'écran, déconnectez-vous et réessayez.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"Authentification nécessaire",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"Connecté à %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"Authentification expirée",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"Aucun appareil connecté. Le point d'accès a été désactivé. L'autonomie de la batterie sera prolongée.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"Touchez pour se connecter à %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_send_finish_title",
             "value":"Transfert par Bluetooth terminé",
             "attr":{
@@ -29,8 +92,36 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"Ce réseau WLAN n'a pas d'accès à Internet. Se connecter quand-même ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_receive_text",
             "value":"Réception en cours.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"Faire confiance et se connecter à \" %s \" ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"Autoriser",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"Touchez pour se connecter.",
             "attr":{
                 "priority":"translate"
             }
@@ -50,8 +141,50 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"Annuler",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"Trouver un meilleur réseau WLAN",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_title",
             "value":"Transfert par Bluetooth terminé",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"Se déconnecter",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"Connecter",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"Refuser",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Activer le point d'accès",
             "attr":{
                 "priority":"translate"
             }
@@ -71,8 +204,22 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"Annuler",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"Demande de connexion",
             "attr":{
                 "priority":"translate"
             }
@@ -92,6 +239,34 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"Autoriser",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"Point d'accès désactivé",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"Annuler",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"Connecter",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
@@ -106,8 +281,22 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"Refuser",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_notification_title",
             "value":"Transfert de fichier par Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"Autoriser la connexion à un meilleur réseau \"%s\" en utilisant le mot de passe du réseau WLAN actuel ?",
             "attr":{
                 "priority":"translate"
             }

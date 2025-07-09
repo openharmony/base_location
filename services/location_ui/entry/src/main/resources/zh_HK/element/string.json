@@ -198,7 +198,7 @@
         },
         {
             "name":"condition_netshare_hotspot_close",
-            "value":"熱點已關閉",
+            "value":"熱點已停用",
             "attr":{
                 "priority":"LT"
             }
