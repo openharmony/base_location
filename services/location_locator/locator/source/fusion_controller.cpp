@@ -73,11 +73,10 @@ std::unique_ptr<Location> FusionController::chooseBestLocation(const std::unique
     LocationFusionInfo fusionInfo;
     fusionInfo.location = *location;
     fusionInfo.lastFuseLocation = *lastFuseLocation;
+    fusionInfo.resultLocation = fusionInfo.location;
     if (fusionInfo.location.GetLocationSourceType() == LocationSourceType::NETWORK_TYPE) {
         if (CheckIfLastGnssLocationValid(location, std::make_unique<Location>(fusionInfo.lastFuseLocation))) {
             fusionInfo.resultLocation = fusionInfo.lastFuseLocation;
-        } else {
-            fusionInfo.resultLocation = fusionInfo.location;
         }
     }
     HookUtils::ExecuteHook(
