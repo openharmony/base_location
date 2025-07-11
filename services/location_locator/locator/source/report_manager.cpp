@@ -134,6 +134,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
             return false;
         }
+        NeedUpdateTimeStamp(fuseLocation, request);
         request->SetBestLocation(fuseLocation);
     }
     if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
@@ -187,9 +188,9 @@ bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
             RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
             return false;
         }
-        LBSLOGW(REPORT_MANAGER, "report location to %{public}d, uuid : %{public}s, " \
-            "TimeSinceBoot : %{public}s, SourceType : %{public}d",
-            request->GetTokenId(), request->GetUuid().c_str(),
+        LBSLOGW(REPORT_MANAGER, "report location to %{public}d, uuid : %{public}s, bundleName : %{public}s," \
+            "uid : %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",
+            request->GetTokenId(), request->GetUuid().c_str(), request->GetPackageName().c_str(), request->GetUid(),
             std::to_string(finalLocation->GetTimeSinceBoot()).c_str(), finalLocation->GetLocationSourceType());
         locatorCallback->OnLocationReport(finalLocation);
         RequestManager::GetInstance()->UpdateLocationError(request);
@@ -554,6 +555,29 @@ bool ReportManager::IsCacheGnssLocationValid()
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
+        return true;
+    }
+    return false;
+}
+
+bool ReportManager::NeedUpdateTimeStamp(std::unique_ptr<Location>& fuseLocation,
+    const std::shared_ptr<Request>& request)
+{
+    auto lastLocation = request->GetLastLocation();
+    if (lastLocation == nullptr || fuseLocation == nullptr) {
+        return false;
+    }
+    int64_t curTime = CommonUtils::GetSinceBootTime();
+    int minTime = request->GetRequestConfig()->GetTimeInterval();
+    long deltaMsLast =
+        (fuseLocation->GetTimeSinceBoot() - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
+    long deltaMsCurrent = (curTime - request->GetLastLocation()->GetTimeSinceBoot()) / NANOS_PER_MILLI;
+    long timeInterval = minTime * MILLI_PER_SEC - MAX_SA_SCHEDULING_JITTER_MS;
+    if (deltaMsLast < timeInterval && deltaMsCurrent >= timeInterval) {
+        LBSLOGI(REPORT_MANAGER, "update fuseLocation timestamp, before: %{public}ld after:%{public}ld",
+            fuseLocation->GetTimeSinceBoot(), lastLocation->GetTimeSinceBoot() + timeInterval);
+        fuseLocation->SetTimeSinceBoot(lastLocation->GetTimeSinceBoot() + timeInterval * NANOS_PER_MILLI); // ns
+        fuseLocation->SetTimeStamp(lastLocation->GetTimeStamp() + timeInterval); // ms
         return true;
     }
     return false;

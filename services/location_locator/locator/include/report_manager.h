@@ -73,6 +73,7 @@ private:
     void UpdateLastLocation(const std::unique_ptr<Location>& location);
     void LocationReportDelayTimeCheck(const std::unique_ptr<Location>& location,
         const std::shared_ptr<Request>& request);
+    bool NeedUpdateTimeStamp(std::unique_ptr<Location>& fuseLocation, const std::shared_ptr<Request>& request);
 };
 } // namespace OHOS
 } // namespace Location
