@@ -52,7 +52,7 @@ char* ParseData(const uint8_t* data, size_t size)
         return nullptr;
     }
 
-    char* ch = (char *)malloc(size + 1);
+    char* ch = static_cast<char*>(malloc(size + 1));
     if (ch == nullptr) {
         return nullptr;
     }
