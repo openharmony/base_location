@@ -57,7 +57,7 @@ bool GenGnssGeofenceRequest(
     JsObjToGeofenceTransitionEventList(env, value, geofenceTransitionStatusList);
     geofenceRequest->SetGeofenceTransitionEventList(geofenceTransitionStatusList);
 #ifdef NOTIFICATION_ENABLE
-    std::vector<OHOS::Notification::NotificationRequest> notificationRequestList;
+    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList;
     JsObjToNotificationRequestList(env, value, notificationRequestList);
     geofenceRequest->SetNotificationRequestList(notificationRequestList);
 #endif
@@ -78,14 +78,14 @@ void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& ob
 
 #ifdef NOTIFICATION_ENABLE
 void JsObjToNotificationRequestList(const napi_env& env, const napi_value& object,
-    std::vector<OHOS::Notification::NotificationRequest>& notificationRequestList)
+    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>>& notificationRequestList)
 {
     napi_value notificationRequest = GetArrayProperty(env, object, "notifications");
     GetNotificationRequestArray(env, notificationRequest, notificationRequestList);
 }
 
 void GetNotificationRequestArray(const napi_env& env, const napi_value& notificationRequestValue,
-    std::vector<OHOS::Notification::NotificationRequest>& notificationRequestList)
+    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>>& notificationRequestList)
 {
     napi_valuetype valueType;
     NAPI_CALL_RETURN_VOID(env, napi_typeof(env, notificationRequestValue, &valueType));
@@ -108,14 +108,15 @@ void GetNotificationRequestArray(const napi_env& env, const napi_value& notifica
             LBSLOGE(NAPI_UTILS, "Wrong argument type.");
             break;
         }
-        OHOS::Notification::NotificationRequest notificationRequest;
+        std::shared_ptr<OHOS::Notification::NotificationRequest> notificationRequest =
+            std::make_shared<OHOS::Notification::NotificationRequest>();
         GenNotificationRequest(env, elementValue, notificationRequest);
         notificationRequestList.push_back(notificationRequest);
     }
 }
 
 void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
-    OHOS::Notification::NotificationRequest& notificationRequest)
+    std::shared_ptr<OHOS::Notification::NotificationRequest>& notificationRequest)
 {
     napi_valuetype elementValueType;
     NAPI_CALL_RETURN_VOID(env, napi_typeof(env, elementValue, &elementValueType));
@@ -124,7 +125,7 @@ void GenNotificationRequest(const napi_env& env, const napi_value& elementValue,
         return;
     }
     // argv[0] : NotificationRequest
-    NotificationNapi::GetNotificationRequest(env, elementValue, notificationRequest);
+    NotificationNapi::GetNotificationRequest(env, elementValue, *notificationRequest);
 }
 #endif
 

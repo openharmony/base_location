@@ -115,19 +115,20 @@ void GeofenceRequest::SetGeofenceTransitionEventList(std::vector<GeofenceTransit
 }
 
 #ifdef NOTIFICATION_ENABLE
-std::vector<OHOS::Notification::NotificationRequest> GeofenceRequest::GetNotificationRequestList()
+std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> GeofenceRequest::GetNotificationRequestList()
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
     return notificationRequestList_;
 }
 
-void GeofenceRequest::SetNotificationRequest(OHOS::Notification::NotificationRequest request)
+void GeofenceRequest::SetNotificationRequest(std::shared_ptr<OHOS::Notification::NotificationRequest> request)
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
     notificationRequestList_.push_back(request);
 }
 
-void GeofenceRequest::SetNotificationRequestList(std::vector<OHOS::Notification::NotificationRequest> requestList)
+void GeofenceRequest::SetNotificationRequestList(
+    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> requestList)
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
     for (auto it = requestList.begin(); it != requestList.end(); ++it) {
@@ -220,10 +221,10 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
         return;
     }
     for (int i = 0; i < requestSize; i++) {
-        auto request = OHOS::Notification::NotificationRequest::Unmarshalling(data);
+        std::shared_ptr<OHOS::Notification::NotificationRequest> request(
+            OHOS::Notification::NotificationRequest::Unmarshalling(data));
         if (request != nullptr) {
-            notificationRequestList_.push_back(*request);
-            delete request;
+            notificationRequestList_.push_back(request);
         }
     }
 #endif
@@ -257,13 +258,13 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
         parcel.WriteInt32(static_cast<int>(transitionStatusList_[i]));
     }
 #ifdef NOTIFICATION_ENABLE
+    parcel.WriteInt32(notificationRequestList_.size());
     if (notificationRequestList_.size() > MAX_NOTIFICATION_REQUEST_LIST_SIZE) {
         LBSLOGE(LOCATOR, "request size should not be greater than 3");
         return false;
     }
-    parcel.WriteInt32(notificationRequestList_.size());
     for (size_t i = 0; i < notificationRequestList_.size(); i++) {
-        notificationRequestList_[i].Marshalling(parcel);
+        notificationRequestList_[i]->Marshalling(parcel);
     }
 #endif
     parcel.WriteRemoteObject(callback_);
