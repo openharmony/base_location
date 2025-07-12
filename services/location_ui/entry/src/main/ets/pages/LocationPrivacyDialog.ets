@@ -124,20 +124,26 @@ struct LocationCustomDialog {
 
   private getStatementContent(): Array<string> {
     let result: Array<string> = ['', '', ''];
-    let text = this.context.resourceManager.getStringByNameSync("location_target_statement_content");
-    let beginIndex = text.indexOf(FLAG_BEGIN);
-    if (beginIndex !== 0 && beginIndex !== -1) {
-      result[0] = text.substr(0, beginIndex);
-      text = text.substr(beginIndex, text.length);
+    try {
+      let text = this.context.resourceManager.getStringByNameSync("location_target_statement_content");
+      let beginIndex = text.indexOf(FLAG_BEGIN);
+      if (beginIndex !== 0 && beginIndex !== -1) {
+        result[0] = text.substr(0, beginIndex);
+        text = text.substr(beginIndex, text.length);
+      }
+      let beginEndIndex = text.indexOf(FLAG_BEGIN_END);
+      let endIndex = text.indexOf(FLAG_END);
+      if (beginEndIndex !== -1 && endIndex !== -1) {
+        result[1] = text.substr(beginEndIndex + 1, endIndex - FLAG_END.length + 1);
+        result[2] = text.substr(endIndex + FLAG_END.length, text.length);
+      }
+      return result;
+    } catch (error) {
+      let code = (error as BusinessError).code;
+      let message = (error as BusinessError).message;
+      console.error(TAG, `getStatementContent failed, error code is ${code}, message is ${message}`);
+      return result;
     }
-    let beginEndIndex = text.indexOf(FLAG_BEGIN_END);
-    let endIndex = text.indexOf(FLAG_END);
-    if (beginEndIndex !== -1 && endIndex !== -1) {
-      result[1] = text.substr(beginEndIndex + 1, endIndex - FLAG_END.length + 1);
-      result[2] = text.substr(endIndex + FLAG_END.length, text.length);
-    }
-
-    return result;
   }
 
   /**
