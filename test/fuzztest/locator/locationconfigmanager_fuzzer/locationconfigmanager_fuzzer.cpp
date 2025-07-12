@@ -37,6 +37,17 @@ namespace OHOS {
         LocationConfigManager::GetInstance()->GetPrivacyTypeState(data[index++], isConfirmed);
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(data[index++], true);
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(data[index++], false);
+        std::string name;
+        LocationConfigManager::GetInstance()->GetSettingsBundleName(name);
+        LocationConfigManager::GetInstance()->GetNlpServiceName(name);
+        LocationConfigManager::GetInstance()->GetNlpAbilityName(name);
+        LocationConfigManager::GetInstance()->GetSuplMode();
+        LocationConfigManager::GetInstance()->GetAgnssServerAddr(name);
+        LocationConfigManager::GetInstance()->GetAgnssServerPort();
+        LocationConfigManager::GetInstance()->GetGnssEnableState();
+        LocationConfigManager::GetInstance()->SetCachePrivacyType(0);
+        LocationConfigManager::GetInstance()->GenerateStartCommand();
+        LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         return true;
     }
 }

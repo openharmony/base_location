@@ -18,7 +18,6 @@
 #include "i_locator_callback.h"
 #include "location.h"
 #include "locator_callback_napi.h"
-#include "report_manager.h"
 #include "request.h"
 
 namespace OHOS {
@@ -31,9 +30,6 @@ namespace OHOS {
         }
         auto reportManager =
             ReportManager::GetInstance();
-        if (reportManager == nullptr) {
-            return false;
-        }
         std::unique_ptr<OHOS::Location::Location> location =
             std::make_unique<OHOS::Location::Location>();
         auto locatorCallbackHostForTest =
@@ -45,15 +41,30 @@ namespace OHOS {
         int result = data[index++];
         reportManager->ReportRemoteCallback(locatorCallback, type, result);
         std::shared_ptr<Request> request = std::make_shared<Request>();
-        reportManager->ResultCheck(location, request);
-        reportManager->UpdateCacheLocation(location, "gps");
-        reportManager->GetLastLocation();
         request->SetUid(data[index++]);
         request->SetTokenId(data[index++]);
         request->SetFirstTokenId(data[index++]);
         request->SetTokenIdEx(data[index++]);
+        reportManager->OnReportLocation(location, "gps");
+        reportManager->ResultCheck(location, request);
+        reportManager->UpdateCacheLocation(location, "gps");
+        reportManager->GetLastLocation();
+        reportManager->GetCacheLocation(request);
         reportManager->GetPermittedLocation(request, location);
         reportManager->UpdateRandom();
+        reportManager->IsRequestFuse(request);
+        reportManager->UpdateLocationByRequest(0, 0, location);
+        reportManager->IsAppBackground("1021", 0, 0, 1021, 0);
+        reportManager->IsCacheGnssLocationValid();
+        reportManager->ApproximatelyLocation(location, request);
+        std::unique_ptr<std::list<std::shared_ptr<Request>>> deadRequests;
+        reportManager->ProcessRequestForReport(request, deadRequests, location, "gps");
+        reportManager->ReportLocationByCallback(request, "1021");
+        reportManager->WriteNetWorkReportEvent("gps", request, location);
+        reportManager->ExecuteReportProcess(request, location, "gps");
+        reportManager->ExecuteLocationProcess(request, location);
+        reportManager->UpdateLastLocation(location);
+        reportManager->LocationReportDelayTimeCheck(location, request);
         return true;
     }
 }

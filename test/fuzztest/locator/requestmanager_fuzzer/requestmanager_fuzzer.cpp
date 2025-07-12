@@ -23,20 +23,27 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
-    const int MIN_DATA_LEN = 6;
+    const int MIN_DATA_LEN = 7;
     bool RequestManagerFuzzerTest(const uint8_t* data, size_t size)
     {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
         RequestManager* requestManager =
             RequestManager::GetInstance();
         if (requestManager == nullptr) {
             return false;
         }
-        std::shared_ptr<Request> request = std::make_shared<Request>();
+        auto requestConfig = std::make_unique<RequestConfig>();
         requestManager->InitSystemListeners();
         auto locatorCallbackHostForTest =
             sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
         sptr<ILocatorCallback> locatorCallback =
             sptr<ILocatorCallback>(locatorCallbackHostForTest);
+        AppIdentity identity;
+        std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, locatorCallback, identity);
+        request->SetLocationErrorCallBack(locatorCallback);
+        request->GetLocationErrorCallBack();
         requestManager->HandleStopLocating(locatorCallback);
         int index = 0;
         int32_t pid = data[index++];
@@ -52,8 +59,13 @@ namespace OHOS {
 
     bool RequestFuzzerTest(const uint8_t* data, size_t size)
     {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
         int index = 0;
         std::shared_ptr<Request> request = std::make_shared<Request>();
+        std::unique_ptr<OHOS::Location::Location> location =
+            std::make_unique<OHOS::Location::Location>();
         request->SetUid(data[index++]);
         request->SetPid(data[index++]);
         std::string packageName((const char*) data, size);
@@ -63,13 +75,17 @@ namespace OHOS {
         request->SetLocatorCallBack(nullptr);
         request->SetRequesting(true);
         request->SetTokenId(data[index++]);
+        request->SetTokenIdEx(data[index++]);
         request->SetFirstTokenId(data[index++]);
         request->SetLocationPermState(true);
         request->SetBackgroundPermState(data[index++]);
         request->SetApproximatelyPermState(data[index++]);
-
+        request->SetBestLocation(location);
+        request->GetBestLocation();
+        request->SetLastLocation(location);
         request->GetLastLocation();
         request->GetTokenId();
+        request->GetTokenIdEx();
         request->GetFirstTokenId();
         request->GetLocationPermState();
         request->GetBackgroundPermState();
