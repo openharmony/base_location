@@ -122,6 +122,7 @@ void InitOffFuncMap()
 static void CleanUp(void* data)
 {
     auto that = reinterpret_cast<NativeContext*>(data);
+    OffAllLocationServiceStateCallback(that->env_);
     napi_delete_reference(that->env_, that->ref_);
     that->env_ = nullptr;
     that->ref_ = nullptr;
@@ -769,15 +770,14 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
 {
     auto data = new NativeContext;
     data->env_ = env;
+    napi_add_env_cleanup_hook(env, CleanUp, data);
 #ifdef ENABLE_NAPI_MANAGER
     if (argc != PARAM2) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        napi_add_env_cleanup_hook(env, CleanUp, data);
         return false;
     }
     if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        napi_add_env_cleanup_hook(env, CleanUp, data);
         return false;
     }
 #else
@@ -787,7 +787,6 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
 #endif
     if (g_switchCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
         LBSLOGE(LOCATION_NAPI, "This request already exists");
-        napi_add_env_cleanup_hook(env, CleanUp, data);
         return false;
     }
     auto switchCallbackHost =
@@ -799,7 +798,6 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
         LocationErrCode errorCode = SubscribeLocationServiceStateV9(env, handlerRef, switchCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
-            napi_add_env_cleanup_hook(env, CleanUp, data);
             return false;
         }
 #else
@@ -807,7 +805,6 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
 #endif
         g_switchCallbacks.AddCallback(env, handlerRef, switchCallbackHost);
     }
-    napi_add_env_cleanup_hook(env, CleanUp, data);
     return true;
 }
 
@@ -1330,13 +1327,13 @@ bool OffLocationServiceStateCallback(const napi_env& env, const napi_value& hand
 {
     auto data = new NativeContext;
     data->env_ = env;
+    napi_add_env_cleanup_hook(env, CleanUp, data);
     auto switchCallbackHost = g_switchCallbacks.GetCallbackPtr(env, handler);
     if (switchCallbackHost) {
 #ifdef ENABLE_NAPI_MANAGER
         LocationErrCode errorCode = UnSubscribeLocationServiceStateV9(switchCallbackHost);
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
-            napi_add_env_cleanup_hook(env, CleanUp, data);
             return false;
         }
 #else
@@ -1345,10 +1342,8 @@ bool OffLocationServiceStateCallback(const napi_env& env, const napi_value& hand
         g_switchCallbacks.DeleteCallback(env, handler);
         switchCallbackHost->DeleteHandler();
         switchCallbackHost = nullptr;
-        napi_add_env_cleanup_hook(env, CleanUp, data);
         return true;
     }
-    napi_add_env_cleanup_hook(env, CleanUp, data);
     return false;
 }
 
