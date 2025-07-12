@@ -59,7 +59,7 @@ namespace OHOS {
         reportManager->ApproximatelyLocation(location, request);
         std::unique_ptr<std::list<std::shared_ptr<Request>>> deadRequests;
         reportManager->ProcessRequestForReport(request, deadRequests, location, "gps");
-        reportManager->ReportLocationByCallback(request, "1021");
+        reportManager->ReportLocationByCallback(request, location);
         reportManager->WriteNetWorkReportEvent("gps", request, location);
         reportManager->ExecuteReportProcess(request, location, "gps");
         reportManager->ExecuteLocationProcess(request, location);

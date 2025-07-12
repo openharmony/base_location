@@ -15,7 +15,9 @@
 #ifndef REPORT_MANAGER_FUZZER_H
 #define REPORT_MANAGER_FUZZER_H
 
+#define private public
 #include "report_manager.h"
+#undef private
 
 namespace OHOS {
 namespace Location {

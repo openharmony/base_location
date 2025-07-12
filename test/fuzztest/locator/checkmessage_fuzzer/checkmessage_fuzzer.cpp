@@ -31,12 +31,12 @@
 #undef private
 
 namespace OHOS {
-namespace Location {
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t U32DATA_SIZE = 4;
 const int32_t U64DATA_SIZE = 8;
 const int32_t MIN_SIZE_NUM = 8;
 
+namespace Location {
 
 uint32_t GetU32Data(const char* ptr)
 {
