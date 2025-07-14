@@ -24,18 +24,19 @@
 #include "nativetoken_kit.h"
 #include "system_ability_definition.h"
 #include "token_setproc.h"
+#include "hook_utils.h"
 
 #define private public
 #include "locator_ability.h"
 #undef private
 
 namespace OHOS {
-using namespace OHOS::Location;
 const int32_t MAX_MEM_SIZE = 4 * 1024 * 1024;
 const int32_t U32DATA_SIZE = 4;
 const int32_t U64DATA_SIZE = 8;
 const int32_t MIN_SIZE_NUM = 8;
 
+namespace Location {
 
 uint32_t GetU32Data(const char* ptr)
 {
@@ -93,6 +94,45 @@ bool CheckMessageFuzzTest(const char* data, size_t size)
     locatorAbility->CheckLocationSwitchState();
     return true;
 }
+
+bool HookUtilFuzzTest(const char* data, size_t size)
+{
+    MessageParcel reply;
+    AppIdentity identity;
+    int offset = 0;
+    if (size <= 32) {
+        return true;
+    }
+    std::string testString = data + (offset += U32DATA_SIZE);
+    std::shared_ptr<Request> request = std::make_shared<Request>();
+    std::unique_ptr<Location> location = std::make_unique<Location>();
+    std::vector<std::string> names;
+    std::vector<std::string> values;
+    HookUtils::ExecuteHookWhenStartLocation(request);
+    HookUtils::ExecuteHookWhenStopLocation(request);
+    HookUtils::ExecuteHookWhenGetAddressFromLocation(testString);
+    HookUtils::ExecuteHookWhenGetAddressFromLocationName(testString);
+    HookUtils::ExecuteHookWhenReportInnerInfo(0, names, values);
+    HookUtils::ExecuteHookWhenAddWorkRecord(false, false, testString, testString);
+    
+    HookUtils::CheckGnssLocationValidity(location);
+    HookUtils::ExecuteHookWhenCheckAppForUser(testString);
+    HookUtils::ExecuteHookReportManagerGetCacheLocation(testString, 0);
+    HookUtils::ExecuteHookEnableAbility(testString, false, 0);
+    HookUtils::ExecuteHookWhenPreStartLocating(testString);
+    HookUtils::ExecuteHookWhenAddNetworkRequest(testString);
+    HookUtils::ExecuteHookWhenRemoveNetworkRequest(testString);
+    int test = 0;
+    HookUtils::ExecuteHookWhenSetAgnssServer(testString, test);
+    HookUtils::ExecuteHookWhenSimStateChange(testString);
+    HookUtils::ExecuteHookWhenReportBluetoothScanResult(testString, testString);
+    HookUtils::ExecuteHookWhenStartScanBluetoothDevice(testString, testString);
+    std::vector<std::shared_ptr<LocatingRequiredData>> result;
+    HookUtils::ExecuteHookWhenWifiScanStateChanged(result);
+    HookUtils::ExecuteHookWhenCustConfigPolicyChange();
+    return true;
+}
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -101,9 +141,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     if (size < OHOS::MIN_SIZE_NUM) {
         return 0;
     }
-    char* ch = OHOS::ParseData(data, size);
+    char* ch = OHOS::Location::ParseData(data, size);
     if (ch != nullptr) {
-        OHOS::CheckMessageFuzzTest(ch, size);
+        OHOS::Location::CheckMessageFuzzTest(ch, size);
+        OHOS::Location::HookUtilFuzzTest(ch, size);
         free(ch);
         ch = nullptr;
     }

@@ -37,9 +37,13 @@
 #include "if_system_ability_manager.h"
 #include "system_ability_definition.h"
 #include "iservice_registry.h"
+#include "event_handler.h"
+#define private public
+#include "agnss_ni_manager.h"
+#undef private
 
 namespace OHOS {
-    using namespace OHOS::Location;
+namespace Location {
 #ifdef FEATURE_GNSS_SUPPORT
     const int32_t MIN_DATA_LEN = 4;
     const int32_t SLEEP_TIMES = 1000;
@@ -121,11 +125,13 @@ namespace OHOS {
         proxy->RemoveFence(fence);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         std::vector<std::shared_ptr<OHOS::Location::Location>> locations;
+        std::unique_ptr<Location> location = std::make_unique<Location>();
         proxy->EnableMock();
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->DisableMock();
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         proxy->SetMocked(data[index++], locations);
+        proxy->SendNetworkLocation(location);
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         return true;
     }
@@ -158,7 +164,30 @@ namespace OHOS {
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
         return true;
     }
+
+    bool GnssProxyFuzzTest004(const uint8_t* data, size_t size)
+    {
+        if (size < MIN_DATA_LEN) {
+            return true;
+        }
+        auto aGnssNiManager = AGnssNiManager::GetInstance();
+        EventFwk::Want want;
+        aGnssNiManager->Run();
+        aGnssNiManager->SubscribeSaStatusChangeListerner();
+        aGnssNiManager->RegisterAgnssNiEvent();
+        aGnssNiManager->UnRegisterAgnssNiEvent();
+        aGnssNiManager->RegisterNiResponseEvent();
+        aGnssNiManager->UnRegisterNiResponseEvent();
+        aGnssNiManager->CheckWapSuplInit(want);
+        aGnssNiManager->CheckSmsSuplInit(want);
+        aGnssNiManager->OnCallStateChanged(want);
+        HDI::Location::Gnss::V2_0::GnssNiNotificationRequest notification;
+        aGnssNiManager->HandleNiNotification(notification);
+        aGnssNiManager->SendUserResponse(HDI::Location::Gnss::V2_0::GNSS_NI_RESPONSE_CMD_ACCEPT);
+        return true;
+    }
 #endif // FEATURE_GNSS_SUPPORT
+}
 }
 
 /* Fuzzer entry point */
@@ -166,9 +195,10 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
 {
 #ifdef FEATURE_GNSS_SUPPORT
     /* Run your code on data */
-    OHOS::GnssProxyFuzzTest001(data, size);
-    OHOS::GnssProxyFuzzTest002(data, size);
-    OHOS::GnssProxyFuzzTest003(data, size);
+    OHOS::Location::GnssProxyFuzzTest001(data, size);
+    OHOS::Location::GnssProxyFuzzTest002(data, size);
+    OHOS::Location::GnssProxyFuzzTest003(data, size);
+    OHOS::Location::GnssProxyFuzzTest004(data, size);
 #endif // FEATURE_GNSS_SUPPORT
     return 0;
 }

@@ -15,16 +15,32 @@
 
 #include "fusioncontroller_fuzzer.h"
 
+#include "message_parcel.h"
 #include "fusion_controller.h"
 #include "location.h"
 
 namespace OHOS {
     using namespace OHOS::Location;
+    const int MIN_DATA_LEN = 1;
     bool FusionControllerFuzzerTest(const uint8_t* data, size_t size)
     {
-        if (size == 0) {
+        if (size < MIN_DATA_LEN) {
             return true;
         }
+        std::unique_ptr<OHOS::Location::Location> location =
+            std::make_unique<OHOS::Location::Location>();
+        MessageParcel messageParcel;
+        location->Unmarshalling(messageParcel);
+        location->UnmarshallingShared(messageParcel);
+        location->Marshalling(messageParcel);
+        PoiInfo poiInfo;
+        location->WritePoiInfoToParcel(poiInfo, messageParcel);
+        location->ToString();
+        location->LocationEqual(location);
+        location->AdditionEqual(location);
+        location->isValidLatitude(0.0);
+        location->isValidLongitude(0.0);
+        location->GetDistanceBetweenLocations(0.0, 0.0, 0.0, 0.0);
         std::shared_ptr<FusionController> fusionController =
             std::make_shared<FusionController>();
         int index = 0;
