@@ -54,7 +54,7 @@ namespace OHOS {
         reportManager->UpdateRandom();
         reportManager->IsRequestFuse(request);
         reportManager->UpdateLocationByRequest(0, 0, location);
-        reportManager->IsAppBackground("1021", 0, 0, 1021, 0);
+        reportManager->IsAppBackground("1021", 0, 0, 0, 0);
         reportManager->IsCacheGnssLocationValid();
         reportManager->ApproximatelyLocation(location, request);
         std::unique_ptr<std::list<std::shared_ptr<Request>>> deadRequests;
