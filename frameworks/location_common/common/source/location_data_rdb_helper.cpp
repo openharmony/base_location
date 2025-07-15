@@ -177,5 +177,42 @@ LocationErrCode LocationDataRdbHelper::SetValue(Uri &uri, const std::string &col
     ReleaseDataShareHelper(dataShareHelper);
     return ERRCODE_SUCCESS;
 }
+
+LocationErrCode LocationDataRdbHelper::GetIntelligentValue(
+    Uri &uri, const std::string &createHelperUri, const std::string &column, std::string &value)
+{
+    if (remoteObj_ == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: remoteObject is nullptr, reInitialize", __func__);
+        Initialize();
+    }
+    auto dataShareHelper = DataShare::DataShareHelper::Creator(remoteObj_, createHelperUri);
+    if (dataShareHelper == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "create dataShareHelper failed");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    DataShare::DataSharePredicates predicates;
+    std::vector<std::string> columns;
+    auto rows = dataShareHelper->Query(uri, predicates, columns);
+    if (rows == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get rows", __func__);
+        ReleaseDataShareHelper(dataShareHelper);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    rows->GoToFirstRow();
+    int32_t columnIndex;
+    rows->GetColumnIndex(column, columnIndex);
+    std::string valueStr;
+    int32_t ret = rows->GetString(columnIndex, valueStr);
+    if (ret != 0) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s can not get value", __func__);
+        rows->Close();
+        ReleaseDataShareHelper(dataShareHelper);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    rows->Close();
+    ReleaseDataShareHelper(dataShareHelper);
+    value = valueStr;
+    return ERRCODE_SUCCESS;
+}
 } // namespace Location
 } // namespace OHOS

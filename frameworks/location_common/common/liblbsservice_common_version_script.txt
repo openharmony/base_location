@@ -34,6 +34,7 @@
     "*ProxyFreezeManager*";
     "*ExecuteHookWhenWifiScanStateChanged*";
     "*ExecuteHookWhenCustConfigPolicyChange*";
+    "*ExecuteHookWhenCheckIsAppBackground*";
   local:
     *;
 };

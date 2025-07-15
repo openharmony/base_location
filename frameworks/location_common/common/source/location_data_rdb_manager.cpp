@@ -283,5 +283,19 @@ bool LocationDataRdbManager::IsUserIdInActiveIds(std::vector<int> activeIds, std
     }
     return false;
 }
+
+bool LocationDataRdbManager::GetIntelligentStatus(
+    std::string createHelperUri, std::string queryUri, std::string colName, std::string& state)
+{
+    Uri locationIntelligentUri(queryUri);
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        GetIntelligentValue(locationIntelligentUri, createHelperUri, colName, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not get value, errcode = %{public}d", errCode);
+        return false;
+    }
+    return true;
+}
 } // namespace Location
 } // namespace OHOS
