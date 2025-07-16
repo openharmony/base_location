@@ -269,14 +269,14 @@
         },
         {
             "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: Sending %1$s/%2$s",
+            "value":"Bluetooth: Sending %1$d/%2$d",
             "attr":{
                 "priority":"LT"
           }
         },
         {
           "name":"bluetooth_receive_count_text",
-          "value":"Bluetooth: Receiving %1$s/%2$s",
+          "value":"Bluetooth: Receiving %1$d/%2$d",
           "attr":{
               "priority":"LT"
           }
