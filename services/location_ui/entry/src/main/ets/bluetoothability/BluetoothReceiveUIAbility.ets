@@ -516,9 +516,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_SYSTEM_LIVE_VIEW,
                 systemLiveView: {
-                    title: this.getFormatString($r('app.string.bluetooth_receive_count_text'),
-                        this.getFormatPlural($r('app.plural.bluetooth_file_count_text', currentCount, currentCount), currentCount),
-                        this.getFormatPlural($r('app.plural.bluetooth_file_count_text', totalCount, totalCount), totalCount)),
+                    title: this.getFormatNum($r('app.string.bluetooth_receive_count_text'), currentCount, totalCount),
                     text: name,
                     typeCode: 8,
                     button: {
@@ -637,6 +635,13 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         let result = this.context.resourceManager.getStringSync(resource.id);
         result = result.replace('%1$s', value1);
         result = result.replace('%2$s', value2);
+        return result;
+    }
+
+    getFormatNum(resource: Resource, value1: number, value2: number): string {
+        let result = this.context.resourceManager.getStringSync(resource.id);
+        result = result.replace('%1$d', value1.toString());
+        result = result.replace('%2$d', value2.toString());
         return result;
     }
 
