@@ -19,13 +19,14 @@
 #include <mutex>
 #include <vector>
 #include "geofence_definition.h"
-#ifdef NOTIFICATION_ENABLE
-#include "notification_request.h"
-#endif
 #include <parcel.h>
 #include "iremote_object.h"
 
 namespace OHOS {
+namespace Notification {
+    class NotificationRequest;
+}
+
 namespace Location {
 typedef struct {
     double latitude;
@@ -60,13 +61,11 @@ public:
 
     void SetGeofenceTransitionEventList(std::vector<GeofenceTransitionEvent> statusList);
 
-#ifdef NOTIFICATION_ENABLE
-    std::vector<OHOS::Notification::NotificationRequest> GetNotificationRequestList();
+    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> GetNotificationRequestList();
 
-    void SetNotificationRequest(OHOS::Notification::NotificationRequest request);
+    void SetNotificationRequest(std::shared_ptr<OHOS::Notification::NotificationRequest> request);
 
-    void SetNotificationRequestList(std::vector<OHOS::Notification::NotificationRequest> requestList);
-#endif
+    void SetNotificationRequestList(std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> requestList);
 
     void SetGeofenceTransitionCallback(const sptr<IRemoteObject>& callback);
 
@@ -98,9 +97,7 @@ public:
     static GeofenceRequest* Unmarshalling(Parcel& parcel);
 private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
-#ifdef NOTIFICATION_ENABLE
-    std::vector<OHOS::Notification::NotificationRequest> notificationRequestList_;
-#endif
+    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;
     GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;
