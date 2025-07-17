@@ -19,6 +19,7 @@ import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSessi
 import opp from '@ohos.bluetooth.opp';
 import common from '@ohos.app.ability.common';
 import fs from '@ohos.file.fs';
+import fileUri from '@ohos.file.fileuri';
 import { BusinessError } from '@ohos.base';
 
 export const CLOSE = 1;
@@ -30,6 +31,7 @@ const BUNDLE_NAME: string = 'com.huawei.hmos.settings';
 const ABILITY_NAME: string = 'BluetoothOppServiceUIExtensionAbility';
 const CONTROL_TYPE_ALLOW_SEND_RECEIVE: string = '1';
 const CONTROL_TYPE_DISALLOW_SEND_ALLOW_RECEIVE: string = '2';
+const MAX_FILE_NUM: number = 300;
 const TRANSMIT_CONTROL_PROP_KEY: string = 'persist.distributed_scene.datafiles_trans_ctrl';
 
 @Entry
@@ -175,17 +177,41 @@ export struct BtServicesComponent {
     }
   }
 
+  private dealSysFileUris(sysShareFileUris: string[], sysShareFilelength: number) : string[] {
+    let result: string[] = [];
+    for (let i = 0; i < sysShareFilelength; i++) {
+      let sandboxUri: string = new fileUri.FileUri(sysShareFileUris[i]).path;
+      let isDirectory = fs.statSync(sandboxUri).isDirectory();
+      if (isDirectory) {
+        console.log(TAG, 'share file directory.');
+        let directoryFiles: string[] = fs.listFileSync(sandboxUri);
+        console.log(TAG, 'directoryFiles length is ' + directoryFiles.length);
+        let uris: string[] = [];
+        for (let j = 0; j < directoryFiles.length; j++) {
+          uris.push(sandboxUri + '/' + directoryFiles[j]);
+        }
+        result.push(...this.dealSysFileUris(uris, directoryFiles.length));
+      } else {
+        result.push(sysShareFileUris[i]);
+      }
+    }
+    return result;
+  }
+
   private async sendData() : Promise<void> {
     console.log(`${TAG} sendData is called.`);
-    let fileUris = AppStorage.Get('sendFileUris');
-    let length = AppStorage.Get('sendFileUrisLength');
-    if ((fileUris === undefined) || (fileUris === null) || (length === undefined) || (length === null)) {
-      console.log(TAG, 'fileUris is undefined');
+    let sysShareFileUris: string[] = AppStorage.Get('sendFileUris');
+    let sysShareFilelength: number = AppStorage.Get('sendFileUrisLength');
+    if ((sysShareFileUris === undefined) || (sysShareFileUris === null) ||
+        (sysShareFilelength === undefined) || (sysShareFilelength === null)) {
+      console.log(TAG, 'sysShareFileUris is undefined');
       return;
     }
     try {
       let oppProfile = opp.createOppServerProfile();
-      for (let i = 0; i < length; i++) {
+      let fileUris: string[] = this.dealSysFileUris(sysShareFileUris, sysShareFilelength);
+      let fileUrisLength: number = (fileUris.length > MAX_FILE_NUM) ? MAX_FILE_NUM : fileUris.length;
+      for (let i = 0; i < fileUrisLength; i++) {
         let file = fs.openSync(fileUris[i], fs.OpenMode.READ_ONLY);
         let filePath = decodeURIComponent(fileUris[i]);
         console.log(`${TAG} deal file:` + file.fd);
@@ -196,7 +222,10 @@ export struct BtServicesComponent {
           fileFd: file.fd
         };
         this.fileHolders.push(fileHolder);
-        console.log(`${TAG} fileHolder info: ` + JSON.stringify(fileHolder));
+      }
+      if (this.fileHolders.length <= 0) {
+        console.log(TAG, 'fileHolders is undefined');
+        return;
       }
       await oppProfile.sendFile(this.serverMac, this.fileHolders);
       const session: UIExtensionContentSession | undefined =
