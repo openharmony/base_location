@@ -37,6 +37,14 @@
 namespace {
 // To be implemented.
 using namespace OHOS::Location;
+std::vector<OHOS::sptr<LocatorCallbackTaihe>> g_taiheLocationCallbackMap;
+std::vector<OHOS::sptr<LocatingRequiredDataCallbackTaihe>> g_taiheLocatingRequiredDataCallbackMap;
+std::vector<OHOS::sptr<CountryCodeCallbackTaihe>> g_taiheCountryCodeCallbackMap;
+std::vector<OHOS::sptr<NmeaMessageCallbackTaihe>> g_taiheNmeaMessageCallbackMap;
+std::vector<OHOS::sptr<GnssStatusCallbackTaihe>> g_taiheGnssStatusCallbackMap;
+std::vector<OHOS::sptr<LocationSwitchCallbackTaihe>> g_taiheLocationSwitchCallbackMap;
+std::vector<OHOS::sptr<BluetoothScanResultCallbackTaihe>> g_taiheBluetoothScanResultCallbackMap;
+std::vector<OHOS::sptr<LocationErrorCallbackTaihe>> g_taiheLocationErrorCallbackMap;
 static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 
 int GetCurrentLocationType(std::unique_ptr<OHOS::Location::RequestConfig>& config)
@@ -95,7 +103,8 @@ bool IsRequestConfigValid(std::unique_ptr<OHOS::Location::RequestConfig>& config
     return true;
 }
 
-bool IsLocationEnabled() {
+bool IsLocationEnabled()
+{
     bool isEnabled = false;
     LocationErrCode errorCode = Locator::GetInstance()->IsLocationEnabledV9(isEnabled);
     if (errorCode != ERRCODE_SUCCESS) {
@@ -105,7 +114,8 @@ bool IsLocationEnabled() {
 }
 
 ::taihe::array<::ohos::geoLocationManager::GeoAddress> GetAddressesFromLocationSync(
-    ::ohos::geoLocationManager::ReverseGeoCodeRequest const& request) {
+    ::ohos::geoLocationManager::ReverseGeoCodeRequest const& request)
+{
     bool isAvailable = false;
     LocationErrCode errorCode = Locator::GetInstance()->IsGeoServiceAvailableV9(isAvailable);
     if (errorCode != ERRCODE_SUCCESS) {
@@ -149,7 +159,8 @@ bool IsLocationEnabled() {
 }
 
 ::ohos::geoLocationManager::Location GetCurrentLocationSync(
-    ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request) {
+    ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request)
+{
     ::taihe::map<::taihe::string, ::taihe::string> ret;
     ::ohos::geoLocationManager::Location result = {
         0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0, {"", ""}, ret, 0, true, 0.0, 0.0, 0.0, 0,
@@ -201,21 +212,24 @@ bool IsLocationEnabled() {
     return result;
 }
 
-void EnableLocationSync() {
+void EnableLocationSync()
+{
     LocationErrCode errorCode = Locator::GetInstance()->EnableAbilityV9(true);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }
 }
 
-void DisableLocation() {
+void DisableLocation()
+{
     LocationErrCode errorCode = Locator::GetInstance()->EnableAbilityV9(false);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }
 }
 
-bool IsLocationPrivacyConfirmed(::ohos::geoLocationManager::LocationPrivacyType type) {
+bool IsLocationPrivacyConfirmed(::ohos::geoLocationManager::LocationPrivacyType type)
+{
     bool IsLocationPrivacyConfirmed = false;
     LocationErrCode errorCode = Locator::GetInstance()->IsLocationPrivacyConfirmedV9(type, IsLocationPrivacyConfirmed);
     if (errorCode != ERRCODE_SUCCESS) {
@@ -224,7 +238,8 @@ bool IsLocationPrivacyConfirmed(::ohos::geoLocationManager::LocationPrivacyType 
     return IsLocationPrivacyConfirmed;
 }
 
-::ohos::geoLocationManager::Location GetLastLocation() {
+::ohos::geoLocationManager::Location GetLastLocation()
+{
     ::taihe::map<::taihe::string, ::taihe::string> ret;
     ::ohos::geoLocationManager::Location location = {
         0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0, {"", ""}, ret, 0, true, 0.0, 0.0, 0.0, 0,
@@ -241,24 +256,28 @@ bool IsLocationPrivacyConfirmed(::ohos::geoLocationManager::LocationPrivacyType 
 }
 
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,
-    ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::Location>)> callback) {
+    ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::Location>)> callback)
+    {
     Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
 }
 
 void OffCachedGnssLocationsChange(
     ::taihe::optional_view<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>
-    callback) {
+    callback)
+{
     Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
 }
 
 void OnLocationChange(::ohos::geoLocationManager::OnRequest const& request,
-    ::taihe::callback_view<void(::ohos::geoLocationManager::Location const&)> callback) {
+    ::taihe::callback_view<void(::ohos::geoLocationManager::Location const&)> callback)
+{
     auto requestConfig = std::make_unique<OHOS::Location::RequestConfig>();
     Util::TaiheCurrentRequestObjToRequestConfig(request, requestConfig);
     auto locatorCallbackTaihe = OHOS::sptr<LocatorCallbackTaihe>(new LocatorCallbackTaihe());
     locatorCallbackTaihe->callback_ =
         ::taihe::optional<taihe::callback<void(::ohos::geoLocationManager::Location const&)>>{std::in_place_t{},
         callback};
+    g_taiheLocationCallbackMap.push_back(locatorCallbackTaihe);
     auto locatorCallback = OHOS::sptr<ILocatorCallback>(locatorCallbackTaihe);
     LocationErrCode errorCode = Locator::GetInstance()->StartLocatingV9(requestConfig, locatorCallback);
     if (errorCode != ERRCODE_SUCCESS) {
@@ -267,15 +286,29 @@ void OnLocationChange(::ohos::geoLocationManager::OnRequest const& request,
 }
 
 void OffLocationChange(
-    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::Location const&)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::Location const&)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheLocationCallbackMap.size(); i++) {
+        auto locatorCallbackTaihe = g_taiheLocationCallbackMap[i];
+        if (locatorCallbackTaihe->callback_ == callback) {
+            auto locatorCallback = OHOS::sptr<ILocatorCallback>(locatorCallbackTaihe);
+            LocationErrCode errorCode = Locator::GetInstance()->StopLocatingV9(locatorCallback);
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheLocationCallbackMap.erase(g_taiheLocationCallbackMap.begin() + i);
+        break;
+    }
 }
 
-void OnCountryCodeChange(::taihe::callback_view<void(::ohos::geoLocationManager::CountryCode const&)> callback) {
+void OnCountryCodeChange(::taihe::callback_view<void(::ohos::geoLocationManager::CountryCode const&)> callback)
+{
     auto countryCodeCallbackTaihe = OHOS::sptr<CountryCodeCallbackTaihe>(new CountryCodeCallbackTaihe());
     countryCodeCallbackTaihe->callback_ =
         ::taihe::optional<taihe::callback<void(::ohos::geoLocationManager::CountryCode const&)>>{std::in_place_t{},
         callback};
+    g_taiheCountryCodeCallbackMap.push_back(countryCodeCallbackTaihe);
     LocationErrCode errorCode =
         Locator::GetInstance()->RegisterCountryCodeCallbackV9(countryCodeCallbackTaihe->AsObject());
     if (errorCode != ERRCODE_SUCCESS) {
@@ -284,18 +317,44 @@ void OnCountryCodeChange(::taihe::callback_view<void(::ohos::geoLocationManager:
 }
 
 void OffCountryCodeChange(
-    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::CountryCode const&)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::CountryCode const&)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheCountryCodeCallbackMap.size(); i++) {
+        auto countryCallbackTaihe = g_taiheCountryCodeCallbackMap[i];
+        if (countryCallbackTaihe->callback_ == callback) {
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnregisterCountryCodeCallbackV9(countryCallbackTaihe->AsObject());
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheCountryCodeCallbackMap.erase(g_taiheCountryCodeCallbackMap.begin() + i);
+        break;
+    }
 }
 
-void OffNmeaMessage(::taihe::optional_view<::taihe::callback<void(::taihe::string_view)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+void OffNmeaMessage(::taihe::optional_view<::taihe::callback<void(::taihe::string_view)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheNmeaMessageCallbackMap.size(); i++) {
+        auto nmeaCallbackTaihe = g_taiheNmeaMessageCallbackMap[i];
+        if (nmeaCallbackTaihe->callback_ == callback) {
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnregisterNmeaMessageCallbackV9(nmeaCallbackTaihe->AsObject());
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheNmeaMessageCallbackMap.erase(g_taiheNmeaMessageCallbackMap.begin() + i);
+        break;
+    }
 }
 
-void OnNmeaMessage(::taihe::callback_view<void(::taihe::string_view)> callback) {
+void OnNmeaMessage(::taihe::callback_view<void(::taihe::string_view)> callback)
+{
     auto nmeaMessageCallbackTaihe = OHOS::sptr<NmeaMessageCallbackTaihe>(new NmeaMessageCallbackTaihe());
     nmeaMessageCallbackTaihe->callback_ =
         ::taihe::optional<::taihe::callback<void(::taihe::string_view)>>{std::in_place_t{}, callback};
+    g_taiheNmeaMessageCallbackMap.push_back(nmeaMessageCallbackTaihe);
     LocationErrCode errorCode =
         Locator::GetInstance()->RegisterNmeaMessageCallbackV9(nmeaMessageCallbackTaihe->AsObject());
     if (errorCode != ERRCODE_SUCCESS) {
@@ -304,17 +363,31 @@ void OnNmeaMessage(::taihe::callback_view<void(::taihe::string_view)> callback) 
 }
 
 void OffSatelliteStatusChange(
-    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::SatelliteStatusInfo const&)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::SatelliteStatusInfo const&)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheGnssStatusCallbackMap.size(); i++) {
+        auto satelliteStatusTaihe = g_taiheGnssStatusCallbackMap[i];
+        if (satelliteStatusTaihe->callback_ == callback) {
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnregisterGnssStatusCallbackV9(satelliteStatusTaihe->AsObject());
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheGnssStatusCallbackMap.erase(g_taiheGnssStatusCallbackMap.begin() + i);
+        break;
+    }
 }
 
 void OnSatelliteStatusChange(
-    ::taihe::callback_view<void(::ohos::geoLocationManager::SatelliteStatusInfo const&)> callback) {
+    ::taihe::callback_view<void(::ohos::geoLocationManager::SatelliteStatusInfo const&)> callback)
+{
     auto gnssStatusCallbackTaihe = OHOS::sptr<GnssStatusCallbackTaihe>(new GnssStatusCallbackTaihe());
     gnssStatusCallbackTaihe->callback_ =
         ::taihe::optional<::taihe::callback<void(::ohos::geoLocationManager::SatelliteStatusInfo const&)>>{
             std::in_place_t{},
             callback};
+    g_taiheGnssStatusCallbackMap.push_back(gnssStatusCallbackTaihe);
     LocationErrCode errorCode =
         Locator::GetInstance()->RegisterGnssStatusCallbackV9(gnssStatusCallbackTaihe->AsObject());
     if (errorCode != ERRCODE_SUCCESS) {
@@ -322,13 +395,27 @@ void OnSatelliteStatusChange(
     }
 }
 
-void OffLocationEnabledChange(::taihe::optional_view<::taihe::callback<void(bool)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+void OffLocationEnabledChange(::taihe::optional_view<::taihe::callback<void(bool)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheLocationSwitchCallbackMap.size(); i++) {
+        auto locationEnabledCallbackTaihe = g_taiheLocationSwitchCallbackMap[i];
+        if (locationEnabledCallbackTaihe->callback_ == callback) {
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnregisterSwitchCallbackV9(locationEnabledCallbackTaihe->AsObject());
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheLocationSwitchCallbackMap.erase(g_taiheLocationSwitchCallbackMap.begin() + i);
+        break;
+    }
 }
 
-void OnLocationEnabledChange(::taihe::callback_view<void(bool)> callback) {
+void OnLocationEnabledChange(::taihe::callback_view<void(bool)> callback)
+{
     auto switchCallbackTaihe = OHOS::sptr<LocationSwitchCallbackTaihe>(new LocationSwitchCallbackTaihe());
     switchCallbackTaihe->callback_ = ::taihe::optional<::taihe::callback<void(bool)>>{std::in_place_t{}, callback};
+    g_taiheLocationSwitchCallbackMap.push_back(switchCallbackTaihe);
     LocationErrCode errorCode = Locator::GetInstance()->RegisterSwitchCallbackV9(switchCallbackTaihe->AsObject());
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
@@ -336,36 +423,68 @@ void OnLocationEnabledChange(::taihe::callback_view<void(bool)> callback) {
 }
 
 void OffBluetoothScanResultChange(
-    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::BluetoothScanResult const&)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::BluetoothScanResult const&)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheBluetoothScanResultCallbackMap.size(); i++) {
+        auto bluetoothScanResultCallbackTaihe = g_taiheBluetoothScanResultCallbackMap[i];
+        if (bluetoothScanResultCallbackTaihe->callback_ == callback) {
+            auto bluetoothScanResultCallback =
+                OHOS::sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackTaihe);
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnSubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheBluetoothScanResultCallbackMap.erase(g_taiheBluetoothScanResultCallbackMap.begin() + i);
+        break;
+    }
 }
 
 void OnBluetoothScanResultChange(
-    ::taihe::callback_view<void(::ohos::geoLocationManager::BluetoothScanResult const&)> callback) {
+    ::taihe::callback_view<void(::ohos::geoLocationManager::BluetoothScanResult const&)> callback)
+{
     auto bluetoothScanResultCallbackTaihe =
         OHOS::sptr<BluetoothScanResultCallbackTaihe>(new BluetoothScanResultCallbackTaihe());
     bluetoothScanResultCallbackTaihe->callback_ =
         ::taihe::optional<::taihe::callback<void(::ohos::geoLocationManager::BluetoothScanResult const&)>>{
             std::in_place_t{}, callback};
+    g_taiheBluetoothScanResultCallbackMap.push_back(bluetoothScanResultCallbackTaihe);
     auto bluetoothScanResultCallback =
         OHOS::sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackTaihe);
-    LocationErrCode errorCode = Locator::GetInstance()->SubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
+    LocationErrCode errorCode =
+        Locator::GetInstance()->SubscribeBluetoothScanResultChange(bluetoothScanResultCallback);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }
 }
 
 void OffLocationError(
-    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::LocationError)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::LocationError)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheLocationErrorCallbackMap.size(); i++) {
+        auto locationErrorCallbackTaihe = g_taiheLocationErrorCallbackMap[i];
+        if (locationErrorCallbackTaihe->callback_ == callback) {
+            auto locationErrorCallback = OHOS::sptr<ILocatorCallback>(locationErrorCallbackTaihe);
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnSubscribeLocationError(locationErrorCallback);
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheLocationErrorCallbackMap.erase(g_taiheLocationErrorCallbackMap.begin() + i);
+        break;
+    }
 }
 
-void OnLocationError(::taihe::callback_view<void(::ohos::geoLocationManager::LocationError)> callback) {
+void OnLocationError(::taihe::callback_view<void(::ohos::geoLocationManager::LocationError)> callback)
+{
     auto locationErrorCallbackTaihe =
         OHOS::sptr<LocationErrorCallbackTaihe>(new LocationErrorCallbackTaihe());
     locationErrorCallbackTaihe->callback_ =
         ::taihe::optional<::taihe::callback<void(::ohos::geoLocationManager::LocationError)>>{std::in_place_t{},
         callback};
+    g_taiheLocationErrorCallbackMap.push_back(locationErrorCallbackTaihe);
     auto locationErrorCallback = OHOS::sptr<ILocatorCallback>(locationErrorCallbackTaihe);
     LocationErrCode errorCode = Locator::GetInstance()->SubscribeLocationError(locationErrorCallback);
     if (errorCode != ERRCODE_SUCCESS) {
@@ -374,18 +493,21 @@ void OnLocationError(::taihe::callback_view<void(::ohos::geoLocationManager::Loc
 }
 
 void OffLocationIconStatusChange(
-    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::LocationIconStatus)>> callback) {
+    ::taihe::optional_view<::taihe::callback<void(::ohos::geoLocationManager::LocationIconStatus)>> callback)
+{
     Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
 }
 
 void OnLocationIconStatusChange(
-    ::taihe::callback_view<void(::ohos::geoLocationManager::LocationIconStatus)> callback) {
+    ::taihe::callback_view<void(::ohos::geoLocationManager::LocationIconStatus)> callback)
+{
     Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
 }
 
 void OnLocatingRequiredDataChange(
     ::ohos::geoLocationManager::LocatingRequiredDataConfig const& config,
-    ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::LocatingRequiredData>)> callback) {
+    ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::LocatingRequiredData>)> callback)
+{
     std::unique_ptr<LocatingRequiredDataConfig> dataConfig = std::make_unique<LocatingRequiredDataConfig>();
     dataConfig->SetType(config.type.get_value());
     dataConfig->SetNeedStartScan(config.needStartScan);
@@ -396,9 +518,15 @@ void OnLocatingRequiredDataChange(
         dataConfig->SetScanTimeoutMs(*config.scanTimeout);
     }
     auto locatingRequiredDataCallbackTaihe =
-        OHOS::sptr<ILocatingRequiredDataCallback>(new LocatingRequiredDataCallbackTaihe());
+        OHOS::sptr<LocatingRequiredDataCallbackTaihe>(new LocatingRequiredDataCallbackTaihe());
+    locatingRequiredDataCallbackTaihe->callback_ =
+        ::taihe::optional<::taihe::callback<void(
+        ::taihe::array_view<::ohos::geoLocationManager::LocatingRequiredData>)>>{std::in_place_t{}, callback};
+    g_taiheLocatingRequiredDataCallbackMap.push_back(locatingRequiredDataCallbackTaihe);
+    auto locatingRequiredDataCallback =
+        OHOS::sptr<ILocatingRequiredDataCallback>(locatingRequiredDataCallbackTaihe);
     LocationErrCode errorCode =
-        Locator::GetInstance()->RegisterLocatingRequiredDataCallback(dataConfig, locatingRequiredDataCallbackTaihe);
+        Locator::GetInstance()->RegisterLocatingRequiredDataCallback(dataConfig, locatingRequiredDataCallback);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }
@@ -406,8 +534,30 @@ void OnLocatingRequiredDataChange(
 
 void OffLocatingRequiredDataChange(
     ::taihe::optional_view<::taihe::callback<
-    void(::taihe::array_view<::ohos::geoLocationManager::LocatingRequiredData>)>> callback) {
-    //相同callback判断功能等待taihe框架上架
+    void(::taihe::array_view<::ohos::geoLocationManager::LocatingRequiredData>)>> callback)
+{
+    for (std::uint32_t i = 0; i < g_taiheLocatingRequiredDataCallbackMap.size(); i++) {
+        auto locatingRequiredDataCallbackTaihe = g_taiheLocatingRequiredDataCallbackMap[i];
+        if (locatingRequiredDataCallbackTaihe->callback_ == callback) {
+            auto locatingRequiredDataCallback =
+                OHOS::sptr<ILocatingRequiredDataCallback>(locatingRequiredDataCallbackTaihe);
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+            }
+        }
+        g_taiheLocatingRequiredDataCallbackMap.erase(g_taiheLocatingRequiredDataCallbackMap.begin() + i);
+        break;
+    }
+}
+
+void OnGnssFenceStatusChange(::ohos::geoLocationManager::GeofenceRequest const& request, uintptr_t want)
+{
+}
+
+void OffGnssFenceStatusChange(::ohos::geoLocationManager::GeofenceRequest const& request, uintptr_t want)
+{
 }
 }  // namespace
 
@@ -440,4 +590,6 @@ TH_EXPORT_CPP_API_OffLocationIconStatusChange(OffLocationIconStatusChange);
 TH_EXPORT_CPP_API_OnLocationIconStatusChange(OnLocationIconStatusChange);
 TH_EXPORT_CPP_API_OnLocatingRequiredDataChange(OnLocatingRequiredDataChange);
 TH_EXPORT_CPP_API_OffLocatingRequiredDataChange(OffLocatingRequiredDataChange);
+TH_EXPORT_CPP_API_OnGnssFenceStatusChange(OnGnssFenceStatusChange);
+TH_EXPORT_CPP_API_OffGnssFenceStatusChange(OffGnssFenceStatusChange);
 // NOLINTEND
