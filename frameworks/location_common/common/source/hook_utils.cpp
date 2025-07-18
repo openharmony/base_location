@@ -253,5 +253,18 @@ bool HookUtils::ExecuteHookWhenCheckIsAppBackground(const std::string& packageNa
         LocationProcessStage::IS_APP_BACKGROUND_PROCESS, (void *)&locatorRequestStruct, nullptr);
     return locatorRequestStruct.result;
 }
+
+bool HookUtils::ExecuteHookWhenSyncSwitchStates(int status)
+{
+    LocationStatusStruct statusStruct;
+    if (status == 1) {
+        statusStruct.locationEnable = true;
+    } else {
+        statusStruct.locationEnable = false;
+    }
+    ExecuteHook(
+        LocationProcessStage::LOCATOR_SA_SYNC_SWITCH_STATUS, (void *)&statusStruct, nullptr);
+    return true;
+}
 } // namespace Location
 } // namespace OHOS
