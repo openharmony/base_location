@@ -307,6 +307,20 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"སོ་སྔོན་མཉམ་སྤྱོད། : %1$d/%2$d སྐུར་བཞིན་པ།",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"སོ་སྔོན་མཉམ་སྤྱོད། : %1$d/%2$d ལེན་བཞིན་པ།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

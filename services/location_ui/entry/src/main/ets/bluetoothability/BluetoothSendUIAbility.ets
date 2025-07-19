@@ -188,7 +188,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
     }
 
     handleReceivedEvent(data: commonEventManager.CommonEventData) {
-        console.info(TAG, 'handleReceivedEvent： ' + data.event);
+        console.info(TAG, 'handleReceivedEvent: ' + data.event);
         switch (data.event) {
           case 'ohos.event.notification.BT.LIVEVIEW_REMOVE': {
               this.oppProfile.cancelTransfer();
@@ -304,7 +304,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
                     typeCode: 8,
                     button: {
                         names: [this.cancelTransEvent],
-                        icons: [imagePixelMapButton],
+                        iconsResource: [$r('app.media.public_cancel_filled')],
                     },
                     capsule: {
                         title: 'bluetooth',

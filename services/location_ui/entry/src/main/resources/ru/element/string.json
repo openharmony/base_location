@@ -307,6 +307,20 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: отправка %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: получение %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

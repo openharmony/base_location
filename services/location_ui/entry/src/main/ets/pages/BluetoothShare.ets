@@ -186,11 +186,12 @@ export struct BtServicesComponent {
         console.log(TAG, 'share file directory.');
         let directoryFiles: string[] = fs.listFileSync(sandboxUri);
         console.log(TAG, 'directoryFiles length is ' + directoryFiles.length);
+        let length: number = (directoryFiles.length > MAX_FILE_NUM) ? MAX_FILE_NUM : directoryFiles.length;
         let uris: string[] = [];
-        for (let j = 0; j < directoryFiles.length; j++) {
+        for (let j = 0; j < length; j++) {
           uris.push(sandboxUri + '/' + directoryFiles[j]);
         }
-        result.push(...this.dealSysFileUris(uris, directoryFiles.length));
+        result.push(...this.dealSysFileUris(uris, length));
       } else {
         result.push(sysShareFileUris[i]);
       }
@@ -202,8 +203,8 @@ export struct BtServicesComponent {
     console.log(`${TAG} sendData is called.`);
     let sysShareFileUris: string[] = AppStorage.Get('sendFileUris');
     let sysShareFilelength: number = AppStorage.Get('sendFileUrisLength');
-    if ((sysShareFileUris === undefined) || (sysShareFileUris === null) ||
-        (sysShareFilelength === undefined) || (sysShareFilelength === null)) {
+    if ((sysShareFileUris == undefined) || (sysShareFileUris == null) ||
+        (sysShareFilelength == undefined) || (sysShareFilelength == null)) {
       console.log(TAG, 'sysShareFileUris is undefined');
       return;
     }
