@@ -254,18 +254,18 @@
         },
         {
             "name":"bluetooth_send_count_text",
-            "value":"蓝牙共享: 正在发送 %1$d/%2$d",
+            "value":"蓝牙共享：正在发送 %1$d/%2$d",
             "attr":{
                 "priority":"translate"
             }
-          },
-          {
+        },
+        {
             "name":"bluetooth_receive_count_text",
-            "value":"蓝牙共享: 正在接收 %1$d/%2$d",
+            "value":"蓝牙共享：正在接收 %1$d/%2$d",
             "attr":{
                 "priority":"translate"
             }
-          },
+        },
         {
             "name":"bluetooth_receive_finish_title",
             "value":"蓝牙共享：已接收的文件",

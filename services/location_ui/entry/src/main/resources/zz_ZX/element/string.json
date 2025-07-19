@@ -211,6 +211,14 @@
         {
             "name":"ConfirmCallbackAbility_label",
             "value":"[TS_962323]_label"
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"[TS_1094782]_Bluetooth: Sending %1$d/%2$d"
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"[TS_1094785]_Bluetooth: Receiving %1$d/%2$d"
         }
     ]
 }

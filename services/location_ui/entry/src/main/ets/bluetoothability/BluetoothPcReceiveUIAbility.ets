@@ -350,7 +350,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                         fs.close(this.fileFd);
                         this.fileFd = -1;
                     }
-                    fs.rmdirSync(deleteSandBoxUri);
+                    fs.unlinkSync(deleteSandBoxUri);
                 }
                 if (data.currentCount == data.totalCount || data.result == RESULT_ERROR_CANCELED ||
                     data.result == RESULT_ERROR_TRANSFER_FAILED) {
@@ -371,6 +371,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         this.receiveDirectory = data.parameters.uri;
         try {
             const uri = new fileUri.FileUri(data.parameters.uri);
+            if (!fs.accessSync(uri.path)) {
+                console.error(TAG, 'uri path is not access');
+                return;
+            }
             this.sandBoxUri = uri.path + '/' + this.fileName;
             let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
             this.fileFd = file.fd;
@@ -526,7 +530,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                     typeCode: 8,
                     button: {
                         names: [this.cancelTransEvent],
-                        icons: [imagePixelMapButton],
+                        iconsResource: [$r('app.media.public_cancel_filled')],
                     },
                     capsule: {
                         title: 'bluetooth',
