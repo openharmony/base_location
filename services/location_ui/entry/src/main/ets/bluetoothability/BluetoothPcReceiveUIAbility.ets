@@ -44,11 +44,14 @@ const RESULT_ERROR_CANCELED: number = 4;
 const RESULT_ERROR_CONNECTION_FAILED: number = 5;
 const RESULT_ERROR_TRANSFER_FAILED: number = 6;
 const RESULT_ERROR_UNKNOWN: number = 7;
+const RESULT_SUCCESS_DISCONNECT: number = 9;
+
 const STATUS_PENDING: number = 0;
 const STATUS_RUNNING: number = 1;
 const STATUS_FINISH: number = 2;
 const OPP_TRANSFER_USER_ACCEPT: number = 0;
 const OPP_TRANSFER_AUTO_ACCEPT: number = 1;
+const UNKNOWN_VALUE: number = -1;
 
 const btTransactionStatisticsType = {
     TRANSACTION_TYPE_OPP_SEND : 1,
@@ -340,8 +343,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             if (data.status == STATUS_RUNNING) {
                 this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100, this.fileName);
             } else if (data.status == STATUS_FINISH) {
-                data.result == RESULT_SUCCESS ? this.successCount++ : this.failedCount++;
-                this.reportBtChrDataByResult(data.result);
+                if (data.result != RESULT_SUCCESS_DISCONNECT) {
+                    data.result == RESULT_SUCCESS ? this.successCount++ : this.failedCount++;
+                    this.reportBtChrDataByResult(data.result);
+                }
                 if (data.result != RESULT_SUCCESS && data.filePath != undefined && data.filePath.trim().length > 0) {
                     this.tapEventIsAllowed = true;
                     const uri = new fileUri.FileUri(this.receiveDirectory);
@@ -519,14 +524,22 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     async publishTransProgessNotification(imagePixelMapButton: image.PixelMap, imagePixelMapCapsule: image.PixelMap,
         wantAgentObjRemove: WantAgent, percent: number, name: string, currentCount: number, totalCount: number) {
         console.info(TAG, 'publishTransProgessNotification');
+        let progressTitle = this.getFormatNum($r('app.string.bluetooth_receive_count_text'), currentCount, totalCount);
+        let progressName = name;
+        if (this.totalCount == UNKNOWN_VALUE) {
+            progressTitle =
+                this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_notification_title').id);
+            progressName =
+                this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_receive_text').id) + name;
+        }
         let notificationRequest: notificationManager.NotificationRequest = {
             notificationSlotType: notificationManager.SlotType.LIVE_VIEW,
             id: this.capsuleNotificationID,
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_SYSTEM_LIVE_VIEW,
                 systemLiveView: {
-                    title: this.getFormatNum($r('app.string.bluetooth_receive_count_text'), currentCount, totalCount),
-                    text: name,
+                    title: progressTitle,
+                    text: progressName,
                     typeCode: 8,
                     button: {
                         names: [this.cancelTransEvent],
@@ -559,14 +572,22 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     }
 
     async createRecevieProgressNotification(name: string, progress: number, currentCount: number, totalCount: number) {
+        let progressTitle = this.getFormatNum($r('app.string.bluetooth_receive_count_text'), currentCount, totalCount);
+        let progressName = name;
+        if (this.totalCount == UNKNOWN_VALUE) {
+            progressTitle =
+                this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_notification_title').id);
+            progressName =
+                this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_receive_text').id) + name;
+        }
         let notificationRequest: notificationManager.NotificationRequest = {
             notificationSlotType: notificationManager.SlotType.SOCIAL_COMMUNICATION,
             id: this.capsuleNotificationID,
             template: {
                 name: 'downloadTemplate',
                 data: {
-                    title: this.getFormatNum($r('app.string.bluetooth_receive_count_text'), currentCount, totalCount),
-                    fileName: name,
+                    title: progressTitle,
+                    fileName: progressName,
                     progressValue: progress,
                     progressMaxValue: 100
                 }
@@ -574,8 +595,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
                 normal: {
-                    title: this.getFormatNum($r('app.string.bluetooth_receive_count_text'), currentCount, totalCount),
-                    text: name
+                    title: progressTitle,
+                    text: progressName
                 }
             },
             extraInfo: {
