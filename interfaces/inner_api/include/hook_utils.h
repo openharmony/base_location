@@ -60,6 +60,7 @@ enum class LocationProcessStage {
     WIFI_SCAN_STATE_CHANGE,
     CUST_CONFIG_POLICY_CHANGE_PROCESS,
     IS_APP_BACKGROUND_PROCESS,
+    LOCATOR_SA_SYNC_SWITCH_STATUS,
 };
 
 typedef struct {
@@ -139,6 +140,9 @@ typedef struct {
     bool result;
 } ScanStruct;
 
+typedef struct {
+    bool locationEnable;
+} LocationStatusStruct;
 
 class HookUtils {
 public:
@@ -170,6 +174,7 @@ public:
             const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
     static bool ExecuteHookWhenCustConfigPolicyChange();
     static bool ExecuteHookWhenCheckIsAppBackground(const std::string& packageName);
+    static bool ExecuteHookWhenSyncSwitchStates(int status);
 };
 } // namespace Location
 } // namespace OHOS
