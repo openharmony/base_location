@@ -584,10 +584,6 @@ HWTEST_F(GnssAbilityTest, AddGnssGeofence003, TestSize.Level1)
         << "GnssAbilityTest, AddGnssGeofence003, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    if (!ability_->IsSupportGps()) {
-        EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, result);
-        return;
-    }
     proxy_->AddGnssGeofence(request);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 end");
 }
