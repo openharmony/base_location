@@ -725,6 +725,11 @@ int32_t GnssAbility::GenerateFenceId()
 
 LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
+    if (!IsSupportGps()) {
+        LBSLOGI(GNSS, "Is Not Support Gps");
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
+
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
     {
