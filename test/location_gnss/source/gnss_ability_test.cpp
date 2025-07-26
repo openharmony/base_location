@@ -584,6 +584,10 @@ HWTEST_F(GnssAbilityTest, AddGnssGeofence003, TestSize.Level1)
         << "GnssAbilityTest, AddGnssGeofence003, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    if (!ability_->IsSupportGps()) {
+        EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, result);
+        return;
+    }
     proxy_->AddGnssGeofence(request);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence003 end");
 }
@@ -1892,6 +1896,10 @@ HWTEST_F(GnssAbilityTest, AddGnssGeofence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence001 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     LocationErrCode result = ability_->AddGnssGeofence(request);
+    if (!ability_->IsSupportGps()) {
+        EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, result);
+        return;
+    }
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence001 end");
 }
@@ -2670,6 +2678,10 @@ HWTEST_F(GnssAbilityTest, AddGnssGeofence002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence002 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     LocationErrCode result = ability_->AddGnssGeofence(request);
+    if (!ability_->IsSupportGps()) {
+        EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, result);
+        return;
+    }
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddGnssGeofence002 end");
 }
