@@ -1562,6 +1562,8 @@ sptr<ILocatorService> LocatorImpl::GetProxy()
 
 void LocatorImpl::UnLoad()
 {
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s", __func__);
+    std::unique_lock<std::mutex> lock(mutex_);
     if (saStatusListener_ == nullptr && recipient_ == nullptr) {
         return;
     }
@@ -1584,6 +1586,7 @@ void LocatorImpl::UnLoad()
         obj->RemoveDeathRecipient(recipient_);
         recipient_ = nullptr;
     }
+    client_ = nullptr;
 }
 
 void LocatorImpl::UpdateCallbackResumingState(bool state)
