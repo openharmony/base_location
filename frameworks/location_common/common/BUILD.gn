@@ -21,6 +21,8 @@ config("location_common_config") {
 
 local_base_sources = [
   "$LOCATION_COMMON_DIR/source/app_identity.cpp",
+  "$LOCATION_COMMON_DIR/source/beacon_fence_request.cpp",
+  "$LOCATION_COMMON_DIR/source/beacon_fence.cpp",
   "$LOCATION_COMMON_DIR/source/bluetooth_scan_result.cpp",
   "$LOCATION_COMMON_DIR/source/common_hisysevent.cpp",
   "$LOCATION_COMMON_DIR/source/common_utils.cpp",

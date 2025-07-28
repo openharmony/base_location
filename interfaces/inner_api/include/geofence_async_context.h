@@ -28,16 +28,21 @@
 #include "location_gnss_geofence_callback_napi.h"
 #include "geofence_definition.h"
 #include "geofence_request.h"
+#include "beacon_fence_request.h"
+#include "beacon_fence.h"
 
 namespace OHOS {
 namespace Location {
 class GnssGeofenceAsyncContext : public AsyncContext {
 public:
     int code_{-1};
-    GeofenceTransition transition_{-1, GEOFENCE_TRANSITION_INIT};
+    std::shared_ptr<BeaconFence> beaconFence_;
+    GeofenceTransition transition_{-1, GEOFENCE_TRANSITION_INIT, beaconFence_};
     sptr<LocationGnssGeofenceCallbackNapi> callbackHost_ = nullptr;
     std::shared_ptr<GeofenceRequest> request_;
+    std::shared_ptr<BeaconFenceRequest> beaconRequest_;
     int fenceId_{-1};
+    bool clearBeaconFence_ = false;
 
     explicit GnssGeofenceAsyncContext(
         napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)

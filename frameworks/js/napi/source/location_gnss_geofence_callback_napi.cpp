@@ -23,6 +23,7 @@
 #include "geofence_napi.h"
 #include "location_async_context.h"
 #include "geofence_async_context.h"
+#include "beacon_fence.h"
 
 namespace OHOS {
 namespace Location {
@@ -72,6 +73,10 @@ int LocationGnssGeofenceCallbackNapi::OnRemoteRequest(
             transition.fenceId = data.ReadInt32();
             transition.event =
                 static_cast<GeofenceTransitionEvent>(data.ReadInt32());
+            std::shared_ptr<BeaconFence> beaconFence(data.ReadParcelable<BeaconFence>());
+            if (beaconFence != nullptr) {
+                transition.beaconFence = beaconFence;
+            }
             OnTransitionStatusChange(transition);
             break;
         }

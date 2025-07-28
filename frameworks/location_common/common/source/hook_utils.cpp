@@ -266,5 +266,37 @@ bool HookUtils::ExecuteHookWhenSyncSwitchStates(int status)
         LocationProcessStage::LOCATOR_SA_SYNC_SWITCH_STATUS, (void *)&statusStruct, nullptr);
     return true;
 }
+
+bool HookUtils::ExecuteHookWhenReportBeaconFenceOperateResult(const std::string& fenceId, int transitionEvent,
+    const std::string& fenceExtensionAbilityName, const std::string& packageName)
+{
+    BeaconFenceStruct beaconFenceStruct;
+    beaconFenceStruct.fenceId = fenceId;
+    beaconFenceStruct.transitionEvent = transitionEvent;
+    beaconFenceStruct.fenceExtensionAbilityName = fenceExtensionAbilityName;
+    beaconFenceStruct.packageName = packageName;
+    beaconFenceStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::REPORT_BEACON_FENCE_OPERATE_RESULT_PROCESS, (void *)&beaconFenceStruct, nullptr);
+    return beaconFenceStruct.result;
+}
+
+bool HookUtils::ExecuteHookWhenRemoveBeaconFenceByCallback()
+{
+    BeaconFenceStruct beaconFenceStruct;
+    beaconFenceStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::REMOVE_BEACON_FENCE_BY_CALLBACK_PROCESS, (void *)&beaconFenceStruct, nullptr);
+    return beaconFenceStruct.result;
+}
+
+bool HookUtils::ExecuteHookWhenCheckIsBeaconFenceSupported()
+{
+    BeaconFenceStruct beaconFenceStruct;
+    beaconFenceStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::CHECK_IS_BEACON_FENCE_SUPPORTED_PROCESS, (void *)&beaconFenceStruct, nullptr);
+    return beaconFenceStruct.result;
+}
 } // namespace Location
 } // namespace OHOS

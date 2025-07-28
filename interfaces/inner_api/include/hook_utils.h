@@ -61,6 +61,9 @@ enum class LocationProcessStage {
     CUST_CONFIG_POLICY_CHANGE_PROCESS,
     IS_APP_BACKGROUND_PROCESS,
     LOCATOR_SA_SYNC_SWITCH_STATUS,
+    REPORT_BEACON_FENCE_OPERATE_RESULT_PROCESS,
+    REMOVE_BEACON_FENCE_BY_CALLBACK_PROCESS,
+    CHECK_IS_BEACON_FENCE_SUPPORTED_PROCESS,
 };
 
 typedef struct {
@@ -144,6 +147,14 @@ typedef struct {
     bool locationEnable;
 } LocationStatusStruct;
 
+typedef struct {
+    std::string fenceId;
+    int transitionEvent;
+    std::string fenceExtensionAbilityName;
+    std::string packageName;
+    bool result;
+} BeaconFenceStruct;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -175,6 +186,10 @@ public:
     static bool ExecuteHookWhenCustConfigPolicyChange();
     static bool ExecuteHookWhenCheckIsAppBackground(const std::string& packageName);
     static bool ExecuteHookWhenSyncSwitchStates(int status);
+    static bool ExecuteHookWhenReportBeaconFenceOperateResult(const std::string& fenceId, int transitionEvent,
+        const std::string& fenceExtensionAbilityName, const std::string& packageName);
+    static bool ExecuteHookWhenRemoveBeaconFenceByCallback();
+    static bool ExecuteHookWhenCheckIsBeaconFenceSupported();
 };
 } // namespace Location
 } // namespace OHOS

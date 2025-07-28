@@ -25,6 +25,7 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/callback/source/locator_callback_proxy.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/locator_msdp_state_change_cb.cpp",
   "$SUBSYSTEM_DIR/location_locator/callback/source/nmea_message_callback_proxy.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/beacon_fence_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/common_event_helper.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/fusion_controller.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/geo_convert_proxy.cpp",

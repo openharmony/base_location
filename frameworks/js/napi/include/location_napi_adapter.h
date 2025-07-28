@@ -23,6 +23,7 @@
 #include "constant_definition.h"
 #include "location_gnss_geofence_callback_napi.h"
 #include "geofence_async_context.h"
+#include "beacon_fence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -67,6 +68,23 @@ napi_value SetLocationSwitchIgnored(napi_env env, napi_callback_info info);
 napi_value GetPoiInfo(napi_env env, napi_callback_info info);
 napi_value IsPoiServiceSupported(napi_env env, napi_callback_info info);
 napi_value GetDistanceBetweenLocations(napi_env env, napi_callback_info info);
+napi_value AddBeaconFence(napi_env env, napi_callback_info info);
+napi_value RemoveBeaconFence(napi_env env, napi_callback_info info);
+napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info);
+void CreateAsyncContextForAddBeaconFence(GnssGeofenceAsyncContext* asyncContext);
+void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncContext);
+void CreateContextForAddBeaconFence(GnssGeofenceAsyncContext& asyncContext);
+void AddCallbackToBeaconFenceCallbackHostMap(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
+void RemoveCallbackToBeaconFenceCallbackHostMap(std::shared_ptr<BeaconFence>& beaconFence);
+sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInBeaconFenceCallbackHostMap(
+    std::shared_ptr<BeaconFence>& beaconFence);
+void AddBeaconFenceRequest(
+    std::shared_ptr<BeaconFenceRequest>& request, sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
+void RemoveBeaconFenceRequest(std::shared_ptr<BeaconFence>& beaconFence);
+void ClearBeaconFenceRequest();
+sptr<LocationGnssGeofenceCallbackNapi> FindRequestByBeaconFence(std::shared_ptr<BeaconFence>& beaconFence);
+bool CompareBeaconFence(std::shared_ptr<BeaconFence> beaconFence1, std::shared_ptr<BeaconFence> beaconFence2);
 #endif
 }  // namespace Location
 }  // namespace OHOS

@@ -44,6 +44,9 @@
 #endif
 #include "idata_types.h"
 #include "proxy_freeze_manager.h"
+#include "beacon_fence_request.h"
+#include "beacon_fence.h"
+#include "beacon_fence_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -184,6 +187,9 @@ public:
     LocationErrCode UnregisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity);
     ErrCode ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid) override;
     ErrCode SetLocationSwitchIgnored(bool isEnabled) override;
+    ErrCode AddBeaconFence(const BeaconFenceRequest& beaconFenceRequest) override;
+    ErrCode RemoveBeaconFence(const BeaconFence& beaconFence) override;
+    ErrCode IsBeaconFenceSupported(bool& beaconFenceSupportedState) override;
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
@@ -245,6 +251,7 @@ private:
     void GetAppIdentityInfo(AppIdentity& identity);
     LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId);
     bool CheckLocationSwitchState();
+    bool CheckBluetoothSwitchState();
     bool CheckLocationPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid);
     bool CheckPreciseLocationPermissions(uint32_t callingTokenId, uint32_t callingFirstTokenid);
     ErrCode StartLocatingProcess(const RequestConfig& requestConfig, const sptr<ILocatorCallback>& cb,

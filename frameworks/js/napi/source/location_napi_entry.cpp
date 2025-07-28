@@ -20,6 +20,7 @@
 #include "location_napi_event.h"
 #include "location_napi_system.h"
 #include "geofence_definition.h"
+#include "beacon_fence.h"
 
 namespace OHOS {
 namespace Location {
@@ -228,6 +229,15 @@ napi_value SportsTypeConstructor(napi_env env)
     return sportsType;
 }
 
+napi_value BeaconFenceInfoTypeConstructor(napi_env env)
+{
+    napi_value beaconFenceInfoType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &beaconFenceInfoType));
+    SetEnumPropertyByInteger(env, beaconFenceInfoType, BeaconFenceInfoType::BEACON_MANUFACTURE_DATA,
+        "BEACON_MANUFACTURE_DATA");
+    return beaconFenceInfoType;
+}
+
 #ifndef ENABLE_NAPI_MANAGER
 /*
  * Module initialization function
@@ -323,6 +333,9 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("isPoiServiceSupported", IsPoiServiceSupported),
         DECLARE_NAPI_FUNCTION("setLocationSwitchIgnored", SetLocationSwitchIgnored),
         DECLARE_NAPI_FUNCTION("getDistanceBetweenLocations", GetDistanceBetweenLocations),
+        DECLARE_NAPI_FUNCTION("addBeaconFence", AddBeaconFence),
+        DECLARE_NAPI_FUNCTION("removeBeaconFence", RemoveBeaconFence),
+        DECLARE_NAPI_FUNCTION("isBeaconFenceSupported", IsBeaconFenceSupported),
 
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
@@ -339,6 +352,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("LocationSourceType", LocationSourceTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationError", LocationErrorConstructor(env)),
         DECLARE_NAPI_PROPERTY("SportsType", SportsTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("BeaconFenceInfoType", BeaconFenceInfoTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

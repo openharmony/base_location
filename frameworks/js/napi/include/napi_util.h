@@ -91,6 +91,7 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
 std::string GetErrorMsgByCode(int code);
 int ConvertErrorCode(int errorCode);
 std::map<int, std::string> GetErrorCodeMap();
+void GetErrorCodeMapExt(std::map<int, std::string>& errorCodeMap);
 void CreateFailCallBackParams(AsyncContext& context, const std::string& msg, int32_t errorCode);
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result);
 void GetLocationArray(const napi_env& env, LocationMockAsyncContext *asyncContext, const napi_value& object);
