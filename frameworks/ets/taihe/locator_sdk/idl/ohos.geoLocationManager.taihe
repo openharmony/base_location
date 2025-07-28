@@ -1,0 +1,327 @@
+/*
+ * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+@!namespace("@ohos.geoLocationManager", "geoLocationManager")
+@!sts_inject_into_module("
+  import {WantAgent} from '@ohos.app.ability.wantAgent';
+")
+
+enum LocationRequestPriority: i32 { UNSET = 0x200, ACCURACY, LOW_POWER, FIRST_FIX }
+enum LocationRequestScenario: i32 { UNSET = 0x300, NAVIGATION, TRAJECTORY_TRACKING, CAR_HAILING, DAILY_LIFE_SERVICE, NO_POWER }
+enum LocatingPriority: i32 { PRIORITY_ACCURACY  = 0x501, PRIORITY_LOCATING_SPEED = 0x502 }
+enum LocationSourceType: i32 { GNSS = 1, NETWORK = 2, INDOOR = 3, RTK = 4 }
+enum LocationPrivacyType: i32 { OTHERS = 0, STARTUP = 1, CORE_LOCATION = 2 }
+enum CoordinateSystemType: i32 { WGS84 = 1, GCJ02 = 2 }
+enum SportsType: i32 {RUNNING = 1, WALKING, CYCLING}
+enum UserActivityScenario: i32 { NAVIGATION = 0x401, SPORT = 0x402, TRANSPORT = 0x403, DAILY_LIFE_SERVICE = 0x404}
+enum PowerConsumptionScenario: i32 { HIGH_POWER_CONSUMPTION = 0x601, LOW_POWER_CONSUMPTION = 0x602, NO_POWER_CONSUMPTION = 0x603}
+enum SatelliteConstellationCategory: i32 { CONSTELLATION_CATEGORY_UNKNOWN = 0, CONSTELLATION_CATEGORY_GPS = 1, CONSTELLATION_CATEGORY_SBAS = 2,
+CONSTELLATION_CATEGORY_GLONASS = 3, CONSTELLATION_CATEGORY_QZSS = 4, CONSTELLATION_CATEGORY_BEIDOU = 5, CONSTELLATION_CATEGORY_GALILEO = 6, CONSTELLATION_CATEGORY_IRNSS = 7 }
+enum CountryCodeType: i32 { COUNTRY_CODE_FROM_LOCALE = 1, COUNTRY_CODE_FROM_SIM, COUNTRY_CODE_FROM_LOCATION, COUNTRY_CODE_FROM_NETWORK }
+enum LocationError: i32 { LOCATING_FAILED_DEFAULT = -1, LOCATING_FAILED_LOCATION_PERMISSION_DENIED = -2, LOCATING_FAILED_BACKGROUND_PERMISSION_DENIED = -3,
+LOCATING_FAILED_LOCATION_SWITCH_OFF = -4, LOCATING_FAILED_INTERNET_ACCESS_FAILURE = -5 }
+enum LocationIconStatus: i32 { LOCATING_NOT_STARTED = 0, LOCATING_STARTED = 1, HD_LOCATING_STARTED = 2 }
+enum LocatingRequiredDataType: i32 {WIFI = 1, BLUETOOTH}
+
+struct ReverseGeoCodeRequest {
+    locale: Optional<String>;
+    country: Optional<String>;
+    latitude: f64;
+    longitude: f64;
+    maxItems: f64;
+}
+
+struct GeoCodeRequest {
+    locale: Optional<String>;
+    country: Optional<String>;
+    description: String;
+    maxItems: Optional<f64>;
+    minLatitude: Optional<f64>;
+    minLongitude: Optional<f64>;
+    maxLatitude: Optional<f64>;
+    maxLongitude: Optional<f64>;
+}
+
+struct GeoAddress {
+    latitude: Optional<f64>;
+    longitude: f64;
+    locale: String;
+    placeName: String;
+    countryCode: String;
+    countryName: String;
+    administrativeArea: String;
+    subAdministrativeArea: String;
+    locality: String;
+    subLocality: String;
+    roadName: String;
+    subRoadName: String;
+    premises: String;
+    postalCode: String;
+    phoneNumber: String;
+    addressUrl: String;
+    descriptions: Array<String>;
+    descriptionsSize: f64;
+    isFromMock: bool;
+}
+
+union ContinuousLocationRequestLocationScenario {
+    type_UserActivityScenario: UserActivityScenario;
+    type_PowerConsumptionScenario: PowerConsumptionScenario;
+}
+
+struct ContinuousLocationRequest {
+    interval: f64;
+    locationScenario: ContinuousLocationRequestLocationScenario;
+    sportsType: Optional<SportsType>;
+    needPoi: Optional<bool>;
+}
+
+struct CurrentLocationRequest {
+    priority: Optional<LocationRequestPriority>;
+    scenario: Optional<LocationRequestScenario>;
+    maxAccuracy: Optional<f64>;
+    timeoutMs: Optional<f64>;
+}
+
+struct SingleLocationRequest  {
+    locatingPriority: Optional<LocatingPriority>;
+    locatingTimeoutMs: Optional<f64>;
+}
+
+union CurrentRequest {
+    type_CurrentLocationRequest: CurrentLocationRequest;
+    type_SingleLocationRequest: SingleLocationRequest;
+}
+
+struct LocationRequest {
+    priority: Optional<LocationRequestPriority>;
+    scenario: Optional<LocationRequestScenario>;
+    timeInterval: Optional<f64>;
+    distanceInterval: Optional<f64>;
+    maxAccuracy: Optional<f64>;
+}
+
+union OnRequest {
+    type_LocationRequest: LocationRequest;
+    type_ContinuousLocationRequest: ContinuousLocationRequest;
+}
+
+struct LocationMockConfig {
+    timeInterval: f64;
+    locations: Array<Location>;
+}
+
+struct Location {
+    latitude: f64;
+    longitude: f64;
+    altitude: f64;
+    accuracy: f64;
+    speed: f64;
+    timeStamp: f64;
+    direction: f64;
+    timeSinceBoot: f64;
+    additions: Array<String>;
+    additionsMap: @record Map<String, String>;
+    additionSize: f64;
+    isFromMock: bool;
+    altitudeAccuracy: f64;
+    speedAccuracy: f64;
+    directionAccuracy: f64;
+    uncertaintyOfTimeSinceBoot: f64;
+    sourceType: LocationSourceType;
+}
+
+struct Geofence {
+    latitude: f64;
+    longitude: f64;
+    coordinateSystemType: Optional<CoordinateSystemType>;
+    radius: f64;
+    expiration: f64;
+}
+
+struct GeofenceRequest {
+    scenario: LocationRequestScenario;
+    geofence: Geofence;
+}
+
+struct SatelliteStatusInfo {
+    satellitesNumber: f64;
+    satelliteIds: Array<f64>;
+    carrierToNoiseDensitys: Array<f64>;
+    altitudes: Array<f64>;
+    azimuths: Array<f64>;
+    carrierFrequencies: Array<f64>;
+    satelliteConstellation: Optional<Array<SatelliteConstellationCategory>>;
+    satelliteAdditionalInfo: Optional<Array<f64>>;
+}
+
+struct CachedGnssLocationsRequest {
+    reportingPeriodSec: f64;
+    wakeUpCacheQueueFull: bool;
+}
+
+struct CountryCode {
+    country: String;
+    type: CountryCodeType;
+}
+
+struct BluetoothScanResult {
+    deviceId: String;
+    rssi: f64;
+    data: Optional<Array<@arraybuffer Array<u8>>>;
+    deviceName: String;
+    connectable: bool;
+}
+
+struct LocatingRequiredDataConfig {
+    type: LocatingRequiredDataType;
+    needStartScan: bool;
+    scanInterval: Optional<f64>;
+    scanTimeout: Optional<f64>;
+}
+
+struct WifiScanInfo {
+    ssid: String;
+    bssid: String;
+    rssi: f64;
+    frequency: f64;
+    timestamp: f64;
+}
+
+struct BluetoothScanInfo {
+    deviceName: String;
+    macAddress: String;
+    rssi: f64;
+    timestamp: f64;
+}
+
+struct LocatingRequiredData {
+    wifiData: Optional<WifiScanInfo>;
+    bluetoothData: Optional<BluetoothScanInfo>;
+}
+
+function IsLocationEnabled(): bool;
+@gen_async("getAddressesFromLocation")
+@gen_promise("getAddressesFromLocation")
+function GetAddressesFromLocationSync(request: ReverseGeoCodeRequest): Array<GeoAddress>;
+
+@gen_async("getCurrentLocation")
+@gen_promise("getCurrentLocation")
+function GetCurrentLocationSync(request: Optional<CurrentRequest>): Location;
+
+@gen_async("enableLocation")
+@gen_promise("enableLocation")
+function EnableLocationSync(): void;
+
+function DisableLocation(): void;
+
+function IsLocationPrivacyConfirmed(type: LocationPrivacyType): bool;
+
+function GetLastLocation(): Location;
+
+@!sts_inject("""
+export function on(type: string, cb: (arg_0: Object) => void) {
+    switch(type) {
+        case "countryCodeChange": return onCountryCodeChange(cb);
+        case "nmeaMessage": return onNmeaMessage(cb);
+        case "satelliteStatusChange": return onSatelliteStatusChange(cb);
+        case "locationEnabledChange": return onLocationEnabledChange(cb);
+        case "bluetoothScanResultChange": return onBluetoothScanResultChange(cb);
+        case "locationError": return onLocationError(cb);
+        case "locationIconStatusChange": return onLocationIconStatusChange(cb);
+        default: throw new Error(`Unknown type: ${type}`);
+    }
+}
+export function off(type: string, cb?: (arg_0: Object) => void) {
+    switch(type) {
+        case "countryCodeChange": return offCountryCodeChange(cb as (((arg_0: CountryCode) => void) | undefined));
+        case "nmeaMessage":  return offNmeaMessage(cb as (((data: String) => void) | undefined));
+        case "satelliteStatusChange": return offSatelliteStatusChange(cb as (((data: SatelliteStatusInfo) => void) | undefined));
+        case "locationEnabledChange": return offLocationEnabledChange((cb as (((arg_0: boolean) => void)|undefined)));
+        case "bluetoothScanResultChange": return offBluetoothScanResultChange(cb as (((data: BluetoothScanResult) => void) | undefined));
+        case "locationError": return offLocationError(cb as (((data: LocationError) => void) | undefined));
+        case "locationIconStatusChange": return offLocationIconStatusChange(cb as (((data: LocationIconStatus) => void) | undefined));
+        case "cachedGnssLocationsChange": return offCachedGnssLocationsChange(cb as (((arg_0: Array<Location>) => void) | undefined));
+        case "locationChange": return offLocationChange(cb as (((arg_0: Location) => void) | undefined));
+        case "locatingRequiredDataChange": return offLocatingRequiredDataChange(cb as (((arg_0: Array<LocatingRequiredData>) => void) | undefined));
+        default: throw new Error(`Unknown type: ${type}`);
+    }
+}
+""")
+
+@on_off("cachedGnssLocationsChange")
+function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
+
+// @on_off("cachedGnssLocationsChange")
+function OffCachedGnssLocationsChange(callback: Optional<(data: Array<Location>) => void>): void;
+
+@on_off("locationChange")
+function OnLocationChange(request: OnRequest, callback: (data: Location) => void): void;
+
+// @on_off("locationChange")
+function OffLocationChange(callback: Optional<(data: Location) => void>): void;
+
+@on_off("gnssFenceStatusChange")
+function OnGnssFenceStatusChange(request: GeofenceRequest, want: @sts_type("WantAgent") Opaque): void;
+
+@on_off("gnssFenceStatusChange")
+function OffGnssFenceStatusChange(request: GeofenceRequest, want: @sts_type("WantAgent") Opaque): void;
+
+@on_off("locatingRequiredDataChange")
+function OnLocatingRequiredDataChange(config: LocatingRequiredDataConfig, callback: (data: Array<LocatingRequiredData>) => void): void;
+
+// @on_off("locatingRequiredDataChange")
+function OffLocatingRequiredDataChange(callback: Optional<(data: Array<LocatingRequiredData>) => void>): void;
+
+// @on_off("countryCodeChange")
+function OnCountryCodeChange(callback: (data: CountryCode) => void): void;
+
+// @on_off("countryCodeChange")
+function OffCountryCodeChange(callback: Optional<(data: CountryCode) => void>): void;
+
+// @on_off("nmeaMessage")
+function OnNmeaMessage(callback: (data: String) => void): void;
+
+// @on_off("nmeaMessage")
+function OffNmeaMessage(callback: Optional<(data: String) => void>): void;
+
+// @on_off("satelliteStatusChange")
+function OffSatelliteStatusChange(callback: Optional<(data: SatelliteStatusInfo) => void>): void;
+
+// @on_off("satelliteStatusChange")
+function OnSatelliteStatusChange(callback: (data: SatelliteStatusInfo) => void): void;
+
+// @on_off("locationEnabledChange")
+function OffLocationEnabledChange(callback: Optional<(data: bool) => void>): void;
+
+// @on_off("locationEnabledChange")
+function OnLocationEnabledChange(callback: (data: bool) => void): void;
+
+// @on_off("bluetoothScanResultChange")
+function OffBluetoothScanResultChange(callback: Optional<(data: BluetoothScanResult) => void>): void;
+
+// @on_off("bluetoothScanResultChange")
+function OnBluetoothScanResultChange(callback: (data: BluetoothScanResult) => void): void;
+
+// @on_off("locationError")
+function OffLocationError(callback: Optional<(data: LocationError) => void>): void;
+
+// @on_off("locationError")
+function OnLocationError(callback: (data: LocationError) => void): void;
+
+// @on_off("locationIconStatusChange")
+function OffLocationIconStatusChange(callback: Optional<(data: LocationIconStatus) => void>): void;
+
+// @on_off("locationIconStatusChange")
+function OnLocationIconStatusChange(callback: (data: LocationIconStatus) => void): void;
