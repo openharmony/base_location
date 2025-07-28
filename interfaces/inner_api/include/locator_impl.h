@@ -700,6 +700,7 @@ private:
 private:
     bool IsCallbackResuming();
     void UpdateCallbackResumingState(bool state);
+    void UnLoad();
 
     sptr<ILocatorService> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
