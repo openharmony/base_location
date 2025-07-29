@@ -244,6 +244,7 @@ private:
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
     bool ConnectGnssHdi();
     bool IsSupportGps();
+    bool IsSupportGeofence();
 
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     bool ConnectAgnssHdi();
