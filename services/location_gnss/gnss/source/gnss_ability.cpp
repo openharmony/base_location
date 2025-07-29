@@ -726,7 +726,7 @@ int32_t GnssAbility::GenerateFenceId()
 
 bool GnssAbility::IsSupportGeofence()
 {
-    return OHOS::system::GetBoolParameter(SYSPARAM_GPS_SUPPORT, true);
+    return OHOS::system::GetBoolParameter(SYSPARAM_GEOFENCE_SUPPORT, true);
 }
 
 LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
