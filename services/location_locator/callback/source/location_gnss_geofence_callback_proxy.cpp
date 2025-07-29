@@ -33,6 +33,10 @@ void LocationGnssGeofenceCallbackProxy::OnTransitionStatusChange(GeofenceTransit
     }
     dataParcel.WriteInt32(transition.fenceId);
     dataParcel.WriteInt32(static_cast<int>(transition.event));
+    if (transition.beaconFence != nullptr) {
+        BeaconFence beacon = *transition.beaconFence;
+        dataParcel.WriteParcelable(&beacon);
+    }
     MessageOption option = { MessageOption::TF_ASYNC };
     int error = Remote()->SendRequest(RECEIVE_TRANSITION_STATUS_EVENT, dataParcel, reply, option);
     LBSLOGD(LOCATION_GNSS_GEOFENCE_CALLBACK, "OnTransitionStatusChange Transact ErrCode = %{public}d", error);

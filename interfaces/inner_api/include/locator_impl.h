@@ -34,6 +34,8 @@
 #include "locationhub_ipc_interface_code.h"
 #include "ibluetooth_scan_result_callback.h"
 #include "ilocator_service.h"
+#include "beacon_fence_request.h"
+#include "beacon_fence.h"
 
 namespace OHOS {
 namespace Location {
@@ -666,6 +668,29 @@ public:
      * @returns { boolean } Returns {@code true} if POI service is available, returns {@code false} otherwise.
      */
     bool IsPoiServiceSupported();
+
+    /**
+     * add beacon fence.
+     *
+     * @param beaconFenceRequest - beacon fence request parameters.
+     * @return Returns ERRCODE_SUCCESS if add beacon fence succeed.
+     */
+    LocationErrCode AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
+
+    /**
+     * remove beacon fence.
+     *
+     * @param userId - beacon fence parameters.
+     * @return Returns ERRCODE_SUCCESS if remove beacon fence succeed.
+     */
+    LocationErrCode RemoveBeaconFence(std::shared_ptr<BeaconFence>& beaconFence);
+
+    /**
+     * Check whether the beacon fence is supported.
+     *
+     * @returns { boolean } Returns {@code true} if beacon fence is supported, returns {@code false} otherwise.
+     */
+    bool IsBeaconFenceSupported();
 
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<ILocatorService> GetProxy();

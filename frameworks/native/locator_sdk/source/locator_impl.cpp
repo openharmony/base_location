@@ -1709,6 +1709,54 @@ LocationErrCode LocatorImpl::SetLocationSwitchIgnored(bool enable)
     return locationErrCode;
 }
 
+LocationErrCode LocatorImpl::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::AddBeaconFence()");
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->AddBeaconFence(*beaconFenceRequest);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+LocationErrCode LocatorImpl::RemoveBeaconFence(std::shared_ptr<BeaconFence>& beaconFence)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::RemoveBeaconFence()");
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->RemoveBeaconFence(*beaconFence);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+bool LocatorImpl::IsBeaconFenceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsBeaconFenceSupported() enter");
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return false;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return false;
+    }
+    bool beaconFenceSupported = false;
+    proxy->IsBeaconFenceSupported(beaconFenceSupported);
+    return beaconFenceSupported;
+}
+
 void CallbackResumeManager::ResumeCallback()
 {
     ResumeGnssStatusCallback();

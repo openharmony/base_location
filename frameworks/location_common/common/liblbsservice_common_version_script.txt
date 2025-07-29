@@ -35,6 +35,7 @@
     "*ExecuteHookWhenWifiScanStateChanged*";
     "*ExecuteHookWhenCustConfigPolicyChange*";
     "*ExecuteHookWhenCheckIsAppBackground*";
+    "*BeaconFence*";
   local:
     *;
 };

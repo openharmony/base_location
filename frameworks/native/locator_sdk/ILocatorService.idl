@@ -23,6 +23,8 @@ sequenceable OHOS.Location.GeocodeConvertAddressRequest;
 sequenceable OHOS.Location.GeocodeConvertLocationRequest;
 sequenceable OHOS.Location.GeocodingMockInfo;
 sequenceable OHOS.Location.GeofenceRequest;
+sequenceable OHOS.Location.BeaconFenceRequest;
+sequenceable OHOS.Location.BeaconFence;
 
 interface OHOS.Location.ILocatorCallback;
 interface OHOS.Location.ICachedLocationsCallback;
@@ -76,4 +78,7 @@ interface OHOS.Location.ILocatorService {
     [ipccode 54] void SubscribeBluetoothScanResultChange([in] IBluetoothScanResultCallback cb);
     [ipccode 55] void UnSubscribeBluetoothScanResultChange([in] IBluetoothScanResultCallback cb);
     [ipccode 56] void IsPoiServiceSupported([out] boolean isPoiAvailable);
+    [ipccode 57] void AddBeaconFence([in] BeaconFenceRequest request);
+    [ipccode 58] void RemoveBeaconFence([in] BeaconFence beaconFence);
+    [ipccode 59] void IsBeaconFenceSupported([out] boolean isBeaconFenceSupported);
 }

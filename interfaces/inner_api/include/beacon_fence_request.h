@@ -16,43 +16,22 @@
 #ifndef LOCATION_BEACON_FENCE_REQUEST_H
 #define LOCATION_BEACON_FENCE_REQUEST_H
 
+#include <mutex>
 #include <parcel.h>
 #include <string>
 #include "string_ex.h"
+#include "iremote_object.h"
+#include "geofence_definition.h"
+#include "beacon_fence.h"
 
 namespace OHOS {
 namespace Location {
+
 class BeaconFenceRequest : public Parcelable {
 public:
     BeaconFenceRequest();
-    explicit BeaconFenceRequest(BeaconFenceRequest &beaconFenceRequest);
-    ~BeaconFenceRequest() override;
-
-    expor enum BeaconFenceInfoType {
-        BEACON_MANUFACTURE_DATA = 1;
-    }
-
-    typedef struct {
-        int32_t manufactureId;
-        std::vector<uint8_t> manufactureData;
-        std::vector<uint8_t> manufactureDataMask;
-    } BeaconManufactureData;
-
-    typedef struct {
-        std::string identifier;
-        BeaconFenceInfoType type;
-        BeaconManufactureData manufactureData;
-    } BeaconFence;
-
-    inline BeaconFence GetBeaconFence() const
-    {
-        return beacon_;
-    }
-
-    inline void SetBeaconFence(BeaconFence beacon) const
-    {
-        beacon_ = beacon;
-    }
+    BeaconFenceRequest(BeaconFenceRequest &beaconFenceRequest);
+    ~BeaconFenceRequest();
 
     inline sptr<IRemoteObject> GetBeaconFenceTransitionCallback() const
     {
@@ -74,15 +53,62 @@ public:
         fenceExtensionAbilityName_ = fenceExtensionAbilityName;
     }
 
+    inline std::string GetServiceUuid() const
+    {
+        return serviceUuid_;
+    }
+
+    inline void SetServiceUuid(std::string serviceUuid)
+    {
+        serviceUuid_ = serviceUuid;
+    }
+
+    inline std::string GetServiceUuidMask() const
+    {
+        return serviceUuidMask_;
+    }
+
+    inline void SetServiceUuidMask(std::string serviceUuidMask)
+    {
+        serviceUuidMask_ = serviceUuidMask;
+    }
+
+    inline std::string GetBundleName() const
+    {
+        return bundleName_;
+    }
+
+    inline void SetBundleName(std::string bundleName)
+    {
+        bundleName_ = bundleName;
+    }
+
+    inline std::string GetFenceId() const
+    {
+        return fenceId_;
+    }
+
+    inline void SetFenceId(std::string fenceId)
+    {
+        fenceId_ = fenceId;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<BeaconFenceRequest> UnmarshallingShared(Parcel& parcel);
     static BeaconFenceRequest* Unmarshalling(Parcel& parcel);
+    std::shared_ptr<BeaconFence> GetBeaconFence();
+    void SetBeaconFence(std::shared_ptr<BeaconFence>& beacon);
 
 private:
-    BeaconFence beacon_;
-    sptr<IRemoteObject> callback_;
+    mutable std::mutex beaconFenceRequestMutex_;
+    std::shared_ptr<BeaconFence> beacon_;
+    sptr<IRemoteObject> callback_ = nullptr;
+    std::string fenceId_;
     std::string fenceExtensionAbilityName_;
+    std::string serviceUuid_;
+    std::string serviceUuidMask_;
+    std::string bundleName_;
 };
 } // namespace Location
 } // namespace OHOS

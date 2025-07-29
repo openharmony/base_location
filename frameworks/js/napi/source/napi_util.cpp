@@ -1008,7 +1008,22 @@ std::map<int, std::string> GetErrorCodeMap()
         {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
             "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."}
     };
+    GetErrorCodeMapExt(errorCodeMap);
     return errorCodeMap;
+}
+
+void GetErrorCodeMapExt(std::map<int, std::string>& errorCodeMap)
+{
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_LOCATION_SWITCH_OFF,
+        "Failed to add a beacon fence because the location switch is off."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_BLUETOOTH_SWITCH_OFF,
+        "Failed to add a beacon fence because the bluetooth switch is off."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_EXCEED_MAXIMUM,
+        "The number of beacon fence exceeds the maximum."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_INCORRECT_ID,
+        "Failed to delete the fence due to incorrect beacon fence information."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_DUPLICATE_INFORMATION,
+        "Duplicate beacon fence information."));
 }
 
 int ConvertErrorCode(int errorCode)
