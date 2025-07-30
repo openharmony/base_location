@@ -182,6 +182,7 @@ namespace Location {
         aGnssNiManager->CheckSmsSuplInit(want);
         aGnssNiManager->OnCallStateChanged(want);
         HDI::Location::Gnss::V2_0::GnssNiNotificationRequest notification;
+        int index = 0;
         notification.gnssNiNotificationId = data[index++];
         aGnssNiManager->HandleNiNotification(notification);
         aGnssNiManager->SendUserResponse(HDI::Location::Gnss::V2_0::GNSS_NI_RESPONSE_CMD_ACCEPT);
