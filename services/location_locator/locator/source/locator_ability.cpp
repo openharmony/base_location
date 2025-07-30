@@ -1258,6 +1258,10 @@ bool LocatorAbility::IsSingleRequest(const sptr<RequestConfig>& requestConfig)
 int LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
     int permUsedType, int succCnt, int failCnt)
 {
+    // permUsedType is invalid, no need to call AddPermissionUsedRecord
+    if (permUsedType == -1) {
+        return 0;
+    }
     Security::AccessToken::AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = permissionName;
