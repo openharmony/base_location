@@ -133,6 +133,10 @@ ohos_shared_library("locator_sdk") {
     defines += [ "EMULATOR_ENABLED" ]
   }
 
+  if (communication_bluetooth_enable) {
+    defines += [ "BLUETOOTH_ENABLE" ]
+  }
+
   cflags_cc = [
     "-std=c++17",
     "-fno-rtti",
@@ -209,6 +213,10 @@ ohos_static_library("locator_sdk_static") {
   }
 
   defines += [ "TEST_CASES_ENABLED" ]
+
+  if (communication_bluetooth_enable) {
+    defines += [ "BLUETOOTH_ENABLE" ]
+  }
 
   cflags_cc = [
     "-std=c++17",

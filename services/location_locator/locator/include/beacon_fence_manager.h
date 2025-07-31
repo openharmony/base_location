@@ -55,14 +55,14 @@ public:
     BeaconFenceManager();
     ~BeaconFenceManager();
     static BeaconFenceManager* GetInstance();
-    ErrCode AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest, AppIdentity identity);
-    ErrCode RemoveBeaconFence(std::shared_ptr<BeaconFence>& beaconFence);
-    void StartAddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest, AppIdentity identity);
+    ErrCode AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest, const AppIdentity& identity);
+    ErrCode RemoveBeaconFence(const std::shared_ptr<BeaconFence>& beaconFence);
+    void StartAddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest, const AppIdentity& identity);
 #ifdef BLUETOOTH_ENABLE
     void ReportFoundOrLost(const Bluetooth::BleScanResult &result, uint8_t type);
 #endif
     void RemoveBeaconFenceRequestByCallback(sptr<IRemoteObject> callbackObj);
-    ErrCode IsBeaconFenceSupported(bool& beaconFenceSupportedState);
+    void RemoveBeaconFenceByPackageName(std::string& packageName);
 
 private:
 #ifdef BLUETOOTH_ENABLE
@@ -73,9 +73,10 @@ private:
     int32_t GenerateBeaconFenceId();
     bool IsStrValidForStoi(const std::string &str);
     void TransitionStatusChange(std::shared_ptr<BeaconFenceRequest> beaconFenceRequest, GeofenceTransitionEvent event,
-        AppIdentity &identity);
+        const AppIdentity &identity);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByServiceUuid(std::string serviceUuid);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByCallback(sptr<IRemoteObject> callbackObj);
+    std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByPackageName(std::string& packageName);
     std::string ExtractiBeaconUUID(const std::vector<uint8_t>& data);
     void RemoveBeaconFenceRequestByBeacon(std::shared_ptr<BeaconFence> beaconFence);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByBeacon(std::shared_ptr<BeaconFence> beaconFence);
@@ -84,15 +85,15 @@ private:
     void AddFilterUuid(std::string& uuid);
     void DeleteFilterUuid(std::string& uuid);
     std::vector<std::string> GetFilterUuid();
-    void OnReportOperationResultByCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
-    GnssGeofenceOperateType type, GnssGeofenceOperateResult result);
-    bool isBeaconFenceRequestExists(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
-    bool isBeaconFenceRequestExceedMaxNumber();
-    void RegisterBeaconFenceCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest, AppIdentity& appIdentity);
-    AppIdentity GetAppIdentityByBeaconFenceRequest(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
+    void OnReportOperationResultByCallback(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
+        GnssGeofenceOperateType type, GnssGeofenceOperateResult result);
+    bool isBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
+    void RegisterBeaconFenceCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
+        const AppIdentity& appIdentity);
+    AppIdentity GetAppIdentityByBeaconFenceRequest(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
     
     std::mutex beaconFenceRequestMapMutex_;
-    std::mutex beaconFenceIdMutex_;
+    std::mutex beaconFenceUuidMutex_;
     std::mutex filterUuidMutex_;
     std::map<sptr<IRemoteObject>,
         std::pair<AppIdentity, sptr<IRemoteObject::DeathRecipient>>> handlerEventMap_;

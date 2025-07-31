@@ -1516,6 +1516,7 @@ void LocatorAbility::RegisterAction()
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED);
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED);
     matchingSkills.AddEvent(LOCATION_CUST_CONFIG_POLICY_CHANGE);
+    matchingSkills.AddEvent(PACKAGE_REMOVED_EVENT);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 
@@ -1978,11 +1979,6 @@ ErrCode LocatorAbility::AddBeaconFence(const BeaconFenceRequest& request)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
-    bool beaconFenceSupportedState = false;
-    BeaconFenceManager::GetInstance()->IsBeaconFenceSupported(beaconFenceSupportedState);
-    if (!beaconFenceSupportedState) {
-        return LOCATION_ERRCODE_NOT_SUPPORTED;
-    }
     if (!CheckLocationSwitchState()) {
         return ERRCODE_BEACONFENCE_LOCATION_SWITCH_OFF;
     }
@@ -2013,11 +2009,6 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
         std::make_shared<BeaconFence>(const_cast<BeaconFence&>(beaconFence));
     ErrCode locationErrCode = BeaconFenceManager::GetInstance()->RemoveBeaconFence(beacon);
     return locationErrCode;
-}
-
-ErrCode LocatorAbility::IsBeaconFenceSupported(bool& beaconFenceSupportedState)
-{
-    return BeaconFenceManager::GetInstance()->IsBeaconFenceSupported(beaconFenceSupportedState);
 }
 
 ErrCode LocatorAbility::ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid)

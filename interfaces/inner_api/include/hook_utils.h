@@ -63,7 +63,7 @@ enum class LocationProcessStage {
     LOCATOR_SA_SYNC_SWITCH_STATUS,
     REPORT_BEACON_FENCE_OPERATE_RESULT_PROCESS,
     REMOVE_BEACON_FENCE_BY_CALLBACK_PROCESS,
-    CHECK_IS_BEACON_FENCE_SUPPORTED_PROCESS,
+    BEACON_FENCE_TRANSITION_STATUS_CHANGE_PROCESS,
 };
 
 typedef struct {
@@ -188,8 +188,8 @@ public:
     static bool ExecuteHookWhenSyncSwitchStates(int status);
     static bool ExecuteHookWhenReportBeaconFenceOperateResult(const std::string& fenceId, int transitionEvent,
         const std::string& fenceExtensionAbilityName, const std::string& packageName);
-    static bool ExecuteHookWhenRemoveBeaconFenceByCallback();
-    static bool ExecuteHookWhenCheckIsBeaconFenceSupported();
+    static bool ExecuteHookWhenRemoveBeaconFenceByCallback(const std::string& packageName);
+    static bool ExecuteHookWhenBeaconFenceTransitionStatusChange(const std::string& packageName);
 };
 } // namespace Location
 } // namespace OHOS
