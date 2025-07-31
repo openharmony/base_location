@@ -2063,6 +2063,9 @@ ErrCode LocatorAbility::AddBeaconFence(const BeaconFenceRequest& request)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::ADD_BEACON_FENCE, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
     bool beaconFenceSupportedState = false;
     BeaconFenceManager::GetInstance()->IsBeaconFenceSupported(beaconFenceSupportedState);
     if (!beaconFenceSupportedState) {
@@ -2088,6 +2091,9 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::REMOVE_BEACON_FENCE, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
@@ -2392,6 +2398,7 @@ ErrCode LocatorAbility::GetCurrentWifiBssidForLocating(std::string& bssid)
 
 ErrCode LocatorAbility::IsPoiServiceSupported(bool& poiServiceSupportState)
 {
+    LBSLOGI(LOCATOR, "IsPoiServiceSupported enter");
     std::string serviceName;
     bool result = LocationConfigManager::GetInstance()->GetNlpServiceName(serviceName);
     if (!result || serviceName.empty()) {
