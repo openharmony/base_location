@@ -123,6 +123,11 @@ static void CleanUp(void* data)
 {
     auto that = reinterpret_cast<NativeContext*>(data);
     OffAllLocationServiceStateCallback(that->env_);
+    OffAllLocationChangeCallback(that->env_);
+    OffAllGnssStatusChangeCallback(that->env_);
+    OffAllNmeaMessageChangeCallback(that->env_);
+    OffAllCachedGnssLocationsReportingCallback(that->env_);
+    OffAllCountryCodeChangeCallback(that->env_);
     napi_delete_reference(that->env_, that->ref_);
     that->env_ = nullptr;
     that->ref_ = nullptr;
@@ -1102,7 +1107,9 @@ napi_value On(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, eventName == napi_string, "type mismatch for parameter 1");
 #endif
     NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
-
+    auto data = new NativeContext;
+    data->env_ = env;
+    napi_add_env_cleanup_hook(env, CleanUp, data);
     char type[64] = {0}; // max length
     size_t typeLen = 0;
     NAPI_CALL(env, napi_get_value_string_utf8(env, argv[PARAM0], type, sizeof(type), &typeLen));
