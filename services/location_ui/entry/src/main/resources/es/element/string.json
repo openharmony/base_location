@@ -22,6 +22,69 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"¿Deseas permitir a %s que se conecte a este dispositivo?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"Pulsa para conectarte a “%s”.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"Pulsa para iniciar sesión en %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"No se puede crear una zona Wi-Fi mientras el canal de la WLAN está en uso. Si utilizas WLAN Directo o la proyección de pantalla, desconéctate y vuelve a intentarlo.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"Se requiere autenticación",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"Conectado a %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"La autenticación ha caducado",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"No hay ningún dispositivo conectado. Se ha deshabilitado la zona Wi-Fi. Se extenderá la autonomía de la batería.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"Pulsa para iniciar sesión en %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_send_finish_title",
             "value":"Transferencia vía Bluetooth finalizada",
             "attr":{
@@ -29,8 +92,36 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"Esta red WLAN no tiene acceso a Internet. ¿Conectarse de todos modos?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_receive_text",
             "value":"Recibiendo…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"¿Confiar en “%s” y conectarse?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"Permitir",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"Pulsa para iniciar sesión.",
             "attr":{
                 "priority":"translate"
             }
@@ -50,8 +141,50 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"Cancelar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"Se ha encontrado una red WLAN mejor",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_title",
             "value":"Transferencia vía Bluetooth finalizada",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"Desconectar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"Conectar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"Denegar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Activar zona Wi-Fi",
             "attr":{
                 "priority":"translate"
             }
@@ -71,8 +204,22 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"Cancelar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"Solicitud de conexión",
             "attr":{
                 "priority":"translate"
             }
@@ -92,6 +239,34 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"Permitir",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"Zona Wi-Fi deshabilitada",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"Cancelar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"Conectar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
@@ -106,6 +281,13 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"Denegar",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_notification_title",
             "value":"Transferencia de archivos vía Bluetooth",
             "attr":{
@@ -113,8 +295,29 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"¿Permitir la conexión a una red mejor, “%s”, con la contraseña de la red WLAN actual?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_content",
             "value":"Los Servicios de localización requieren conexión a Internet y utilizan GNSS o información de red (WLAN, red celular, Bluetooth, IP) para proporcionarte servicios basados en la ubicación. Cuando esta función esté habilitada, la información de ubicación del dispositivo se compartirá con los servicios a los que se les haya otorgado acceso a la ubicación. Los servicios del sistema también utilizarán la información de tu ubicación para actualizar tu zona horaria y para llamadas de emergencia. Para obtener más información sobre los Servicios de localización, consulta la <a>Declaración acerca de Servicios de localización y la privacidad</a>.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: Enviando %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: Recibiendo %1$d/%2$d",
             "attr":{
                 "priority":"translate"
             }

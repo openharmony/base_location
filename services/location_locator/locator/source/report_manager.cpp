@@ -540,6 +540,9 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
     if (!locatorBackgroundProxy->IsAppBackground(uid, bundleName)) {
         return false;
     }
+    if (!HookUtils::ExecuteHookWhenCheckIsAppBackground(bundleName)) {
+        return false;
+    }
     if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
         return false;
     }

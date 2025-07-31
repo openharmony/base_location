@@ -20,13 +20,17 @@
 #include "geofence_sdk.h"
 #include "geofence_napi.h"
 #include "geofence_async_context.h"
+#include "beacon_fence_request.h"
+#include "beacon_fence_napi.h"
 
 namespace OHOS {
 namespace Location {
 auto g_locatorClient = Locator::GetInstance();
 auto g_geofenceClient = GeofenceManager::GetInstance();
 std::map<int, sptr<LocationGnssGeofenceCallbackNapi>> g_gnssGeofenceCallbackHostMap;
+std::map<std::shared_ptr<BeaconFence>, sptr<LocationGnssGeofenceCallbackNapi>> g_beaconFenceRequestMap;
 std::mutex g_gnssGeofenceCallbackHostMutex;
+std::mutex g_beaconFenceRequestMutex;
 
 napi_value GetLastLocation(napi_env env, napi_callback_info info)
 {
@@ -1419,6 +1423,205 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
     return asyncContext;
 }
 
+napi_value AddBeaconFence(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator ext SA failed");
+    if (argc > PARAM1) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
+    bool isValidParameter = ParseBeaconFenceRequest(env, argv[0], beaconFenceRequest);
+    if (!isValidParameter) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto asyncContext = new GnssGeofenceAsyncContext(env);
+    if (napi_create_string_latin1(env, "addBeaconFence",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->beaconRequest_ = beaconFenceRequest;
+    auto beaconFenceCallbackHost =
+        sptr<LocationGnssGeofenceCallbackNapi>(new LocationGnssGeofenceCallbackNapi());
+    JsObjToBeaconFenceTransitionCallback(env, argv[0], beaconFenceCallbackHost);
+    auto callbackPtr = sptr<IGnssGeofenceCallback>(beaconFenceCallbackHost);
+    beaconFenceRequest->SetBeaconFenceTransitionCallback(callbackPtr->AsObject());
+    asyncContext->callbackHost_ = beaconFenceCallbackHost;
+    CreateAsyncContextForAddBeaconFence(asyncContext);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    return DoAsyncWork(env, asyncContext, argc, argv, 1);
+}
+
+void CreateAsyncContextForAddBeaconFence(GnssGeofenceAsyncContext* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        auto beaconFenceRequest = context->beaconRequest_;
+        if (beaconFenceRequest == nullptr) {
+            return;
+        }
+        context->errCode = g_locatorClient->AddBeaconFence(beaconFenceRequest);
+        if (callbackHost != nullptr) {
+            if (context->errCode != ERRCODE_SUCCESS) {
+                callbackHost->SetCount(0);
+            }
+            callbackHost->Wait(DEFAULT_CALLBACK_WAIT_TIME);
+            if (callbackHost->GetCount() != 0) {
+                context->errCode = ERRCODE_SERVICE_UNAVAILABLE;
+            }
+            callbackHost->SetCount(1);
+        }
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        auto beaconFenceRequest = context->beaconRequest_;
+        if (callbackHost != nullptr && context->errCode == ERRCODE_SUCCESS &&
+            callbackHost->GetGeofenceOperationType() == GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD) {
+            LocationErrCode errCode = callbackHost->DealGeofenceOperationResult();
+            if (errCode == ERRCODE_SUCCESS) {
+                int fenceId = callbackHost->GetFenceId();
+                napi_create_object(context->env, &context->result[PARAM1]);
+                napi_create_int64(context->env, fenceId, &context->result[PARAM1]);
+                AddBeaconFenceRequest(beaconFenceRequest, callbackHost);
+            } else {
+                context->errCode = errCode;
+            }
+        }
+    };
+}
+
+napi_value RemoveBeaconFence(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    if (argc > PARAM1) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    if (napi_create_string_latin1(env, "removeBeaconFence",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
+
+    napi_valuetype valueType;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
+    if (valueType == napi_undefined) {
+        std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
+        if (g_beaconFenceRequestMap.size() == 0) {
+            HandleSyncErrCode(env, ERRCODE_BEACONFENCE_INCORRECT_ID);
+            return UndefinedNapiValue(env);
+        }
+        asyncContext->clearBeaconFence_ = true;
+    } else {
+        std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
+        bool isValidParameter = JsObjToBeaconFence(env, argv[0], beaconFence);
+        if (!isValidParameter) {
+            HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+            return UndefinedNapiValue(env);
+        }
+        asyncContext->beaconFence_ = beaconFence;
+        asyncContext->callbackHost_ = FindRequestByBeaconFence(beaconFence);
+    }
+    CreateAsyncContextForRemoveBeaconFence(asyncContext);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+
+void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        if (context->clearBeaconFence_) {
+            std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
+            for (auto it = g_beaconFenceRequestMap.begin(); it != g_beaconFenceRequestMap.end(); ++it) {
+                std::shared_ptr<BeaconFence> beaconFence = it->first;
+                context->callbackHost_ = it->second;
+                context->errCode = g_locatorClient->RemoveBeaconFence(beaconFence);
+            }
+        } else {
+            context->errCode = g_locatorClient->RemoveBeaconFence(context->beaconFence_);
+        }
+    };
+
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GnssGeofenceAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        if (callbackHost == nullptr && context->errCode == ERRCODE_SUCCESS) {
+            NAPI_CALL_RETURN_VOID(
+                context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        }
+        if (callbackHost != nullptr && context->errCode == ERRCODE_SUCCESS &&
+            callbackHost->GetGeofenceOperationType() ==
+            GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE) {
+            context->errCode = callbackHost->DealGeofenceOperationResult();
+            if (context->errCode != ERRCODE_SUCCESS) {
+                return;
+            }
+            if (context->clearBeaconFence_) {
+                ClearBeaconFenceRequest();
+            } else {
+                RemoveBeaconFenceRequest(context->beaconFence_);
+            }
+            NAPI_CALL_RETURN_VOID(
+                context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        }
+        LBSLOGI(LOCATOR_STANDARD, "Push RemoveBeaconFence result to client");
+    };
+}
+
+napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    bool beaconFenceSupportedState = g_locatorClient->IsBeaconFenceSupported();
+    NAPI_CALL(env, napi_get_boolean(env, beaconFenceSupportedState, &res));
+    return res;
+}
+
 napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
@@ -1470,6 +1673,78 @@ sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInGnssGeofenceCallbackHostMap
         return iter->second;
     }
     return nullptr;
+}
+
+void AddBeaconFenceRequest(std::shared_ptr<BeaconFenceRequest>& request,
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost)
+{
+    std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
+    std::shared_ptr<BeaconFence> beaconFence = request->GetBeaconFence();
+    g_beaconFenceRequestMap.insert(std::make_pair(beaconFence, callbackHost));
+}
+
+void RemoveBeaconFenceRequest(std::shared_ptr<BeaconFence>& beaconFence)
+{
+    std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
+    std::shared_ptr<BeaconFence> beaconFenceDelete;
+    for (auto it = g_beaconFenceRequestMap.begin(); it != g_beaconFenceRequestMap.end(); ++it) {
+        if (CompareBeaconFence(beaconFence, it->first)) {
+            beaconFenceDelete = it->first;
+        }
+    }
+    auto iterForDelete = g_beaconFenceRequestMap.find(beaconFenceDelete);
+    if (iterForDelete != g_beaconFenceRequestMap.end()) {
+        g_beaconFenceRequestMap.erase(iterForDelete);
+    }
+}
+
+void ClearBeaconFenceRequest()
+{
+    std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
+    g_beaconFenceRequestMap.clear();
+}
+
+sptr<LocationGnssGeofenceCallbackNapi> FindRequestByBeaconFence(std::shared_ptr<BeaconFence>& beaconFence)
+{
+    std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
+    for (auto it = g_beaconFenceRequestMap.begin(); it != g_beaconFenceRequestMap.end(); ++it) {
+        if (CompareBeaconFence(beaconFence, it->first)) {
+            return it->second;
+        }
+    }
+    LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, can not find beaconfence", __func__);
+    return nullptr;
+}
+
+bool CompareBeaconFence(
+    std::shared_ptr<BeaconFence> beaconFence1, std::shared_ptr<BeaconFence> beaconFence2)
+{
+    if (beaconFence1->GetIdentifier().compare(beaconFence2->GetIdentifier()) != 0) {
+        LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, compare Identifier fail", __func__);
+        return false;
+    }
+    if (static_cast<int>(beaconFence1->GetBeaconFenceInfoType()) !=
+        static_cast<int>(beaconFence2->GetBeaconFenceInfoType())) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, compare BeaconFenceInfoType fail", __func__);
+        return false;
+    }
+    if (beaconFence1->GetBeaconManufactureData().manufactureId !=
+        beaconFence2->GetBeaconManufactureData().manufactureId) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, compare manufactureId fail", __func__);
+        return false;
+    }
+    if (beaconFence1->GetBeaconManufactureData().manufactureData !=
+        beaconFence2->GetBeaconManufactureData().manufactureData) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, compare manufactureData fail", __func__);
+        return false;
+    }
+    if (beaconFence1->GetBeaconManufactureData().manufactureDataMask !=
+        beaconFence2->GetBeaconManufactureData().manufactureDataMask) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, compare manufactureDataMask fail", __func__);
+        return false;
+    }
+    LBSLOGD(BEACON_FENCE_MANAGER, "%{public}s res:true", __func__);
+    return true;
 }
 #endif
 } // namespace Location

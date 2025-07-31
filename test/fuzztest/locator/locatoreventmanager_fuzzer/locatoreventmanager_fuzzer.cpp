@@ -37,6 +37,7 @@ namespace OHOS {
         locatorDftManager->DistributionDisconnect();
         locatorDftManager->SendDistributionDailyCount();
         locatorDftManager->SendRequestDailyCount();
+        locatorDftManager->GetTopRequest();
         return true;
     }
 }

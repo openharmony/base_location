@@ -191,7 +191,7 @@
         },
         {
             "name":"stop_idle_tether_notification_action_text",
-            "value":"قىزىق نۇقتا ئېچىش",
+            "value":"تور نۇقتىسى ئېچىش",
             "attr":{
                 "priority":"LT"
             }
@@ -306,6 +306,20 @@
             "value":"چەكلەش",
             "attr":{
                 "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"كۆكچىش: يوللاۋاتىدۇ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"كۆكچىش: قوبۇللاۋاتىدۇ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
             }
         }
     ]

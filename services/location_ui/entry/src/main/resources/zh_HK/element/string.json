@@ -198,7 +198,7 @@
         },
         {
             "name":"condition_netshare_hotspot_close",
-            "value":"熱點已關閉",
+            "value":"熱點已停用",
             "attr":{
                 "priority":"LT"
             }
@@ -306,6 +306,20 @@
             "value":"拒絕",
             "attr":{
                 "priority":"LT"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"藍牙分享：發送中 %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"藍牙分享：接收中 %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
             }
         }
     ]

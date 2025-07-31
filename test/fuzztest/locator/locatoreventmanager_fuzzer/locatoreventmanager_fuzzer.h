@@ -15,7 +15,9 @@
 #ifndef LOCATOR_EVENT_MANAGER_FUZZER_H
 #define LOCATOR_EVENT_MANAGER_FUZZER_H
 
+#define private public
 #include "locator_event_manager.h"
+#undef private
 
 namespace OHOS {
 namespace Location {

@@ -15,6 +15,7 @@
 
 #ifndef GEOFENCE_DEFINITION_H
 #define GEOFENCE_DEFINITION_H
+#include "beacon_fence.h"
 
 namespace OHOS {
 namespace Location {
@@ -49,6 +50,7 @@ enum GnssGeofenceOperateType {
 typedef struct {
     int fenceId;
     GeofenceTransitionEvent event;
+    std::shared_ptr<BeaconFence> beaconFence;
 } GeofenceTransition;
 } // namespace Location
 } // namespace OHOS

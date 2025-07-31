@@ -18,6 +18,7 @@
 #include "location_data_rdb_helper.h"
 #include "parameter.h"
 #include <nlohmann/json.hpp>
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -246,6 +247,7 @@ void LocationDataRdbManager::SyncSwitchStatus()
     } else if (sysparaState != DEFAULT_SWITCH_STATE && dbState != sysparaState) {
         LocationDataRdbManager::SetSwitchStateToDb(sysparaState);
     }
+    HookUtils::ExecuteHookWhenSyncSwitchStates(sysparaState);
 }
 
 bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)
@@ -282,6 +284,20 @@ bool LocationDataRdbManager::IsUserIdInActiveIds(std::vector<int> activeIds, std
         }
     }
     return false;
+}
+
+bool LocationDataRdbManager::GetIntelligentStatus(
+    std::string createHelperUri, std::string queryUri, std::string colName, std::string& state)
+{
+    Uri locationIntelligentUri(queryUri);
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        GetIntelligentValue(locationIntelligentUri, createHelperUri, colName, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not get value, errcode = %{public}d", errCode);
+        return false;
+    }
+    return true;
 }
 } // namespace Location
 } // namespace OHOS

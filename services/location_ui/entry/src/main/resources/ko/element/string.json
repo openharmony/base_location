@@ -22,6 +22,69 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"%s의 이 장치 연결을 허용하시겠습니까?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"\"%s\"에 연결하려면 탭합니다.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"%s에 로그인하려면 탭합니다.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"WLAN 채널이 사용 중일 때는 핫스팟을 생성할 수 없습니다. WLAN Direct 또는 화면 방송을 사용 중이면 연결을 해제하고 다시 시도하십시오.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"인증 필요",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"%s에 연결됨",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"인증 만료",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"연결된 장치가 없습니다. 핫스팟이 종료되었습니다. 배터리 수명이 연장됩니다.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"%s에 로그인하려면 탭합니다.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_send_finish_title",
             "value":"블루투스 전송 완료",
             "attr":{
@@ -29,8 +92,36 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"이 WLAN 네트워크에는 인터넷 액세스가 없습니다. 그래도 연결하시겠습니까?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_receive_text",
             "value":"수신 중…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"신뢰하고 \"%s\"에 연결하시겠습니까?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"허용",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"로그인하려면 탭합니다.",
             "attr":{
                 "priority":"translate"
             }
@@ -50,8 +141,50 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"취소",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"더 나은 WLAN 네트워크 발견",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_title",
             "value":"블루투스 전송 완료",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"연결 해제",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"연결",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"거부",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"핫스팟 켜기",
             "attr":{
                 "priority":"translate"
             }
@@ -71,8 +204,22 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"취소",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"블루투스",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"연결 요청",
             "attr":{
                 "priority":"translate"
             }
@@ -92,6 +239,34 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"허용",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"핫스팟 종료됨",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"취소",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"연결",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
@@ -106,6 +281,13 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"거부",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_notification_title",
             "value":"블루투스 파일 전송",
             "attr":{
@@ -113,8 +295,29 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"현재 WLAN 네트워크의 암호를 사용하여 더 나은 네트워크 \"%s\"에 연결을 허용하시겠습니까?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_content",
             "value":"위치 서비스는 귀하에게 위치 기반 서비스를 제공하기 위해 인터넷 연결이 필요하며 GNSS 또는 네트워크 정보(WLAN, 셀룰러 네트워크, 블루투스, IP)를 사용합니다. 실행하면 장치의 위치 정보가 위치 액세스 권한이 허용된 서비스와 공유됩니다. 또한, 위치 정보는 표준시간대 업데이트 및 긴급 전화 등의 목적으로 시스템 서비스에서 사용됩니다. 위치 서비스에 대한 자세한 정보는 <a>위치 서비스 및 개인 정보 보호에 대한 방침</a>을 참조하십시오.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"블루투스: %1$d/%2$d 전송 중",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"블루투스: %1$d/%2$d 수신 중",
             "attr":{
                 "priority":"translate"
             }

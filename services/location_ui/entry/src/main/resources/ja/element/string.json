@@ -22,6 +22,69 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"%sがこのデバイスに接続することを許可しますか？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"タップして「%s」に接続します。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"タップして%sにログインします。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"WLANチャネルが使用されているため、ホットスポットを作成できません。WLAN Directまたは画面投影を使用している場合は、切断してから再試行してください。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"認証が必要",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"%sに接続済み",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"認証が有効期限切れ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"接続中のデバイスがないため、ホットスポットが無効になりました。バッテリー持続時間は延びます。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"タップして%sにログインします。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_send_finish_title",
             "value":"Bluetooth転送が完了",
             "attr":{
@@ -29,8 +92,36 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"このWLANネットワークは、インターネットに接続していません。接続しますか？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_receive_text",
             "value":"受信中…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"「%s」を信頼して、これに接続しますか？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"許可",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"タップしてログインします。",
             "attr":{
                 "priority":"translate"
             }
@@ -50,8 +141,50 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"キャンセル",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"より良いWLANネットワークを発見",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_title",
             "value":"Bluetooth転送が完了",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"切断",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"接続",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"拒否",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"ホットスポットを有効化",
             "attr":{
                 "priority":"translate"
             }
@@ -71,8 +204,22 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"キャンセル",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"接続リクエスト",
             "attr":{
                 "priority":"translate"
             }
@@ -92,6 +239,34 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"許可",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"ホットスポットが無効",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"キャンセル",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"接続",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s、%2$s",
             "attr":{
@@ -106,6 +281,13 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"拒否",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_notification_title",
             "value":"Bluetoothファイル転送",
             "attr":{
@@ -113,8 +295,29 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"現在のWLANネットワークのパスワードを使用して、より良いネットワーク「%s」への接続を許可しますか？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_content",
             "value":"位置情報サービスは、インターネット接続を必要とし、GNSSまたはネットワーク情報（WLAN、セルラーネットワーク、Bluetooth、IP）を使用して位置情報ベースのサービスを提供します。これを有効にすると、ご利用のデバイスの位置情報は、位置情報へのアクセスを許可されているサービスと共有されます。ユーザーの位置情報は、タイムゾーンの更新や緊急通報などの目的でシステムサービスによっても使用されます。位置情報サービスの詳細については、<a>位置情報サービスと個人情報保護に関する声明</a>を参照してください。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth：%1$d/%2$dを送信中",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth：%1$d/%2$dを受信中",
             "attr":{
                 "priority":"translate"
             }

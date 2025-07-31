@@ -44,11 +44,14 @@ const RESULT_ERROR_CANCELED: number = 4;
 const RESULT_ERROR_CONNECTION_FAILED: number = 5;
 const RESULT_ERROR_TRANSFER_FAILED: number = 6;
 const RESULT_ERROR_UNKNOWN: number = 7;
+const RESULT_SUCCESS_DISCONNECT: number = 9;
+
 const STATUS_PENDING: number = 0;
 const STATUS_RUNNING: number = 1;
 const STATUS_FINISH: number = 2;
 const OPP_TRANSFER_USER_ACCEPT: number = 0;
 const OPP_TRANSFER_AUTO_ACCEPT: number = 1;
+const UNKNOWN_VALUE: number = -1;
 
 const btTransactionStatisticsType = {
     TRANSACTION_TYPE_OPP_SEND : 1,
@@ -337,8 +340,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             if (data.status == STATUS_RUNNING) {
                 this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100, this.fileName);
             } else if (data.status == STATUS_FINISH) {
-                data.result == RESULT_SUCCESS ? this.successCount++ : this.failedCount++;
-                this.reportBtChrDataByResult(data.result);
+                if (data.result != RESULT_SUCCESS_DISCONNECT) {
+                    data.result == RESULT_SUCCESS ? this.successCount++ : this.failedCount++;
+                    this.reportBtChrDataByResult(data.result);
+                }
                 if (data.result != RESULT_SUCCESS && data.filePath != undefined && data.filePath.trim().length > 0) {
                     this.tapEventIsAllowed = true;
                     const uri = new fileUri.FileUri(this.receiveDirectory);
@@ -347,7 +352,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                         fs.close(this.fileFd);
                         this.fileFd = -1;
                     }
-                    fs.rmdirSync(deleteSandBoxUri);
+                    fs.unlinkSync(deleteSandBoxUri);
                 }
                 if (data.currentCount == data.totalCount || data.result == RESULT_ERROR_CANCELED ||
                     data.result == RESULT_ERROR_TRANSFER_FAILED) {
@@ -368,6 +373,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         this.receiveDirectory = data.parameters.uri;
         try {
             const uri = new fileUri.FileUri(data.parameters.uri);
+            if (!fs.accessSync(uri.path)) {
+                console.error(TAG, 'uri path is not access');
+                return;
+            }
             this.sandBoxUri = uri.path + '/' + this.fileName;
             let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
             this.fileFd = file.fd;
@@ -510,20 +519,26 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     async publishTransProgessNotification(imagePixelMapButton: image.PixelMap, imagePixelMapCapsule: image.PixelMap,
         wantAgentObjRemove: WantAgent, percent: number, name: string, currentCount: number, totalCount: number) {
         console.info(TAG, 'publishTransProgessNotification');
+        let progressTitle = this.getFormatNum($r('app.string.bluetooth_receive_count_text'), currentCount, totalCount);
+        let progressName = name;
+        if (this.totalCount == UNKNOWN_VALUE) {
+            progressTitle =
+                this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_notification_title').id);
+            progressName =
+                this.context.resourceManager.getStringSync($r('app.string.bluetooth_transfer_receive_text').id) + name;
+        }
         let notificationRequest: notificationManager.NotificationRequest = {
             notificationSlotType: notificationManager.SlotType.LIVE_VIEW,
             id: this.capsuleNotificationID,
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_SYSTEM_LIVE_VIEW,
                 systemLiveView: {
-                    title: this.getFormatString($r('app.string.bluetooth_receive_count_text'),
-                        this.getFormatPlural($r('app.plural.bluetooth_file_count_text', currentCount, currentCount), currentCount),
-                        this.getFormatPlural($r('app.plural.bluetooth_file_count_text', totalCount, totalCount), totalCount)),
-                    text: name,
+                    title: progressTitle,
+                    text: progressName,
                     typeCode: 8,
                     button: {
                         names: [this.cancelTransEvent],
-                        icons: [imagePixelMapButton],
+                        iconsResource: [$r('app.media.public_cancel_filled')],
                     },
                     capsule: {
                         title: 'bluetooth',
@@ -637,6 +652,13 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         let result = this.context.resourceManager.getStringSync(resource.id);
         result = result.replace('%1$s', value1);
         result = result.replace('%2$s', value2);
+        return result;
+    }
+
+    getFormatNum(resource: Resource, value1: number, value2: number): string {
+        let result = this.context.resourceManager.getStringSync(resource.id);
+        result = result.replace('%1$d', value1.toString());
+        result = result.replace('%2$d', value2.toString());
         return result;
     }
 

@@ -29,6 +29,7 @@
 #include "locator_ability.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_service.h"
+#include "geo_convert_request.h"
 #endif
 #include "permission_manager.h"
 
@@ -92,11 +93,43 @@ bool GeoConvertServiceFuzzTest001(const char* data, size_t size)
 
     MessageParcel reply;
     MessageOption option;
-
     auto service1 = sptr<GeoConvertService>(new (std::nothrow) GeoConvertService());
     service1->OnRemoteRequest(static_cast<uint32_t>(GeoConvertInterfaceCode::IS_AVAILABLE),
         requestParcel, reply, option);
-
+    
+    MessageParcel request1;
+    MessageParcel request2;
+    std::unique_ptr<GeoConvertRequest> geoConvertRequest = std::make_unique<GeoConvertRequest>();
+    geoConvertRequest->GetLocale();
+    geoConvertRequest->SetLocale("zh");
+    geoConvertRequest->GetLatitude();
+    geoConvertRequest->SetLatitude(0.0);
+    geoConvertRequest->GetLongitude();
+    geoConvertRequest->SetLongitude(0.0);
+    geoConvertRequest->GetMaxItems();
+    geoConvertRequest->SetMaxItems(0.0);
+    geoConvertRequest->GetDescription();
+    geoConvertRequest->SetDescription("zh");
+    geoConvertRequest->GetMaxLatitude();
+    geoConvertRequest->SetMaxLatitude(0.0);
+    geoConvertRequest->GetMaxLongitude();
+    geoConvertRequest->SetMaxLongitude(0.0);
+    geoConvertRequest->GetMinLatitude();
+    geoConvertRequest->SetMinLatitude(0.0);
+    geoConvertRequest->GetMinLongitude();
+    geoConvertRequest->SetMinLongitude(0.0);
+    geoConvertRequest->GetBundleName();
+    geoConvertRequest->SetBundleName("zh");
+    geoConvertRequest->SetCallback(geoConvertRequest->GetCallback());
+    geoConvertRequest->GetTransId();
+    geoConvertRequest->SetTransId("zh");
+    geoConvertRequest->GetCountry();
+    geoConvertRequest->SetCountry("zh");
+    geoConvertRequest->GetRequestType();
+    geoConvertRequest->SetRequestType(GeoCodeType::REQUEST_GEOCODE);
+    geoConvertRequest->Marshalling(request1);
+    geoConvertRequest->SetRequestType(GeoCodeType::REQUEST_REVERSE_GEOCODE);
+    geoConvertRequest->Marshalling(request2);
     return true;
 }
 

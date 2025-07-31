@@ -188,7 +188,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
     }
 
     handleReceivedEvent(data: commonEventManager.CommonEventData) {
-        console.info(TAG, 'handleReceivedEvent： ' + data.event);
+        console.info(TAG, 'handleReceivedEvent: ' + data.event);
         switch (data.event) {
           case 'ohos.event.notification.BT.LIVEVIEW_REMOVE': {
               this.oppProfile.cancelTransfer();
@@ -227,7 +227,6 @@ export default class BluetoothSendUIAbility extends UIAbility {
                     }
                     console.info(TAG, 'transfer finished');
                     let dirPath = this.context.filesDir;
-                    console.log(TAG, 'delete dirPath is ' + dirPath);
                     fs.rmdirSync(dirPath);
                 }
             });
@@ -300,14 +299,12 @@ export default class BluetoothSendUIAbility extends UIAbility {
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_SYSTEM_LIVE_VIEW,
                 systemLiveView: {
-                    title: this.getFormatString($r('app.string.bluetooth_send_count_text'),
-                        this.getFormatPlural($r('app.plural.bluetooth_file_count_text', currentCount, currentCount), currentCount),
-                        this.getFormatPlural($r('app.plural.bluetooth_file_count_text', totalCount, totalCount), totalCount)),
+                    title: this.getFormatNum($r('app.string.bluetooth_send_count_text'), currentCount, totalCount),
                     text: name,
                     typeCode: 8,
                     button: {
                         names: [this.cancelTransEvent],
-                        icons: [imagePixelMapButton],
+                        iconsResource: [$r('app.media.public_cancel_filled')],
                     },
                     capsule: {
                         title: 'bluetooth',
@@ -415,6 +412,13 @@ export default class BluetoothSendUIAbility extends UIAbility {
         let result = this.context.resourceManager.getStringSync(resource.id);
         result = result.replace('%1$s', value1);
         result = result.replace('%2$s', value2);
+        return result;
+    }
+
+    getFormatNum(resource: Resource, value1: number, value2: number): string {
+        let result = this.context.resourceManager.getStringSync(resource.id);
+        result = result.replace('%1$d', value1.toString());
+        result = result.replace('%2$d', value2.toString());
         return result;
     }
 

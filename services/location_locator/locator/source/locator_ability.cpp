@@ -1310,6 +1310,10 @@ bool LocatorAbility::IsSingleRequest(const sptr<RequestConfig>& requestConfig)
 int LocatorAbility::UpdatePermissionUsedRecord(uint32_t tokenId, std::string permissionName,
     int permUsedType, int succCnt, int failCnt)
 {
+    // permUsedType is invalid, no need to call AddPermissionUsedRecord
+    if (permUsedType == -1) {
+        return 0;
+    }
     Security::AccessToken::AddPermParamInfo info;
     info.tokenId = tokenId;
     info.permissionName = permissionName;
@@ -2055,6 +2059,52 @@ ErrCode LocatorAbility::SetLocationSwitchIgnored(bool isEnabled)
     return ERRCODE_SUCCESS;
 }
 
+ErrCode LocatorAbility::AddBeaconFence(const BeaconFenceRequest& request)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    bool beaconFenceSupportedState = false;
+    BeaconFenceManager::GetInstance()->IsBeaconFenceSupported(beaconFenceSupportedState);
+    if (!beaconFenceSupportedState) {
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_BEACONFENCE_LOCATION_SWITCH_OFF;
+    }
+    if (!CheckBluetoothSwitchState()) {
+        return ERRCODE_BEACONFENCE_BLUETOOTH_SWITCH_OFF;
+    }
+    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest =
+        std::make_shared<BeaconFenceRequest>(const_cast<BeaconFenceRequest&>(request));
+    beaconFenceRequest->SetBundleName(identity.GetBundleName());
+    ErrCode locationErrCode = BeaconFenceManager::GetInstance()->AddBeaconFence(beaconFenceRequest, identity);
+    return locationErrCode;
+}
+
+ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    std::shared_ptr<BeaconFence> beacon =
+        std::make_shared<BeaconFence>(const_cast<BeaconFence&>(beaconFence));
+    ErrCode locationErrCode = BeaconFenceManager::GetInstance()->RemoveBeaconFence(beacon);
+    return locationErrCode;
+}
+
+ErrCode LocatorAbility::IsBeaconFenceSupported(bool& beaconFenceSupportedState)
+{
+    return BeaconFenceManager::GetInstance()->IsBeaconFenceSupported(beaconFenceSupportedState);
+}
+
 ErrCode LocatorAbility::ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid)
 {
     AppIdentity identity;
@@ -2405,6 +2455,15 @@ bool LocatorAbility::CheckLocationSwitchState()
     }
     if (state != ENABLED) {
         LBSLOGE(LOCATOR, "switch state is off.");
+        return false;
+    }
+    return true;
+}
+
+bool LocatorAbility::CheckBluetoothSwitchState()
+{
+    Bluetooth::BluetoothState state = Bluetooth::BluetoothHost::GetDefaultHost().GetBluetoothState();
+    if (state != Bluetooth::BluetoothState::STATE_ON) {
         return false;
     }
     return true;

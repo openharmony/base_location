@@ -145,17 +145,17 @@ HWTEST_F(LocatorAbilityTest, locatorServiceGnssStatusCallback001, TestSize.Level
     // uid pid not match locationhub process
     if (!locatorAbility->CheckLocationSwitchState()) {
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
         locatorAbility->SetSwitchState(true);
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
         locatorAbility->SetSwitchState(false);
     } else {
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
         locatorAbility->SetSwitchState(false);
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterGnssStatusCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
         locatorAbility->SetSwitchState(true);
     }
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceGnssStatusCallback001 end");
@@ -171,17 +171,17 @@ HWTEST_F(LocatorAbilityTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
     sptr<MockIRemoteObject> callback = sptr<MockIRemoteObject>(new (std::nothrow) MockIRemoteObject());
     if (!locatorAbility->CheckLocationSwitchState()) {
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
         locatorAbility->SetSwitchState(true);
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
         locatorAbility->SetSwitchState(false);
     } else {
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
         locatorAbility->SetSwitchState(false);
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
-        EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->UnregisterNmeaMessageCallback(callback));
+        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
         locatorAbility->SetSwitchState(true);
     }
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceNmeaMessageCallback001 end");

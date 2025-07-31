@@ -22,6 +22,69 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"Cho phép %s kết nối với thiết bị này?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"Chạm để kết nối với \"%s\".",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"Chạm để đăng nhập vào %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"Không thể tạo điểm phát sóng khi kênh WLAN đang được sử dụng. Nếu bạn đang sử dụng tính năng WLAN Direct hoặc truyền màn hình, hãy ngắt kết nối rồi thử lại.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"Yêu cầu xác thực",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"Đã kết nối với %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"Xác thực đã hết hạn",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"Chưa kết nối thiết bị nào. Điểm phát sóng đã bị tắt. Thời lượng pin sẽ được kéo dài.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"Chạm để đăng nhập vào %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_send_finish_title",
             "value":"Quá trình truyền qua Bluetooth đã hoàn tất",
             "attr":{
@@ -29,8 +92,36 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"Mạng WLAN này không có quyền truy cập Internet. Vẫn kết nối?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_receive_text",
             "value":"Đang nhận…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"Tin cậy và kết nối với \"%s\"?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"Cho phép",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"Chạm để đăng nhập.",
             "attr":{
                 "priority":"translate"
             }
@@ -50,8 +141,50 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"Hủy",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"Đã tìm thấy mạng WLAN tốt hơn",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_title",
             "value":"Quá trình truyền qua Bluetooth đã hoàn tất",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"Ngắt kết nối",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"Kết nối",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"Từ chối",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Bật điểm phát sóng",
             "attr":{
                 "priority":"translate"
             }
@@ -71,8 +204,22 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"Hủy",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"Yêu cầu kết nối",
             "attr":{
                 "priority":"translate"
             }
@@ -92,6 +239,34 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"Cho phép",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"Đã tắt điểm phát sóng",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"Hủy",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"Kết nối",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
@@ -106,6 +281,13 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"Từ chối",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_notification_title",
             "value":"Truyền tệp tin qua Bluetooth",
             "attr":{
@@ -113,8 +295,29 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"Cho phép kết nối với mạng \"%s\" tốt hơn bằng mật khẩu của mạng WLAN hiện tại?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_content",
             "value":"Dịch vụ Vị trí yêu cầu kết nối Internet và sử dụng GNSS hoặc thông tin mạng (WLAN, mạng di động, Bluetooth, IP) để cung cấp cho bạn các dịch vụ dựa trên vị trí. Khi bật dịch vụ này, thông tin vị trí của thiết bị của bạn sẽ được chia sẻ với các dịch vụ đã được cấp quyền truy cập vị trí. Thông tin vị trí của bạn cũng sẽ được các dịch vụ hệ thống sử dụng cho các mục đích như cập nhật múi giờ và các cuộc gọi khẩn cấp. Để biết thêm thông tin về Dịch vụ Vị trí, hãy tham khảo <a>Tuyên bố về Dịch vụ Vị trí và Quyền riêng tư</a>.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: Đang gửi %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: Đang nhận %1$d/%2$d",
             "attr":{
                 "priority":"translate"
             }

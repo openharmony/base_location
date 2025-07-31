@@ -89,6 +89,7 @@ const int TIMEOUT_WATCHDOG = 60; // s
 const int DEFAULT_FENCE_ID = -1;
 const int64_t MILL_TO_NANOS = 1000000;
 static const std::string SYSPARAM_GPS_SUPPORT = "const.location.gps.support";
+static const std::string SYSPARAM_GEOFENCE_SUPPORT = "const.location.support_geofence";
 }
 
 const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
@@ -723,8 +724,18 @@ int32_t GnssAbility::GenerateFenceId()
     return id;
 }
 
+bool GnssAbility::IsSupportGeofence()
+{
+    return OHOS::system::GetBoolParameter(SYSPARAM_GEOFENCE_SUPPORT, true);
+}
+
 LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
+    if (!IsSupportGeofence()) {
+        LBSLOGI(GNSS, "Is Not Support Geofence");
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
+
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
     {
@@ -955,8 +966,8 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         auto notificationRequestList = request->GetNotificationRequestList();
         if (transitionStatusList.size() == notificationRequestList.size()) {
             auto notificationRequest = notificationRequestList[i];
-            notificationRequest.SetCreatorUid(request->GetUid());
-            Notification::NotificationHelper::PublishNotification(notificationRequest);
+            notificationRequest->SetCreatorUid(request->GetUid());
+            Notification::NotificationHelper::PublishNotification(*notificationRequest);
         } else {
             LBSLOGE(GNSS, "transitionStatusList size does not equals to notificationRequestList size");
         }

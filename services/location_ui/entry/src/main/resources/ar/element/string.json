@@ -22,6 +22,69 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"هل تسمح باتصال الجهاز «%s» مع هذا الجهاز؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"انقر هنا للاتصال بالشبكة \"\u202a%s\u202c\".",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"انقر هنا لتسجيل الدخول إلى الشبكة \"\u202a%s\u202c\".",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"يتعذر إنشاء نقطة اتصال أثناء استخدام قناة الشبكة اللاسلكية. إذا كنت تستخدم اتصال WLAN المباشر أو ميزة بث الشاشة، فيُرجى قطع الاتصال وإعادة المحاولة.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"المصادقة مطلوبة",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"متصل بالشبكة \"\u202a%s\u202c\"",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"انتهت صلاحية المصادقة",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"نظرًا لعدم وجود أي أجهزة متصلة، فقد تم إغلاق نقطة الاتصال لإطالة عمر البطارية.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"انقر هنا لتسجيل الدخول إلى الشبكة \"\u202a%s\u202c\".",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_send_finish_title",
             "value":"اكتمل النقل عبر البلوتوث",
             "attr":{
@@ -29,8 +92,36 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"هذه الشبكة اللاسلكية غير متصلة بالإنترنت. هل حقًا تريد الاتصال بها؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_receive_text",
             "value":"جارٍ الاستلام…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"هل تريد الوثوق بشبكة \"%s\" والاتصال بها؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"سماح",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"انقر هنا لتسجيل الدخول.",
             "attr":{
                 "priority":"translate"
             }
@@ -50,8 +141,50 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"إلغاء",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"تم العثور على شبكة لاسلكية أفضل",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_title",
             "value":"اكتمل النقل عبر البلوتوث",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"قطع الاتصال",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"اتصال",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"رفض",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"تشغيل نقطة الاتصال",
             "attr":{
                 "priority":"translate"
             }
@@ -71,8 +204,22 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"إلغاء",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"البلوتوث",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"طلب الاتصال",
             "attr":{
                 "priority":"translate"
             }
@@ -92,6 +239,34 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"سماح",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"تم إغلاق نقطة الاتصال",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"إلغاء",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"اتصال",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s، و%2$s",
             "attr":{
@@ -106,6 +281,13 @@
             }
         },
         {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"رفض",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_notification_title",
             "value":"نقل الملفات عبر البلوتوث",
             "attr":{
@@ -113,8 +295,29 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"هل تسمح بالاتصال بشبكة أفضل \"\u202a%s\u202c\" باستخدام كلمة مرور الشبكة اللاسلكية الحالية؟",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"location_target_statement_content",
             "value":"تحتاج خدمات الموقع إلى الاتصال بالإنترنت واستخدام نظام الملاحة العالمي عبر الأقمار الصناعية GNSS أو معلومات الشبكة (الشبكة اللاسلكية، والشبكة الخلوية، والبلوتوث، وعنوان IP) لتزويدك بالخدمات المستندة إلى الموقع. عند تشغيل هذا الخيار، ستتم مشاركة معلومات موقع جهازك مع الخدمات التي منحتها إذن الوصول إلى الموقع. كما سيتم أيضًا استخدام معلومات موقعك بواسطة خدمات النظام، لأغراض مثل تحديث المنطقة الزمنية ومكالمات الطوارئ. يمكنك الاطلاع على <a>البيان المتعلق بخدمات الموقع والخصوصية</a> لمعرفة المزيد من المعلومات حول خدمات الموقع.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"البلوتوث: جارٍ إرسال %1$d‏/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"البلوتوث: جارٍ استلام %1$d‏/%2$d",
             "attr":{
                 "priority":"translate"
             }

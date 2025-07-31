@@ -55,6 +55,10 @@ idl_gen_interface("locator_interface") {
         "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/geocoding_mock_info.cpp"),
     rebase_path(
         "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/geo_address.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/beacon_fence_request.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/beacon_fence.cpp"),
   ]
   log_domainid = "0xD002300"
   log_tag = "Locator"

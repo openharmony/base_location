@@ -156,7 +156,15 @@ enum LocationErrCode {
     /* Failed to obtain the hotpot MAC address because the Wi-Fi is not connected. */
     ERRCODE_WIFI_IS_NOT_CONNECTED = 3301900,
     ERRCODE_GEOFENCE_EXCEED_MAXIMUM = 3301601, /* The number of geofences exceeds the maximum. */
-    ERRCODE_GEOFENCE_INCORRECT_ID = 3301602 /* Failed to delete a geofence due to an incorrect ID. */
+    ERRCODE_GEOFENCE_INCORRECT_ID = 3301602, /* Failed to delete a geofence due to an incorrect ID. */
+    /* Failed to add a beacon fence because the location switch is off. */
+    ERRCODE_BEACONFENCE_LOCATION_SWITCH_OFF = 3501100,
+    /* Failed to add a beacon fence because the bluetooth switch is off. */
+    ERRCODE_BEACONFENCE_BLUETOOTH_SWITCH_OFF = 3501101,
+    ERRCODE_BEACONFENCE_EXCEED_MAXIMUM = 3501601, /* The number of beacon fence exceeds the maximum. */
+    /* Failed to delete the fence due to incorrect beacon fence information. */
+    ERRCODE_BEACONFENCE_INCORRECT_ID = 3501602,
+    ERRCODE_BEACONFENCE_DUPLICATE_INFORMATION = 3501603 /* Duplicate beacon fence information. */
 };
 
 enum FenceExtensionErrCode {

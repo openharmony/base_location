@@ -307,6 +307,20 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"藍牙共享：正在傳送 %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"藍牙共享：正在接收 %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
