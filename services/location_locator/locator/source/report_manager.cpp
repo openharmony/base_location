@@ -575,7 +575,8 @@ bool ReportManager::NeedUpdateTimeStamp(std::unique_ptr<Location>& fuseLocation,
     long timeInterval = minTime * MILLI_PER_SEC - MAX_SA_SCHEDULING_JITTER_MS;
     if (deltaMsLast < timeInterval && deltaMsCurrent >= timeInterval) {
         LBSLOGI(REPORT_MANAGER, "update fuseLocation timestamp, before: %{public}s after:%{public}s",
-            std::to_string(fuseLocation->GetTimeSinceBoot()), std::to_string(lastLocation->GetTimeSinceBoot() + timeInterval);
+            std::to_string(fuseLocation->GetTimeSinceBoot()).c_str(),
+            std::to_string(lastLocation->GetTimeSinceBoot() + timeInterval).c_str();
         fuseLocation->SetTimeSinceBoot(lastLocation->GetTimeSinceBoot() + timeInterval * NANOS_PER_MILLI); // ns
         fuseLocation->SetTimeStamp(lastLocation->GetTimeStamp() + timeInterval); // ms
         return true;
