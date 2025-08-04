@@ -173,7 +173,7 @@ bool ParseArrayBuffer(napi_env env, uint8_t** data, size_t &size, napi_value arg
         LBSLOGE(NAPI_UTILS, "can not get arraybuffer, error is %{public}d", status);
         return false;
     }
-    LBSLOGE(NAPI_UTILS, "arraybuffer size is %{public}zu", size);
+    LBSLOGD(NAPI_UTILS, "arraybuffer size is %{public}zu", size);
     return true;
 }
 }  // namespace Location

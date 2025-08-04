@@ -19,6 +19,7 @@
 #include "location_log.h"
 #include "locator_ability.h"
 #include "location_config_manager.h"
+#include "beacon_fence_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -58,6 +59,9 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         }
     } else if (std::string(LOCATION_CUST_CONFIG_POLICY_CHANGE).compare(action) == 0) {
         HookUtils::ExecuteHookWhenCustConfigPolicyChange();
+    } else if (std::string(PACKAGE_REMOVED_EVENT).compare(action) == 0) {
+        std::string packageName = event.GetWant().GetStringParam(AppExecFwk::Constants::BUNDLE_NAME);
+        BeaconFenceManager::GetInstance()->RemoveBeaconFenceByPackageName(packageName);
     }
 }
 } // namespace Location
