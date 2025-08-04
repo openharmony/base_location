@@ -38,7 +38,7 @@ struct btCreateFilePickerPage {
         code: 0,
         data: 'message',
         subscriberPermissions: [],
-        isOrdered: true,
+        isOrdered: false,
         isSticky: false,
         parameters: { 'uri': documentSaveResult[0] }
       }
