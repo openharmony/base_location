@@ -39,6 +39,7 @@ const RESULT_ERROR_CANCELED: number = 4;
 const RESULT_ERROR_CONNECTION_FAILED: number = 5;
 const RESULT_ERROR_TRANSFER_FAILED: number = 6;
 const RESULT_ERROR_UNKNOWN: number = 7;
+const RESULT_ERROR_NO_MESSAGE: number = 8;
 const STATUS_PENDING: number = 0;
 const STATUS_RUNNING: number = 1;
 const STATUS_FINISH: number = 2;
@@ -97,6 +98,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
         this.timerIdCreate = setTimeout(() => {
             console.info(TAG, 'onCreate 10 seconds but nothing received');
+            this.reportBtChrDataByResult(RESULT_ERROR_NO_MESSAGE);
             this.handleTerminate();
         }, 10000);
         this.timerIdCreated = true;
