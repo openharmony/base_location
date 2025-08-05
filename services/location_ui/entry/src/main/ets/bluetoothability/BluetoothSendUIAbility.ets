@@ -93,6 +93,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
     private successCount: number = 0;
     private failedCount: number = 0;
     private isEnabledLive2: boolean = false;
+    private userReceiveTimeout: number = 50;
 
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
@@ -100,7 +101,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
             console.info(TAG, 'onCreate 51 seconds but nothing received');
             this.reportBtChrDataByResult(RESULT_ERROR_NO_MESSAGE);
             this.handleTerminate();
-        }, 51000);
+        }, (this.userReceiveTimeout + 1) * 1000);
         this.timerIdCreated = true;
         this.subscribeTransferState();
         let fileName : string = want.parameters?.['fileName'] as string;
