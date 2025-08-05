@@ -97,10 +97,10 @@ export default class BluetoothSendUIAbility extends UIAbility {
     onCreate(want: Want): void {
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
         this.timerIdCreate = setTimeout(() => {
-            console.info(TAG, 'onCreate 50 seconds but nothing received');
+            console.info(TAG, 'onCreate 51 seconds but nothing received');
             this.reportBtChrDataByResult(RESULT_ERROR_NO_MESSAGE);
             this.handleTerminate();
-        }, 50000);
+        }, 51000);
         this.timerIdCreated = true;
         this.subscribeTransferState();
         let fileName : string = want.parameters?.['fileName'] as string;
