@@ -25,6 +25,7 @@
 #include "notification.h"
 #include "notification_request.h"
 #endif
+#include "beacon_fence.h"
 
 namespace OHOS {
 namespace Location {
@@ -52,6 +53,8 @@ void GeofenceTransitionToJs(const napi_env& env,
     const GeofenceTransition geofenceTransition, napi_value& result);
 void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& object,
     sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
+napi_status SetValueBeacon(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
+napi_value CreateBeaconFenceJsObj(const napi_env& env, const std::shared_ptr<BeaconFence>& beaconFence);
 }  // namespace Location
 }  // namespace OHOS
 #endif // GEOFENCE_NAPI_H

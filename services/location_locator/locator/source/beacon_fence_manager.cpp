@@ -29,14 +29,12 @@ constexpr int32_t FENCE_MAX_ID = 1000000;
 const int32_t STOI_BYTE_LIMIT = 7;
 const int BEACON_FENCE_OPERATE_RESULT_ENTER = 1;
 const int BEACON_FENCE_OPERATE_RESULT_EXIT = 2;
-const int BEACON_FENCE_DATA_LENGTH = 25;
-const int BEACON_FENCE_UUID_LENGTH = 20;
+const int BEACON_FENCE_DATA_LENGTH = 18;
 const int BEACON_FENCE_UUID_OFFSET_2 = 2;
-const int BEACON_FENCE_UUID_OFFSET_4 = 4;
+const int BEACON_FENCE_UUID_OFFSET_6 = 6;
 const int BEACON_FENCE_UUID_OFFSET_8 = 8;
 const int BEACON_FENCE_UUID_OFFSET_10 = 10;
 const int BEACON_FENCE_UUID_OFFSET_12 = 12;
-const int BEACON_FENCE_UUID_OFFSET_14 = 14;
 
 BeaconFenceManager::BeaconFenceManager()
 {
@@ -87,7 +85,6 @@ ErrCode BeaconFenceManager::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& 
         return ERRCODE_BEACONFENCE_DUPLICATE_INFORMATION;
     }
     RegisterBeaconFenceCallback(beaconFenceRequest, identity);
-    AddFilterUuid(uuid);
     StartAddBeaconFence(beaconFenceRequest, identity);
 #endif
     return ERRCODE_SUCCESS;
@@ -146,7 +143,6 @@ ErrCode BeaconFenceManager::RemoveBeaconFence(const std::shared_ptr<BeaconFence>
         return ERRCODE_BEACONFENCE_INCORRECT_ID;
     }
     RemoveBeaconFenceRequestByBeacon(beaconFence);
-    DeleteFilterUuid(uuid);
 #ifdef BLUETOOTH_ENABLE
     StopBluetoothScan();
     {
@@ -194,10 +190,12 @@ void BeaconFenceManager::StopBluetoothScan()
 
 void BeaconFenceManager::ConstructFilter(std::vector<Bluetooth::BleScanFilter>& filters)
 {
-    std::vector<std::string> uuids = GetFilterUuid();
-    for (const auto& uuid : uuids) {
+    std::vector<BeaconManufactureData> beaconManufactureDataVector = GetBeaconManufactureDataForFilter();
+    for (const auto& data : beaconManufactureDataVector) {
         Bluetooth::BleScanFilter scanFilter;
-        scanFilter.SetServiceUuid(Bluetooth::UUID::FromString(uuid));
+        scanFilter.SetManufacturerId(data.manufactureId);
+        scanFilter.SetManufactureData(data.manufactureData);
+        scanFilter.SetManufactureDataMask(data.manufactureDataMask);
         filters.push_back(scanFilter);
     }
 }
@@ -220,16 +218,18 @@ void BeaconFenceManager::OnReportOperationResultByCallback(
 std::string BeaconFenceManager::ExtractiBeaconUUID(const std::vector<uint8_t>& data)
 {
     // 数据最小长度检查
-    if (data.size() < BEACON_FENCE_UUID_LENGTH) {
+    if (data.size() < BEACON_FENCE_DATA_LENGTH) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s manufactureData len invalid", __func__);
         return "";
     }
     std::ostringstream oss;
     oss << std::hex << std::setfill('0');
-    // 提取UUID部分 (偏移量4-19字节)
-    for (int i = BEACON_FENCE_UUID_OFFSET_4; i < BEACON_FENCE_UUID_LENGTH; ++i) {
-        if (i == BEACON_FENCE_UUID_OFFSET_8 || i == BEACON_FENCE_UUID_OFFSET_10 ||
-            i == BEACON_FENCE_UUID_OFFSET_12 || i == BEACON_FENCE_UUID_OFFSET_14) oss << "-";
+    // 提取UUID部分
+    for (int i = BEACON_FENCE_UUID_OFFSET_2; i < BEACON_FENCE_DATA_LENGTH; ++i) {
+        if (i == BEACON_FENCE_UUID_OFFSET_6 || i == BEACON_FENCE_UUID_OFFSET_8 ||
+            i == BEACON_FENCE_UUID_OFFSET_10 || i == BEACON_FENCE_UUID_OFFSET_12) {
+                oss << "-";
+            }
         oss << std::setw(BEACON_FENCE_UUID_OFFSET_2) << static_cast<int>(data[i]);
     }
     std::string uuid = oss.str();
@@ -239,12 +239,7 @@ std::string BeaconFenceManager::ExtractiBeaconUUID(const std::vector<uint8_t>& d
 #ifdef BLUETOOTH_ENABLE
 void BeaconFenceManager::ReportFoundOrLost(const Bluetooth::BleScanResult &result, uint8_t type)
 {
-    std::vector<Bluetooth::UUID> serviceUuids = result.GetServiceUuids();
-    Bluetooth::UUID uuid;
-    for (auto it = serviceUuids.begin(); it != serviceUuids.end(); it++) {
-        uuid = *it;
-    }
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByServiceUuid(uuid.ToString());
+    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByScanResult(result);
     if (beaconFenceRequest == nullptr) {
         return;
     }
@@ -256,6 +251,44 @@ void BeaconFenceManager::ReportFoundOrLost(const Bluetooth::BleScanResult &resul
         // 首次退出围栏
         TransitionStatusChange(beaconFenceRequest, GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT, identity);
     }
+}
+
+std::shared_ptr<BeaconFenceRequest> BeaconFenceManager::GetBeaconFenceRequestByScanResult(
+    const Bluetooth::BleScanResult &result)
+{
+    std::map<uint16_t, std::string> dataMap = result.GetManufacturerData();
+    std::string scanData;
+    for (const auto& pair : dataMap) {
+        scanData = pair.second;
+    }
+
+    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
+    for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
+        auto request = iter->first;
+        if (MatchesData(request->GetBeaconFence()->GetBeaconManufactureData().manufactureData, scanData)) {
+            return request;
+        }
+    }
+    LBSLOGE(BEACON_FENCE_MANAGER, "can not get request by BleScanResult");
+    return nullptr;
+}
+
+bool BeaconFenceManager::MatchesData(std::vector<uint8_t> fData, std::string scanData)
+{
+    if (scanData.empty()) {
+        return false;
+    }
+    size_t len = fData.size();
+    std::vector<uint8_t> vec(scanData.begin(), scanData.end());
+    if (vec.size() < len) {
+        return false;
+    }
+    for (size_t i = 0; i < len; i++) {
+        if (fData[i] != vec[i]) {
+            return false;
+        }
+    }
+    return true;
 }
 #endif
 
@@ -457,23 +490,15 @@ bool BeaconFenceManager::CompareBeaconFence(
     return true;
 }
 
-void BeaconFenceManager::AddFilterUuid(std::string& uuid)
+std::vector<BeaconManufactureData> BeaconFenceManager::GetBeaconManufactureDataForFilter()
 {
-    std::lock_guard<std::mutex> lock(filterUuidMutex_);
-    filterUuid_.push_back(uuid);
-}
-
-void BeaconFenceManager::DeleteFilterUuid(std::string& uuid)
-{
-    std::lock_guard<std::mutex> lock(filterUuidMutex_);
-    auto newEnd = std::remove(filterUuid_.begin(), filterUuid_.end(), uuid);
-    filterUuid_.erase(newEnd, filterUuid_.end());
-}
-
-std::vector<std::string> BeaconFenceManager::GetFilterUuid()
-{
-    std::lock_guard<std::mutex> lock(filterUuidMutex_);
-    return filterUuid_;
+    std::vector<BeaconManufactureData> filters;
+    for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
+        auto request = iter->first;
+        BeaconManufactureData beaconManufactureData = request->GetBeaconFence()->GetBeaconManufactureData();
+        filters.push_back(beaconManufactureData);
+    }
+    return filters;
 }
 
 #ifdef BLUETOOTH_ENABLE

@@ -1538,6 +1538,7 @@ napi_value RemoveBeaconFence(napi_env env, napi_callback_info info)
         std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
         if (g_beaconFenceRequestMap.size() == 0) {
             HandleSyncErrCode(env, ERRCODE_BEACONFENCE_INCORRECT_ID);
+            delete asyncContext;
             return UndefinedNapiValue(env);
         }
         asyncContext->clearBeaconFence_ = true;
@@ -1546,6 +1547,7 @@ napi_value RemoveBeaconFence(napi_env env, napi_callback_info info)
         bool isValidParameter = JsObjToBeaconFence(env, argv[0], beaconFence);
         if (!isValidParameter) {
             HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+            delete asyncContext;
             return UndefinedNapiValue(env);
         }
         asyncContext->beaconFence_ = beaconFence;
