@@ -65,7 +65,7 @@ void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Requ
     }
     isLocating_ = true;
     request_->SetUid(request->GetUid());
-    request_->SetPid(request->GetPid());
+    request_->SetPid(IPCSkeleton::GetCallingPid());
     request_->SetPackageName(request->GetPackageName());
     request_->SetRequestConfig(*request->GetRequestConfig());
     request_->SetUuid(request->GetUuid());
