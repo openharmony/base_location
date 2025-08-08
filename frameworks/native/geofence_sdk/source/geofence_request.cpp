@@ -89,9 +89,16 @@ bool GeofenceRequest::GetWantAgentParcelData(Parcel& data)
     errno_t ret = memcpy_s(tempBuffer, wantAgentBuffer_.size(), wantAgentBuffer_.data(), wantAgentBuffer_.size());
     if (ret != EOK) {
         LBSLOGE(LOCATOR, "memcpy_s failed, error code:%{public}d", ret);
+        free(tempBuffer);
         return false;
     }
-    return data.ParseFrom(reinterpret_cast<uintptr_t>(tempBuffer), wantAgentBuffer_.size());
+    bool result = data.ParseFrom(reinterpret_cast<uintptr_t>(tempBuffer), wantAgentBuffer_.size());
+    if (!result) {
+        LBSLOGE(LOCATOR, "ParseFrom failed");
+        free(tempBuffer);
+        return false;
+    }
+    return result;
 }
 
 std::vector<GeofenceTransitionEvent> GeofenceRequest::GetGeofenceTransitionEventList()
