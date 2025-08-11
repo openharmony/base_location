@@ -92,10 +92,10 @@ bool JsObjToBeaconFence(const napi_env& env, const napi_value& object,
         return false;
     }
     int value = 0;
-    if (JsObjectToInt(env, object, "type", value) == SUCCESS) {
+    if (JsObjectToInt(env, object, "beaconFenceInfoType", value) == SUCCESS) {
         beaconFence->SetBeaconFenceInfoType(static_cast<BeaconFenceInfoType>(value));
     } else {
-        LBSLOGE(LOCATOR_STANDARD, "parse type failed");
+        LBSLOGE(LOCATOR_STANDARD, "parse beaconFenceInfoType failed");
         return false;
     }
     if (!GenBeaconManufactureDataRequest(env, object, beaconFence)) {

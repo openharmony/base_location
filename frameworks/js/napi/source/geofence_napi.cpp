@@ -234,6 +234,38 @@ void GeofenceTransitionToJs(const napi_env& env,
 {
     SetValueInt32(env, "geofenceId", geofenceTransition.fenceId, result);
     SetValueInt32(env, "transitionEvent", static_cast<int>(geofenceTransition.event), result);
+    if (geofenceTransition.beaconFence != nullptr) {
+        napi_value beaconFenceJsObj = CreateBeaconFenceJsObj(env, geofenceTransition.beaconFence);
+        SetValueBeacon(env, "beaconFence", beaconFenceJsObj, result);
+    }
+}
+
+napi_value CreateBeaconFenceJsObj(const napi_env& env, const std::shared_ptr<BeaconFence>& beaconFence)
+{
+    napi_value beaconFenceObject = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &beaconFenceObject));
+    SetValueUtf8String(env, "identifier",
+        beaconFence->GetIdentifier().c_str(), beaconFenceObject);
+    SetValueInt32(env, "beaconFenceInfoType",
+        static_cast<int>(beaconFence->GetBeaconFenceInfoType()), beaconFenceObject);
+
+    napi_value manufactureDataObject = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &manufactureDataObject));
+    SetValueInt32(env, "manufactureId",
+        beaconFence->GetBeaconManufactureData().manufactureId, manufactureDataObject);
+    SetValueArrayBuffer(env, "manufactureData",
+        beaconFence->GetBeaconManufactureData().manufactureData, manufactureDataObject);
+    SetValueArrayBuffer(env, "manufactureDataMask",
+        beaconFence->GetBeaconManufactureData().manufactureDataMask, manufactureDataObject);
+    SetValueBeacon(env, "manufactureData",
+        manufactureDataObject, beaconFenceObject);
+    return beaconFenceObject;
+}
+
+napi_status SetValueBeacon(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result)
+{
+    NAPI_CALL_BASE(env, napi_set_named_property(env, result, fieldStr, value), napi_generic_failure);
+    return napi_ok;
 }
 }  // namespace Location
 }  // namespace OHOS
