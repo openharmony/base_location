@@ -964,6 +964,38 @@ bool LocatorAbilityStub050FuzzTest(const char* data, size_t size)
 
     return true;
 }
+
+bool LocatorAbilityStub051FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::ADD_BEACON_FENCE),
+        requestParcel, reply, option);
+
+    return true;
+}
+
+bool LocatorAbilityStub052FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::REMOVE_BEACON_FENCE),
+        requestParcel, reply, option);
+
+    return true;
+}
 } // namespace OHOS
 
 void GeoCodeFuzzTest(const char* ch, size_t size)
@@ -990,6 +1022,8 @@ void ScanFuzzTest(const char* ch, size_t size)
     OHOS::LocatorAbilityStub045FuzzTest(ch, size);
     OHOS::LocatorAbilityStub049FuzzTest(ch, size);
     OHOS::LocatorAbilityStub050FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub051FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub052FuzzTest(ch, size);
 }
 
 /* Fuzzer entry point */
