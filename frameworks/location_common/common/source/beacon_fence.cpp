@@ -14,7 +14,6 @@
  */
 
 #include "beacon_fence.h"
-#include "location_log.h"
 
 namespace OHOS {
 namespace Location {

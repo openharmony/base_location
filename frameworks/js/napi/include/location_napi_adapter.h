@@ -73,9 +73,6 @@ napi_value RemoveBeaconFence(napi_env env, napi_callback_info info);
 napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info);
 void CreateAsyncContextForAddBeaconFence(GnssGeofenceAsyncContext* asyncContext);
 void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncContext);
-void CreateContextForAddBeaconFence(GnssGeofenceAsyncContext& asyncContext);
-void AddCallbackToBeaconFenceCallbackHostMap(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
-    sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
 void RemoveCallbackToBeaconFenceCallbackHostMap(std::shared_ptr<BeaconFence>& beaconFence);
 sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInBeaconFenceCallbackHostMap(
     std::shared_ptr<BeaconFence>& beaconFence);

@@ -227,28 +227,53 @@ void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* w
                 delete work;
                 return;
             }
-            napi_value jsEvent[PARAM2];
-            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent[PARAM1]),
-                scope, context, work);
-            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &jsEvent[PARAM0]),
-                scope, context, work);
-            GeofenceTransitionToJs(context->env, context->transition_, jsEvent[PARAM1]);
-            if (context->callback[SUCCESS_CALLBACK] != nullptr) {
-                napi_value undefine;
-                napi_value handler = nullptr;
-                napi_status ret = napi_ok;
-                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
+            if (context->transition_.beaconFence == nullptr) {
+                napi_value jsEvent[PARAM2];
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent[PARAM1]),
                     scope, context, work);
-                if (FindGeofenceRegCallback(context->callback[0])) {
-                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
-                        napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &jsEvent[PARAM0]),
+                    scope, context, work);
+                GeofenceTransitionToJs(context->env, context->transition_, jsEvent[PARAM1]);
+                if (context->callback[SUCCESS_CALLBACK] != nullptr) {
+                    napi_value undefine;
+                    napi_value handler = nullptr;
+                    napi_status ret = napi_ok;
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
                         scope, context, work);
-                    ret = napi_call_function(context->env, nullptr, handler, RESULT_SIZE, jsEvent, &undefine);
-                } else {
-                    LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "no valid callback");
+                    if (FindGeofenceRegCallback(context->callback[0])) {
+                        CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                            napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
+                            scope, context, work);
+                        ret = napi_call_function(context->env, nullptr, handler, RESULT_SIZE, jsEvent, &undefine);
+                    } else {
+                        LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "no valid callback");
+                    }
+                    if (ret != napi_ok) {
+                        LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "Report event failed");
+                    }
                 }
-                if (ret != napi_ok) {
-                    LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "Report event failed");
+            } else {
+                napi_value jsEvent = nullptr;
+                CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
+                    scope, context, work);
+                GeofenceTransitionToJs(context->env, context->transition_, jsEvent);
+                if (context->callback[SUCCESS_CALLBACK] != nullptr) {
+                    napi_value undefine;
+                    napi_value handler = nullptr;
+                    napi_status ret = napi_ok;
+                    CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_get_undefined(context->env, &undefine),
+                        scope, context, work);
+                    if (FindGeofenceRegCallback(context->callback[0])) {
+                        CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                            napi_get_reference_value(context->env, context->callback[SUCCESS_CALLBACK], &handler),
+                            scope, context, work);
+                        ret = napi_call_function(context->env, nullptr, handler, 1, &jsEvent, &undefine);
+                    } else {
+                        LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "no valid callback");
+                    }
+                    if (ret != napi_ok) {
+                        LBSLOGE(LOCATION_GNSS_GEOFENCE_CALLBACK, "Report event failed");
+                    }
                 }
             }
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));

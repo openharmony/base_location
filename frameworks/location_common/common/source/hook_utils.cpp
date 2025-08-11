@@ -281,21 +281,23 @@ bool HookUtils::ExecuteHookWhenReportBeaconFenceOperateResult(const std::string&
     return beaconFenceStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenRemoveBeaconFenceByCallback()
+bool HookUtils::ExecuteHookWhenRemoveBeaconFenceByCallback(const std::string& packageName)
 {
     BeaconFenceStruct beaconFenceStruct;
-    beaconFenceStruct.result = true;
+    beaconFenceStruct.result = false;
+    beaconFenceStruct.packageName = packageName;
     ExecuteHook(
-        LocationProcessStage::REMOVE_BEACON_FENCE_BY_CALLBACK_PROCESS, (void *)&beaconFenceStruct, nullptr);
+        LocationProcessStage::BEACON_FENCE_TRANSITION_STATUS_CHANGE_PROCESS, (void *)&beaconFenceStruct, nullptr);
     return beaconFenceStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenCheckIsBeaconFenceSupported()
+bool HookUtils::ExecuteHookWhenBeaconFenceTransitionStatusChange(const std::string& packageName)
 {
     BeaconFenceStruct beaconFenceStruct;
-    beaconFenceStruct.result = true;
+    beaconFenceStruct.result = false;
+    beaconFenceStruct.packageName = packageName;
     ExecuteHook(
-        LocationProcessStage::CHECK_IS_BEACON_FENCE_SUPPORTED_PROCESS, (void *)&beaconFenceStruct, nullptr);
+        LocationProcessStage::BEACON_FENCE_TRANSITION_STATUS_CHANGE_PROCESS, (void *)&beaconFenceStruct, nullptr);
     return beaconFenceStruct.result;
 }
 } // namespace Location

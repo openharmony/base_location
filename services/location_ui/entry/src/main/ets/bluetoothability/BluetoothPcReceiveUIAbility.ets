@@ -600,8 +600,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 }
             },
             extraInfo: {
-                hw_keep_headsup_sticky: true,
-                hw_heads_up_enable: true
             }
         };
 

@@ -675,20 +675,20 @@ public:
      * @param beaconFenceRequest - beacon fence request parameters.
      * @return Returns ERRCODE_SUCCESS if add beacon fence succeed.
      */
-    LocationErrCode AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
+    LocationErrCode AddBeaconFence(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
 
     /**
      * remove beacon fence.
      *
-     * @param userId - beacon fence parameters.
+     * @param beaconFence - beacon fence parameters.
      * @return Returns ERRCODE_SUCCESS if remove beacon fence succeed.
      */
-    LocationErrCode RemoveBeaconFence(std::shared_ptr<BeaconFence>& beaconFence);
+    LocationErrCode RemoveBeaconFence(const std::shared_ptr<BeaconFence>& beaconFence);
 
     /**
      * Check whether the beacon fence is supported.
      *
-     * @returns { boolean } Returns {@code true} if beacon fence is supported, returns {@code false} otherwise.
+     * @return { boolean } Returns {@code true} if beacon fence is supported, returns {@code false} otherwise.
      */
     bool IsBeaconFenceSupported();
 

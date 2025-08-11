@@ -24,19 +24,17 @@
 
 namespace OHOS {
 namespace Location {
-const int32_t MAX_REQUEST_MAP_NUM = 3;
+const int32_t MAX_REQUEST_MAP_NUM = 16;
 constexpr int32_t FENCE_MAX_ID = 1000000;
 const int32_t STOI_BYTE_LIMIT = 7;
 const int BEACON_FENCE_OPERATE_RESULT_ENTER = 1;
 const int BEACON_FENCE_OPERATE_RESULT_EXIT = 2;
-const int BEACON_FENCE_DATA_LENGTH = 25;
-const int BEACON_FENCE_UUID_LENGTH = 20;
+const int BEACON_FENCE_DATA_LENGTH = 18;
 const int BEACON_FENCE_UUID_OFFSET_2 = 2;
-const int BEACON_FENCE_UUID_OFFSET_4 = 4;
+const int BEACON_FENCE_UUID_OFFSET_6 = 6;
 const int BEACON_FENCE_UUID_OFFSET_8 = 8;
 const int BEACON_FENCE_UUID_OFFSET_10 = 10;
 const int BEACON_FENCE_UUID_OFFSET_12 = 12;
-const int BEACON_FENCE_UUID_OFFSET_14 = 14;
 
 BeaconFenceManager::BeaconFenceManager()
 {
@@ -57,23 +55,13 @@ BeaconFenceManager::~BeaconFenceManager() {}
 
 int32_t BeaconFenceManager::GenerateBeaconFenceId()
 {
-    std::lock_guard<std::mutex> lock(beaconFenceIdMutex_);
-    if (beaconFenceId_ > FENCE_MAX_ID) {
-        beaconFenceId_ = 0;
-    }
     beaconFenceId_++;
     std::int32_t id = beaconFenceId_;
     return id;
 }
 
-ErrCode BeaconFenceManager::IsBeaconFenceSupported(bool& beaconFenceSupportedState)
-{
-    beaconFenceSupportedState = HookUtils::ExecuteHookWhenCheckIsBeaconFenceSupported();
-    return ERRCODE_SUCCESS;
-}
-
 ErrCode BeaconFenceManager::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
-    AppIdentity identity)
+    const AppIdentity& identity)
 {
     int beaconFenceId = GenerateBeaconFenceId();
     beaconFenceRequest->SetFenceId(std::to_string(beaconFenceId));
@@ -87,7 +75,8 @@ ErrCode BeaconFenceManager::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& 
     beaconFenceRequest->SetServiceUuid(uuid);
     beaconFenceRequest->SetServiceUuidMask(uuidMask);
 #ifdef BLUETOOTH_ENABLE
-    if (isBeaconFenceRequestExceedMaxNumber()) {
+    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
+    if (beaconFenceRequestMap_.size() >= MAX_REQUEST_MAP_NUM) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, beaconfence request is exceed max number!", __func__);
         return ERRCODE_BEACONFENCE_EXCEED_MAXIMUM;
     }
@@ -96,16 +85,14 @@ ErrCode BeaconFenceManager::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& 
         return ERRCODE_BEACONFENCE_DUPLICATE_INFORMATION;
     }
     RegisterBeaconFenceCallback(beaconFenceRequest, identity);
-    AddFilterUuid(uuid);
     StartAddBeaconFence(beaconFenceRequest, identity);
 #endif
     return ERRCODE_SUCCESS;
 }
 
 void BeaconFenceManager::RegisterBeaconFenceCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
-    AppIdentity& appIdentity)
+    const AppIdentity& appIdentity)
 {
-    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     sptr<IRemoteObject> callback = beaconFenceRequest->GetBeaconFenceTransitionCallback();
     if (callback != nullptr) {
         sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) BeaconFenceCallbackDeathRecipient());
@@ -116,9 +103,8 @@ void BeaconFenceManager::RegisterBeaconFenceCallback(std::shared_ptr<BeaconFence
         beaconFenceRequestMap_.size());
 }
 
-bool BeaconFenceManager::isBeaconFenceRequestExists(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
+bool BeaconFenceManager::isBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
 {
-    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
         auto request = iter->first;
         if (CompareUUID(request->GetServiceUuid(), beaconFenceRequest->GetServiceUuid()) &&
@@ -129,17 +115,8 @@ bool BeaconFenceManager::isBeaconFenceRequestExists(std::shared_ptr<BeaconFenceR
     return false;
 }
 
-bool BeaconFenceManager::isBeaconFenceRequestExceedMaxNumber()
-{
-    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
-    if (beaconFenceRequestMap_.size() >= MAX_REQUEST_MAP_NUM) {
-        return true;
-    }
-    return false;
-}
-
 void BeaconFenceManager::StartAddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
-    AppIdentity identity)
+    const AppIdentity& identity)
 {
     StopBluetoothScan();
     StartBluetoothScan();
@@ -148,7 +125,7 @@ void BeaconFenceManager::StartAddBeaconFence(std::shared_ptr<BeaconFenceRequest>
         GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS);
 }
 
-ErrCode BeaconFenceManager::RemoveBeaconFence(std::shared_ptr<BeaconFence>& beaconFence)
+ErrCode BeaconFenceManager::RemoveBeaconFence(const std::shared_ptr<BeaconFence>& beaconFence)
 {
     // 解析请求数据
     BeaconManufactureData beaconManufactureData = beaconFence->GetBeaconManufactureData();
@@ -166,7 +143,6 @@ ErrCode BeaconFenceManager::RemoveBeaconFence(std::shared_ptr<BeaconFence>& beac
         return ERRCODE_BEACONFENCE_INCORRECT_ID;
     }
     RemoveBeaconFenceRequestByBeacon(beaconFence);
-    DeleteFilterUuid(uuid);
 #ifdef BLUETOOTH_ENABLE
     StopBluetoothScan();
     {
@@ -214,16 +190,19 @@ void BeaconFenceManager::StopBluetoothScan()
 
 void BeaconFenceManager::ConstructFilter(std::vector<Bluetooth::BleScanFilter>& filters)
 {
-    std::vector<std::string> uuids = GetFilterUuid();
-    for (const auto& uuid : uuids) {
+    std::vector<BeaconManufactureData> beaconManufactureDataVector = GetBeaconManufactureDataForFilter();
+    for (const auto& data : beaconManufactureDataVector) {
         Bluetooth::BleScanFilter scanFilter;
-        scanFilter.SetServiceUuid(Bluetooth::UUID::FromString(uuid));
+        scanFilter.SetManufacturerId(data.manufactureId);
+        scanFilter.SetManufactureData(data.manufactureData);
+        scanFilter.SetManufactureDataMask(data.manufactureDataMask);
         filters.push_back(scanFilter);
     }
 }
 #endif
 
-void BeaconFenceManager::OnReportOperationResultByCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
+void BeaconFenceManager::OnReportOperationResultByCallback(
+    const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
     GnssGeofenceOperateType type, GnssGeofenceOperateResult result)
 {
     auto callback = beaconFenceRequest->GetBeaconFenceTransitionCallback();
@@ -239,16 +218,18 @@ void BeaconFenceManager::OnReportOperationResultByCallback(std::shared_ptr<Beaco
 std::string BeaconFenceManager::ExtractiBeaconUUID(const std::vector<uint8_t>& data)
 {
     // 数据最小长度检查
-    if (data.size() < BEACON_FENCE_UUID_LENGTH) {
+    if (data.size() < BEACON_FENCE_DATA_LENGTH) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s manufactureData len invalid", __func__);
         return "";
     }
     std::ostringstream oss;
     oss << std::hex << std::setfill('0');
-    // 提取UUID部分 (偏移量4-19字节)
-    for (int i = BEACON_FENCE_UUID_OFFSET_4; i < BEACON_FENCE_UUID_LENGTH; ++i) {
-        if (i == BEACON_FENCE_UUID_OFFSET_8 || i == BEACON_FENCE_UUID_OFFSET_10 ||
-            i == BEACON_FENCE_UUID_OFFSET_12 || i == BEACON_FENCE_UUID_OFFSET_14) oss << "-";
+    // 提取UUID部分
+    for (int i = BEACON_FENCE_UUID_OFFSET_2; i < BEACON_FENCE_DATA_LENGTH; ++i) {
+        if (i == BEACON_FENCE_UUID_OFFSET_6 || i == BEACON_FENCE_UUID_OFFSET_8 ||
+            i == BEACON_FENCE_UUID_OFFSET_10 || i == BEACON_FENCE_UUID_OFFSET_12) {
+                oss << "-";
+            }
         oss << std::setw(BEACON_FENCE_UUID_OFFSET_2) << static_cast<int>(data[i]);
     }
     std::string uuid = oss.str();
@@ -258,12 +239,7 @@ std::string BeaconFenceManager::ExtractiBeaconUUID(const std::vector<uint8_t>& d
 #ifdef BLUETOOTH_ENABLE
 void BeaconFenceManager::ReportFoundOrLost(const Bluetooth::BleScanResult &result, uint8_t type)
 {
-    std::vector<Bluetooth::UUID> serviceUuids = result.GetServiceUuids();
-    Bluetooth::UUID uuid;
-    for (auto it = serviceUuids.begin(); it != serviceUuids.end(); it++) {
-        uuid = *it;
-    }
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByServiceUuid(uuid.ToString());
+    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByScanResult(result);
     if (beaconFenceRequest == nullptr) {
         return;
     }
@@ -276,10 +252,48 @@ void BeaconFenceManager::ReportFoundOrLost(const Bluetooth::BleScanResult &resul
         TransitionStatusChange(beaconFenceRequest, GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT, identity);
     }
 }
+
+std::shared_ptr<BeaconFenceRequest> BeaconFenceManager::GetBeaconFenceRequestByScanResult(
+    const Bluetooth::BleScanResult &result)
+{
+    std::map<uint16_t, std::string> dataMap = result.GetManufacturerData();
+    std::string scanData;
+    for (const auto& pair : dataMap) {
+        scanData = pair.second;
+    }
+
+    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
+    for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
+        auto request = iter->first;
+        if (MatchesData(request->GetBeaconFence()->GetBeaconManufactureData().manufactureData, scanData)) {
+            return request;
+        }
+    }
+    LBSLOGE(BEACON_FENCE_MANAGER, "can not get request by BleScanResult");
+    return nullptr;
+}
+
+bool BeaconFenceManager::MatchesData(std::vector<uint8_t> fData, std::string scanData)
+{
+    if (scanData.empty()) {
+        return false;
+    }
+    size_t len = fData.size();
+    std::vector<uint8_t> vec(scanData.begin(), scanData.end());
+    if (vec.size() < len) {
+        return false;
+    }
+    for (size_t i = 0; i < len; i++) {
+        if (fData[i] != vec[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 #endif
 
 void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceRequest> beaconFenceRequest,
-    GeofenceTransitionEvent event, AppIdentity &identity)
+    GeofenceTransitionEvent event, const AppIdentity &identity)
 {
     // 判断开关状态
     int state = DEFAULT_SWITCH_STATE;
@@ -295,16 +309,14 @@ void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceReque
         RemoveBeaconFence(beacon);
         return;
     }
-    // 应用是否冷冻
-    if (!CommonUtils::IsAppBelongCurrentAccount(identity) ||
-        ProxyFreezeManager::GetInstance()->IsProxyPid(identity.GetPid())) {
-        LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s app is not Current Account or freeze", __func__);
-        return;
-    }
     // 是否后台
     if (LocatorBackgroundProxy::GetInstance()->IsAppBackground(identity.GetUid(), identity.GetBundleName())) {
-        if (!HookUtils::ExecuteHookWhenRemoveBeaconFenceByCallback()) {
+        if (beaconFenceRequest->GetFenceExtensionAbilityName().empty()) {
             LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s app is background", __func__);
+            return;
+        }
+        if (!HookUtils::ExecuteHookWhenBeaconFenceTransitionStatusChange(identity.GetBundleName())) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s can not start extension", __func__);
             return;
         }
     }
@@ -337,7 +349,7 @@ bool BeaconFenceManager::IsStrValidForStoi(const std::string &str)
 }
 
 AppIdentity BeaconFenceManager::GetAppIdentityByBeaconFenceRequest(
-    std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
+    const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
 {
     std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     AppIdentity appIdentity;
@@ -378,11 +390,24 @@ std::shared_ptr<BeaconFenceRequest> BeaconFenceManager::GetBeaconFenceRequestByC
     return nullptr;
 }
 
+std::shared_ptr<BeaconFenceRequest> BeaconFenceManager::GetBeaconFenceRequestByPackageName(std::string& packageName)
+{
+    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
+    for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
+        auto callbackPair = iter->second;
+        auto identity = callbackPair.second;
+        if (packageName.compare(identity.GetBundleName()) == 0) {
+            return iter->first;
+        }
+    }
+    return nullptr;
+}
+
 void BeaconFenceManager::RemoveBeaconFenceRequestByBeacon(std::shared_ptr<BeaconFence> beaconFence)
 {
+    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByBeacon(beaconFence);
     if (beaconFenceRequest != nullptr) {
-        std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
         beaconFenceRequestMap_.erase(beaconFenceRequest);
     }
 }
@@ -390,7 +415,6 @@ void BeaconFenceManager::RemoveBeaconFenceRequestByBeacon(std::shared_ptr<Beacon
 std::shared_ptr<BeaconFenceRequest> BeaconFenceManager::GetBeaconFenceRequestByBeacon(
     std::shared_ptr<BeaconFence> beaconFence)
 {
-    std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     for (auto iter = beaconFenceRequestMap_.begin();
         iter != beaconFenceRequestMap_.end(); iter++) {
         auto request = iter->first;
@@ -410,9 +434,19 @@ void BeaconFenceManager::RemoveBeaconFenceRequestByCallback(sptr<IRemoteObject> 
         return;
     }
     std::string fenceExtensionAbilityName = beaconFenceRequest->GetFenceExtensionAbilityName();
-    if (fenceExtensionAbilityName.empty()) {
+    if (fenceExtensionAbilityName.empty() ||
+        !HookUtils::ExecuteHookWhenRemoveBeaconFenceByCallback(beaconFenceRequest->GetBundleName())) {
         std::shared_ptr<BeaconFence> beacon = beaconFenceRequest->GetBeaconFence();
         RemoveBeaconFence(beacon);
+    }
+}
+
+void BeaconFenceManager::RemoveBeaconFenceByPackageName(std::string& packageName)
+{
+    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByPackageName(packageName);
+    if (beaconFenceRequest != nullptr) {
+        std::shared_ptr<BeaconFence> beaconFence = beaconFenceRequest->GetBeaconFence();
+        RemoveBeaconFence(beaconFence);
     }
 }
 
@@ -456,30 +490,22 @@ bool BeaconFenceManager::CompareBeaconFence(
     return true;
 }
 
-void BeaconFenceManager::AddFilterUuid(std::string& uuid)
+std::vector<BeaconManufactureData> BeaconFenceManager::GetBeaconManufactureDataForFilter()
 {
-    std::lock_guard<std::mutex> lock(beaconFenceIdMutex_);
-    filterUuid_.push_back(uuid);
-}
-
-void BeaconFenceManager::DeleteFilterUuid(std::string& uuid)
-{
-    std::lock_guard<std::mutex> lock(beaconFenceIdMutex_);
-    auto newEnd = std::remove(filterUuid_.begin(), filterUuid_.end(), uuid);
-    filterUuid_.erase(newEnd, filterUuid_.end());
-}
-
-std::vector<std::string> BeaconFenceManager::GetFilterUuid()
-{
-    std::lock_guard<std::mutex> lock(beaconFenceIdMutex_);
-    return filterUuid_;
+    std::vector<BeaconManufactureData> filters;
+    for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
+        auto request = iter->first;
+        BeaconManufactureData beaconManufactureData = request->GetBeaconFence()->GetBeaconManufactureData();
+        filters.push_back(beaconManufactureData);
+    }
+    return filters;
 }
 
 #ifdef BLUETOOTH_ENABLE
 void BeaconBleCallbackWapper::OnFoundOrLostCallback(const Bluetooth::BleScanResult &result, uint8_t callbackType)
 {
     // 2进，4出  10s无设备扫描到认为出围栏
-    LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, callbackType:%{public}hhu", __func__, callbackType);
+    LBSLOGI(BEACON_FENCE_MANAGER, "%{public}s, callbackType:%{public}hhu", __func__, callbackType);
     BeaconFenceManager::GetInstance()->ReportFoundOrLost(result, callbackType);
 }
 

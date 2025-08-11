@@ -1204,5 +1204,53 @@ HWTEST_F(LocatorImplTest, locatorImplRegisterAndUnregisterCallback001, TestSize.
 #endif
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRegisterAndUnregisterCallback001 end");
 }
+
+HWTEST_F(LocatorImplTest, locatorImplIsBeaconFenceSupported001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplIsBeaconFenceSupported001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsBeaconFenceSupported001 begin");
+    auto locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    locatorImpl->IsBeaconFenceSupported();
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplIsBeaconFenceSupported001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplAddBeaconFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplAddBeaconFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplAddBeaconFence001 begin");
+    auto locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
+    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
+    BeaconManufactureData manufactureData;
+    manufactureData.manufactureId = 76;
+    beaconFence->SetIdentifier("locatorImplAddBeaconFence001");
+    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
+    beaconFence->SetBeaconManufactureData(manufactureData);
+    beaconFenceRequest->SetBeaconFence(beaconFence);
+    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
+    locatorImpl->AddBeaconFence(beaconFenceRequest);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplAddBeaconFence001 end");
+}
+
+HWTEST_F(LocatorImplTest, locatorImplRemoveBeaconFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, locatorImplRemoveBeaconFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRemoveBeaconFence001 begin");
+    auto locatorImpl = Locator::GetInstance();
+    EXPECT_NE(nullptr, locatorImpl);
+    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
+    BeaconManufactureData manufactureData;
+    manufactureData.manufactureId = 76;
+    beaconFence->SetIdentifier("locatorImplRemoveBeaconFence001");
+    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
+    beaconFence->SetBeaconManufactureData(manufactureData);
+    locatorImpl->RemoveBeaconFence(beaconFence);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRemoveBeaconFence001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
