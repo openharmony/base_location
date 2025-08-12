@@ -39,14 +39,14 @@ struct ReverseGeoCodeRequest {
     country: Optional<String>;
     latitude: f64;
     longitude: f64;
-    maxItems: f64;
+    maxItems: i32;
 }
 
 struct GeoCodeRequest {
     locale: Optional<String>;
     country: Optional<String>;
     description: String;
-    maxItems: Optional<f64>;
+    maxItems: Optional<i32>;
     minLatitude: Optional<f64>;
     minLongitude: Optional<f64>;
     maxLatitude: Optional<f64>;
@@ -71,7 +71,7 @@ struct GeoAddress {
     phoneNumber: String;
     addressUrl: String;
     descriptions: Array<String>;
-    descriptionsSize: f64;
+    descriptionsSize: i32;
     isFromMock: bool;
 }
 
@@ -81,7 +81,7 @@ union ContinuousLocationRequestLocationScenario {
 }
 
 struct ContinuousLocationRequest {
-    interval: f64;
+    interval: i32;
     locationScenario: ContinuousLocationRequestLocationScenario;
     sportsType: Optional<SportsType>;
     needPoi: Optional<bool>;
@@ -91,12 +91,12 @@ struct CurrentLocationRequest {
     priority: Optional<LocationRequestPriority>;
     scenario: Optional<LocationRequestScenario>;
     maxAccuracy: Optional<f64>;
-    timeoutMs: Optional<f64>;
+    timeoutMs: Optional<i32>;
 }
 
 struct SingleLocationRequest  {
     locatingPriority: Optional<LocatingPriority>;
-    locatingTimeoutMs: Optional<f64>;
+    locatingTimeoutMs: Optional<i32>;
 }
 
 union CurrentRequest {
@@ -107,7 +107,7 @@ union CurrentRequest {
 struct LocationRequest {
     priority: Optional<LocationRequestPriority>;
     scenario: Optional<LocationRequestScenario>;
-    timeInterval: Optional<f64>;
+    timeInterval: Optional<i32>;
     distanceInterval: Optional<f64>;
     maxAccuracy: Optional<f64>;
 }
@@ -118,7 +118,7 @@ union OnRequest {
 }
 
 struct LocationMockConfig {
-    timeInterval: f64;
+    timeInterval: i32;
     locations: Array<Location>;
 }
 
@@ -128,17 +128,17 @@ struct Location {
     altitude: f64;
     accuracy: f64;
     speed: f64;
-    timeStamp: f64;
+    timeStamp: i64;
     direction: f64;
-    timeSinceBoot: f64;
+    timeSinceBoot: i64;
     additions: Array<String>;
     additionsMap: @record Map<String, String>;
-    additionSize: f64;
+    additionSize: i32;
     isFromMock: bool;
     altitudeAccuracy: f64;
     speedAccuracy: f64;
     directionAccuracy: f64;
-    uncertaintyOfTimeSinceBoot: f64;
+    uncertaintyOfTimeSinceBoot: i64;
     sourceType: LocationSourceType;
 }
 
@@ -156,18 +156,18 @@ struct GeofenceRequest {
 }
 
 struct SatelliteStatusInfo {
-    satellitesNumber: f64;
-    satelliteIds: Array<f64>;
+    satellitesNumber: i32;
+    satelliteIds: Array<i32>;
     carrierToNoiseDensitys: Array<f64>;
     altitudes: Array<f64>;
     azimuths: Array<f64>;
     carrierFrequencies: Array<f64>;
     satelliteConstellation: Optional<Array<SatelliteConstellationCategory>>;
-    satelliteAdditionalInfo: Optional<Array<f64>>;
+    satelliteAdditionalInfo: Optional<Array<i32>>;
 }
 
 struct CachedGnssLocationsRequest {
-    reportingPeriodSec: f64;
+    reportingPeriodSec: i32;
     wakeUpCacheQueueFull: bool;
 }
 
@@ -187,23 +187,23 @@ struct BluetoothScanResult {
 struct LocatingRequiredDataConfig {
     type: LocatingRequiredDataType;
     needStartScan: bool;
-    scanInterval: Optional<f64>;
-    scanTimeout: Optional<f64>;
+    scanInterval: Optional<i32>;
+    scanTimeout: Optional<i32>;
 }
 
 struct WifiScanInfo {
     ssid: String;
     bssid: String;
-    rssi: f64;
-    frequency: f64;
-    timestamp: f64;
+    rssi: i32;
+    frequency: i32;
+    timestamp: i64;
 }
 
 struct BluetoothScanInfo {
     deviceName: String;
     macAddress: String;
-    rssi: f64;
-    timestamp: f64;
+    rssi: i32;
+    timestamp: i64;
 }
 
 struct LocatingRequiredData {
