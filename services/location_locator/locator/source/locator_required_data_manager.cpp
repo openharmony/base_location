@@ -576,7 +576,11 @@ void LocatorRequiredDataManager::StoptBluetoothScan()
 int LocatorRequiredDataManager::TriggerWifiScan()
 {
     wifiScanStartTimeStamp_ = CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO;
-    return Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID)->Scan();
+    auto wifiService = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
+    if (wifiService == nullptr) {
+        return Wifi::WIFI_OPT_FAILED;
+    }
+    return wifiService->Scan();
 }
 #endif
 
