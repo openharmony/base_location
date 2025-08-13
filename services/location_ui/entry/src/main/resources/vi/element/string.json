@@ -324,7 +324,7 @@
         },
         {
             "name":"thermal_stop_tether_notification_message",
-            "value":"Device temperature high. Hotspot has been disabled.",
+            "value":"Nhiệt độ thiết bị cao. Điểm phát sóng đã bị tắt.",
             "attr":{
                 "priority":"translate"
             }

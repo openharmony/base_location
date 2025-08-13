@@ -324,7 +324,7 @@
         },
         {
             "name":"thermal_stop_tether_notification_message",
-            "value":"Device temperature high. Hotspot has been disabled.",
+            "value":"La température de l'appareil est élevée. Le point d'accès a été désactivé.",
             "attr":{
                 "priority":"translate"
             }
