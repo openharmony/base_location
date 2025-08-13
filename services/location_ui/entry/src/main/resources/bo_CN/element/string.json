@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"Device temperature high. Hotspot has been disabled.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
