@@ -47,6 +47,7 @@
 #include "beacon_fence_request.h"
 #include "beacon_fence.h"
 #include "beacon_fence_manager.h"
+#include "locationhub_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Location {
@@ -255,7 +256,7 @@ private:
     bool CheckPreciseLocationPermissions(uint32_t callingTokenId, uint32_t callingFirstTokenid);
     ErrCode StartLocatingProcess(const RequestConfig& requestConfig, const sptr<ILocatorCallback>& cb,
         AppIdentity& identity);
-    bool CheckRequestAvailable(uint32_t code, AppIdentity &identity);
+    bool CheckRequestAvailable(LocatorInterfaceCode code, AppIdentity &identity);
 
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
