@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"མིག་སྔར་སྒྲིག་ཆས་ཀྱི་དྲོད་ཚད་མཐོ་དྲགས། ཚ་གནས་རང་འགུལ་གྱིས་ཁ་བརྒྱབ་ཟིན།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

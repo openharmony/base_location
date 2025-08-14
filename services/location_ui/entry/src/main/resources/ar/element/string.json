@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"تم إيقاف تشغيل نقطة الاتصال نظرًا لارتفاع درجة حرارة الجهاز.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

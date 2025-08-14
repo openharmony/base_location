@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"장치 온도가 높습니다. 핫스팟이 종료되었습니다.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"Высокая температура устройства. Точка доступа выключена.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

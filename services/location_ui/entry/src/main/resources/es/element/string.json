@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"La temperatura del dispositivo es alta. Zona Wi-Fi deshabilitada.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

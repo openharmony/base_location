@@ -219,6 +219,10 @@
         {
             "name":"bluetooth_receive_count_text",
             "value":"[TS_1094785]_Bluetooth: Receiving %1$d/%2$d"
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"[TS_1113300]_Device temperature high. Hotspot has been disabled."
         }
     ]
 }

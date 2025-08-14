@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"目前裝置溫度過高，已為您自動停用熱點",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

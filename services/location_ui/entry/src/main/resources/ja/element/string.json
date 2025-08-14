@@ -321,6 +321,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"端末の温度が高くなっています。ホットスポットが無効になりました。",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
