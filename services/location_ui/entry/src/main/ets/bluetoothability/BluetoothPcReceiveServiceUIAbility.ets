@@ -18,7 +18,7 @@ import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSessi
 import Want from '@ohos.app.ability.Want';
 import type { BusinessError } from '@ohos.base';
 
-const TAG: string = '[BT_RECEIVE_UI]==>'
+const TAG: string = '[BT_PC_RECEIVE_UI]==>'
 
 export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
@@ -26,14 +26,13 @@ export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility
             return;
         }
 
-
-        let fileUriType: string = want.parameters?.['fileUriType'] as string;
-        if (fileUriType != undefined && fileUriType != '') {
-            this.startAbility(fileUriType, want);
+        let fileUri:string = want.parameters?.['fileUri'] as string;
+        if (fileUri != undefined && fileUri != '') {
+            this.startAbility(fileUri, want);
             return;
         }
 
-        let fileName: string = want.parameters?.['fileName'] as string;
+        let fileName:string = want.parameters?.['fileName'] as string;
         if (fileName != undefined && fileName != '') {
             AppStorage.setOrCreate('fileName', fileName);
         }
@@ -42,7 +41,7 @@ export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility
             'session': session
         }
         let storage: LocalStorage = new LocalStorage(param);
-        session.loadContent('pages/BluetoothReceive', storage);
+        session.loadContent('pages/BluetoothPcReceive', storage);
         session.setWindowBackgroundColor('#00000000');
         AppStorage.setOrCreate('ConfirmSession', session);
     }
@@ -51,28 +50,15 @@ export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility
         console.info(TAG, `BluetoothReceiveServiceUIAbility onSessionDestroy`);
     }
 
-    startAbility(fileType: string, want: Want) {
+    startAbility(fileUri: string, want: Want) {
         console.info(TAG, `startAbility begin.`);
-        let bundleName: string = want.parameters?.['bundleName'] as string;
-        let abilityName: string = want.parameters?.['abilityName'] as string;
-        let fileUri: string = want.parameters?.['fileUri'] as string;
-        if (bundleName == undefined || abilityName == undefined || fileUri == undefined) {
+        let bundleName : string = want.parameters?.['bundleName'] as string;
+        let abilityName : string = want.parameters?.['abilityName'] as string;
+        if (bundleName == undefined || abilityName == undefined) {
             console.error(TAG, `undefined params`);
             return;
         }
-        switch (fileType) {
-          case 'media':
-              this.startMediaAbility(fileUri, bundleName, abilityName);
-              break;
-          case 'files':
-              this.startFileManagerAbility(fileUri, bundleName, abilityName);
-              break;
-          default:
-              console.error(TAG, `invalid fileType to start ability`);
-              this.context.terminateSelf();
-              break;
-        }
-        console.info(TAG, `startUpAbility end.`);
+        this.startFileManagerAbility(fileUri, bundleName, abilityName);
         return;
     }
 
@@ -85,28 +71,11 @@ export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility
                 'fileUri': fileUri
             }
         };
-        this.startWantAbility(want);
-    }
-
-    startMediaAbility(fileUri: string, bundleName: string, abilityName: string) {
-        console.info(TAG, `startMediaAbility bundleName ` + bundleName + ` abilityName ` + abilityName);
-        let want: Want = {
-            bundleName: bundleName,
-            abilityName: abilityName,
-            action: 'ohos.want.action.viewData',
-            parameters: {
-                'uri': fileUri
-            }
-        };
-        this.startWantAbility(want);
-    }
-
-    startWantAbility(want: Want) {
         this.context.startAbility(want).then(() => {
-            console.info(TAG, `startAbility successfully and terminateSelf`);
+            console.info(TAG, `startFileManagerAbility successfully and terminateSelf`);
             this.context.terminateSelf();
         }).catch((err: BusinessError) => {
-            console.error(TAG, `startAbility failed, code is ${err.code}, message is ${err.message}`);
+            console.error(TAG, `startFileManagerAbility failed, code is ${err.code}, message is ${err.message}`);
             this.context.terminateSelf();
         });
     }
