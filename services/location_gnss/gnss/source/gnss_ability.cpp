@@ -664,8 +664,18 @@ LocationErrCode GnssAbility::InjectLocation()
     return ERRCODE_SUCCESS;
 }
 
+bool GnssAbility::IsSupportGeofence()
+{
+    return OHOS::system::GetBoolParameter(SYSPARAM_GEOFENCE_SUPPORT, true);
+}
+
 LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
 {
+    if (!IsSupportGeofence()) {
+        LBSLOGI(GNSS, "Is Not Support Geofence");
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
+
     int fenceId = GenerateFenceId();
     request->SetFenceId(fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
@@ -722,11 +732,6 @@ int32_t GnssAbility::GenerateFenceId()
     fenceId_++;
     std::int32_t id = fenceId_;
     return id;
-}
-
-bool GnssAbility::IsSupportGeofence()
-{
-    return OHOS::system::GetBoolParameter(SYSPARAM_GEOFENCE_SUPPORT, true);
 }
 
 LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request)

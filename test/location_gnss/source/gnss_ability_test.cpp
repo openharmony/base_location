@@ -1860,6 +1860,10 @@ HWTEST_F(GnssAbilityTest, AddFence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence001 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     LocationErrCode result = ability_->AddFence(request);
+    if (!ability_->IsSupportGeofence()) {
+        EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, result);
+        return;
+    }
     EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] AddFence001 end");
 }
