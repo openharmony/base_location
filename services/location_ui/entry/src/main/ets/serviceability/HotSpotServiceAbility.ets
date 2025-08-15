@@ -24,6 +24,8 @@ import { WantAgent } from '@ohos.app.ability.wantAgent';
 import LogUtils from '../common/Util';
 
 const TAG: string = '[HotSpotServiceAbility-In]==>'
+const HOTSPOT_IDLE_NOTIFICATION_ID: number = 101001;
+const THERMAL_STOP_AP_NOTIFICATION_ID: number = 101002;
 
 export default class HotSpotServiceAbility extends ServiceExtensionAbility {
     private willPublish: boolean = false;
@@ -101,8 +103,20 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
     public async publishHotSpotWantAgent(wantAgentObj: WantAgent, pixelmap: image.PixelMap, id: number) {
         let templateTitle: string = 
             this.context.resourceManager.getStringSync($r('app.string.condition_netshare_hotspot_close').id);
-        let templateText: string = 
-            this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_message').id);
+        let templateText: string;
+        switch (id) {
+          case HOTSPOT_IDLE_NOTIFICATION_ID: {
+            templateText = this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_message').id);
+            break;
+          }
+          case THERMAL_STOP_AP_NOTIFICATION_ID: {
+            templateText = this.context.resourceManager.getStringSync($r('app.string.thermal_stop_tether_notification_message').id);
+            break;
+          }
+          default: {
+            break;
+          }
+        }
         let buttonsTitle: string = 
             this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_action_text').id);
         let notificationRequest: notificationManager.NotificationRequest = {
