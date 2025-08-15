@@ -346,8 +346,9 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 }
                 if (data.result != RESULT_SUCCESS && data.filePath != undefined && data.filePath.trim().length > 0) {
                     this.tapEventIsAllowed = true;
+                    console.info(TAG, `unlink file begin`);
                     const uri = new fileUri.FileUri(this.receiveDirectory);
-                    let deleteSandBoxUri = uri.path + '/' + data.filePath;
+                    let deleteSandBoxUri = uri.path;
                     if (this.fileFd != -1) {
                         fs.close(this.fileFd);
                         this.fileFd = -1;
@@ -377,7 +378,12 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 console.error(TAG, 'uri path is not access');
                 return;
             }
-            this.sandBoxUri = uri.path + '/' + this.fileName;
+            if (data.parameters.fileType == 'files') {
+                this.sandBoxUri = uri.path + '/' + this.fileName;
+                this.receiveDirectory = this.receiveDirectory + '/' + this.fileName;
+            } else {
+                this.sandBoxUri = uri.path;
+            }
             let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
             this.fileFd = file.fd;
             this.oppProfile.setIncomingFileConfirmation(true, file.fd);
@@ -452,6 +458,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 console.info(TAG, 'receive notification 50 seconds but no tap');
                 this.transfering = false;
                 this.oppProfile.setIncomingFileConfirmation(false, -1);
+                this.reportBtChrDataByResult(RESULT_ERROR_NOT_ACCEPTABLE);
                 this.pullUpReceiveResultNotification();
                 this.handleTerminate();
             }, waitTime);

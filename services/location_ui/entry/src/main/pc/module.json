@@ -129,7 +129,7 @@
       },
       {
         "name": "BluetoothReceiveServiceUIAbility",
-        "srcEntry": "./ets/bluetoothability/BluetoothReceiveServiceUIAbility.ets",
+        "srcEntry": "./ets/bluetoothability/BluetoothPcReceiveServiceUIAbility.ets",
         "description": "BluetoothReceiveServiceUIAbility",
         "label": "BluetoothReceiveServiceUIAbility",
         "exported": false,

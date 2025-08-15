@@ -1,5 +1,6 @@
 {
   "src": [
+    "pages/BluetoothPcReceive",
     "pages/BluetoothReceive",
     "pages/BluetoothShare",
     "pages/ConfirmDialog",
