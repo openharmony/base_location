@@ -286,7 +286,7 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
-    if (gnssStatusCallbackMap_.size() <= MAX_GNSS_STATUS_CALLBACK_NUM) {
+    if (gnssStatusCallbackMap_.size() < MAX_GNSS_STATUS_CALLBACK_NUM) {
         gnssStatusCallbackMap_[callback] = identity;
     } else {
         LBSLOGE(GNSS, "RegisterGnssStatusCallback num max");
@@ -323,7 +323,7 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
-    if (nmeaCallbackMap_.size() <= MAX_NMEA_CALLBACK_NUM) {
+    if (nmeaCallbackMap_.size() < MAX_NMEA_CALLBACK_NUM) {
         nmeaCallbackMap_[callback] = identity;
     } else {
         LBSLOGE(GNSS, "RegisterNmeaMessageCallback num max");

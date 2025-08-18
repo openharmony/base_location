@@ -97,7 +97,7 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         identity.SetBundleName(bundleName);
     }
     AppSwitchState appInfo{.appIdentity = identity, .lastState = DEFAULT_SWITCH_STATE};
-    if (switchCallbackMap_.size() <= MAX_SWITCH_CALLBACK_NUM) {
+    if (switchCallbackMap_.size() < MAX_SWITCH_CALLBACK_NUM) {
         switchCallbackMap_.emplace(callback, appInfo);
     } else {
         LBSLOGE(LOCATOR, "RegisterSwitchCallback num max");

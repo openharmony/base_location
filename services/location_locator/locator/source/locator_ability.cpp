@@ -121,7 +121,7 @@ const int LOCATIONHUB_STATE_LOAD = 1;
 const int MAX_SIZE = 100;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int INVALID_REQUESTS_SIZE = 20;
-const int MAX_PERMISSION_NUM = 1000;
+const int MAX_PERMISSION_NUM = 200;
 const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
 const int DEFAULT_USERID = 100;
@@ -1787,10 +1787,11 @@ void LocatorAbility::RegisterPermissionCallback(const uint32_t callingTokenId,
     scopeInfo.tokenIDs = {callingTokenId};
     auto callbackPtr = std::make_shared<PermissionStatusChangeCb>(scopeInfo);
     permissionMap_->erase(callingTokenId);
-    if (permissionMap_->size() <= MAX_PERMISSION_NUM) {
+    if (permissionMap_->size() < MAX_PERMISSION_NUM) {
         permissionMap_->insert(std::make_pair(callingTokenId, callbackPtr));
     } else {
-        LBSLOGE(LOCATOR, "RegisterPermissionCallback num max");
+        LBSLOGE(LOCATOR, "RegisterPermissionCallback num max before Id:%{public}d register, callback size:%{public}s",
+            callingTokenId, std::to_string(permissionMap_->size()).c_str());
         return;
     }
     LBSLOGD(LOCATOR, "after Id:%{public}d register, permission callback size:%{public}s",
