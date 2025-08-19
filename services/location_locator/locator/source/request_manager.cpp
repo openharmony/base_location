@@ -709,7 +709,7 @@ void RequestManager::RegisterLocationErrorCallback(
     locatorErrRequest->SetPid(identity.GetPid());
     locatorErrRequest->SetLocatorErrCallbackRecipient(death);
     std::unique_lock<ffrt::mutex> lock(locationErrorCallbackMutex_);
-    if (locationErrorCallbackMap_.size() <= MAX_LOCATION_ERROR_CALLBACK_NUM) {
+    if (locationErrorCallbackMap_.size() < MAX_LOCATION_ERROR_CALLBACK_NUM) {
         locationErrorCallbackMap_[callback->AsObject()] = locatorErrRequest;
     } else {
         LBSLOGE(LOCATOR, "RegisterLocationErrorCallback num max");

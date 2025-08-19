@@ -157,7 +157,7 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 #ifdef WIFI_ENABLE
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
-        if (callbacksMap_.size() <= MAX_CALLBACKS_MAP_NUM) {
+        if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
             callbacksMap_[callback] = identity;
         } else {
             LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
