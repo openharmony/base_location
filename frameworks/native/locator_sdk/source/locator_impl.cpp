@@ -66,6 +66,7 @@ LocatorImpl::LocatorImpl()
 
 LocatorImpl::~LocatorImpl()
 {
+    UnLoad();
 }
 
 bool LocatorImpl::IsLocationEnabled()
@@ -1557,6 +1558,35 @@ sptr<ILocatorService> LocatorImpl::GetProxy()
         LBSLOGE(LOCATOR, "%{public}s SubcribeSystemAbility result is %{public}d!", __func__, result);
     }
     return client_;
+}
+
+void LocatorImpl::UnLoad()
+{
+    LBSLOGD(LOCATOR_STANDARD, "%{public}s", __func__);
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (saStatusListener_ == nullptr && recipient_ == nullptr) {
+        return;
+    }
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sam == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get samgr failed.", __func__);
+        return;
+    }
+    if (saStatusListener_ != nullptr) {
+        sam->UnSubscribeSystemAbility(static_cast<int32_t>(LOCATION_LOCATOR_SA_ID), saStatusListener_);
+        saStatusListener_ = nullptr;
+    }
+
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(LOCATION_LOCATOR_SA_ID);
+    if (obj == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get remote service failed.", __func__);
+        return;
+    }
+    if (recipient_ != nullptr) {
+        obj->RemoveDeathRecipient(recipient_);
+        recipient_ = nullptr;
+    }
+    client_ = nullptr;
 }
 
 void LocatorImpl::UpdateCallbackResumingState(bool state)
