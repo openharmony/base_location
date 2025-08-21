@@ -64,11 +64,15 @@ void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Requ
         return;
     }
     isLocating_ = true;
-    request_->SetUid(request->GetUid());
+    request_->SetUid(IPCSkeleton::GetCallingUid());
     request_->SetPid(IPCSkeleton::GetCallingPid());
-    request_->SetPackageName(request->GetPackageName());
+    std::string packageName = request->GetPackageName();
+    if (packageName == "") {
+        packageName = std::to_string(request->GetUid());
+    }
+    request_->SetPackageName(packageName);
     request_->SetRequestConfig(*request->GetRequestConfig());
-    request_->SetUuid(request->GetUuid());
+    request_->SetUuid(CommonUtils::GenerateUuid());
     request_->SetTokenId(IPCSkeleton::GetCallingTokenID());
     request_->SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     request_->SetLocatorCallBack(callback_);
