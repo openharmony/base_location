@@ -44,6 +44,7 @@ static std::random_device g_randomDevice;
 static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
 static std::uniform_int_distribution<> g_dis2(8, 11);  // random between 8 and 11
+const int32_t STOI_BYTE_LIMIT = 8;
 const int32_t MAX_INT_LENGTH = 9;
 const size_t MAX_ULL_SIZE = 19;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
@@ -538,6 +539,14 @@ LocationErrCode CommonUtils::ErrCodeToLocationErrCode(ErrCode errorCode)
         locationErrCode = ERRCODE_SERVICE_UNAVAILABLE;
     }
     return locationErrCode;
+}
+
+bool CommonUtils::IsStrValidForStoi(const std::string &str)
+{
+    if (str.length() > STOI_BYTE_LIMIT) {
+        return false;
+    }
+    return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
 }
 } // namespace Location
 } // namespace OHOS
