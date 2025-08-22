@@ -208,8 +208,8 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
         LBSLOGE(REQUEST_MANAGER, "receivers is empty");
         return false;
     }
-    if (newRequest == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "newRequest is empty");
+    if (newRequest == nullptr || newRequest->GetLocatorCallBack() == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "newRequest is empty or locatorCallBack is nullptr");
         return false;
     }
     newRequest->SetRequesting(true);
