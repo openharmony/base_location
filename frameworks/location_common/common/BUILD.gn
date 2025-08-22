@@ -1,4 +1,4 @@
-# Copyright (C) 2022-2024 Huawei Device Co., Ltd.
+# Copyright (C) 2022-2025 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -60,6 +60,8 @@ ohos_shared_library("lbsservice_common") {
   sources = local_base_sources
 
   deps = [ "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module" ]
+
+  external_deps = [ "ability_runtime:ability_connect_callback_stub" ]
 
   public_external_deps = [
     "ability_base:zuri",
