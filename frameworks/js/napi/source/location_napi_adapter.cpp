@@ -22,11 +22,13 @@
 #include "geofence_async_context.h"
 #include "beacon_fence_request.h"
 #include "beacon_fence_napi.h"
+#include "location_hiappevent.h"
 
 namespace OHOS {
 namespace Location {
 auto g_locatorClient = Locator::GetInstance();
 auto g_geofenceClient = GeofenceManager::GetInstance();
+auto g_hiAppEventClient = LocationHiAppEvent::GetInstance();
 std::map<int, sptr<LocationGnssGeofenceCallbackNapi>> g_gnssGeofenceCallbackHostMap;
 std::map<std::shared_ptr<BeaconFence>, sptr<LocationGnssGeofenceCallbackNapi>> g_beaconFenceRequestMap;
 std::mutex g_gnssGeofenceCallbackHostMutex;
@@ -53,6 +55,7 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
         delete asyncContext;
         return nullptr;
     }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<LocationAsyncContext*>(data);
         context->loc = g_locatorClient->IsLocationEnabled() ? g_locatorClient->GetCachedLocation() : nullptr;
@@ -66,6 +69,8 @@ napi_value GetLastLocation(napi_env env, napi_callback_info info)
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<LocationAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "getLastLocation");
         if (context->loc != nullptr) {
             LocationToJs(context->env, context->loc, context->result[PARAM1]);
         } else {
@@ -85,7 +90,10 @@ napi_value HandleGetCachedLocation(napi_env env)
     napi_value res;
     NAPI_CALL(env, napi_create_object(env, &res));
     std::unique_ptr<Location> loc;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode = g_locatorClient->GetCachedLocationV9(loc);
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "getLastLocation");
     if (loc != nullptr && errorCode == ERRCODE_SUCCESS) {
         LocationToJs(env, loc, res);
         return res;
@@ -108,7 +116,10 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
 #ifdef ENABLE_NAPI_MANAGER
     napi_value res;
     bool isEnabled = false;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode = g_locatorClient->IsLocationEnabledV9(isEnabled);
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "isLocationEnabled");
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
@@ -209,7 +220,10 @@ napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info)
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     napi_value res;
     std::string bssid;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode = g_locatorClient->GetCurrentWifiBssidForLocating(bssid);
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "getCurrentWifiBssidForLocating");
     if (errorCode != ERRCODE_SUCCESS) {
         ThrowBusinessError(env, errorCode);
         return UndefinedNapiValue(env);
@@ -256,7 +270,10 @@ napi_value GetDistanceBetweenLocations(napi_env env, napi_callback_info info)
     }
     napi_value res;
     double distance;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode = g_locatorClient->GetDistanceBetweenLocations(location1, location2, distance);
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "getDistanceBetweenLocations");
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
@@ -276,8 +293,10 @@ napi_value IsPoiServiceSupported(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     bool poiServiceSupportState = g_locatorClient->IsPoiServiceSupported();
     NAPI_CALL(env, napi_get_boolean(env, poiServiceSupportState, &res));
+    g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isPoiServiceSupported");
     return res;
 }
 #endif
@@ -415,7 +434,10 @@ napi_value IsGeoServiceAvailable(napi_env env, napi_callback_info info)
 #ifdef ENABLE_NAPI_MANAGER
     napi_value res;
     bool isAvailable = false;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode = g_locatorClient->IsGeoServiceAvailableV9(isAvailable);
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "isGeoServiceAvailable");
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
@@ -485,6 +507,7 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
             context->errCode = ERRCODE_REVERSE_GEOCODING_FAIL;
             return;
         }
+        context->beginTime = CommonUtils::GetCurrentTimeMilSec();
         errorCode = g_locatorClient->GetAddressByCoordinateV9(context->reverseGeoCodeRequest, context->replyList);
         if (context->replyList.empty() || errorCode != ERRCODE_SUCCESS) {
             context->errCode = errorCode;
@@ -502,6 +525,8 @@ void CreateReverseGeocodeAsyncContext(ReverseGeoCodeAsyncContext* asyncContext)
     };
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<ReverseGeoCodeAsyncContext*>(data);
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == SUCCESS ? 0 : 1, context->errCode, "getAddressesFromLocation");
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_array_with_length(context->env, context->replyList.size(), &context->result[PARAM1]));
         GeoAddressesToJsObj(context->env, context->replyList, context->result[PARAM1]);
@@ -543,6 +568,8 @@ void CreateGeocodeAsyncContext(GeoCodeAsyncContext* asyncContext)
     };
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<GeoCodeAsyncContext*>(data);
+        g_hiAppEventClient->WriteEndEvent(context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1,
+            context->errCode, "getAddressesFromLocationName");
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_array_with_length(context->env, context->replyList.size(), &context->result[PARAM1]));
         GeoAddressesToJsObj(context->env, context->replyList, context->result[PARAM1]);
@@ -651,6 +678,7 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
 #endif
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
     CreateGeocodeAsyncContext(asyncContext);
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
@@ -753,6 +781,14 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
         delete asyncContext;
         return nullptr;
     }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    SetExecuteFuncForGetCachedGnssLocationsSizeContext(asyncContext);
+    SetCompleteFuncForGetCachedGnssLocationsSizeContext(asyncContext);
+    return DoAsyncWork(env, asyncContext, argc, argv, 0);
+}
+
+void SetExecuteFuncForGetCachedGnssLocationsSizeContext(CachedAsyncContext* asyncContext)
+{
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
@@ -773,15 +809,18 @@ napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info)
         context->errCode = (context->locationSize >= 0) ? SUCCESS : NOT_SUPPORTED;
 #endif
     };
+}
+
+void SetCompleteFuncForGetCachedGnssLocationsSizeContext(CachedAsyncContext* asyncContext)
+{
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
+        g_hiAppEventClient->WriteEndEvent(context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1,
+            context->errCode, "getCachedGnssLocationsSize");
         NAPI_CALL_RETURN_VOID(context->env,
             napi_create_int32(context->env, context->locationSize, &context->result[PARAM1]));
         LBSLOGI(LOCATOR_STANDARD, "Push GetCachedGnssLocationsSize result to client");
     };
-
-    size_t objectArgsNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
@@ -806,6 +845,15 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
         delete asyncContext;
         return nullptr;
     }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    SetExecuteFuncForFlushCachedGnssLocationsContext(asyncContext);
+    SetCompleteFuncForFlushCachedGnssLocationsContext(asyncContext);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+
+void SetExecuteFuncForFlushCachedGnssLocationsContext(CachedAsyncContext* asyncContext)
+{
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
@@ -823,10 +871,15 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
         context->errCode = NOT_SUPPORTED;
 #endif
     };
+}
 
+void SetCompleteFuncForFlushCachedGnssLocationsContext(CachedAsyncContext* asyncContext)
+{
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<CachedAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
+        g_hiAppEventClient->WriteEndEvent(context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1,
+            context->errCode, "flushCachedGnssLocations");
         NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
 #else
         NAPI_CALL_RETURN_VOID(context->env,
@@ -834,9 +887,6 @@ napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info)
 #endif
         LBSLOGI(LOCATOR_STANDARD, "Push FlushCachedGnssLocations result to client");
     };
-
-    size_t objectArgsNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
@@ -857,6 +907,8 @@ void CreateCommandAsyncContext(CommandAsyncContext* asyncContext)
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<CommandAsyncContext*>(data);
 #ifdef ENABLE_NAPI_MANAGER
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "sendCommand");
         NAPI_CALL_RETURN_VOID(context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
 #else
         NAPI_CALL_RETURN_VOID(context->env, napi_get_boolean(context->env,
@@ -919,6 +971,7 @@ napi_value SendCommand(napi_env env, napi_callback_info info)
 #else
     NAPI_ASSERT(env, errCode != INPUT_PARAMS_ERROR, "The input params should be checked first.");
 #endif
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
     CreateCommandAsyncContext(asyncContext);
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
@@ -944,6 +997,15 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
         &asyncContext->resourceName) != napi_ok) {
         LBSLOGE(LOCATOR_STANDARD, "copy string failed");
     }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    SetExecuteFuncForCountryCodeContext(asyncContext);
+    SetCompleteFuncForCountryCodeContext(asyncContext);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+
+void SetExecuteFuncForCountryCodeContext(CountryCodeContext* asyncContext)
+{
     asyncContext->executeFunc = [&](void *data) -> void {
         if (data == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode data == nullptr");
@@ -957,12 +1019,18 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
             context->country = country;
         }
     };
+}
+
+void SetCompleteFuncForCountryCodeContext(CountryCodeContext* asyncContext)
+{
     asyncContext->completeFunc = [&](void *data) -> void {
         if (data == nullptr) {
             LBSLOGE(LOCATOR_STANDARD, "GetIsoCountryCode data == nullptr");
             return;
         }
         CountryCodeContext *context = static_cast<CountryCodeContext *>(data);
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "getCountryCode");
         NAPI_CALL_RETURN_VOID(context->env, napi_create_object(context->env, &context->result[PARAM1]));
         if (context->country) {
             CountryCodeToJs(context->env, context->country, context->result[PARAM1]);
@@ -972,9 +1040,6 @@ napi_value GetIsoCountryCode(napi_env env, napi_callback_info info)
         LBSLOGI(LOCATOR_STANDARD, "Push GetIsoCountryCode result to client, time = %{public}s",
             std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
     };
-
-    size_t objectArgsNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
 int ParseLocationMockParams(napi_env env, LocationMockAsyncContext *asyncContext, napi_value object)
@@ -1278,18 +1343,6 @@ napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
     JsObjToGeofenceTransitionCallback(env, argv[0], locationGnssGeofenceCallbackHost);
     auto callbackPtr = sptr<IGnssGeofenceCallback>(locationGnssGeofenceCallbackHost);
     gnssGeofenceRequest->SetGeofenceTransitionCallback(callbackPtr->AsObject());
-    auto asyncContext = CreateAsyncContextForAddGnssGeofence(
-        env, gnssGeofenceRequest, locationGnssGeofenceCallbackHost);
-    if (asyncContext == nullptr) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
-    return DoAsyncWork(env, asyncContext, argc, argv, 1);
-}
-
-GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& env,
-    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackNapi> callback)
-{
     auto asyncContext = new GnssGeofenceAsyncContext(env);
     if (napi_create_string_latin1(env, "addGnssGeofence",
         NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
@@ -1297,8 +1350,16 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
         delete asyncContext;
         return nullptr;
     }
-    asyncContext->callbackHost_ = callback;
-    asyncContext->request_ = request;
+    asyncContext->callbackHost_ = locationGnssGeofenceCallbackHost;
+    asyncContext->request_ = gnssGeofenceRequest;
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    SetExecuteFuncForAddGnssGeofenceContext(asyncContext);
+    SetCompleteFuncForAddGnssGeofenceContext(asyncContext);
+    return DoAsyncWork(env, asyncContext, argc, argv, 1);
+}
+
+void SetExecuteFuncForAddGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext)
+{
     asyncContext->executeFunc = [&](void* data) -> void {
         if (data == nullptr) {
             return;
@@ -1319,6 +1380,10 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
             callbackHost->SetCount(1);
         }
     };
+}
+
+void SetCompleteFuncForAddGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext)
+{
     asyncContext->completeFunc = [&](void* data) -> void {
         if (data == nullptr) {
             return;
@@ -1337,8 +1402,9 @@ GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& e
                 context->errCode = errCode;
             }
         }
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "addGnssGeofence");
     };
-    return asyncContext;
 }
 
 napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info)
@@ -1362,17 +1428,6 @@ napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     NAPI_CALL(env, napi_get_value_int32(env, argv[0], &fenceId));
-    auto asyncContext = CreateAsyncContextForRemoveGnssGeofence(env, fenceId);
-    if (asyncContext == nullptr) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
-    size_t objectArgsNum = 1;
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
-}
-
-GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env& env, int fenceId)
-{
     auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     asyncContext->fenceId_ = fenceId;
@@ -1383,6 +1438,15 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
         delete asyncContext;
         return nullptr;
     }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    SetExecuteFuncForRemoveGnssGeofenceContext(asyncContext);
+    SetCompleteFuncForRemoveGnssGeofenceContext(asyncContext);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+
+void SetExecuteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext)
+{
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
@@ -1402,7 +1466,10 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
             context->errCode = ERRCODE_GEOFENCE_INCORRECT_ID;
         }
     };
+}
 
+void SetCompleteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext)
+{
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
@@ -1418,9 +1485,10 @@ GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env
                 context->errCode = errCode;
             }
         }
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "remoceGnssGeofence");
         LBSLOGD(LOCATOR_STANDARD, "Push RemoveGnssGeofence result to client");
     };
-    return asyncContext;
 }
 
 napi_value AddBeaconFence(napi_env env, napi_callback_info info)
@@ -1456,6 +1524,7 @@ napi_value AddBeaconFence(napi_env env, napi_callback_info info)
     auto callbackPtr = sptr<IGnssGeofenceCallback>(beaconFenceCallbackHost);
     beaconFenceRequest->SetBeaconFenceTransitionCallback(callbackPtr->AsObject());
     asyncContext->callbackHost_ = beaconFenceCallbackHost;
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
     CreateAsyncContextForAddBeaconFence(asyncContext);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
@@ -1506,6 +1575,8 @@ void CreateAsyncContextForAddBeaconFence(GnssGeofenceAsyncContext* asyncContext)
             } else {
                 context->errCode = errCode;
             }
+            g_hiAppEventClient->WriteEndEvent(
+                context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "addBeaconFence");
         }
     };
 }
@@ -1553,6 +1624,7 @@ napi_value RemoveBeaconFence(napi_env env, napi_callback_info info)
         asyncContext->beaconFence_ = beaconFence;
         asyncContext->callbackHost_ = FindRequestByBeaconFence(beaconFence);
     }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
     CreateAsyncContextForRemoveBeaconFence(asyncContext);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
@@ -1606,6 +1678,8 @@ void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncConte
             NAPI_CALL_RETURN_VOID(
                 context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
         }
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "removeBeaconFence");
         LBSLOGI(LOCATOR_STANDARD, "Push RemoveBeaconFence result to client");
     };
 }
@@ -1619,7 +1693,10 @@ napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     bool beaconFenceSupportedState = g_locatorClient->IsBeaconFenceSupported();
+    g_hiAppEventClient->WriteEndEvent(
+            beginTime, 0, ERRCODE_SUCCESS, "isBeaconFenceSupported");
     NAPI_CALL(env, napi_get_boolean(env, beaconFenceSupportedState, &res));
     return res;
 }
@@ -1633,8 +1710,11 @@ napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     std::vector<CoordinateSystemType> coordinateSystemTypes;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode =
         g_geofenceClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "getGeofenceSupportedCoordTypes");
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);

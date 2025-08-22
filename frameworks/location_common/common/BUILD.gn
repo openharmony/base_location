@@ -61,7 +61,10 @@ ohos_shared_library("lbsservice_common") {
 
   deps = [ "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module" ]
 
-  external_deps = [ "ability_runtime:ability_connect_callback_stub" ]
+  external_deps = [ 
+    "ability_runtime:ability_connect_callback_stub",
+    "cJSON:cjson",
+  ]
 
   public_external_deps = [
     "ability_base:zuri",
@@ -136,6 +139,10 @@ ohos_static_library("lbsservice_common_static") {
     "ipc:ipc_single",
     "os_account:os_account_innerkits",
     "samgr:samgr_proxy",
+  ]
+
+  external_deps = [
+    "cJSON:cjson",
   ]
 
   defines = []

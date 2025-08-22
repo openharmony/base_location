@@ -38,6 +38,10 @@ napi_value GetAddressesFromLocationName(napi_env env, napi_callback_info info);
 napi_value GetCachedGnssLocationsSize(napi_env env, napi_callback_info info);
 napi_value FlushCachedGnssLocations(napi_env env, napi_callback_info info);
 napi_value SendCommand(napi_env env, napi_callback_info info);
+void SetExecuteFuncForFlushCachedGnssLocationsContext(CachedAsyncContext* asyncContext);
+void SetCompleteFuncForFlushCachedGnssLocationsContext(CachedAsyncContext* asyncContext);
+void SetExecuteFuncForGetCachedGnssLocationsSizeContext(CachedAsyncContext* asyncContext);
+void SetCompleteFuncForGetCachedGnssLocationsSizeContext(CachedAsyncContext* asyncContext);
 #ifdef ENABLE_NAPI_MANAGER
 napi_value IsLocationPrivacyConfirmed(napi_env env, napi_callback_info info);
 napi_value SetLocationPrivacyConfirmStatus(napi_env env, napi_callback_info info);
@@ -52,10 +56,11 @@ napi_value HandleGetCachedLocation(napi_env env);
 LocationErrCode CheckLocationSwitchState();
 napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info);
 napi_value AddGnssGeofence(napi_env env, napi_callback_info info);
-GnssGeofenceAsyncContext* CreateAsyncContextForAddGnssGeofence(const napi_env& env,
-    std::shared_ptr<GeofenceRequest>& request, sptr<LocationGnssGeofenceCallbackNapi> callback);
+void SetExecuteFuncForAddGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext);
+void SetCompleteFuncForAddGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext);
 napi_value RemoveGnssGeofence(napi_env env, napi_callback_info info);
-GnssGeofenceAsyncContext* CreateAsyncContextForRemoveGnssGeofence(const napi_env& env, int fenceId);
+void SetExecuteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext);
+void SetCompleteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext);
 napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info);
 void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
 void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId);
@@ -82,6 +87,8 @@ void RemoveBeaconFenceRequest(std::shared_ptr<BeaconFence>& beaconFence);
 void ClearBeaconFenceRequest();
 sptr<LocationGnssGeofenceCallbackNapi> FindRequestByBeaconFence(std::shared_ptr<BeaconFence>& beaconFence);
 bool CompareBeaconFence(std::shared_ptr<BeaconFence> beaconFence1, std::shared_ptr<BeaconFence> beaconFence2);
+void SetExecuteFuncForCountryCodeContext(CountryCodeContext* asyncContext);
+void SetCompleteFuncForCountryCodeContext(CountryCodeContext* asyncContext);
 #endif
 }  // namespace Location
 }  // namespace OHOS

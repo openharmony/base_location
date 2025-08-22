@@ -32,6 +32,7 @@ public:
     napi_value resourceName;
     napi_value result[RESULT_SIZE];
     int errCode;
+    int64_t beginTime;
 
     explicit AsyncContext(napi_env e, napi_async_work w = nullptr, napi_deferred d = nullptr)
     {
@@ -44,6 +45,7 @@ public:
         result[PARAM0] = nullptr;
         result[PARAM1] = nullptr;
         errCode = 0;
+        beginTime = 0;
     }
 
     AsyncContext() = delete;
