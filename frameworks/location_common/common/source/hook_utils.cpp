@@ -300,5 +300,11 @@ bool HookUtils::ExecuteHookWhenBeaconFenceTransitionStatusChange(const std::stri
         LocationProcessStage::BEACON_FENCE_TRANSITION_STATUS_CHANGE_PROCESS, (void *)&beaconFenceStruct, nullptr);
     return beaconFenceStruct.result;
 }
+
+void HookUtils::ExecuteHookWhenGnssEnable()
+{
+    ExecuteHook(
+        LocationProcessStage::ENABLE_GNSS_PROCESS, nullptr, nullptr);
+}
 } // namespace Location
 } // namespace OHOS
