@@ -24,10 +24,18 @@ namespace OHOS {
 namespace Location {
 LocatingRequiredDataCallbackTaihe::LocatingRequiredDataCallbackTaihe()
 {
+    remoteDied_ = false;
+    fixNumber_ = 0;
+    latch_ = new CountDownLatch();
+    latch_->SetCount(1);
 }
 
 LocatingRequiredDataCallbackTaihe::~LocatingRequiredDataCallbackTaihe()
 {
+    if (latch_ != nullptr) {
+        delete latch_;
+        latch_ = nullptr;
+    }
 }
 
 int LocatingRequiredDataCallbackTaihe::OnRemoteRequest(
@@ -50,6 +58,9 @@ int LocatingRequiredDataCallbackTaihe::OnRemoteRequest(
                 // update wifi info
                 if (res.size() > 0 && res[0]->GetType() == LocatingRequiredDataType::WIFI) {
                     SetSingleResult(res);
+                }
+                if (IsSingleLocationRequest()) {
+                    CountDown();
                 }
                 OnLocatingDataChange(res);
             }
@@ -84,6 +95,46 @@ void LocatingRequiredDataCallbackTaihe::SetSingleResult(
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult)
 {
     singleResult_.assign(singleResult.begin(), singleResult.end());
+}
+
+void LocatingRequiredDataCallbackTaihe::CountDown()
+{
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        latch_->CountDown();
+    }
+}
+
+void LocatingRequiredDataCallbackTaihe::Wait(int time)
+{
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        latch_->Wait(time);
+    }
+}
+
+int LocatingRequiredDataCallbackTaihe::GetCount()
+{
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        return latch_->GetCount();
+    }
+    return 0;
+}
+
+void LocatingRequiredDataCallbackTaihe::SetCount(int count)
+{
+    if (IsSingleLocationRequest() && latch_ != nullptr) {
+        return latch_->SetCount(count);
+    }
+}
+
+void LocatingRequiredDataCallbackTaihe::InitLatch()
+{
+    latch_ = new CountDownLatch();
+    latch_->SetCount(1);
+}
+
+bool LocatingRequiredDataCallbackTaihe::IsSingleLocationRequest()
+{
+    return (fixNumber_ == 1);
 }
 }  // namespace Location
 }  // namespace OHOS

@@ -62,6 +62,7 @@ taihe_shared_library("location_framework_taihe_native") {
     ":run_taihe",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
     "$LOCATION_ROOT_DIR/frameworks/location_common/common:lbsservice_common",
+    "$LOCATION_ROOT_DIR/frameworks/native/geofence_sdk:geofence_sdk",
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk",
   ]
 

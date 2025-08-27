@@ -29,6 +29,7 @@
 #include "locating_required_data.h"
 #include "satellite_status.h"
 #include "bluetooth_scan_result.h"
+#include "geocoding_mock_info.h"
 #include <list>
 #include <vector>
 namespace OHOS {
@@ -41,6 +42,8 @@ public:
     static void ThrowBussinessError(int code);
     static void LocationToTaihe(::ohos::geoLocationManager::Location& location,
         std::unique_ptr<Location>& lastlocation);
+    static void TaiheToLocation(::ohos::geoLocationManager::Location& location,
+        std::shared_ptr<Location>& lastlocation);
     static void TaiheCurrentRequestObjToRequestConfig(
         ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request,
         std::unique_ptr<RequestConfig>& requestConfig);
@@ -55,6 +58,11 @@ public:
         const std::unique_ptr<SatelliteStatus>& statusInfo);
     static void BluetoothScanResultToTaihe(::ohos::geoLocationManager::BluetoothScanResult& bluetoothScanResultTaihe,
         const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
+    static void TaiheToRevGeocodeMock(
+        ::taihe::array_view<::ohos::geoLocationManager::ReverseGeocodingMockInfo>& mockInfos,
+        std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
+    static void TaiheToGeoAddress(::ohos::geoLocationManager::GeoAddress& geoAddressTaihe,
+    std::shared_ptr<GeoAddress>& geoAddress);
 };
 }
 }
