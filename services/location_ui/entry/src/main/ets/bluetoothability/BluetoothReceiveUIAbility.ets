@@ -104,7 +104,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private receiveDirectory: string = '';
     private fileName: string = '';
     private sandBoxUri: string = '';
-    private fileFd: number = -1;
     private oppProfile = opp.createOppServerProfile();
     private tapEventIsAllowed = true;
     private transfering: boolean = false;
@@ -349,10 +348,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                     console.info(TAG, `unlink file begin`);
                     const uri = new fileUri.FileUri(this.receiveDirectory);
                     let deleteSandBoxUri = uri.path;
-                    if (this.fileFd != -1) {
-                        fs.close(this.fileFd);
-                        this.fileFd = -1;
-                    }
                     fs.unlinkSync(deleteSandBoxUri);
                 }
                 if (data.currentCount == data.totalCount || data.result == RESULT_ERROR_CANCELED ||
@@ -385,8 +380,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 this.sandBoxUri = uri.path;
             }
             let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
-            this.fileFd = file.fd;
-            this.oppProfile.setIncomingFileConfirmation(true, file.fd);
+            await this.oppProfile.setIncomingFileConfirmation(true, file.fd);
+            fs.close(file.fd);
         } catch (err) {
             console.error(TAG, `openFd failed, code: ${err?.code} message:${err?.message}`);
             return;
@@ -620,10 +615,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             console.error(TAG, `failed to cancel notification. Code is ${err.code}, message is ${err.message}`)
         });
         this.transfering = false;
-        if (this.fileFd != -1) {
-            fs.close(this.fileFd);
-            this.fileFd = -1;
-        }
         if (this.successCount == 0) {
             console.info(TAG, 'no success file, terminate it.');
             this.handleTerminate();
