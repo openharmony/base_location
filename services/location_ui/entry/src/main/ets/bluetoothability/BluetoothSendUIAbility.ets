@@ -40,6 +40,7 @@ const RESULT_ERROR_CONNECTION_FAILED: number = 5;
 const RESULT_ERROR_TRANSFER_FAILED: number = 6;
 const RESULT_ERROR_UNKNOWN: number = 7;
 const RESULT_ERROR_NO_MESSAGE: number = 8;
+const RESULT_SUCCESS_DISCONNECT: number = 9;
 const STATUS_PENDING: number = 0;
 const STATUS_RUNNING: number = 1;
 const STATUS_FINISH: number = 2;
@@ -223,8 +224,10 @@ export default class BluetoothSendUIAbility extends UIAbility {
                         this.getFileName(data.filePath));
                     this.currentCount = data.currentCount;
                 } else if (data.status == STATUS_FINISH) {
-                    data.result == RESULT_SUCCESS ? this.successCount++ : this.failedCount++;
-                    this.reportBtChrDataByResult(data.result);
+                    if (data.result != RESULT_SUCCESS_DISCONNECT) {
+                        data.result == RESULT_SUCCESS ? this.successCount++ : this.failedCount++;
+                        this.reportBtChrDataByResult(data.result);
+                    }
                     if (data.currentCount == data.totalCount || data.result == RESULT_ERROR_UNSUPPORTED_TYPE) {
                         this.currentCount++;
                         this.cancelSendProgressNotification();
