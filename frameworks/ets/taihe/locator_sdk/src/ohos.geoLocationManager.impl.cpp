@@ -32,6 +32,8 @@
 #include "nmea_message_callback_taihe.h"
 #include "location_error_callback_taihe.h"
 #include "bluetooth_scan_result_callback_taihe.h"
+#include "geofence_sdk.h"
+#include "geofence_definition.h"
 #include "util.h"
 
 namespace {
@@ -255,6 +257,294 @@ bool IsLocationPrivacyConfirmed(::ohos::geoLocationManager::LocationPrivacyType 
     return location;
 }
 
+void SetReverseGeocodingMockInfo(::taihe::array_view<::ohos::geoLocationManager::ReverseGeocodingMockInfo> mockInfos)
+{
+    std::vector<std::shared_ptr<GeocodingMockInfo>> mockInfo;
+    Util::TaiheToRevGeocodeMock(mockInfos, mockInfo);
+    LocationErrCode errorCode = Locator::GetInstance()->SetReverseGeocodingMockInfoV9(mockInfo);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+void EnableReverseGeocodingMock()
+{
+    LocationErrCode errorCode = Locator::GetInstance()->EnableReverseGeocodingMockV9();
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+void DisableReverseGeocodingMock()
+{
+    LocationErrCode errorCode = Locator::GetInstance()->DisableReverseGeocodingMockV9();
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+void EnableLocationMock()
+{
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+    }
+    LocationErrCode errorCode = Locator::GetInstance()->EnableLocationMockV9();
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+void DisableLocationMock()
+{
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+    }
+    LocationErrCode errorCode = Locator::GetInstance()->EnableLocationMockV9();
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+void SetMockedLocations(::ohos::geoLocationManager::LocationMockConfig const& config)
+{
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+    }
+    std::vector<std::shared_ptr<Location>> locations;
+    for (auto it = config.locations.begin(); it != config.locations.end(); ++it) {
+        std::shared_ptr<Location> location = std::make_shared<Location>();
+        Util::TaiheToLocation(*it, location);
+        locations.push_back(location);
+    }
+    LocationErrCode errorCode = Locator::GetInstance()->SetMockedLocationsV9(config.timeInterval, locations);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+void SetLocationPrivacyConfirmStatus(::ohos::geoLocationManager::LocationPrivacyType type, bool isConfirmed)
+{
+    LocationErrCode errorCode = Locator::GetInstance()->SetLocationPrivacyConfirmStatusV9(type, isConfirmed);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+::ohos::geoLocationManager::CountryCode GetCountryCodeSync()
+{
+    std::shared_ptr<CountryCode> country = std::make_shared<CountryCode>();
+    LocationErrCode errorCode = Locator::GetInstance()->GetIsoCountryCodeV9(country);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    ::ohos::geoLocationManager::CountryCode countryTaihe = {
+        country->GetCountryCodeStr(),
+        static_cast<::ohos::geoLocationManager::CountryCodeType::key_t>(country->GetCountryCodeType())};
+    return countryTaihe;
+}
+
+void SendCommandSync(::ohos::geoLocationManager::LocationCommand const& command)
+{
+    std::unique_ptr<LocationCommand> commands = std::make_unique<LocationCommand>();
+    commands->scenario = command.scenario;
+    commands->command = command.command;
+    Locator::GetInstance()->SendCommand(commands);
+}
+
+void FlushCachedGnssLocationsSync()
+{
+    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
+}
+
+int32_t GetCachedGnssLocationsSizeSync()
+{
+    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
+    return 0;
+}
+
+bool isGeocoderAvailable()
+{
+    bool isAvailable = false;
+    LocationErrCode errorCode = Locator::GetInstance()->IsGeoServiceAvailableV9(isAvailable);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return isAvailable;
+}
+
+::taihe::array<::ohos::geoLocationManager::GeoAddress> GetAddressesFromLocationNameSync(
+    ::ohos::geoLocationManager::GeoCodeRequest const& request)
+{
+    bool isAvailable = false;
+    LocationErrCode errorCode = Locator::GetInstance()->IsGeoServiceAvailableV9(isAvailable);
+    if (errorCode != ERRCODE_SUCCESS) {
+        return {};
+    }
+    if (!isAvailable) {
+        return {};
+    }
+    OHOS::MessageParcel dataParcel;
+    if (!dataParcel.WriteInterfaceToken(LocatorProxy::GetDescriptor())) {
+        LBSLOGE(COUNTRY_CODE, "write interfaceToken fail!");
+        return {};
+    }
+    if (request.locale) {
+        dataParcel.WriteString16(OHOS::Str8ToStr16(std::string(*request.locale))); // locale
+    } else {
+        dataParcel.WriteString16(OHOS::Str8ToStr16("")); // locale
+    }
+    dataParcel.WriteString16(OHOS::Str8ToStr16(std::string(request.description))); // description
+    if (request.maxItems) {
+        dataParcel.WriteInt32(*request.maxItems); // maxItems
+    } else {
+        dataParcel.WriteInt32(1); // maxItems
+    }
+    if (request.minLatitude) {
+        dataParcel.WriteDouble(*request.minLatitude); // minLatitude
+    } else {
+        dataParcel.WriteDouble(0.0); // minLatitude
+    }
+    if (request.minLongitude) {
+        dataParcel.WriteDouble(*request.minLongitude); // minLongitude
+    } else {
+        dataParcel.WriteDouble(0.0); // minLongitude
+    }
+    if (request.maxLatitude) {
+        dataParcel.WriteDouble(*request.maxLatitude); // maxLatitude
+    } else {
+        dataParcel.WriteDouble(0.0); // maxLatitude
+    }
+    if (request.maxLongitude) {
+        dataParcel.WriteDouble(*request.maxLongitude); // maxLongitude
+    } else {
+        dataParcel.WriteDouble(0.0); // maxLongitude
+    }
+    dataParcel.WriteString16(OHOS::Str8ToStr16(CommonUtils::GenerateUuid())); // transId
+    if (request.country) {
+        dataParcel.WriteString16(OHOS::Str8ToStr16(std::string(*request.country))); // country
+    } else {
+        dataParcel.WriteString16(OHOS::Str8ToStr16("")); // locale
+    }
+    std::list<std::shared_ptr<GeoAddress>> replyList;
+    errorCode = Locator::GetInstance()->GetAddressByLocationNameV9(dataParcel, replyList);
+    if (replyList.empty() || errorCode != ERRCODE_SUCCESS) {
+        return {};
+    }
+    std::vector<::ohos::geoLocationManager::GeoAddress> geoAddressList;
+    Util::GeoAddressToTaihe(geoAddressList, replyList);
+    return ::taihe::array<::ohos::geoLocationManager::GeoAddress>{taihe::copy_data_t{},
+        geoAddressList.data(), geoAddressList.size()};
+}
+
+void SetLocationSwitchIgnored(bool isIgnored)
+{
+    LocationErrCode errorCode = Locator::GetInstance()->SetLocationSwitchIgnored(isIgnored);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+bool IsLocationEnabledByUserId(int32_t userId)
+{
+    bool isEnabled = false;
+    LocationErrCode errorCode = Locator::GetInstance()->IsLocationEnabledForUser(isEnabled, userId);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return isEnabled;
+}
+
+void DisableLocationByUserId(int32_t userId)
+{
+    LocationErrCode errorCode = Locator::GetInstance()->EnableAbilityForUser(false, userId);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+void EnableLocationByUserIdSync(int32_t userId)
+{
+    LocationErrCode errorCode = Locator::GetInstance()->EnableAbilityForUser(true, userId);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+}
+
+::taihe::string GetCurrentWifiBssidForLocating()
+{
+    std::string bssid;
+    LocationErrCode errorCode = Locator::GetInstance()->GetCurrentWifiBssidForLocating(bssid);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return bssid;
+}
+
+int32_t AddGnssGeofenceSync(::ohos::geoLocationManager::GnssGeofenceRequest const& fenceRequest)
+{
+    return 0;
+}
+
+void RemoveGnssGeofenceSync(int32_t geofenceId)
+{
+}
+
+::taihe::array<::ohos::geoLocationManager::CoordinateSystemType> GetGeofenceSupportedCoordTypes()
+{
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    LocationErrCode errorCode =
+        GeofenceManager::GetInstance()->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    std::vector<::ohos::geoLocationManager::CoordinateSystemType> coordinateSystemTypeList;
+    for (auto iter = coordinateSystemTypes.begin(); iter != coordinateSystemTypes.end(); ++iter) {
+        auto type =
+        static_cast<::ohos::geoLocationManager::CoordinateSystemType::key_t>(*iter);
+        coordinateSystemTypeList.push_back(type);
+    }
+    return ::taihe::array<::ohos::geoLocationManager::CoordinateSystemType>{taihe::copy_data_t{},
+        coordinateSystemTypeList.data(), coordinateSystemTypeList.size()};
+}
+
+::ohos::geoLocationManager::LocationIconStatus GetLocationIconStatus()
+{
+    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
+    return static_cast<::ohos::geoLocationManager::LocationIconStatus::key_t>(0);
+}
+
+::taihe::array<::ohos::geoLocationManager::LocatingRequiredData> GetLocatingRequiredDataSync(
+    ::ohos::geoLocationManager::LocatingRequiredDataConfig const& config)
+{
+    std::unique_ptr<LocatingRequiredDataConfig> dataConfig = std::make_unique<LocatingRequiredDataConfig>();
+    dataConfig->SetType(config.type.get_value());
+    dataConfig->SetNeedStartScan(config.needStartScan);
+    if (config.scanInterval) {
+        dataConfig->SetScanIntervalMs(*config.scanInterval);
+    }
+    if (config.scanTimeout) {
+        dataConfig->SetScanTimeoutMs(*config.scanTimeout);
+    }
+    auto singleLocatingRequiredDataCallbackHost =
+        OHOS::sptr<LocatingRequiredDataCallbackTaihe>(new LocatingRequiredDataCallbackTaihe());
+    g_taiheLocatingRequiredDataCallbackMap.push_back(singleLocatingRequiredDataCallbackHost);
+    auto locatingRequiredDataCallback =
+        OHOS::sptr<ILocatingRequiredDataCallback>(singleLocatingRequiredDataCallbackHost);
+    LocationErrCode errorCode =
+        Locator::GetInstance()->RegisterLocatingRequiredDataCallback(dataConfig, locatingRequiredDataCallback);
+    if (errorCode != OHOS::Location::SUCCESS) {
+        singleLocatingRequiredDataCallbackHost->SetCount(0);
+        Util::ThrowBussinessError(errorCode);
+    }
+    singleLocatingRequiredDataCallbackHost->Wait(dataConfig->GetScanTimeoutMs());
+    Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
+    std::vector<::ohos::geoLocationManager::LocatingRequiredData> locatingRequiredDataList;
+    Util::LocatingRequiredDataToTaihe(locatingRequiredDataList,
+        singleLocatingRequiredDataCallbackHost->GetSingleResult());
+    return ::taihe::array<::ohos::geoLocationManager::LocatingRequiredData>{taihe::copy_data_t{},
+            locatingRequiredDataList.data(), locatingRequiredDataList.size()};
+}
+
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,
     ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::Location>)> callback)
     {
@@ -296,9 +586,9 @@ void OffLocationChange(
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheLocationCallbackMap.erase(g_taiheLocationCallbackMap.begin() + i);
+            break;
         }
-        g_taiheLocationCallbackMap.erase(g_taiheLocationCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -327,9 +617,9 @@ void OffCountryCodeChange(
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheCountryCodeCallbackMap.erase(g_taiheCountryCodeCallbackMap.begin() + i);
+            break;
         }
-        g_taiheCountryCodeCallbackMap.erase(g_taiheCountryCodeCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -343,9 +633,9 @@ void OffNmeaMessage(::taihe::optional_view<::taihe::callback<void(::taihe::strin
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheNmeaMessageCallbackMap.erase(g_taiheNmeaMessageCallbackMap.begin() + i);
+            break;
         }
-        g_taiheNmeaMessageCallbackMap.erase(g_taiheNmeaMessageCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -373,9 +663,9 @@ void OffSatelliteStatusChange(
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheGnssStatusCallbackMap.erase(g_taiheGnssStatusCallbackMap.begin() + i);
+            break;
         }
-        g_taiheGnssStatusCallbackMap.erase(g_taiheGnssStatusCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -405,9 +695,9 @@ void OffLocationEnabledChange(::taihe::optional_view<::taihe::callback<void(bool
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheLocationSwitchCallbackMap.erase(g_taiheLocationSwitchCallbackMap.begin() + i);
+            break;
         }
-        g_taiheLocationSwitchCallbackMap.erase(g_taiheLocationSwitchCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -435,9 +725,9 @@ void OffBluetoothScanResultChange(
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheBluetoothScanResultCallbackMap.erase(g_taiheBluetoothScanResultCallbackMap.begin() + i);
+            break;
         }
-        g_taiheBluetoothScanResultCallbackMap.erase(g_taiheBluetoothScanResultCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -471,9 +761,9 @@ void OffLocationError(
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheLocationErrorCallbackMap.erase(g_taiheLocationErrorCallbackMap.begin() + i);
+            break;
         }
-        g_taiheLocationErrorCallbackMap.erase(g_taiheLocationErrorCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -546,9 +836,9 @@ void OffLocatingRequiredDataChange(
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
+            g_taiheLocatingRequiredDataCallbackMap.erase(g_taiheLocatingRequiredDataCallbackMap.begin() + i);
+            break;
         }
-        g_taiheLocatingRequiredDataCallbackMap.erase(g_taiheLocatingRequiredDataCallbackMap.begin() + i);
-        break;
     }
 }
 
@@ -570,6 +860,31 @@ TH_EXPORT_CPP_API_EnableLocationSync(EnableLocationSync);
 TH_EXPORT_CPP_API_DisableLocation(DisableLocation);
 TH_EXPORT_CPP_API_IsLocationPrivacyConfirmed(IsLocationPrivacyConfirmed);
 TH_EXPORT_CPP_API_GetLastLocation(GetLastLocation);
+
+TH_EXPORT_CPP_API_SetReverseGeocodingMockInfo(SetReverseGeocodingMockInfo);
+TH_EXPORT_CPP_API_EnableReverseGeocodingMock(EnableReverseGeocodingMock);
+TH_EXPORT_CPP_API_DisableReverseGeocodingMock(DisableReverseGeocodingMock);
+TH_EXPORT_CPP_API_EnableLocationMock(EnableLocationMock);
+TH_EXPORT_CPP_API_DisableLocationMock(DisableLocationMock);
+TH_EXPORT_CPP_API_SetMockedLocations(SetMockedLocations);
+TH_EXPORT_CPP_API_SetLocationPrivacyConfirmStatus(SetLocationPrivacyConfirmStatus);
+TH_EXPORT_CPP_API_GetCountryCodeSync(GetCountryCodeSync);
+TH_EXPORT_CPP_API_SendCommandSync(SendCommandSync);
+TH_EXPORT_CPP_API_FlushCachedGnssLocationsSync(FlushCachedGnssLocationsSync);
+TH_EXPORT_CPP_API_GetCachedGnssLocationsSizeSync(GetCachedGnssLocationsSizeSync);
+TH_EXPORT_CPP_API_isGeocoderAvailable(isGeocoderAvailable);
+TH_EXPORT_CPP_API_GetAddressesFromLocationNameSync(GetAddressesFromLocationNameSync);
+TH_EXPORT_CPP_API_SetLocationSwitchIgnored(SetLocationSwitchIgnored);
+TH_EXPORT_CPP_API_IsLocationEnabledByUserId(IsLocationEnabledByUserId);
+TH_EXPORT_CPP_API_DisableLocationByUserId(DisableLocationByUserId);
+TH_EXPORT_CPP_API_EnableLocationByUserIdSync(EnableLocationByUserIdSync);
+TH_EXPORT_CPP_API_GetCurrentWifiBssidForLocating(GetCurrentWifiBssidForLocating);
+TH_EXPORT_CPP_API_AddGnssGeofenceSync(AddGnssGeofenceSync);
+TH_EXPORT_CPP_API_RemoveGnssGeofenceSync(RemoveGnssGeofenceSync);
+TH_EXPORT_CPP_API_GetGeofenceSupportedCoordTypes(GetGeofenceSupportedCoordTypes);
+TH_EXPORT_CPP_API_GetLocationIconStatus(GetLocationIconStatus);
+TH_EXPORT_CPP_API_GetLocatingRequiredDataSync(GetLocatingRequiredDataSync);
+
 TH_EXPORT_CPP_API_OnCachedGnssLocationsChange(OnCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OffCachedGnssLocationsChange(OffCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OnLocationChange(OnLocationChange);

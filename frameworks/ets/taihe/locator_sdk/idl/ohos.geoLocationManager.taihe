@@ -15,6 +15,7 @@
 @!namespace("@ohos.geoLocationManager", "geoLocationManager")
 @!sts_inject_into_module("
   import {WantAgent} from '@ohos.app.ability.wantAgent';
+  //import { NotificationRequest } from './notification/notificationRequest';
 ")
 
 enum LocationRequestPriority: i32 { UNSET = 0x200, ACCURACY, LOW_POWER, FIRST_FIX }
@@ -33,20 +34,21 @@ enum LocationError: i32 { LOCATING_FAILED_DEFAULT = -1, LOCATING_FAILED_LOCATION
 LOCATING_FAILED_LOCATION_SWITCH_OFF = -4, LOCATING_FAILED_INTERNET_ACCESS_FAILURE = -5 }
 enum LocationIconStatus: i32 { LOCATING_NOT_STARTED = 0, LOCATING_STARTED = 1, HD_LOCATING_STARTED = 2 }
 enum LocatingRequiredDataType: i32 {WIFI = 1, BLUETOOTH}
+enum GeofenceTransitionEvent: i32 {GEOFENCE_TRANSITION_EVENT_ENTER = 1, GEOFENCE_TRANSITION_EVENT_EXIT = 2, GEOFENCE_TRANSITION_EVENT_DWELL = 4}
 
 struct ReverseGeoCodeRequest {
     locale: Optional<String>;
     country: Optional<String>;
     latitude: f64;
     longitude: f64;
-    maxItems: f64;
+    maxItems: i32;
 }
 
 struct GeoCodeRequest {
     locale: Optional<String>;
     country: Optional<String>;
     description: String;
-    maxItems: Optional<f64>;
+    maxItems: Optional<i32>;
     minLatitude: Optional<f64>;
     minLongitude: Optional<f64>;
     maxLatitude: Optional<f64>;
@@ -71,7 +73,7 @@ struct GeoAddress {
     phoneNumber: String;
     addressUrl: String;
     descriptions: Array<String>;
-    descriptionsSize: f64;
+    descriptionsSize: i32;
     isFromMock: bool;
 }
 
@@ -81,7 +83,7 @@ union ContinuousLocationRequestLocationScenario {
 }
 
 struct ContinuousLocationRequest {
-    interval: f64;
+    interval: i32;
     locationScenario: ContinuousLocationRequestLocationScenario;
     sportsType: Optional<SportsType>;
     needPoi: Optional<bool>;
@@ -91,12 +93,12 @@ struct CurrentLocationRequest {
     priority: Optional<LocationRequestPriority>;
     scenario: Optional<LocationRequestScenario>;
     maxAccuracy: Optional<f64>;
-    timeoutMs: Optional<f64>;
+    timeoutMs: Optional<i32>;
 }
 
 struct SingleLocationRequest  {
     locatingPriority: Optional<LocatingPriority>;
-    locatingTimeoutMs: Optional<f64>;
+    locatingTimeoutMs: Optional<i32>;
 }
 
 union CurrentRequest {
@@ -107,7 +109,7 @@ union CurrentRequest {
 struct LocationRequest {
     priority: Optional<LocationRequestPriority>;
     scenario: Optional<LocationRequestScenario>;
-    timeInterval: Optional<f64>;
+    timeInterval: Optional<i32>;
     distanceInterval: Optional<f64>;
     maxAccuracy: Optional<f64>;
 }
@@ -118,7 +120,7 @@ union OnRequest {
 }
 
 struct LocationMockConfig {
-    timeInterval: f64;
+    timeInterval: i32;
     locations: Array<Location>;
 }
 
@@ -128,17 +130,17 @@ struct Location {
     altitude: f64;
     accuracy: f64;
     speed: f64;
-    timeStamp: f64;
+    timeStamp: i64;
     direction: f64;
-    timeSinceBoot: f64;
+    timeSinceBoot: i64;
     additions: Array<String>;
     additionsMap: @record Map<String, String>;
-    additionSize: f64;
+    additionSize: i32;
     isFromMock: bool;
     altitudeAccuracy: f64;
     speedAccuracy: f64;
     directionAccuracy: f64;
-    uncertaintyOfTimeSinceBoot: f64;
+    uncertaintyOfTimeSinceBoot: i64;
     sourceType: LocationSourceType;
 }
 
@@ -156,18 +158,18 @@ struct GeofenceRequest {
 }
 
 struct SatelliteStatusInfo {
-    satellitesNumber: f64;
-    satelliteIds: Array<f64>;
+    satellitesNumber: i32;
+    satelliteIds: Array<i32>;
     carrierToNoiseDensitys: Array<f64>;
     altitudes: Array<f64>;
     azimuths: Array<f64>;
     carrierFrequencies: Array<f64>;
     satelliteConstellation: Optional<Array<SatelliteConstellationCategory>>;
-    satelliteAdditionalInfo: Optional<Array<f64>>;
+    satelliteAdditionalInfo: Optional<Array<i32>>;
 }
 
 struct CachedGnssLocationsRequest {
-    reportingPeriodSec: f64;
+    reportingPeriodSec: i32;
     wakeUpCacheQueueFull: bool;
 }
 
@@ -187,28 +189,45 @@ struct BluetoothScanResult {
 struct LocatingRequiredDataConfig {
     type: LocatingRequiredDataType;
     needStartScan: bool;
-    scanInterval: Optional<f64>;
-    scanTimeout: Optional<f64>;
+    scanInterval: Optional<i32>;
+    scanTimeout: Optional<i32>;
 }
 
 struct WifiScanInfo {
     ssid: String;
     bssid: String;
-    rssi: f64;
-    frequency: f64;
-    timestamp: f64;
+    rssi: i32;
+    frequency: i32;
+    timestamp: i64;
 }
 
 struct BluetoothScanInfo {
     deviceName: String;
     macAddress: String;
-    rssi: f64;
-    timestamp: f64;
+    rssi: i32;
+    timestamp: i64;
 }
 
 struct LocatingRequiredData {
     wifiData: Optional<WifiScanInfo>;
     bluetoothData: Optional<BluetoothScanInfo>;
+}
+
+struct ReverseGeocodingMockInfo {
+    location: ReverseGeoCodeRequest;
+    geoAddress: GeoAddress;
+}
+
+struct LocationCommand {
+    scenario: LocationRequestScenario;
+    command: String;
+}
+
+struct GnssGeofenceRequest {
+    geofence: Geofence;
+    monitorTransitionEvents: Array<GeofenceTransitionEvent>;
+    //notifications: Optional<Array<NotificationRequest>>;
+    //geofenceTransitionCallback: AsyncCallback<GeofenceTransition>;
 }
 
 function IsLocationEnabled(): bool;
@@ -230,8 +249,62 @@ function IsLocationPrivacyConfirmed(type: LocationPrivacyType): bool;
 
 function GetLastLocation(): Location;
 
+function SetReverseGeocodingMockInfo(mockInfos: Array<ReverseGeocodingMockInfo>): void;
+function EnableReverseGeocodingMock(): void;
+function DisableReverseGeocodingMock(): void;
+function EnableLocationMock(): void;
+function DisableLocationMock(): void;
+function SetMockedLocations(config: LocationMockConfig): void;
+function SetLocationPrivacyConfirmStatus(type: LocationPrivacyType, isConfirmed: bool): void;
+
+@gen_async("getCountryCode")
+@gen_promise("getCountryCode")
+function GetCountryCodeSync(): CountryCode;
+
+@gen_async("sendCommand")
+@gen_promise("sendCommand")
+function SendCommandSync(command: LocationCommand): void;
+
+@gen_async("flushCachedGnssLocations")
+@gen_promise("flushCachedGnssLocations")
+function FlushCachedGnssLocationsSync(): void;
+
+@gen_async("getCachedGnssLocationsSize")
+@gen_promise("getCachedGnssLocationsSize")
+function GetCachedGnssLocationsSizeSync(): i32;
+
+function isGeocoderAvailable(): bool;
+
+@gen_async("getAddressesFromLocationName")
+@gen_promise("getAddressesFromLocationName")
+function GetAddressesFromLocationNameSync(request: GeoCodeRequest): Array<GeoAddress>;
+
+function SetLocationSwitchIgnored(isIgnored: bool): void;
+
+function IsLocationEnabledByUserId(userId: i32): bool;
+
+function DisableLocationByUserId(userId: i32): void;
+
+@gen_promise("enableLocationByUserId")
+function EnableLocationByUserIdSync(userId: i32): void;
+
+function GetCurrentWifiBssidForLocating(): String;
+
+@gen_promise("addGnssGeofence")
+function AddGnssGeofenceSync(fenceRequest: GnssGeofenceRequest): i32;
+
+@gen_promise("removeGnssGeofence")
+function RemoveGnssGeofenceSync(geofenceId: i32): void;
+
+function GetGeofenceSupportedCoordTypes(): Array<CoordinateSystemType>;
+
+function GetLocationIconStatus(): LocationIconStatus;
+
+@gen_promise("getLocatingRequiredData")
+function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
+
 @!sts_inject("""
-export function on(type: string, cb: (arg_0: Object) => void) {
+export function on(type: String, cb: (arg_0: Object) => void) {
     switch(type) {
         case "countryCodeChange": return onCountryCodeChange(cb);
         case "nmeaMessage": return onNmeaMessage(cb);
@@ -243,7 +316,7 @@ export function on(type: string, cb: (arg_0: Object) => void) {
         default: throw new Error(`Unknown type: ${type}`);
     }
 }
-export function off(type: string, cb?: (arg_0: Object) => void) {
+export function off(type: String, cb?: (arg_0: Object) => void) {
     switch(type) {
         case "countryCodeChange": return offCountryCodeChange(cb as (((arg_0: CountryCode) => void) | undefined));
         case "nmeaMessage":  return offNmeaMessage(cb as (((data: String) => void) | undefined));
