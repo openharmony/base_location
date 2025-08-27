@@ -24,6 +24,7 @@ local_base_sources = [
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/locating_required_data_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_error_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_gnss_geofence_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_hiappevent.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_adapter.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_entry.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/location_napi_errcode.cpp",
@@ -181,6 +182,11 @@ ohos_shared_library("geolocationmanager") {
   if (location_feature_with_jsstack) {
     defines += [ "SUPPORT_JSSTACK" ]
     external_deps += [ "hiview:libxpower_event_js" ]
+  }
+
+  if (location_hiappevent_enable) {
+    defines += [ "LOCATION_HIAPPEVENT_ENABLE" ]
+    external_deps += [ "hiappevent:hiappevent_innerapi" ]
   }
   relative_install_dir = "module"
   part_name = "location"

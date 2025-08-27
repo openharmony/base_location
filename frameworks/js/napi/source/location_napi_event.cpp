@@ -27,6 +27,7 @@
 #include "xpower_event_js.h"
 #endif
 #include "want_agent_helper.h"
+#include "location_hiappevent.h"
 
 namespace OHOS {
 namespace Location {
@@ -43,6 +44,7 @@ CallbackManager<BluetoothScanResultCallbackNapi> g_bluetoothScanResultCallbackHo
 std::unique_ptr<CachedGnssLocationsRequest> g_cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
 auto g_locatorProxy = Locator::GetInstance();
 auto g_geofenceProxy = GeofenceManager::GetInstance();
+auto g_locationHiAppEvent = LocationHiAppEvent::GetInstance();
 
 std::mutex g_FuncMapMutex;
 std::map<std::string, bool(*)(const napi_env &)> g_offAllFuncMap;
@@ -800,7 +802,10 @@ bool OnLocationServiceStateCallback(const napi_env& env, const size_t argc, cons
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeLocationServiceStateV9(env, handlerRef, switchCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "locationEnabledChangeOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -848,7 +853,10 @@ bool OnCachedGnssLocationsReportingCallback(const napi_env& env, const size_t ar
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], PARAM1, &handlerRef), false);
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeCacheLocationChangeV9(env, argv[PARAM1], handlerRef, cachedCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "cachedGnssLocationsChangeOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -887,7 +895,10 @@ bool OnGnssStatusChangeCallback(const napi_env& env, const size_t argc, const na
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeGnssStatusV9(env, handlerRef, gnssCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "satelliteStatusChangeOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -937,7 +948,10 @@ bool OnLocationChangeCallback(const napi_env& env, const size_t argc, const napi
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM2], 1, &handlerRef), false);
         // argv[1]:request params, argv[2]:handler
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeLocationChangeV9(env, argv[PARAM1], handlerRef, locatorCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "locationChangeOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -976,7 +990,10 @@ bool OnNmeaMessageChangeCallback(const napi_env& env, const size_t argc, const n
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef), false);
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeNmeaMessageV9(env, handlerRef, nmeaCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "nmeaMessageOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1015,7 +1032,10 @@ bool OnCountryCodeChangeCallback(const napi_env& env, const size_t argc, const n
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeCountryCodeChangeV9(env, handlerRef, callbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "countryCodeChangeOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1044,7 +1064,10 @@ bool OnFenceStatusChangeCallback(const napi_env& env, const size_t argc, const n
 #endif
     // the third params should be handler
 #ifdef ENABLE_NAPI_MANAGER
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode = SubscribeFenceStatusChangeV9(env, argv[PARAM1], argv[PARAM2]);
+    g_locationHiAppEvent->WriteEndEvent(
+        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "gnssFenceStatusChangeOn");
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return false;
@@ -1138,7 +1161,10 @@ bool OffAllLocationServiceStateCallback(const napi_env& env)
             continue;
         }
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnSubscribeLocationServiceStateV9(callbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "locationEnabledChangeOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1168,7 +1194,10 @@ bool OffAllLocationChangeCallback(const napi_env& env)
         }
         auto locatorCallback = sptr<ILocatorCallback>(callbackHost);
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnSubscribeLocationChangeV9(locatorCallback);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "locationChangeOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1197,7 +1226,10 @@ bool OffAllGnssStatusChangeCallback(const napi_env& env)
             continue;
         }
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnSubscribeGnssStatusV9(callbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "satelliteStatusChangeOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1402,9 +1434,12 @@ bool OffNmeaMessageChangeCallback(const napi_env& env, const napi_value& handler
     auto nmeaCallbackHost = g_nmeaCallbacks.GetCallbackPtr(env, handler);
     if (nmeaCallbackHost) {
 #ifdef ENABLE_NAPI_MANAGER
-        LocationErrCode ret = UnSubscribeNmeaMessageV9(nmeaCallbackHost);
-        if (ret != ERRCODE_SUCCESS) {
-            HandleSyncErrCode(env, ret);
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+        LocationErrCode errorCode = UnSubscribeNmeaMessageV9(nmeaCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "nmeaMessageOff");
+        if (errorCode != ERRCODE_SUCCESS) {
+            HandleSyncErrCode(env, errorCode);
             return false;
         }
 #else
@@ -1424,7 +1459,10 @@ bool OffCachedGnssLocationsReportingCallback(const napi_env& env, const napi_val
     if (cachedCallbackHost) {
         auto cachedCallback = sptr<ICachedLocationsCallback>(cachedCallbackHost);
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnSubscribeCacheLocationChangeV9(cachedCallback);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "cachedGnssLocationsChangeOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1450,7 +1488,10 @@ bool OffCountryCodeChangeCallback(const napi_env& env, const napi_value& handler
     auto callbackHost = g_countryCodeCallbacks.GetCallbackPtr(env, handler);
     if (callbackHost) {
 #ifdef ENABLE_NAPI_MANAGER
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnsubscribeCountryCodeChangeV9(callbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "countryCodeChangeOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1558,7 +1599,10 @@ napi_value Off(napi_env env, napi_callback_info cbinfo)
         }
 #ifdef ENABLE_NAPI_MANAGER
     } else if (argc == PARAM3 && event == "gnssFenceStatusChange") {
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnSubscribeFenceStatusChangeV9(env, argv[PARAM1], argv[PARAM2]);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "gnssFenceStatusChangeOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
         }
@@ -1705,8 +1749,11 @@ bool OnBluetoothScanResultChangeCallback(const napi_env& env, const size_t argc,
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
         // argv[1]:request params, argv[2]:handler
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeBluetoothScanResultChange(env, handlerRef,
             bluetoothScanResultCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "bluetoothScanResultChangeOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1721,7 +1768,10 @@ bool OffBluetoothScanResultChangeCallback(const napi_env& env, const napi_value&
     auto bluetoothScanResultCallbackHost = g_bluetoothScanResultCallbackHosts.GetCallbackPtr(env, handler);
     if (bluetoothScanResultCallbackHost) {
         auto locatorCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnSubscribeBluetoothScanResultChange(locatorCallback);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 1 : 0, errorCode, "bluetoothScanResultChangeOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1782,7 +1832,10 @@ bool OnLocationErrorCallback(const napi_env& env, const size_t argc, const napi_
         napi_ref handlerRef = nullptr;
         NAPI_CALL_BASE(env, napi_create_reference(env, argv[PARAM1], 1, &handlerRef), false);
         // argv[1]:request params, argv[2]:handler
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = SubscribeLocationError(env, handlerRef, locationErrorCallbackHost);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 1 : 0, errorCode, "locationErrorOn");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;
@@ -1797,7 +1850,10 @@ bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
     auto locationErrorCallbackHost = g_locationErrorCallbackHosts.GetCallbackPtr(env, handler);
     if (locationErrorCallbackHost) {
         auto locatorCallback = sptr<ILocatorCallback>(locationErrorCallbackHost);
+        int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
         LocationErrCode errorCode = UnSubscribeLocationError(locatorCallback);
+        g_locationHiAppEvent->WriteEndEvent(
+            beginTime, errorCode == ERRCODE_SUCCESS ? 1 : 0, errorCode, "locationErrorOff");
         if (errorCode != ERRCODE_SUCCESS) {
             HandleSyncErrCode(env, errorCode);
             return false;

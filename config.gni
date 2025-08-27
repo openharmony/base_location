@@ -65,6 +65,7 @@ declare_args() {
   location_sa_recycle_strategy_low_memory = true
   startup_init = true
   location_feature_with_opp_switch = true
+  location_hiappevent_enable = true
 
   if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
     i18n_enable = false
@@ -171,5 +172,9 @@ declare_args() {
 
   if (defined(global_parts_info) && !defined(global_parts_info.startup_init)) {
     startup_init = false
+  }
+
+  if (defined(global_parts_info) && !defined(global_parts_info.hiviewdfx_hiappevent)) {
+    location_hiappevent_enable = false
   }
 }

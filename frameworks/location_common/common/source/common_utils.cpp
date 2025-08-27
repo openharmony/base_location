@@ -18,6 +18,7 @@
 #include <sys/time.h>
 #include <sstream>
 #include <chrono>
+#include <cJSON.h>
 
 #include "common_utils.h"
 #include "bundle_mgr_client.h"
@@ -34,6 +35,7 @@
 #include "os_account_manager.h"
 #include "os_account_info.h"
 #include "permission_manager.h"
+#include "file_ex.h"
 
 namespace OHOS {
 namespace Location {
@@ -486,6 +488,34 @@ int64_t CommonUtils::GetSinceBootTime()
     } else {
         return 0;
     }
+}
+
+bool CommonUtils::GetConfigFromJson(const std::string &key, std::string &value)
+{
+    std::string content;
+    if (!LoadStringFromFile(LOCATION_SERVICE_CONFIG_PATH, content) || content.empty()) {
+        LBSLOGE(COMMON_UTILS, "Fail to Load json file.");
+        return false;
+    }
+    cJSON *json = cJSON_Parse(content.c_str());
+    if (json == nullptr) {
+        LBSLOGE(COMMON_UTILS, "json is nullptr.");
+        return false;
+    }
+    if (!cJSON_IsObject(json)) {
+        LBSLOGE(COMMON_UTILS, "reader is not cJSON object.");
+        cJSON_Delete(json);
+        return false;
+    }
+    cJSON *cJsonObject = cJSON_GetObjectItem(json, key.c_str());
+    if (cJsonObject == nullptr) {
+        LBSLOGE(COMMON_UTILS, "cJsonObject is nullptr.");
+        cJSON_Delete(json);
+        return false;
+    }
+    value = cJSON_GetStringValue(cJsonObject);
+    cJSON_Delete(json);
+    return true;
 }
 
 bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId)

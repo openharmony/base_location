@@ -50,6 +50,7 @@ constexpr const char* EDM_POLICY_NAME = "persist.edm.location_policy";
 constexpr const char* AGNSS_SERVER_ADDR = "const.location.agnss_server_addr";
 constexpr const char* AGNSS_SERVER_PORT = "const.location.agnss_server_port";
 constexpr const char* SETTINGS_BUNDLE_NAME = "const.location.settings_bundle_name";
+constexpr const char* LOCATION_SERVICE_CONFIG_PATH = "/system/etc/location/location_service_config.json";
 
 constexpr const char* BUILD_INFO = "ro.build.characteristics";
 const int SA_NUM = 3;
@@ -184,6 +185,7 @@ public:
     static bool CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName);
     static bool CheckAppForUser(int32_t uid, std::string& bundleName);
     static int64_t GetSinceBootTime();
+    static bool GetConfigFromJson(const std::string &key, std::string &value);
     static bool GetAllUserId(std::vector<int>& activeIds);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);

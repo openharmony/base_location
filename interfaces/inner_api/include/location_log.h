@@ -132,6 +132,9 @@ static constexpr OHOS::HiviewDFX::HiLogLabel COMMON_EVENT_HELPER = {
 static constexpr OHOS::HiviewDFX::HiLogLabel BEACON_FENCE_MANAGER = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "BeaconFenceManager"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel LOCATION_HIAPPEVENT = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "LocationHiAppEvent"
+};
 } // namespace Location
 } // namespace OHOS
 #endif // LOCATION_LOG_H
