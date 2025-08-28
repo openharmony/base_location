@@ -223,7 +223,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
                     this.pullUpSendProgressNotification(data.currentBytes / data.totalBytes * 100,
                         this.getFileName(data.filePath));
                     this.currentCount = data.currentCount;
-                } else if (data.status == STATUS_FINISH) {
+                } else if (data.status == STATUS_FINISH && data.totalCount > 0) {
                     if (data.result != RESULT_SUCCESS_DISCONNECT) {
                         data.result == RESULT_SUCCESS ? this.successCount++ : this.failedCount++;
                         this.reportBtChrDataByResult(data.result);
