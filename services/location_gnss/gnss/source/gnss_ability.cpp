@@ -1105,6 +1105,7 @@ bool GnssAbility::EnableGnss()
     LBSLOGD(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     if (ret == 0) {
         gnssWorkingStatus_ = GNSS_WORKING_STATUS_ENGINE_ON;
+        HookUtils::ExecuteHook(LocationProcessStage::ENABLE_GNSS_PROCESS, nullptr, nullptr);
     } else {
         gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),

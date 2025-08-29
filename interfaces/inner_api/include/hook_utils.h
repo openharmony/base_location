@@ -64,6 +64,7 @@ enum class LocationProcessStage {
     REPORT_BEACON_FENCE_OPERATE_RESULT_PROCESS,
     REMOVE_BEACON_FENCE_BY_CALLBACK_PROCESS,
     BEACON_FENCE_TRANSITION_STATUS_CHANGE_PROCESS,
+    ENABLE_GNSS_PROCESS,
 };
 
 typedef struct {
@@ -190,6 +191,7 @@ public:
         const std::string& fenceExtensionAbilityName, const std::string& packageName);
     static bool ExecuteHookWhenRemoveBeaconFenceByCallback(const std::string& packageName);
     static bool ExecuteHookWhenBeaconFenceTransitionStatusChange(const std::string& packageName);
+    static void ExecuteHookWhenGnssEnable();
 };
 } // namespace Location
 } // namespace OHOS
