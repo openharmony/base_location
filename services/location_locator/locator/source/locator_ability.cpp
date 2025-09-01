@@ -2296,7 +2296,11 @@ ErrCode LocatorAbility::RegisterLocatingRequiredDataCallback(const LocatingRequi
     if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+    if (dataConfig.GetIsWlanMatchCalled() && !CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx()) &&
+            !dataConfig.GetIsWlanMatchCalled()) {
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
     }

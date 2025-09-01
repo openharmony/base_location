@@ -35,6 +35,7 @@ const int32_t PARAM3 = 3;
 const int32_t MAXIMUM_JS_PARAMS = 10;
 const int32_t MAX_CALLBACK_NUM = 3;
 const size_t RESULT_SIZE = 2;
+const int INPUT_WIFI_LIST_MAX_SIZE = 1000;
 const int DEFAULT_TIMEOUT_30S = 30000;
 const int DEFAULT_TIMEOUT_5S = 5000;
 const double DEFAULT_APPROXIMATELY_ACCURACY = 5000.0;
@@ -153,6 +154,7 @@ enum LocationErrCode {
     ERRCODE_GEOFENCE_FAIL = 3301600,          /* Failed to operate the geofence */
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
     ERRCODE_SCAN_FAIL = 3301800,              /* Failed to start WiFi or Bluetooth scanning. */
+    ERRCODE_WIFI_SCAN_FAIL = 3301801,              /* Failed to start WiFi scanning. */
     /* Failed to obtain the hotpot MAC address because the Wi-Fi is not connected. */
     ERRCODE_WIFI_IS_NOT_CONNECTED = 3301900,
     ERRCODE_GEOFENCE_EXCEED_MAXIMUM = 3301601, /* The number of geofences exceeds the maximum. */
@@ -249,6 +251,12 @@ typedef struct {
     double longitude;
     int maxItems;
 } ReverseGeocodeRequest;
+
+typedef struct {
+    std::vector<std::string> wlanBssidArray;
+    int32_t rssiThreshold;
+    bool needStartScan;
+} WlanRequestConfig;
 } // namespace Location
 } // namespace OHOS
 #endif // CONSTANT_DEFINITION_H

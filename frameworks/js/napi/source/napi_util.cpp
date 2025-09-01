@@ -1006,7 +1006,9 @@ std::map<int, std::string> GetErrorCodeMap()
         {LocationErrCode::ERRCODE_GEOFENCE_EXCEED_MAXIMUM, "The number of geofences exceeds the maximum."},
         {LocationErrCode::ERRCODE_GEOFENCE_INCORRECT_ID, "Failed to delete a geofence due to an incorrect ID."},
         {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
-            "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."}
+            "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."},
+        {LocationErrCode::ERRCODE_SCAN_FAIL, "Failed to start WiFi or Bluetooth scanning."},
+        {LocationErrCode::ERRCODE_WIFI_SCAN_FAIL, "Failed to start WiFi scanning."}
     };
     GetErrorCodeMapExt(errorCodeMap);
     return errorCodeMap;
@@ -1034,6 +1036,9 @@ int ConvertErrorCode(int errorCode)
         LBSLOGI(LOCATOR_STANDARD, "Convert ErrorCode: %{public}d to %{public}d",
             errorCode, LocationErrCode::ERRCODE_LOCATING_FAIL);
         return LocationErrCode::ERRCODE_LOCATING_FAIL;
+    }
+    if (errorCode == LocationErrCode::ERRCODE_WIFI_SCAN_FAIL) {
+        return LocationErrCode::ERRCODE_SCAN_FAIL;
     }
     return errorCode;
 }
