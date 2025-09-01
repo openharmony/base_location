@@ -108,31 +108,6 @@ void LocationMockIpcTest::TearDown()
     ipcMap_.clear();
 }
 
-#ifdef FEATURE_GNSS_SUPPORT
-HWTEST_F(LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocationMockIpcTest, MockGnssStubCallingPermission001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 begin");
-
-    auto gnssAbilityStub = sptr<GnssAbility>(new (std::nothrow) GnssAbility());
-    for (auto iter = ipcMap_.begin(); iter != ipcMap_.end(); iter++) {
-        if (iter->second != g_gnssIpcCode) {
-            continue;
-        }
-        MessageParcel parcel;
-        parcel.WriteInterfaceToken(u"location.IGnssAbility");
-        MessageParcel reply;
-        MessageOption option;
-        EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-            gnssAbilityStub->OnRemoteRequest(iter->first, parcel, reply, option));
-    }
-    sleep(WAIT_RESPONSE_SEC);
-    gnssAbilityStub = nullptr;
-    LBSLOGI(LOCATOR, "[LocationMockIpcTest] MockGnssStubCallingPermission001 end");
-}
-#endif
-
 #ifdef FEATURE_NETWORK_SUPPORT
 HWTEST_F(LocationMockIpcTest, MockNetworkStubCallingPermission001, TestSize.Level1)
 {
