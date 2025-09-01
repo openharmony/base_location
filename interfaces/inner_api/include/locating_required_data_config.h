@@ -30,6 +30,8 @@ public:
         scanIntervalMs_ = 0;
         scanTimeoutMs_ = DEFAULT_TIMEOUT_30S;
         fixNumber_ = 0;
+        isWlanMatchCalled_ = false;
+        rssiThreshold_ = 0;
     }
 
     explicit LocatingRequiredDataConfig(LocatingRequiredDataConfig& LocatingRequiredDataConfig)
@@ -92,6 +94,36 @@ public:
         fixNumber_ = fixNumber;
     }
 
+    inline bool GetIsWlanMatchCalled() const
+    {
+        return isWlanMatchCalled_;
+    }
+
+    inline void SetIsWlanMatchCalled(bool isWlanMatchCalled)
+    {
+        isWlanMatchCalled_ = isWlanMatchCalled;
+    }
+
+    inline int GetRssiThreshold() const
+    {
+        return rssiThreshold_;
+    }
+
+    inline void SetRssiThreshold(int rssiThreshold)
+    {
+        rssiThreshold_ = rssiThreshold;
+    }
+
+    inline std::vector<std::string> GetWlanBssidArray() const
+    {
+        return wlanBssidArray_;
+    }
+
+    inline void SetWlanBssidArray(std::vector<std::string> wlanBssidArray)
+    {
+        wlanBssidArray_ = wlanBssidArray;
+    }
+
     void ReadFromParcel(Parcel& parcel)
     {
         type_ =  parcel.ReadInt32();
@@ -99,6 +131,30 @@ public:
         scanIntervalMs_ = parcel.ReadInt32();
         scanTimeoutMs_ = parcel.ReadInt32();
         fixNumber_ = parcel.ReadInt32();
+        isWlanMatchCalled_ = parcel.ReadBool();
+        rssiThreshold_ = parcel.ReadInt32();
+        int wlanArraySize = parcel.ReadInt32();
+        if (wlanArraySize > INPUT_WIFI_LIST_MAX_SIZE) {
+            wlanArraySize = INPUT_WIFI_LIST_MAX_SIZE;
+        }
+        for (int i = 0; i < wlanArraySize; ++i) {
+            std::string wlanBssid = parcel.ReadString();
+            wlanBssidArray_.push_back(wlanBssid);
+        }
+    }
+
+    bool MarshallingWlanBssidArray(Parcel& parcel, std::vector<std::string> wlanBssidArray) const
+    {
+        bool marshallingState = false;
+        size_t arraySize = wlanBssidArray.size();
+        if (arraySize > INPUT_WIFI_LIST_MAX_SIZE) {
+            arraySize = INPUT_WIFI_LIST_MAX_SIZE;
+        }
+        marshallingState = parcel.WriteInt32(arraySize);
+        for (int i = 0; i < arraySize; ++i) {
+            marshallingState = parcel.WriteString(wlanBssidArray[i]);
+        }
+        return marshallingState;
     }
 
     bool Marshalling(Parcel& parcel) const override
@@ -107,7 +163,10 @@ public:
             parcel.WriteBool(needStartScan_) &&
             parcel.WriteInt32(scanIntervalMs_) &&
             parcel.WriteInt32(scanTimeoutMs_) &&
-            parcel.WriteInt32(fixNumber_);
+            parcel.WriteInt32(fixNumber_) &&
+            parcel.WriteBool(isWlanMatchCalled_) &&
+            parcel.WriteInt32(rssiThreshold_) &&
+            MarshallingWlanBssidArray(parcel, wlanBssidArray_);
     }
 
     static LocatingRequiredDataConfig* Unmarshalling(Parcel& parcel)
@@ -133,6 +192,9 @@ private:
     int scanIntervalMs_;
     int scanTimeoutMs_;
     int fixNumber_;
+    bool isWlanMatchCalled_;
+    int rssiThreshold_;
+    std::vector<std::string> wlanBssidArray_;
 };
 } // namespace Location
 } // namespace OHOS

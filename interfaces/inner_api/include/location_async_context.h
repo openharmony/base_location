@@ -261,6 +261,8 @@ public:
 class SingleScanAsyncContext : public AsyncContext {
 public:
     int timeout_;
+    int rssiThreshold_;
+    std::vector<std::string> wlanBssidArray_;
     sptr<LocatingRequiredDataCallbackNapi> callbackHost_;
 
     explicit SingleScanAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)

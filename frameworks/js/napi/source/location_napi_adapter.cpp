@@ -1319,6 +1319,170 @@ napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, 1);
 }
 
+bool IsMatched(sptr<LocatingRequiredDataCallbackNapi> callbackHost,
+    SingleScanAsyncContext* context)
+{
+    bool isMatched = false;
+    std::unordered_map<std::string, int> wifiResultMap;
+    std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
+    for (auto &scanRes : res) {
+        if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
+            return false;
+        }
+        wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = scanRes->GetWifiScanInfo()->GetRssi();
+    }
+    for (auto &requestWlanBssid : context->wlanBssidArray_) {
+        if (wifiResultMap.count(requestWlanBssid) &&
+            wifiResultMap[requestWlanBssid] >= context->rssiThreshold_) {
+            isMatched = true;
+            break;
+        }
+    }
+    return isMatched;
+}
+
+SingleScanAsyncContext* CreateSingleWifiScanAsyncContext(const napi_env& env,
+    std::unique_ptr<LocatingRequiredDataConfig>& config, sptr<LocatingRequiredDataCallbackNapi> callback)
+{
+    auto asyncContext = new (std::nothrow) SingleScanAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    if (napi_create_string_latin1(env, "isWlanBssidMatched",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->timeout_ = config->GetScanTimeoutMs();
+    asyncContext->rssiThreshold_ = config->GetRssiThreshold();
+    asyncContext->wlanBssidArray_ = config->GetWlanBssidArray();
+    asyncContext->callbackHost_ = callback;
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<SingleScanAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        if (callbackHost != nullptr) {
+            callbackHost->Wait(context->timeout_);
+            auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
+            g_locatorClient->UnRegisterLocatingRequiredDataCallback(callbackPtr);
+            if (callbackHost->GetCount() != 0) {
+                context->errCode = ERRCODE_WIFI_SCAN_FAIL;
+            }
+            callbackHost->SetCount(1);
+        }
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<SingleScanAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        bool isMatched = false;
+        if (callbackHost != nullptr) {
+            isMatched = IsMatched(callbackHost, context);
+            callbackHost->ClearSingleResult();
+        }
+        NAPI_CALL_RETURN_VOID(
+                    context->env, napi_get_boolean(context->env, isMatched, &context->result[PARAM1]));
+        if (context->callbackHost_) {
+            context->callbackHost_ = nullptr;
+        }
+    };
+    return asyncContext;
+}
+
+bool GetWlanRequestConfig(napi_env env, napi_value argv[], WlanRequestConfig& requestConfig)
+{
+    // wlanBssidArray校验
+    bool is_array;
+    napi_is_array(env, argv[PARAM0], &is_array);
+    if (!is_array) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s First argument must be an array of strings.", __func__);
+        return false;
+    }
+    uint32_t length;
+    napi_value element;
+    napi_valuetype type;
+    napi_get_array_length(env, argv[PARAM0], &length);
+    if (length > INPUT_WIFI_LIST_MAX_SIZE) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s input wifi size over limited size.", __func__);
+        return false;
+    }
+    for (uint32_t i = 0; i< length; ++i) {
+        napi_get_element(env, argv[PARAM0], i, &element);
+        napi_typeof(env, element, &type);
+        if (type != napi_string) {
+            LBSLOGE(LOCATOR_STANDARD, "%{public}s Array elements must be a string.", __func__);
+            return false;
+        }
+        char mac[64] = {0};
+        size_t macLen = 0;
+        napi_get_value_string_utf8(env, element, mac, sizeof(mac), &macLen);
+        std::string macAddr = mac;
+        requestConfig.wlanBssidArray.push_back(macAddr);
+    }
+    // rssiThreshold校验
+    napi_typeof(env, argv[PARAM1], &type);
+    if (type != napi_number) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s Second argument must be a number.", __func__);
+        return false;
+    }
+    napi_get_value_int32(env, argv[PARAM1], &requestConfig.rssiThreshold);
+    // needStartScan校验
+    napi_typeof(env, argv[PARAM2], &type);
+    if (type != napi_boolean) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s Third argument must be a boolean.", __func__);
+        return false;
+    }
+    napi_get_value_bool(env, argv[PARAM2], &requestConfig.needStartScan);
+    return true;
+}
+
+napi_value IsWlanBssidMatched(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    WlanRequestConfig requestConfig;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
+
+    if (argc != PARAM3 || !GetWlanRequestConfig(env, argv, requestConfig)) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s Expected 3 arguments.", __func__);
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+
+    auto singleCallbackHost = CreateSingleCallbackHost();
+    if (singleCallbackHost == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    std::unique_ptr<LocatingRequiredDataConfig> scanRequestConfig = std::make_unique<LocatingRequiredDataConfig>();
+    scanRequestConfig->SetType(LocatingRequiredDataType::WIFI);
+    scanRequestConfig->SetWlanBssidArray(requestConfig.wlanBssidArray);
+    scanRequestConfig->SetRssiThreshold(requestConfig.rssiThreshold);
+    scanRequestConfig->SetNeedStartScan(requestConfig.needStartScan);
+    scanRequestConfig->SetScanTimeoutMs(DEFAULT_TIMEOUT_5S);
+    scanRequestConfig->SetIsWlanMatchCalled(true);
+    scanRequestConfig->SetFixNumber(1);
+    auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
+    LocationErrCode errorCode = g_locatorClient->RegisterLocatingRequiredDataCallback(scanRequestConfig, callbackPtr);
+    if (errorCode != ERRCODE_SUCCESS) {
+        HandleSyncErrCode(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+    auto asyncContext = CreateSingleWifiScanAsyncContext(env, scanRequestConfig, singleCallbackHost);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    size_t objectArgsNum = PARAM3;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+
 napi_value AddGnssGeofence(napi_env env, napi_callback_info info)
 {
     LBSLOGD(LOCATOR_STANDARD, "%{public}s called.", __func__);

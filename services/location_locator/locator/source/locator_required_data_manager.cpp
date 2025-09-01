@@ -162,6 +162,9 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         } else {
             LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
             lock.unlock();
+            if (config->GetIsWlanMatchCalled()) {
+                return ERRCODE_WIFI_SCAN_FAIL;
+            }
             return ERRCODE_SCAN_FAIL;
         }
         LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",

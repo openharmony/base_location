@@ -322,6 +322,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("disableReverseGeocodingMock", DisableReverseGeocodingMock),
         DECLARE_NAPI_FUNCTION("setReverseGeocodingMockInfo", SetReverseGeocodingMockInfo),
         DECLARE_NAPI_FUNCTION("getLocatingRequiredData", GetLocatingRequiredData),
+        DECLARE_NAPI_FUNCTION("isWlanBssidMatched", IsWlanBssidMatched),
         DECLARE_NAPI_FUNCTION("addGnssGeofence", AddGnssGeofence),
         DECLARE_NAPI_FUNCTION("removeGnssGeofence", RemoveGnssGeofence),
         DECLARE_NAPI_FUNCTION("getGeofenceSupportedCoordTypes", GetGeofenceSupportedCoordTypes),
