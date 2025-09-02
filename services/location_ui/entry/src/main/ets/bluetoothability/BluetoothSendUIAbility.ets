@@ -26,6 +26,7 @@ import commonEventManager from '@ohos.commonEventManager';
 import backgroundTaskManager from '@ohos.backgroundTaskManager';
 import fs from '@ohos.file.fs';
 import systemParameterEnhance from '@ohos.systemParameterEnhance';
+import PermissionUtils from 'common/PermissionUtils';
 
 const TAG: string = '[BT_SEND_SERVICE]==>'
 const EVENT_TYPE_TRANSACTION: number = 6;
@@ -84,7 +85,8 @@ export default class BluetoothSendUIAbility extends UIAbility {
     private subscribeinfo: commonEventManager.CommonEventSubscribeInfo = {
         events: [
             'ohos.event.notification.BT.LIVEVIEW_REMOVE'
-        ]
+        ],
+        publisherPermission: 'ohos.permission.MANAGE_BLUETOOTH'
     };
     private timerIdCreate: number;
     private timerIdCreated: boolean = false;
@@ -96,6 +98,10 @@ export default class BluetoothSendUIAbility extends UIAbility {
     private userReceiveTimeout: number = 50;
 
     onCreate(want: Want): void {
+        if (!PermissionUtils.checkBluetoothShareCallerBluetoothPermission(want)) {
+            console.info(TAG, `caller not has permission`);
+            return;
+        }
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
         this.timerIdCreate = setTimeout(() => {
             console.info(TAG, 'onCreate 51 seconds but nothing received');
@@ -153,7 +159,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
         const options: commonEventManager.CommonEventPublishData = {
             code: 0,
             data: 'message',
-            subscriberPermissions: [],
+            subscriberPermissions: ['ohos.permission.MANAGE_BLUETOOTH'],
             isOrdered: true,
             isSticky: false,
             parameters: { 'transactionType': btTransactionStatisticsType.TRANSACTION_TYPE_OPP_SEND, 'result': result,

@@ -95,7 +95,7 @@ struct btCreateFilePickerPage {
       const options: commonEventManager.CommonEventPublishData = {
           code: 0,
           data: 'message',
-          subscriberPermissions: [],
+          subscriberPermissions: ['ohos.permission.MANAGE_BLUETOOTH'],
           isOrdered: false,
           isSticky: false,
           parameters: { 'uri': this.fileUri, 'fileType': this.fileType }
