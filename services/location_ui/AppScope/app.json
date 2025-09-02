@@ -2,8 +2,8 @@
   "app": {
     "bundleName": "com.ohos.locationdialog",
     "vendor": "example",
-    "versionCode": 1000020,
-    "versionName": "1.0.20",
+    "versionCode": 1000019,
+    "versionName": "1.0.19",
     "icon": "$media:app_icon",
     "label": "$string:app_name",
     "distributedNotificationEnabled": true,
