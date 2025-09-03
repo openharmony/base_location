@@ -703,6 +703,10 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
 
 LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& request)
 {
+    if (!IsSupportGeofence()) {
+        LBSLOGI(GNSS, "Is Not Support Geofence");
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
     if (request == nullptr) {
         LBSLOGE(GNSS, "request is nullptr");
         return ERRCODE_GEOFENCE_FAIL;
@@ -803,6 +807,10 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
 
 LocationErrCode GnssAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
+    if (!IsSupportGeofence()) {
+        LBSLOGI(GNSS, "Is Not Support Geofence");
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
     if (request == nullptr) {
         LBSLOGE(GNSS, "request is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1018,6 +1026,10 @@ bool GnssAbility::ExecuteFenceProcess(
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 bool GnssAbility::SetGeofenceCallback()
 {
+    if (!IsSupportGeofence()) {
+        LBSLOGI(GNSS, "Is Not Support Geofence");
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
     if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
