@@ -1758,6 +1758,8 @@ napi_value RemoveBeaconFence(napi_env env, napi_callback_info info)
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
+    napi_valuetype valueType;
+    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     auto asyncContext = new (std::nothrow) GnssGeofenceAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
     if (napi_create_string_latin1(env, "removeBeaconFence",
@@ -1767,8 +1769,6 @@ napi_value RemoveBeaconFence(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    napi_valuetype valueType;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     if (valueType == napi_undefined) {
         std::unique_lock<std::mutex> lock(g_beaconFenceRequestMutex);
         if (g_beaconFenceRequestMap.size() == 0) {
