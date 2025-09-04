@@ -724,16 +724,16 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
 {
     bool needRetryScan = event->GetParam();
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    if (!dataManager->IsWifiConnecting()) {
-        LBSLOGE(LOCATOR, "%{public}s no valid callback, return. time = %{public}s",
-            __func__, std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
-        return;
-    }
     std::vector<Wifi::WifiScanInfo> wifiScanInfo;
     dataManager->GetWifiScanList(wifiScanInfo);
     std::vector<std::shared_ptr<LocatingRequiredData>> requiredData;
     bool requiredDataValid = dataManager->GetLocatingRequiredDataByWifi(requiredData, wifiScanInfo);
     HookUtils::ExecuteHookWhenWifiScanStateChanged(requiredData);
+    if (!dataManager->IsWifiConnecting()) {
+        LBSLOGE(LOCATOR, "%{public}s no valid callback, return. time = %{public}s",
+            __func__, std::to_string(CommonUtils::GetCurrentTimeMilSec()).c_str());
+        return;
+    }
     if (needRetryScan && !requiredDataValid &&
         CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO - dataManager->wifiScanStartTimeStamp_ >
         DEFAULT_NOT_RETRY_TIME_10_SECONDS) {
