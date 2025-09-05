@@ -17,11 +17,17 @@ import UIExtensionAbility from '@ohos.app.ability.UIExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import Want from '@ohos.app.ability.Want';
 import type { BusinessError } from '@ohos.base';
+import PermissionUtils from 'common/PermissionUtils';
 
 const TAG: string = '[BT_RECEIVE_UI]==>'
 
 export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
+        if (!PermissionUtils.checkBluetoothShareCallerSceneboardPermission(want)) {
+            console.info(TAG, `caller not has permission`);
+            return;
+        }
+
         if (want.parameters == undefined) {
             return;
         }
