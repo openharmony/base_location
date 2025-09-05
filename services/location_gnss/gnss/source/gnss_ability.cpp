@@ -891,18 +891,30 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
     if (callbackObj == nullptr) {
         return false;
     }
-    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
-    for (auto iter = gnssGeofenceRequestMap_.begin(); iter != gnssGeofenceRequestMap_.end();) {
-        auto callbackPair = iter->second;
-        auto callback = callbackPair.first;
-        if (callback == callbackObj) {
-            callback->RemoveDeathRecipient(callbackPair.second);
-            auto requestInMap = iter->first;
-            requestInMap->SetAppAliveStatus(false);
-            break;
-        } else {
-            iter++;
+    std::vector<std::shared_ptr<GeofenceRequest>> requestList;
+    {
+        std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
+        for (auto iter = gnssGeofenceRequestMap_.begin(); iter != gnssGeofenceRequestMap_.end();) {
+            auto callbackPair = iter->second;
+            auto callback = callbackPair.first;
+            if (callback == callbackObj) {
+                callback->RemoveDeathRecipient(callbackPair.second);
+                auto requestInMap = iter->first;
+                requestInMap->SetAppAliveStatus(false);
+#ifdef NOTIFICATION_ENABLE
+                auto notificationRequestList = requestInMap->GetNotificationRequestList();
+                if (notificationRequestList.size() == 0) {
+                    requestList.push_back(requestInMap);
+                }
+#endif
+                break;
+            } else {
+                iter++;
+            }
         }
+    }
+    for (auto& request : requestList) {
+        RemoveGnssGeofence(request);
     }
     LBSLOGD(GNSS, "After RemoveGnssGeofenceRequestByCallback size:%{public}s",
         std::to_string(gnssGeofenceRequestMap_.size()).c_str());
