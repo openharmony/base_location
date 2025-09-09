@@ -31,6 +31,7 @@ import rpc from '@ohos.rpc';
 import { DrawableDescriptor } from '@ohos.arkui.drawableDescriptor';
 import backgroundTaskManager from '@ohos.backgroundTaskManager';
 import systemParameterEnhance from '@ohos.systemParameterEnhance';
+import PermissionUtils from 'common/PermissionUtils';
 
 const TAG: string = '[BT_RECEIVE_SERVICE]==>'
 const EVENT_TYPE_TRANSACTION: number = 6;
@@ -96,7 +97,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             'usual.event.bluetooth.OPP.FINISH.REMOVE',
             'ohos.event.notification.BT.GET_URI',
             'usual.event.bluetooth.OPP.RECEIVE'
-        ]
+        ],
+        publisherPermission: 'ohos.permission.MANAGE_BLUETOOTH'
     }
     private cancelTransEvent: string = 'ohos.event.notification.BT.TAP_CANCEL';
     private capsuleNotificationID: number = 100;
@@ -117,6 +119,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private isEnabledLive2: boolean = false;
 
     onCreate(want: Want): void {
+        if (!PermissionUtils.checkBluetoothShareCallerBluetoothPermission(want)) {
+            console.info(TAG, `caller not has permission`);
+            return;
+        }        
         console.info(TAG, 'BluetoothReceiveUIAbility onCreate');
         this.readyReceiveEvent();
         this.startContinuousTask();
@@ -171,7 +177,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         const options: commonEventManager.CommonEventPublishData = {
             code: 0,
             data: 'message',
-            subscriberPermissions: [],
+            subscriberPermissions: ['ohos.permission.MANAGE_BLUETOOTH'],
             isOrdered: true,
             isSticky: false,
             parameters: { 'transactionType': btTransactionStatisticsType.TRANSACTION_TYPE_OPP_RECEIVE, 'result': result,
