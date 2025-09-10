@@ -192,6 +192,11 @@ bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
             "uid : %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",
             request->GetTokenId(), request->GetUuid().c_str(), request->GetPackageName().c_str(), request->GetUid(),
             std::to_string(finalLocation->GetTimeSinceBoot()).c_str(), finalLocation->GetLocationSourceType());
+        auto poiInfo = finalLocation->GetPoiInfo();
+        if (poiInfo.poiArray.size() >= 1) {
+            LBSLOGI(REPORT_MANAGER, "report poiInfo,%{public}s,%{public}.4f",
+                poiInfo.poiArray[0].id.c_str(), poiInfo.poiArray[0].confidence);
+        }
         locatorCallback->OnLocationReport(finalLocation);
         RequestManager::GetInstance()->UpdateLocationError(request);
     }
