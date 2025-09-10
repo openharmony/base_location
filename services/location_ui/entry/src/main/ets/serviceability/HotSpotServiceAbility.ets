@@ -130,7 +130,7 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
                 }
             },
             extraInfo: {
-                hw_custom_appname: $r('app.string.condition_netshare_hotspot_close')
+                hw_custom_appname: templateTitle
             },
             notificationControlFlags: 2,
             actionButtons: [
