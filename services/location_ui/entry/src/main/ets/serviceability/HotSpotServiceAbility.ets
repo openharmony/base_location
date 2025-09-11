@@ -129,6 +129,9 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
                     text: templateText
                 }
             },
+            extraInfo: {
+                hw_custom_appname: templateTitle
+            },
             notificationControlFlags: 2,
             actionButtons: [
                 {
