@@ -214,6 +214,58 @@ bool IsLocationEnabled()
     return result;
 }
 
+::ohos::geoLocationManager::Location GetCurrentLocationSyncNoRequest()
+{
+    ::taihe::map<::taihe::string, ::taihe::string> ret;
+    ::ohos::geoLocationManager::Location result = {
+        0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0, {"", ""}, ret, 0, true, 0.0, 0.0, 0.0, 0,
+        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(1) };
+    // request to capi request
+    auto requestConfig = std::make_unique<OHOS::Location::RequestConfig>();
+    // receive callback
+    requestConfig->SetFixNumber(1);
+    if (!IsRequestConfigValid(requestConfig)) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_INVALID_PARAM);
+    }
+    auto singleLocatorCallbackHost = CreateSingleLocationCallbackHost();
+    if (singleLocatorCallbackHost == nullptr) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE);
+    }
+    singleLocatorCallbackHost->SetLocationPriority(GetCurrentLocationType(requestConfig));
+
+    auto callbackPtr = OHOS::sptr<OHOS::Location::ILocatorCallback>(singleLocatorCallbackHost);
+    OHOS::Location::LocationErrCode errorCode = Locator::GetInstance()->StartLocatingV9(requestConfig, callbackPtr);
+    if (errorCode != OHOS::Location::SUCCESS) {
+        singleLocatorCallbackHost->SetCount(0);
+    }
+    if (requestConfig->GetTimeOut() > OHOS::Location::DEFAULT_TIMEOUT_30S) {
+        singleLocatorCallbackHost->Wait(OHOS::Location::DEFAULT_TIMEOUT_30S);
+        if (singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
+            singleLocatorCallbackHost->Wait(requestConfig->GetTimeOut() - OHOS::Location::DEFAULT_TIMEOUT_30S);
+        }
+    } else {
+        singleLocatorCallbackHost->Wait(requestConfig->GetTimeOut());
+    }
+    Locator::GetInstance()->StopLocatingV9(callbackPtr);
+    if (singleLocatorCallbackHost->GetCount() != 0 && singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
+        std::unique_ptr<OHOS::Location::Location> location = nullptr;
+        Locator::GetInstance()->GetCachedLocationV9(location);
+        int64_t curTime = OHOS::Location::CommonUtils::GetCurrentTimeStamp();
+        if (location != nullptr &&
+            (curTime - location->GetTimeStamp() / OHOS::Location::MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
+            singleLocatorCallbackHost->SetSingleLocation(location);
+        }
+    }
+    if (singleLocatorCallbackHost != nullptr && singleLocatorCallbackHost->GetSingleLocation() != nullptr) {
+        std::unique_ptr<OHOS::Location::Location> loc =
+            std::make_unique<OHOS::Location::Location>(*singleLocatorCallbackHost->GetSingleLocation());
+        Util::LocationToTaihe(result, loc);
+    } else {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return result;
+}
+
 void EnableLocationSync()
 {
     LocationErrCode errorCode = Locator::GetInstance()->EnableAbilityV9(true);
@@ -856,6 +908,7 @@ void OffGnssFenceStatusChange(::ohos::geoLocationManager::GeofenceRequest const&
 TH_EXPORT_CPP_API_IsLocationEnabled(IsLocationEnabled);
 TH_EXPORT_CPP_API_GetAddressesFromLocationSync(GetAddressesFromLocationSync);
 TH_EXPORT_CPP_API_GetCurrentLocationSync(GetCurrentLocationSync);
+TH_EXPORT_CPP_API_GetCurrentLocationSyncNoRequest(GetCurrentLocationSyncNoRequest);
 TH_EXPORT_CPP_API_EnableLocationSync(EnableLocationSync);
 TH_EXPORT_CPP_API_DisableLocation(DisableLocation);
 TH_EXPORT_CPP_API_IsLocationPrivacyConfirmed(IsLocationPrivacyConfirmed);
