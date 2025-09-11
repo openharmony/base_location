@@ -239,6 +239,9 @@ function GetAddressesFromLocationSync(request: ReverseGeoCodeRequest): Array<Geo
 @gen_promise("getCurrentLocation")
 function GetCurrentLocationSync(request: Optional<CurrentRequest>): Location;
 
+@gen_async("getCurrentLocation")
+function GetCurrentLocationSyncNoRequest(): Location;
+
 @gen_async("enableLocation")
 @gen_promise("enableLocation")
 function EnableLocationSync(): void;
