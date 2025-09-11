@@ -98,6 +98,11 @@ ohos_fuzztest("LocatorAbilityStubFuzzTest") {
         [ "drivers_interface_location_gnss:liblocation_gnss_proxy_2.0" ]
     defines += [ "FEATURE_GNSS_SUPPORT" ]
   }
+
+  if (communication_bluetooth_enable) {
+    external_deps += [ "bluetooth:btframework" ]
+    defines += [ "BLUETOOTH_ENABLE" ]
+  }
 }
 
 ###############################################################################

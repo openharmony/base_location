@@ -29,6 +29,7 @@
 #undef private
 
 #include "i_locator_callback.h"
+#include "bluetooth_host.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -102,6 +103,11 @@ bool LocatorHandlerFuzzTest(const char* data, size_t size)
     locatorHandler->WatchSwitchParameter(event);
     return true;
 }
+
+void OnStop()
+{
+    Bluetooth::BluetoothHost::GetDefaultHost().Close();
+}
 } // namespace OHOS
 
 /* Fuzzer entry point */
@@ -113,6 +119,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
     char* ch = OHOS::ParseData(data, size);
     if (ch != nullptr) {
         OHOS::LocatorHandlerFuzzTest(ch, size);
+        OHOS::OnStop();
         free(ch);
         ch = nullptr;
     }
