@@ -31,6 +31,7 @@
 #include "gnss_status_callback_host.h"
 #include "location_error_callback_napi.h"
 #include "bluetooth_scan_result_callback_napi.h"
+#include "bluetooth_host.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -996,6 +997,11 @@ bool LocatorAbilityStub052FuzzTest(const char* data, size_t size)
 
     return true;
 }
+
+void OnStop()
+{
+    Bluetooth::BluetoothHost::GetDefaultHost().Close();
+}
 } // namespace OHOS
 
 void GeoCodeFuzzTest(const char* ch, size_t size)
@@ -1071,6 +1077,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::LocatorAbilityStub042FuzzTest(ch, size);
         OHOS::LocatorAbilityStub043FuzzTest(ch, size);
         OHOS::LocatorAbilityStub047FuzzTest(ch, size);
+        OHOS::OnStop();
         sleep(OHOS::WAIT_EVENT_TIME);
         free(ch);
         ch = nullptr;
