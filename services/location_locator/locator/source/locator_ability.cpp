@@ -1818,9 +1818,7 @@ ErrCode LocatorAbility::SetReverseGeocodingMockInfo(const std::vector<GeocodingM
 
 ErrCode LocatorAbility::ProxyForFreeze(const std::vector<int32_t>& pidList, bool isProxy)
 {
-    AppIdentity identity;
-    GetAppIdentityInfo(identity);
-    if (!PermissionManager::CheckRssProcessName(identity.GetTokenId())) {
+    if (!PermissionManager::CheckRssProcessName(IPCSkeleton::GetCallingTokenID())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     ProxyFreezeManager::GetInstance()->ProxyForFreeze(pidList, isProxy);
@@ -1836,9 +1834,7 @@ ErrCode LocatorAbility::ProxyForFreeze(const std::vector<int32_t>& pidList, bool
 ErrCode LocatorAbility::ResetAllProxy()
 {
     LBSLOGI(LOCATOR, "Start locator ResetAllProxy");
-    AppIdentity identity;
-    GetAppIdentityInfo(identity);
-    if (!PermissionManager::CheckRssProcessName(identity.GetTokenId())) {
+    if (!PermissionManager::CheckRssProcessName(IPCSkeleton::GetCallingTokenID())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     ProxyFreezeManager::GetInstance()->ResetAllProxy();
