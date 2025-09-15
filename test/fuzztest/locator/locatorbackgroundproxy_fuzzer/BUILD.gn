@@ -41,6 +41,7 @@ ohos_fuzztest("LocatorBackgroundProxyFuzzTest") {
   ]
   external_deps = [
     "libuv:uv",
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
     "c_utils:utils",

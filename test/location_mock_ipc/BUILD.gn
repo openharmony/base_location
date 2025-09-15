@@ -59,6 +59,7 @@ ohos_unittest("LocationMockIpcTest") {
     "googletest:gmock_main",
     "googletest:gtest_main",
     "ability_base:want",
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:app_manager",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",

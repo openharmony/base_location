@@ -41,6 +41,7 @@ ohos_fuzztest("GnssFuzzTest") {
     "$LOCATION_ROOT_DIR/frameworks/native/locator_sdk:locator_sdk_static",
   ]
   external_deps = [
+    "ability_runtime:ability_connect_callback_stub",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "access_token:libaccesstoken_sdk",
