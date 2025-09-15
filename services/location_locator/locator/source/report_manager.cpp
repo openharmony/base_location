@@ -128,7 +128,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     if (IsRequestFuse(request)) {
         if (request->GetBestLocation() == nullptr ||
             request->GetBestLocation()->GetLocationSourceType() == 0) {
-            request->SetBestLocation(std::make_unique<Location>(cacheGnssLocation_));
+            request->SetBestLocation(std::make_unique<Location>(GetCacheGnssLocation()));
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
@@ -376,11 +376,11 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
 {
     if (abilityName == GNSS_ABILITY) {
         if (HookUtils::CheckGnssLocationValidity(location)) {
-            cacheGnssLocation_ = *location;
+            UpdateCacheGnssLocation(*location);
             UpdateLastLocation(location);
         }
     } else if (abilityName == NETWORK_ABILITY && location->GetLocationSourceType() != INDOOR_TYPE) {
-        cacheNlpLocation_ = *location;
+        UpdateCacheNlpLocation(*location);
         UpdateLastLocation(location);
     } else {
         UpdateLastLocation(location);
@@ -393,6 +393,30 @@ void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location
     int currentUserId = locatorBackgroundProxy->getCurrentUserId();
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
     lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
+}
+
+void ReportManager::UpdateCacheGnssLocation(Location& location)
+{
+    std::unique_lock<std::mutex> lock(cacheGnssLocationMutex_);
+    cacheGnssLocation_ = location;
+}
+
+void ReportManager::UpdateCacheNlpLocation(Location& location)
+{
+    std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
+    cacheNlpLocation_ = location;
+}
+
+Location& ReportManager::GetCacheGnssLocation()
+{
+    std::unique_lock<std::mutex> lock(cacheGnssLocationMutex_);
+    return cacheGnssLocation_;
+}
+
+Location& ReportManager::GetCacheNlpLocation()
+{
+    std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
+    return cacheNlpLocation_;
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
@@ -420,12 +444,12 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::string packageName = request->GetPackageName();
     int cachedTime = CACHED_TIME;
     cachedTime = HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, request->GetNlpRequestType());
-    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
-        cacheLocation = std::make_unique<Location>(cacheGnssLocation_);
-    } else if (!CommonUtils::DoubleEqual(cacheNlpLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheNlpLocation_.GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
-        cacheLocation = std::make_unique<Location>(cacheNlpLocation_);
+    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation().GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - GetCacheGnssLocation().GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
+        cacheLocation = std::make_unique<Location>(GetCacheGnssLocation());
+    } else if (!CommonUtils::DoubleEqual(GetCacheNlpLocation().GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - GetCacheNlpLocation().GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
+        cacheLocation = std::make_unique<Location>(GetCacheNlpLocation());
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
@@ -561,8 +585,8 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
 bool ReportManager::IsCacheGnssLocationValid()
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
-    if (!CommonUtils::DoubleEqual(cacheGnssLocation_.GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - cacheGnssLocation_.GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
+    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation().GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - GetCacheGnssLocation().GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
         return true;
     }
     return false;
