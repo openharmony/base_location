@@ -801,8 +801,7 @@ void SetExecuteFuncForGetCachedGnssLocationsSizeContext(CachedAsyncContext* asyn
 
 #ifdef ENABLE_NAPI_MANAGER
         int size = -1;
-        g_locatorClient->GetCachedGnssLocationsSizeV9(size);
-        context->errCode = ERRCODE_NOT_SUPPORTED;
+        context->errCode = g_locatorClient->GetCachedGnssLocationsSizeV9(size);
         context->locationSize = size;
 #else
         context->locationSize = g_locatorClient->GetCachedGnssLocationsSize();
@@ -862,8 +861,7 @@ void SetExecuteFuncForFlushCachedGnssLocationsContext(CachedAsyncContext* asyncC
             context->errCode = errorCode;
             return;
         }
-        g_locatorClient->FlushCachedGnssLocationsV9();
-        context->errCode = ERRCODE_NOT_SUPPORTED;
+        context->errCode = g_locatorClient->FlushCachedGnssLocationsV9();
 #else
         if (g_locatorClient->IsLocationEnabled()) {
             g_locatorClient->FlushCachedGnssLocations();
