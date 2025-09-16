@@ -356,8 +356,7 @@ LocationErrCode SubscribeCacheLocationChangeV9(const napi_env& env, const napi_v
     cachedCallbackHost->SetEnv(env);
     cachedCallbackHost->SetHandleCb(handlerRef);
     JsObjToCachedLocationRequest(env, object, g_cachedRequest);
-    g_locatorProxy->RegisterCachedLocationCallbackV9(g_cachedRequest, cachedCallback);
-    return ERRCODE_NOT_SUPPORTED;
+    return g_locatorProxy->RegisterCachedLocationCallbackV9(g_cachedRequest, cachedCallback);
 }
 #endif
 
@@ -745,8 +744,7 @@ void UnSubscribeCacheLocationChange(sptr<ICachedLocationsCallback>& callback)
 LocationErrCode UnSubscribeCacheLocationChangeV9(sptr<ICachedLocationsCallback>& callback)
 {
     LBSLOGD(LOCATION_NAPI, "UnSubscribeCacheLocationChangeV9");
-    g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
-    return ERRCODE_NOT_SUPPORTED;
+    return g_locatorProxy->UnregisterCachedLocationCallbackV9(callback);
 }
 
 LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback)
@@ -1279,9 +1277,6 @@ bool OffAllCachedGnssLocationsReportingCallback(const napi_env& env)
         g_cachedLocationCallbacks.GetCallbackMap();
     auto iter = callbackMap.find(env);
     if (iter == callbackMap.end()) {
-#ifdef ENABLE_NAPI_MANAGER
-        HandleSyncErrCode(env, ERRCODE_NOT_SUPPORTED);
-#endif
         return false;
     }
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
