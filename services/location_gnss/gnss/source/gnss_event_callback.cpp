@@ -282,25 +282,27 @@ int32_t GnssEventCallback::ReportCachedLocation(const std::vector<LocationInfo>&
     auto gnssAbility = GnssAbility::GetInstance();
     std::string identity = IPCSkeleton::ResetCallingIdentity();
     std::vector<std::unique_ptr<Location>> gnssLocationsNew;
-    for (const LocationInfo& gnsslocation : gnssLocations) {
+    gnssLocationsNew.reserve(gnssLocations.size());
+    for (const LocationInfo& gnssLocation : gnssLocations) {
         std::unique_ptr<Location> location = std::make_unique<Location>();
-        location->SetLatitude(gnsslocation.latitude);
-        location->SetLongitude(gnsslocation.longitude);
-        location->SetAltitude(gnsslocation.altitude);
-        location->SetAccuracy(gnsslocation.horizontalAccuracy);
-        location->SetSpeed(gnsslocation.speed);
-        location->SetDirection(gnsslocation.bearing);
-        location->SetAltitudeAccuracy(gnsslocation.verticalAccuracy);
-        location->SetSpeedAccuracy(gnsslocation.speedAccuracy);
-        location->SetDirectionAccuracy(gnsslocation.bearingAccuracy);
-        location->SetTimeStamp(gnsslocation.timeForFix);
-        location->SetTimeSinceBoot(gnsslocation.timeSinceBoot);
-        location->SetUncertaintyOfTimeSinceBoot(gnsslocation.timeUncertainty);
+        location->SetLatitude(gnssLocation.latitude);
+        location->SetLongitude(gnssLocation.longitude);
+        location->SetAltitude(gnssLocation.altitude);
+        location->SetAccuracy(gnssLocation.horizontalAccuracy);
+        location->SetSpeed(gnssLocation.speed);
+        location->SetDirection(gnssLocation.bearing);
+        location->SetAltitudeAccuracy(gnssLocation.verticalAccuracy);
+        location->SetSpeedAccuracy(gnssLocation.speedAccuracy);
+        location->SetDirectionAccuracy(gnssLocation.bearingAccuracy);
+        location->SetTimeStamp(gnssLocation.timeForFix);
+        location->SetTimeSinceBoot(gnssLocation.timeSinceBoot);
+        location->SetUncertaintyOfTimeSinceBoot(gnssLocation.timeUncertainty);
         location->SetIsFromMock(false);
         location->SetLocationSourceType(LocationSourceType::GNSS_TYPE);
-        location->SetFieldValidity(gnsslocation.fieldValidity);
+        location->SetFieldValidity(gnssLocation.fieldValidity);
         gnssLocationsNew.push_back(std::move(location));
     }
+    gnssAbility->ReportCachedLocation(gnssLocationsNew);
     IPCSkeleton::SetCallingIdentity(identity);
     return ERR_OK;
 }
