@@ -33,6 +33,7 @@ void CachedLocationsCallbackProxy::OnCacheLocationsReport(const std::vector<std:
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         return;
     }
+    data.WriteInt32(locations.size());
     for (unsigned int i = 0; i < locations.size(); i++) {
         locations[i]->Marshalling(data);
     }
