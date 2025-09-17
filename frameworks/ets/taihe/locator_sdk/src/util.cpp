@@ -246,7 +246,7 @@ void Util::SatelliteStatusInfoToTaihe(::ohos::geoLocationManager::SatelliteStatu
 {
     satelliteStatusInfo.satellitesNumber = statusInfo->GetSatellitesNumber();
     satelliteStatusInfo.satelliteIds =
-        ::taihe::array<double>{taihe::copy_data_t{},
+        ::taihe::array<int>{taihe::copy_data_t{},
         statusInfo->GetSatelliteIds().data(), statusInfo->GetSatelliteIds().size()};
     satelliteStatusInfo.carrierToNoiseDensitys =
         ::taihe::array<double>{taihe::copy_data_t{},
@@ -274,9 +274,9 @@ void Util::SatelliteStatusInfoToTaihe(::ohos::geoLocationManager::SatelliteStatu
                 satelliteConstellationCategoryList.size()}
         };
     satelliteStatusInfo.satelliteAdditionalInfo =
-        ::taihe::optional<::taihe::array<double>>{
+        ::taihe::optional<::taihe::array<int>>{
             std::in_place_t{},
-            ::taihe::array<double>{taihe::copy_data_t{},
+            ::taihe::array<int>{taihe::copy_data_t{},
             statusInfo->GetSatelliteAdditionalInfoList().data(),
             statusInfo->GetSatelliteAdditionalInfoList().size()}
         };
