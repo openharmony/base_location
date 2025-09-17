@@ -77,16 +77,18 @@
         "srcEntry": "./ets/confirmuiextability/ConfirmUIExtAbility.ets",
         "description": "$string:ConfirmUIExtAbility_desc",
         "label": "$string:ConfirmUIExtAbility_label",
-        "exported": false,
-        "type": "sysDialog/common"
+        "exported": true,
+        "type": "sysDialog/common",
+        "permissions": ["ohos.permission.LOCATION_IN_BACKGROUND"]
       },
       {
         "name": "LocationPrivacyExtAbility",
         "srcEntry": "./ets/locationprivacyextability/LocationPrivacyExtAbility.ets",
         "description": "$string:LocationPrivacyExtAbility_desc",
         "label": "$string:LocationPrivacyExtAbility_label",
-        "exported": false,
-        "type": "sysDialog/common"
+        "exported": true,
+        "type": "sysDialog/common",
+        "permissions": ["ohos.permission.LOCATION_IN_BACKGROUND"]
       },
       {
         "name": "WifiUIExtAbility",
