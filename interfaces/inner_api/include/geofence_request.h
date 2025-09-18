@@ -52,9 +52,9 @@ public:
 
     void SetScenario(int scenario);
 
-    void GeofenceRequest::SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent);
+    void SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent);
 
-    AbilityRuntime::WantAgent::WantAgent GeofenceRequest::GetWantAgent();
+    AbilityRuntime::WantAgent::WantAgent GetWantAgent();
 
     std::vector<GeofenceTransitionEvent> GetGeofenceTransitionEventList();
 
