@@ -217,7 +217,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     uid_ = data.ReadInt32();
     auto wantagent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
     if (wantagent != nullptr) {
-        wantagent_ = *(wantagent);
+        wantAgent_ = *(wantagent);
         delete wantagent;
     }
 }
