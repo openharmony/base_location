@@ -60,6 +60,10 @@ idl_gen_interface("locator_interface") {
     rebase_path(
         "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/beacon_fence.cpp"),
   ]
+  sequenceable_ext_deps = [
+    "ability_base:want",
+    "ability_runtime:wantagent_innerkits",
+  ]
   log_domainid = "0xD002300"
   log_tag = "Locator"
   part_name = "location"
