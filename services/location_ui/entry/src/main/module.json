@@ -93,7 +93,11 @@
         "srcEntry": "./ets/wifiability/WifiUIExtAbility.ets",
         "description": "WifiUIExtAbility",
         "label": "WifiUIExtAbility",
-        "exported": false,
+        "exported": true,
+        "permissions": [
+          "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
+          "ohos.permission.SET_WIFI_CONFIG"
+        ],
         "type": "sysDialog/common"
       },
       {
@@ -103,7 +107,11 @@
         "icon": "$media:app_icon",
         "type": "service",
         "visible": false,
-        "exported": false
+        "exported": true,
+        "permissions": [
+          "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
+          "ohos.permission.SET_WIFI_CONFIG"
+        ]
       },
       {
         "name": "HotSpotServiceAbility",
@@ -112,7 +120,11 @@
         "icon": "$media:app_icon",
         "type": "service",
         "visible": false,
-        "exported": false
+        "exported": true,
+        "permissions": [
+          "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
+          "ohos.permission.SET_WIFI_CONFIG"
+        ]
       },
       {
         "name": "BluetoothServiceAbility",
