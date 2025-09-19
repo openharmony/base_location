@@ -19,6 +19,7 @@
 #ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
 #endif
+#include "want_agent.h"
 
 namespace OHOS {
 namespace Location {
@@ -35,9 +36,7 @@ GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
 {
     this->SetGeofence(geofenceRequest.GetGeofence());
     this->SetScenario(geofenceRequest.GetScenario());
-    Parcel agentParcelData;
-    geofenceRequest.GetWantAgentParcelData(agentParcelData);
-    this->SetWantAgentParcelData(agentParcelData);
+    this->SetWantAgent(geofenceRequest.GetWantAgent());
     this->SetGeofenceTransitionEventList(geofenceRequest.GetGeofenceTransitionEventList());
 #ifdef NOTIFICATION_ENABLE
     this->SetNotificationRequestList(geofenceRequest.GetNotificationRequestList());
@@ -69,36 +68,14 @@ void GeofenceRequest::SetScenario(int scenario)
     scenario_ = scenario;
 }
 
-void GeofenceRequest::SetWantAgentParcelData(const Parcel& data)
+void GeofenceRequest::SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent)
 {
-    std::vector<char>().swap(wantAgentBuffer_);
-    char *first = reinterpret_cast<char*>(data.GetData());
-    char *last = first + data.GetDataSize();
-    wantAgentBuffer_.assign(first, last);
+    wantAgent_ = wantAgent;
 }
 
-bool GeofenceRequest::GetWantAgentParcelData(Parcel& data)
+AbilityRuntime::WantAgent::WantAgent GeofenceRequest::GetWantAgent()
 {
-    if (wantAgentBuffer_.empty()) {
-        return false;
-    }
-    void* tempBuffer = malloc(wantAgentBuffer_.size());
-    if (tempBuffer == NULL) {
-        return false;
-    }
-    errno_t ret = memcpy_s(tempBuffer, wantAgentBuffer_.size(), wantAgentBuffer_.data(), wantAgentBuffer_.size());
-    if (ret != EOK) {
-        LBSLOGE(LOCATOR, "memcpy_s failed, error code:%{public}d", ret);
-        free(tempBuffer);
-        return false;
-    }
-    bool result = data.ParseFrom(reinterpret_cast<uintptr_t>(tempBuffer), wantAgentBuffer_.size());
-    if (!result) {
-        LBSLOGE(LOCATOR, "ParseFrom failed");
-        free(tempBuffer);
-        return false;
-    }
-    return result;
+    return wantAgent_;
 }
 
 std::vector<GeofenceTransitionEvent> GeofenceRequest::GetGeofenceTransitionEventList()
@@ -238,12 +215,10 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     callback_ = data.ReadObject<IRemoteObject>();
     data.ReadString(bundleName_);
     uid_ = data.ReadInt32();
-    uint32_t size = data.ReadUint32();
-    const uint8_t *bufferPtr = data.ReadBuffer(size);
-    std::vector<char>().swap(wantAgentBuffer_);
-    if (bufferPtr != nullptr) {
-        wantAgentBuffer_.assign(bufferPtr, bufferPtr + size);
-        bufferPtr = nullptr;
+    auto wantagent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
+    if (wantagent != nullptr) {
+        wantAgent_ = *(wantagent);
+        delete wantagent;
     }
 }
 
@@ -277,8 +252,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
     parcel.WriteInt32(uid_);
-    parcel.WriteUint32(wantAgentBuffer_.size());
-    parcel.WriteBuffer(wantAgentBuffer_.data(), wantAgentBuffer_.size());
+    parcel.WriteParcelable(&wantAgent_);
     return true;
 }
 
