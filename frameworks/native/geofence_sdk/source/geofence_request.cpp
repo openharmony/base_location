@@ -20,7 +20,6 @@
 #include "notification_request.h"
 #endif
 #include "want_agent.h"
-#include "want_agent_helper.h"
 
 namespace OHOS {
 namespace Location {
@@ -69,12 +68,12 @@ void GeofenceRequest::SetScenario(int scenario)
     scenario_ = scenario;
 }
 
-void GeofenceRequest::SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent)
+void GeofenceRequest::SetWantAgent(const std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent)
 {
     wantAgent_ = wantAgent;
 }
 
-AbilityRuntime::WantAgent::WantAgent GeofenceRequest::GetWantAgent()
+std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> GeofenceRequest::GetWantAgent()
 {
     return wantAgent_;
 }
