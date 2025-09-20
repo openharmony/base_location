@@ -21,11 +21,14 @@
 #include "geofence_definition.h"
 #include <parcel.h>
 #include "iremote_object.h"
-#include "want_agent_helper.h"
 
 namespace OHOS {
 namespace Notification {
     class NotificationRequest;
+}
+
+namespace AbilityRuntime::WantAgent {
+    class WantAgent;
 }
 
 namespace Location {
@@ -52,9 +55,9 @@ public:
 
     void SetScenario(int scenario);
 
-    void SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent);
+    void SetWantAgent(const std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent);
 
-    AbilityRuntime::WantAgent::WantAgent GetWantAgent();
+    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> GetWantAgent();
 
     std::vector<GeofenceTransitionEvent> GetGeofenceTransitionEventList();
 
@@ -104,7 +107,7 @@ private:
     int scenario_;
     int fenceId_;
     int32_t uid_;
-    AbilityRuntime::WantAgent::WantAgent wantAgent_;
+    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent_;
     std::string bundleName_;
     bool appAliveStatus_;
     int64_t requestExpirationTime_ = 0;

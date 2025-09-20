@@ -370,7 +370,8 @@ void SubscribeFenceStatusChange(const napi_env& env, const napi_value& object, c
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
+    fenceRequest->SetWantAgent(wantAgentPtr);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     g_geofenceProxy->AddFenceV9(fenceRequest);
 }
@@ -389,7 +390,8 @@ LocationErrCode SubscribeFenceStatusChangeV9(const napi_env& env, const napi_val
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
+    fenceRequest->SetWantAgent(wantAgentPtr);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     LocationErrCode errCode = g_geofenceProxy->AddFenceV9(fenceRequest);
     return errCode;
@@ -405,7 +407,8 @@ void UnSubscribeFenceStatusChange(const napi_env& env, const napi_value& object,
         return;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
+    fenceRequest->SetWantAgent(wantAgentPtr);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     g_geofenceProxy->RemoveFenceV9(fenceRequest);
 }
@@ -420,7 +423,8 @@ LocationErrCode UnSubscribeFenceStatusChangeV9(const napi_env& env, const napi_v
         return ERRCODE_INVALID_PARAM;
     }
     std::shared_ptr<GeofenceRequest> fenceRequest = std::make_shared<GeofenceRequest>();
-    fenceRequest->SetWantAgent(*wantAgent);
+    auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
+    fenceRequest->SetWantAgent(wantAgentPtr);
     JsObjToGeoFenceRequest(env, object, fenceRequest);
     return g_geofenceProxy->RemoveFenceV9(fenceRequest);
 }

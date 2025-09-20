@@ -68,12 +68,12 @@ void GeofenceRequest::SetScenario(int scenario)
     scenario_ = scenario;
 }
 
-void GeofenceRequest::SetWantAgent(const AbilityRuntime::WantAgent::WantAgent wantAgent)
+void GeofenceRequest::SetWantAgent(const std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent)
 {
     wantAgent_ = wantAgent;
 }
 
-AbilityRuntime::WantAgent::WantAgent GeofenceRequest::GetWantAgent()
+std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> GeofenceRequest::GetWantAgent()
 {
     return wantAgent_;
 }
@@ -215,10 +215,10 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     callback_ = data.ReadObject<IRemoteObject>();
     data.ReadString(bundleName_);
     uid_ = data.ReadInt32();
-    auto wantagent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
-    if (wantagent != nullptr) {
-        wantAgent_ = *(wantagent);
-        delete wantagent;
+    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent(
+        AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data));
+    if (wantAgent != nullptr) {
+        wantAgent_ = wantAgent;
     }
 }
 
@@ -252,7 +252,9 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
     parcel.WriteInt32(uid_);
-    parcel.WriteParcelable(&wantAgent_);
+    if (wantAgent_ != nullptr) {
+        wantAgent_->Marshalling(parcel);
+    }
     return true;
 }
 
