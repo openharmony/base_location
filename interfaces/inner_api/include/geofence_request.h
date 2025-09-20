@@ -21,11 +21,14 @@
 #include "geofence_definition.h"
 #include <parcel.h>
 #include "iremote_object.h"
-#include "want_agent_helper.h"
 
 namespace OHOS {
 namespace Notification {
     class NotificationRequest;
+}
+
+namespace AbilityRuntime::WantAgent {
+    class WantAgent;
 }
 
 namespace Location {

@@ -20,6 +20,7 @@
 #include "notification_request.h"
 #endif
 #include "want_agent.h"
+#include "want_agent_helper.h"
 
 namespace OHOS {
 namespace Location {
@@ -215,10 +216,10 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     callback_ = data.ReadObject<IRemoteObject>();
     data.ReadString(bundleName_);
     uid_ = data.ReadInt32();
-    auto wantagent = data.ReadParcelable<AbilityRuntime::WantAgent::WantAgent>();
+    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent(
+        AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data))
     if (wantagent != nullptr) {
-        wantAgent_ = *(wantagent);
-        delete wantagent;
+        wantAgent_ = wantagent;
     }
 }
 
@@ -253,6 +254,9 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteString(bundleName_);
     parcel.WriteInt32(uid_);
     parcel.WriteParcelable(&wantAgent_);
+    if (wantAgent_ != nullptr) {
+        wantAgent_->Marshalling(parcel)
+    }
     return true;
 }
 
