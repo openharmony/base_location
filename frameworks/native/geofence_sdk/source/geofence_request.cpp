@@ -216,7 +216,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     data.ReadString(bundleName_);
     uid_ = data.ReadInt32();
     std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent(
-        AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data))
+        AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data));
     if (wantagent != nullptr) {
         wantAgent_ = wantagent;
     }
@@ -253,7 +253,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteString(bundleName_);
     parcel.WriteInt32(uid_);
     if (wantAgent_ != nullptr) {
-        wantAgent_->Marshalling(parcel)
+        wantAgent_->Marshalling(parcel);
     }
     return true;
 }
