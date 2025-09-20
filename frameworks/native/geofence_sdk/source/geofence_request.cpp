@@ -252,7 +252,6 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
     parcel.WriteInt32(uid_);
-    parcel.WriteParcelable(&wantAgent_);
     if (wantAgent_ != nullptr) {
         wantAgent_->Marshalling(parcel)
     }
