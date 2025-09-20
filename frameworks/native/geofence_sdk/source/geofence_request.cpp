@@ -217,8 +217,8 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     uid_ = data.ReadInt32();
     std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent(
         AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data));
-    if (wantagent != nullptr) {
-        wantAgent_ = wantagent;
+    if (wantAgent != nullptr) {
+        wantAgent_ = wantAgent;
     }
 }
 
