@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import ShareExtensionAbility from '@ohos.app.ability.ShareExtensionAbility';
 import UIExtensionContentSession from '@ohos.app.ability.UIExtensionContentSession';
 import Want from '@ohos.app.ability.Want';
@@ -26,8 +27,13 @@ const TAG: string = 'BluetoothServiceAbility: ';
 
 export default class BluetoothServiceAbility extends ShareExtensionAbility {
     private uris: Array<string> = [];
-    onCreate(): void {
-        console.log(`${TAG} onCreate is called`);
+    private isSystemShareOpen: boolean = false; // 标记ability是否被系统分享拉起
+    onCreate(launchParam: AbilityConstant.LaunchParam): void {
+        if (launchParam.launchReasonMessage === 'ReasonMessage_SystemShare') {
+            // 识别为被系统分享拉起
+            this.isSystemShareOpen = true;
+            console.log(`${TAG} onCreate is called`);
+        }
     }
 
     onDestroy(): void {
@@ -35,6 +41,9 @@ export default class BluetoothServiceAbility extends ShareExtensionAbility {
     }
 
     public async onSessionCreate(want: Want, session: UIExtensionContentSession): Promise<void> {
+        if (!this.isSystemShareOpen) {
+            return;
+        }
         console.log(`${TAG} onSessionCreate is called`);
         let systemShareModule = loadNativeModule('@hms:collaboration.systemShare') as ESObject;
         try {
