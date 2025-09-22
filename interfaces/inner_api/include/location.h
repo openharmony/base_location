@@ -293,6 +293,8 @@ public:
     std::vector<std::u16string> VectorString8ToVectorString16() const;
     static bool WritePoiInfoToParcel(const PoiInfo& data, Parcel& parcel);
     static PoiInfo ReadPoiInfoFromParcel(Parcel& parcel);
+    void AddNlpStatusFromParcel(Parcel& parcel);
+    void RemoveNlpStatus();
 private:
     double latitude_;
     double longitude_;

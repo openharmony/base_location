@@ -68,6 +68,7 @@ public:
     void SetNlpRequestType(int nlpRequestType);
     int GetNlpRequestType();
     void SetNlpRequestType();
+    void GnssAbnormalScenarioCheck();
     void SetLocationErrorCallBack(const sptr<ILocatorCallback>& callback);
     sptr<ILocatorCallback> GetLocationErrorCallBack();
     void SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
