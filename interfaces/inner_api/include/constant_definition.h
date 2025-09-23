@@ -91,6 +91,8 @@ enum {
     LOCATION_SCENE_WALK = 0x0405,
     LOCATION_SCENE_RIDE = 0x0406,
     LOCATION_SCENE_INDOOR_POI = 0x0407,
+    LOCATION_SCENE_GNSS_NORMAL = 0x0408,
+    LOCATION_SCENE_GNSS_ABNORMAL = 0x0409,
 };
 
 enum {
@@ -116,6 +118,8 @@ enum NlpRequestType {
     PRIORITY_TYPE_BALANCED_POWER_ACCURACY = 102,  // NLP
     PRIORITY_TYPE_INDOOR = 300,                   // indoor
     PRIORITY_TYPE_INDOOR_POI = 400,               // POI
+    PRIORITY_TYPE_GNSS_NORMAL = 500,              // gnss normal
+    PRIORITY_TYPE_GNSS_ABNORMAL = 501,            // gnss abnormal
 };
 
 enum LocationErrCode {

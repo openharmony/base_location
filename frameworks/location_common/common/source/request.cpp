@@ -249,6 +249,8 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
             proxys->push_back(NETWORK_ABILITY);
             break;
         }
+        case LOCATION_SCENE_GNSS_NORMAL:
+        case LOCATION_SCENE_GNSS_ABNORMAL:
         case LOCATION_SCENE_LOW_POWER_CONSUMPTION:
         case LOCATION_SCENE_DAILY_LIFE_SERVICE:
         case SCENE_DAILY_LIFE_SERVICE: {
@@ -360,6 +362,16 @@ void Request::SetNlpRequestType()
     if (requestConfig_->GetScenario() == LOCATION_SCENE_INDOOR_POI || requestConfig_->GetIsNeedPoi()) {
         requestConfig_->SetIsNeedPoi(true);
         nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_INDOOR_POI;
+    }
+    GnssAbnormalScenarioCheck();
+}
+
+void Request::GnssAbnormalScenarioCheck()
+{
+    if (requestConfig_->GetScenario() == LOCATION_SCENE_GNSS_NORMAL) {
+        nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_GNSS_NORMAL;
+    } else if (requestConfig_->GetScenario() == LOCATION_SCENE_GNSS_ABNORMAL) {
+        nlpRequestType_ = NlpRequestType::PRIORITY_TYPE_GNSS_ABNORMAL;
     }
 }
 

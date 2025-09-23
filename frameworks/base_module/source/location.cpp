@@ -228,6 +228,18 @@ PoiInfo Location::ReadPoiInfoFromParcel(Parcel& parcel)
     return data;
 }
 
+void Location::AddNlpStatusFromParcel(Parcel& parcel)
+{
+    additionsMap_["cellId"] = Str16ToStr8(parcel.ReadString16());
+    additionsMap_["locateType"] = Str16ToStr8(parcel.ReadString16());
+}
+
+void Location::RemoveNlpStatus()
+{
+    additionsMap_.erase("cellId");
+    additionsMap_.erase("locateType");
+}
+
 std::string Location::ToString() const
 {
     std::string str =
