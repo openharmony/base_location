@@ -56,6 +56,8 @@ private:
     Location cacheGnssLocation_;
     Location cacheNlpLocation_;
     std::mutex lastLocationMutex_;
+    std::mutex cacheGnssLocationMutex_;
+    std::mutex cacheNlpLocationMutex_;
     std::atomic<int64_t> lastResetRecordTime_;
     std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location,
         const std::shared_ptr<Request>& request);
@@ -74,6 +76,10 @@ private:
     void LocationReportDelayTimeCheck(const std::unique_ptr<Location>& location,
         const std::shared_ptr<Request>& request);
     bool NeedUpdateTimeStamp(std::unique_ptr<Location>& fuseLocation, const std::shared_ptr<Request>& request);
+    void UpdateCacheGnssLocation(Location& location);
+    void UpdateCacheNlpLocation(Location& location);
+    Location& GetCacheGnssLocation();
+    Location& GetCacheNlpLocation();
     bool CheckIfGnssAbnormal(const std::unique_ptr<Location>& location);
 };
 } // namespace OHOS
