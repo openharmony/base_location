@@ -44,6 +44,7 @@ const int64_t DEFAULT_NOT_RETRY_TIME_10_SECONDS = 10 * MILLI_PER_SEC * MICRO_PER
 const int64_t WLAN_SCAN_RESULTS_VALIDITY_PERIOD = 2 * MILLI_PER_SEC * MICRO_PER_MILLI;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int32_t MAX_CALLBACKS_MAP_NUM = 1000;
+const int32_t REGISTER_WIFI_CALLBACK_DELAY = 100;
 
 const std::string TYPE_BLE = "ble";
 LocatorRequiredDataManager::LocatorRequiredDataManager()
@@ -57,7 +58,7 @@ LocatorRequiredDataManager::LocatorRequiredDataManager()
         std::make_shared<WifiSdkHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
 #ifndef TDD_CASES_ENABLED
     if (wifiSdkHandler_ != nullptr) {
-        wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
+        wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, REGISTER_WIFI_CALLBACK_DELAY);
     }
 #endif
 }
