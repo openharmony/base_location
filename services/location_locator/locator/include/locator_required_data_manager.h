@@ -225,6 +225,9 @@ public:
     void StopScanBluetoothDevice(sptr<IRemoteObject> callbackObj);
     void StartBluetoothScan();
     void StoptBluetoothScan();
+    void HandleRefreshBluetoothRequest();
+    bool GetBluetoothScanStatus();
+    void SetBluetoothScanStatus(bool bluetoothScanStatus);
     void RemoveBluetoothScanCallback(sptr<IRemoteObject> callbackObj);
     void RemoveBluetoothScanCallbackDeathRecipientByCallback(sptr<IRemoteObject> callbackObj);
     __attribute__((no_sanitize("cfi"))) void StartWifiScan(int fixNumber, bool flag);
@@ -272,9 +275,11 @@ private:
     std::shared_ptr<ScanHandler> scanHandler_;
     std::shared_ptr<WifiSdkHandler> wifiSdkHandler_;
     std::mutex wifiScanCompleteTimestampMutex_;
+    std::mutex bluetoothScanStatusMutex_;
     int64_t wifiScanCompleteTimestamp_ = 0;
     std::mutex lastStillTimeMutex_;
     int64_t lastStillTime_ = 0;
+    bool bluetoothScanStatus_ = false;
 };
 
 class BluetoothScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

@@ -1824,6 +1824,7 @@ ErrCode LocatorAbility::ProxyForFreeze(const std::vector<int32_t>& pidList, bool
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     ProxyFreezeManager::GetInstance()->ProxyForFreeze(pidList, isProxy);
+    LocatorRequiredDataManager::GetInstance()->HandleRefreshBluetoothRequest();
     if (GetActiveRequestNum() <= 0) {
         LBSLOGD(LOCATOR, "no active request, do not refresh.");
         return ERRCODE_SUCCESS;
