@@ -108,7 +108,6 @@
         "description": "service",
         "icon": "$media:app_icon",
         "type": "service",
-        "visible": false,
         "exported": true,
         "permissions": [
           "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
@@ -121,7 +120,6 @@
         "description": "service",
         "icon": "$media:app_icon",
         "type": "service",
-        "visible": false,
         "exported": true,
         "permissions": [
           "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
