@@ -233,7 +233,7 @@ void LocatorRequiredDataManager::StartScanBluetoothDevice(sptr<IBluetoothScanRes
         LBSLOGI(LOCATOR, "after StartScanBluetoothDevice, callback size:%{public}zu",
             bluetoothcallbacksMap_.size());
     }
-    SendStartBluetoothScanEvent();
+    HandleRefreshBluetoothRequest();
 #endif
 }
 
@@ -242,7 +242,7 @@ void LocatorRequiredDataManager::StopScanBluetoothDevice(sptr<IRemoteObject> cal
 #ifdef BLUETOOTH_ENABLE
     RemoveBluetoothScanCallbackDeathRecipientByCallback(callbackObj);
     RemoveBluetoothScanCallback(callbackObj);
-    SendStopBluetoothScanEvent();
+    HandleRefreshBluetoothRequest();
 #endif
 }
 
@@ -546,12 +546,6 @@ void LocatorRequiredDataManager::StartBluetoothScan()
         LBSLOGE(LOCATOR, "%{public}s, bleCentralManager_ == nullptr", __func__);
         return;
     }
-    {
-        std::lock_guard<std::mutex> lock(bluetoothcallbacksMapMutex_);
-        if (bluetoothcallbacksMap_.size() > 1) {
-            return;
-        }
-    }
     Bluetooth::BleScanSettings settings;
     settings.SetScanMode(Bluetooth::SCAN_MODE::SCAN_MODE_LOW_POWER);
     std::vector<Bluetooth::BleScanFilter> filters;
@@ -559,6 +553,7 @@ void LocatorRequiredDataManager::StartBluetoothScan()
     filters.push_back(scanFilter);
 
     bleCentralManager_->StartScan(settings, filters);
+    SetBluetoothScanStatus(true);
 }
 
 void LocatorRequiredDataManager::StoptBluetoothScan()
@@ -567,13 +562,39 @@ void LocatorRequiredDataManager::StoptBluetoothScan()
         LBSLOGE(LOCATOR, "%{public}s, bleCentralManager_ == nullptr", __func__);
         return;
     }
-    {
-        std::lock_guard<std::mutex> lock(bluetoothcallbacksMapMutex_);
-        if (bluetoothcallbacksMap_.size() != 0) {
-            return;
+    bleCentralManager_->StopScan();
+    SetBluetoothScanStatus(false);
+}
+
+void LocatorRequiredDataManager::HandleRefreshBluetoothRequest()
+{
+    std::unique_lock<std::mutex> lock(bluetoothcallbacksMapMutex_);
+    int activeNumber = 0;
+    for (auto iter = bluetoothcallbacksMap_.begin(); iter != bluetoothcallbacksMap_.end(); iter++) {
+        auto callback = iter->first;
+        auto deathRecipientPair = iter->second;
+        auto appIdentity = deathRecipientPair.first;
+        if (!ProxyFreezeManager::GetInstance()->IsProxyPid(appIdentity.GetPid())) {
+            activeNumber ++;
         }
     }
-    bleCentralManager_->StopScan();
+    if (activeNumber > 0 && !GetBluetoothScanStatus()) {
+        SendStartBluetoothScanEvent();
+    } else if (activeNumber == 0 && GetBluetoothScanStatus()) {
+        SendStopBluetoothScanEvent();
+    }
+}
+
+bool LocatorRequiredDataManager::GetBluetoothScanStatus()
+{
+    std::unique_lock<std::mutex> lock(bluetoothScanStatusMutex_);
+    return bluetoothScanStatus_;
+}
+
+void LocatorRequiredDataManager::SetBluetoothScanStatus(bool bluetoothScanStatus)
+{
+    std::unique_lock<std::mutex> lock(bluetoothScanStatusMutex_);
+    bluetoothScanStatus_ = bluetoothScanStatus;
 }
 
 #ifdef WIFI_ENABLE
