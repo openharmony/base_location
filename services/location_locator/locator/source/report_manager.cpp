@@ -60,6 +60,9 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
 {
     auto fusionController = FusionController::GetInstance();
     PoiInfoManager::GetInstance()->UpdateCachedPoiInfo(location);
+    if (location != nullptr && CheckIfGnssAbnormal(location)) {
+        return false;
+    }
     UpdateCacheLocation(location, abilityName);
     auto locatorAbility = LocatorAbility::GetInstance();
     auto requestMap = locatorAbility->GetRequests();
@@ -237,6 +240,20 @@ std::unique_ptr<Location> ReportManager::ExecuteReportProcess(std::shared_ptr<Re
         return nullptr;
     }
     return std::make_unique<Location>(reportStruct.location);
+}
+
+bool ReportManager::CheckIfGnssAbnormal(const std::unique_ptr<Location>& location)
+{
+    GnssLocationValidStruct reportStruct;
+    reportStruct.location = *location;
+    reportStruct.isGnssSpoofed = false;
+    location->RemoveNlpStatus();
+    HookUtils::ExecuteHook(
+        LocationProcessStage::ON_LOCATION_REPORT_PROCESS, (void *)&reportStruct, nullptr);
+    if (reportStruct.location.GetLocationSourceType() == GNSS_TYPE && reportStruct.isGnssSpoofed) {
+        return reportStruct.isGnssSpoofed;
+    }
+    return false;
 }
 
 std::unique_ptr<Location> ReportManager::ExecuteLocationProcess(const std::shared_ptr<Request>& request,

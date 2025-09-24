@@ -65,6 +65,7 @@ enum class LocationProcessStage {
     REMOVE_BEACON_FENCE_BY_CALLBACK_PROCESS,
     BEACON_FENCE_TRANSITION_STATUS_CHANGE_PROCESS,
     ENABLE_GNSS_PROCESS,
+    ON_LOCATION_REPORT_PROCESS,
 };
 
 typedef struct {
@@ -92,6 +93,7 @@ typedef struct {
 typedef struct {
     Location location;
     bool result;
+    bool isGnssSpoofed;
 } GnssLocationValidStruct;
 
 typedef struct {

@@ -40,6 +40,7 @@ const RESULT_ERROR_CANCELED: number = 4;
 const RESULT_ERROR_CONNECTION_FAILED: number = 5;
 const RESULT_ERROR_TRANSFER_FAILED: number = 6;
 const RESULT_ERROR_UNKNOWN: number = 7;
+const RESULT_ERROR_NO_MESSAGE: number = 8;
 const STATUS_PENDING: number = 0;
 const STATUS_RUNNING: number = 1;
 const STATUS_FINISH: number = 2;
@@ -94,6 +95,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
     private successCount: number = 0;
     private failedCount: number = 0;
     private isEnabledLive2: boolean = false;
+	private userReceiveTimeout: number = 50;
 
     onCreate(want: Want): void {
         if (!PermissionUtils.checkBluetoothShareCallerBluetoothPermission(want)) {
@@ -102,13 +104,17 @@ export default class BluetoothSendUIAbility extends UIAbility {
         }
         console.info(TAG, 'BluetoothSendUIAbility onCreate');
         this.timerIdCreate = setTimeout(() => {
-            console.info(TAG, 'onCreate 10 seconds but nothing received');
+            console.info(TAG, 'onCreate 51 seconds but nothing received');
             this.handleTerminate();
-        }, 10000);
+        }, (this.userReceiveTimeout + 1) * 1000);
         this.timerIdCreated = true;
         this.subscribeTransferState();
         this.readyReceiveEvent();
         this.startContinuousTask();
+		let fileName : string = want.parameters?.['fileName'] as string;
+		if (fileName != undefined && fileName != '') {
+			this.pullUpSendProgressNotification(0, fileName);
+		}
     }
 
     onDestroy(): void {
