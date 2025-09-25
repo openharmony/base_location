@@ -66,6 +66,7 @@ if (location_feature_with_gnss) {
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
       "ability_base:want",
+      "ability_runtime:ability_connect_callback_stub",
       "access_token:libaccesstoken_sdk",
       "access_token:libnativetoken",
       "access_token:libtoken_setproc",

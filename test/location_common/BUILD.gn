@@ -48,6 +48,7 @@ ohos_unittest("LocationCommonTest") {
 
   external_deps = [
     "ability_base:want",
+    "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:dataobs_manager",
     "ability_runtime:wantagent_innerkits",
     "access_token:libaccesstoken_sdk",
