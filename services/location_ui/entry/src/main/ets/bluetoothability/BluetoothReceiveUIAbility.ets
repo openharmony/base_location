@@ -383,7 +383,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 this.sandBoxUri = uri.path + '/' + this.fileName;
                 this.receiveDirectory = this.receiveDirectory + '/' + this.fileName;
             } else {
-                this.sandBoxUri = uri.path;
+                this.sandBoxUri = this.receiveDirectory;
             }
             let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
             await this.oppProfile.setIncomingFileConfirmation(true, file.fd);
