@@ -23,8 +23,8 @@
         "label": "BluetoothReceiveUIAbility",
         "description": "service",
         "metadata": [],
-        "visible": true,
-        "permissions": ["ohos.permission.KEEP_BACKGROUND_RUNNING"],
+        "exported": true,
+        "permissions": ["ohos.permission.MANAGE_BLUETOOTH"],
         "continuable": false,
         "skills": [],
         "backgroundModes": [
@@ -42,8 +42,8 @@
         "label": "BluetoothSendUIAbility",
         "description": "service",
         "metadata": [],
-        "visible": true,
-        "permissions": ["ohos.permission.KEEP_BACKGROUND_RUNNING"],
+        "exported": true,
+        "permissions": ["ohos.permission.MANAGE_BLUETOOTH"],
         "continuable": false,
         "skills": [],
         "backgroundModes": [
@@ -115,7 +115,7 @@
         "srcEntry": "./ets/bluetoothability/BluetoothServiceAbility.ets",
         "type": "share",
         "extensionProcessMode": "instance",
-        "visible": true,
+        "exported": true,
         "permissions": ["ohos.permission.KEEP_BACKGROUND_RUNNING"],
         "skills": [
           {
@@ -142,7 +142,8 @@
         "srcEntry": "./ets/bluetoothability/BluetoothPcReceiveServiceUIAbility.ets",
         "description": "BluetoothReceiveServiceUIAbility",
         "label": "BluetoothReceiveServiceUIAbility",
-        "exported": false,
+        "exported": true,
+        "permissions": ["ohos.permission.MANAGE_BLUETOOTH"],
         "type": "sysDialog/common"
       }
     ],
