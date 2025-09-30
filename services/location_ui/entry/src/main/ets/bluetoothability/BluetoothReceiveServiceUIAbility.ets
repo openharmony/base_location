@@ -44,6 +44,11 @@ export default class BluetoothReceiveServiceUIAbility extends UIExtensionAbility
             AppStorage.setOrCreate('fileName', fileName);
         }
 
+        let removeFileUri: string = want.parameters?.['removeFileUri'] as string;
+        if (removeFileUri != undefined && removeFileUri != '') {
+            AppStorage.setOrCreate('removeFileUri', removeFileUri);
+        }
+
         let param: Record<string, UIExtensionContentSession> = {
             'session': session
         }

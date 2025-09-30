@@ -192,6 +192,24 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         })
     }
 
+    unlinkFile() {
+        try {
+            this.tapEventIsAllowed = true;
+            console.info(TAG, `unlink file begin`);
+            const uri = new fileUri.FileUri(this.receiveDirectory);
+            let deleteSandBoxUri = uri.path;
+            fs.unlinkSync(deleteSandBoxUri);
+        } catch (error) {
+            this.tapEventIsAllowed = true;
+            this.cancelSendProgressNotification();
+            this.pullUpReceiveResultNotification();
+            this.oppProfile.off('transferStateChange');
+            let err: BusinessError = error as BusinessError;
+            console.error(TAG, `unlink failed, code is ${err.code}, message is ${err.message}`);
+            this.oppProfile.setLastReceivedFileUri('removeFile: ' + this.receiveDirectory);
+        }
+    }
+
     async readyReceiveEvent() {
         try {
             console.info(TAG, 'readyReceiveEvent');
@@ -350,11 +368,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                     this.reportBtChrDataByResult(data.result);
                 }
                 if (data.result != RESULT_SUCCESS && data.filePath != undefined && data.filePath.trim().length > 0) {
-                    this.tapEventIsAllowed = true;
-                    console.info(TAG, `unlink file begin`);
-                    const uri = new fileUri.FileUri(this.receiveDirectory);
-                    let deleteSandBoxUri = uri.path;
-                    fs.unlinkSync(deleteSandBoxUri);
+                    this.unlinkFile();
                 }
                 if (data.currentCount == data.totalCount || data.result == RESULT_ERROR_CANCELED ||
                     data.result == RESULT_ERROR_TRANSFER_FAILED) {
