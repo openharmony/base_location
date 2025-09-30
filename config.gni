@@ -57,7 +57,7 @@ declare_args() {
   hdf_drivers_interface_location_geofence_enable = true
   multimedia_image_framework_enable = true
   notification_distributed_notification_service_enable = true
-  movement_client_enable = true
+  movement_client_enable = false
   location_device_standby_enable = true
   time_service_enable = true
   net_manager_enable = true

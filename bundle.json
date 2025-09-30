@@ -82,7 +82,6 @@
                 "bluetooth",
                 "distributed_notification_service",
                 "image_framework",
-                "movement",
                 "device_standby",
                 "time_service",
                 "netmanager_base",
