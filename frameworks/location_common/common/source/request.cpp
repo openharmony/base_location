@@ -439,7 +439,8 @@ void Request::UpdateLocationSrcStaticMap(int locSrc, int addCount)
     }
 }
  
-int Request::GetLocationSrcStaticMapCount(int locSrc) {
+int Request::GetLocationSrcStaticMapCount(int locSrc)
+{
     auto it = locationSrcStaticMap_.find(locSrc);
     if (it != locationSrcStaticMap_.end()) {
         return it->second;
@@ -447,7 +448,8 @@ int Request::GetLocationSrcStaticMapCount(int locSrc) {
     return 0; // 分类不存在时返回0
 }
  
-std::string Request::GetAllCategoryCountsTostring() {
+std::string Request::GetAllCategoryCountsTostring()
+{
     std::string oss;
     if (locationSrcStaticMap_.empty()) {
         return "";
@@ -458,7 +460,8 @@ std::string Request::GetAllCategoryCountsTostring() {
     return oss;
 }
  
-int Request::GetAllCategoryCounts() {
+int Request::GetAllCategoryCounts()
+{
     int sum = 0;
     if (locationSrcStaticMap_.empty()) {
         return 0;
