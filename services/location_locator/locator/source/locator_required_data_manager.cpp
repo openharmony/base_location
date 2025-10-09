@@ -568,14 +568,15 @@ void LocatorRequiredDataManager::StoptBluetoothScan()
 
 void LocatorRequiredDataManager::HandleRefreshBluetoothRequest()
 {
-    std::unique_lock<std::mutex> lock(bluetoothcallbacksMapMutex_);
     int activeNumber = 0;
-    for (auto iter = bluetoothcallbacksMap_.begin(); iter != bluetoothcallbacksMap_.end(); iter++) {
-        auto callback = iter->first;
-        auto deathRecipientPair = iter->second;
-        auto appIdentity = deathRecipientPair.first;
-        if (!ProxyFreezeManager::GetInstance()->IsProxyPid(appIdentity.GetPid())) {
-            activeNumber ++;
+    {
+        std::unique_lock<std::mutex> lock(bluetoothcallbacksMapMutex_);
+        for (auto iter = bluetoothcallbacksMap_.begin(); iter != bluetoothcallbacksMap_.end(); iter++) {
+            auto deathRecipientPair = iter->second;
+            auto appIdentity = deathRecipientPair.first;
+            if (!ProxyFreezeManager::GetInstance()->IsProxyPid(appIdentity.GetPid())) {
+                activeNumber ++;
+            }
         }
     }
     if (activeNumber > 0 && !GetBluetoothScanStatus()) {
