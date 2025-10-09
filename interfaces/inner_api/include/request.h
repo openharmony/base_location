@@ -73,6 +73,10 @@ public:
     sptr<ILocatorCallback> GetLocationErrorCallBack();
     void SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
     sptr<IRemoteObject::DeathRecipient> GetLocatorCallbackRecipient();
+    void UpdateLocationSrcStaticMap(int locSrc, int addCount);
+    std::string GetAllCategoryCountsTostring();
+    int GetLocationSrcStaticMapCount(int locSrc);
+    int GetAllCategoryCounts();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
@@ -95,6 +99,7 @@ private:
     bool isUsingApproximatelyPerm_;
     int permUsedType_;
     sptr<IRemoteObject::DeathRecipient> locatorCallbackRecipient_;
+    std::unordered_map<int, int> locationSrcStaticMap_;
 };
 } // namespace Location
 } // namespace OHOS

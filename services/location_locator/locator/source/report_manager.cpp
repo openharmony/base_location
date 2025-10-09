@@ -161,6 +161,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         LBSLOGE(REPORT_MANAGER, "%{public}s no need report location", __func__);
         return false;
     }
+    request->UpdateLocationSrcStaticMap(finalLocation->GetLocationSourceType(), 1);  // if report succ, add count
     bool isNeedPoi = request->GetRequestConfig()->GetIsNeedPoi();
     if (isNeedPoi && PermissionManager::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId())) {
         PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(finalLocation);

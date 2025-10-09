@@ -36,6 +36,10 @@ Request::Request()
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
     nlpRequestType_ = 0;
+    locationSrcStaticMap_[GNSS_TYPE] = 0;
+    locationSrcStaticMap_[NETWORK_TYPE] = 0;
+    locationSrcStaticMap_[INDOOR_TYPE] = 0;
+    locationSrcStaticMap_[RTK_TYPE] = 0;
 }
 
 Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
@@ -55,6 +59,10 @@ Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
     nlpRequestType_ = 0;
+    locationSrcStaticMap_[GNSS_TYPE] = 0;
+    locationSrcStaticMap_[NETWORK_TYPE] = 0;
+    locationSrcStaticMap_[INDOOR_TYPE] = 0;
+    locationSrcStaticMap_[RTK_TYPE] = 0;
     SetUid(identity.GetUid());
     SetPid(identity.GetPid());
     SetTokenId(identity.GetTokenId());
@@ -408,6 +416,60 @@ void Request::SetLocatorCallbackRecipient(const sptr<IRemoteObject::DeathRecipie
 sptr<IRemoteObject::DeathRecipient> Request::GetLocatorCallbackRecipient()
 {
     return locatorCallbackRecipient_;
+}
+
+void Request::UpdateLocationSrcStaticMap(int locSrc, int addCount)
+{
+    if (locSrc < 0) {
+        LBSLOGW(REQUEST_MANAGER, "UpdateLocationSrcStaticMap invalid locSrc: empty string");
+        return;
+    }
+ 
+    if (addCount < 0 || addCount > 10) {  // max location Num for one report is 10
+        LBSLOGW(REQUEST_MANAGER, "UpdateLocationSrcStaticMap invalid addCount:%{public}d, src:%{public}d",
+            addCount, locSrc);
+        return;
+    }
+ 
+    auto it = locationSrcStaticMap_.find(locSrc);
+    if (it != locationSrcStaticMap_.end()) {
+        it->second += addCount;
+    } else {
+        locationSrcStaticMap_[locSrc] = addCount;
+    }
+}
+ 
+int Request::GetLocationSrcStaticMapCount(int locSrc)
+{
+    auto it = locationSrcStaticMap_.find(locSrc);
+    if (it != locationSrcStaticMap_.end()) {
+        return it->second;
+    }
+    return 0; // 分类不存在时返回0
+}
+ 
+std::string Request::GetAllCategoryCountsTostring()
+{
+    std::string oss;
+    if (locationSrcStaticMap_.empty()) {
+        return "";
+    }
+    for (const auto& pair : locationSrcStaticMap_) {
+        oss = oss + std::to_string(pair.first) + ": " + std::to_string(pair.second) + ";";
+    }
+    return oss;
+}
+ 
+int Request::GetAllCategoryCounts()
+{
+    int sum = 0;
+    if (locationSrcStaticMap_.empty()) {
+        return 0;
+    }
+    for (const auto& pair : locationSrcStaticMap_) {
+        sum += pair.second;
+    }
+    return sum;
 }
 } // namespace Location
 } // namespace OHOS
