@@ -40,11 +40,34 @@ struct btCreateFilePickerPage {
   private fileName: string = '';
   private fileUri: string = '';
   private fileType: string = '';
+  private removeFileUri: string = '';
 
 
   aboutToAppear() {
       console.info(TAG, `aboutToAppear`);
-      this.dealFileReceiveUri();
+      this.removeFileUri = AppStorage.Get('removeFileUri') as string;
+      if (this.removeFileUri != undefined && this.removeFileUri.length > 1) {
+          AppStorage.Delete('removeFileUri');
+          this.removeAssets();
+      } else {
+          this.dealFileReceiveUri();
+      }
+  }
+
+  /**
+   * 删除媒体库资源
+   */
+  private async removeAssets() {
+      try {
+          let photoUris: string[] = [];
+          photoUris.push(this.removeFileUri);
+          await photoAccessHelper.MediaAssetChangeRequest.deleteLocalAssetsPermanentlyWithUri(this.context, photoUris);
+          console.info('removeAssets successfully');
+      } catch (error) {
+          let err: BusinessError = error as BusinessError;
+          console.error(TAG, `unlink failed, code is ${err.code}, message is ${err.message}`);
+      }
+      this.context.terminateSelf();
   }
 
   /**
