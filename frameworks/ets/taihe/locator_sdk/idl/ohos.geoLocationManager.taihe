@@ -97,6 +97,7 @@ struct CurrentLocationRequest {
 struct SingleLocationRequest  {
     locatingPriority: Optional<LocatingPriority>;
     locatingTimeoutMs: Optional<i32>;
+    needPoi: Optional<bool>;
 }
 
 union CurrentRequest {
@@ -210,6 +211,25 @@ struct LocatingRequiredData {
     wifiData: Optional<WifiScanInfo>;
     bluetoothData: Optional<BluetoothScanInfo>;
 }
+
+struct Poi {
+    id: String;
+    confidence: f64;
+    name: String;
+    latitude: f64;
+    longitude: f64;
+    administrativeArea: String;
+    subAdministrativeArea: String;
+    locality: String;
+    subLocality: String;
+    address: String;
+}
+
+struct PoiInfo {
+    poiArray: Array<Poi>;
+    timestamp: i64;
+}
+
 
 function IsLocationEnabled(): bool;
 @gen_async("getAddressesFromLocation")
