@@ -126,6 +126,11 @@ napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const n
 LocationErrCode CheckLocationSwitchEnable();
 napi_value RequestPoiInfoOnce(const napi_env& env, const size_t argc, const napi_value* argv);
 #endif
+
+#define DECLARE_WRITABLE_NAPI_FUNCTION(name, func)                                 \
+    {                                                                              \
+        (name), nullptr, (func), nullptr, nullptr, nullptr, napi_writable, nullptr \
+    }
 }  // namespace Location
 }  // namespace OHOS
 #endif // LOCATION_NAPI_EVENT_H
