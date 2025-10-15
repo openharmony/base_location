@@ -248,7 +248,7 @@ static napi_value Init(napi_env env, napi_value exports)
 
     napi_property_descriptor desc[] = {
         DECLARE_NAPI_FUNCTION("getLastLocation", GetLastLocation),
-        DECLARE_NAPI_FUNCTION("isLocationEnabled", IsLocationEnabled),
+        DECLARE_WRITABLE_NAPI_FUNCTION("isLocationEnabled", IsLocationEnabled),
         DECLARE_NAPI_FUNCTION("requestEnableLocation", RequestEnableLocation),
         DECLARE_NAPI_FUNCTION("enableLocation", EnableLocation),
         DECLARE_NAPI_FUNCTION("disableLocation", DisableLocation),
@@ -302,7 +302,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("off", Off),
         DECLARE_NAPI_FUNCTION("getCurrentLocation", GetCurrentLocation),
         DECLARE_NAPI_FUNCTION("getLastLocation", GetLastLocation),
-        DECLARE_NAPI_FUNCTION("isLocationEnabled", IsLocationEnabled),
+        DECLARE_WRITABLE_NAPI_FUNCTION("isLocationEnabled", IsLocationEnabled),
         DECLARE_NAPI_FUNCTION("enableLocation", EnableLocation),
         DECLARE_NAPI_FUNCTION("disableLocation", DisableLocation),
         DECLARE_NAPI_FUNCTION("requestEnableLocation", RequestEnableLocation),
