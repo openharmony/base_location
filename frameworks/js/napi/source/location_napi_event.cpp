@@ -1471,9 +1471,6 @@ bool OffCachedGnssLocationsReportingCallback(const napi_env& env, const napi_val
         return true;
     } else {
         LBSLOGI(LOCATION_NAPI, "%{public}s, the callback is not in the map", __func__);
-#ifdef ENABLE_NAPI_MANAGER
-        HandleSyncErrCode(env, ERRCODE_NOT_SUPPORTED);
-#endif
     }
     return false;
 }

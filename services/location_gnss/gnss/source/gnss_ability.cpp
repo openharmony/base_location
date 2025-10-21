@@ -386,9 +386,9 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
         }
     }
     StopGnssBatching();
-    int64_t batchIntervalMs = std::max(getReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
     if (batchingEnabled_) {
         StopGnss();
+        int64_t batchIntervalMs = std::max(getReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
         StartGnssBatching(batchIntervalMs, getWakeUpCacheQueueFullParam());
     }
     LBSLOGD(GNSS, "request:%{public}d %{public}d",
@@ -2232,7 +2232,7 @@ void LocationHdiDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
         // wait for device unloaded
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
         gnssAbility->RestGnssWorkStatus();
-        gnssAbility->RestGnssBatchingWorkStatus();
+        gnssAbility->ResetGnssBatchingWorkStatus();
         gnssAbility->ReConnectHdi();
         LBSLOGI(LOCATOR, "hdi connected finish");
     }
