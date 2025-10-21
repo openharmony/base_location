@@ -252,7 +252,7 @@ private:
     void RegisterLocationHdiDeathRecipient();
     bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryDataType& flags);
     LocationErrCode SetPositionMode();
-    LocationErrCode SetCachePositionMode(int reportingPeriodSec, bool wakeUpCacheQueueFull)
+    LocationErrCode SetCachePositionMode(int reportingPeriodSec, bool wakeUpCacheQueueFull);
     void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
