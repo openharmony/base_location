@@ -218,7 +218,7 @@ public:
     void ReConnectHdi();
     bool CheckIfHdiConnected();
     void RestGnssWorkStatus();
-    void RestGnssBatchingWorkStatus();
+    void ResetGnssBatchingWorkStatus();
     bool RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request,
         const sptr<IRemoteObject>& callback);
     bool UnregisterGnssGeofenceCallback(int fenceId);

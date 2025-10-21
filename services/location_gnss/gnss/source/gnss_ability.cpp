@@ -387,13 +387,9 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
     }
     StopGnssBatching();
     int64_t batchIntervalMs = std::max(getReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
-    int cachedGnssLocationsSize = 0;
-    GetCachedGnssLocationsSize(cachedGnssLocationsSize);
-    int64_t maxUpdateDelayMillis = request->reportingPeriodSec * cachedGnssLocationsSize;
-    int64_t batchLengthMs = std::min(maxUpdateDelayMillis, MAX_BATCH_LENGTH_MS);
-    if (batchingEnabled_ && batchLengthMs >= batchIntervalMs) {
+    if (batchingEnabled_) {
         StopGnss();
-        StartGnssBatching(batchLengthMs, getWakeUpCacheQueueFullParam());
+        StartGnssBatching(batchIntervalMs, getWakeUpCacheQueueFullParam());
     }
     LBSLOGD(GNSS, "request:%{public}d %{public}d",
         request->reportingPeriodSec, request->wakeUpCacheQueueFull ? 1 : 0);
@@ -1285,7 +1281,7 @@ bool GnssAbility::IsGnssBatchingEnabled()
         gnssBatchingWorkingStatus_ != GNSS_BATCHING_WORKING_STATUS_NONE);
 }
 
-void GnssAbility::RestGnssBatchingWorkStatus()
+void GnssAbility::ResetGnssBatchingWorkStatus()
 {
     std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
     gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_NONE;
@@ -1441,6 +1437,10 @@ void GnssAbility::StopGnssBatching()
     }
     if (!IsGnssBatchingEnabled()) {
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
+        return;
+    }
+    if (gnssBatchingWorkingStatus_ == GNSS_BATCHING_WORKING_STATUS_SESSION_END) {
+        LBSLOGD(GNSS, "GNSS batching stopped");
         return;
     }
     int ret = gnssInterface->StopGnss(GNSS_START_TYPE_GNSS_CACHE);
