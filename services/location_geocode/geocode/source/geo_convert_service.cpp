@@ -37,7 +37,7 @@ const bool REGISTER_RESULT = SystemAbility::MakeAndRegisterAbility(
     GeoConvertService::GetInstance());
 const uint32_t EVENT_SEND_GEOREQUEST = 0x0100;
 const char* UNLOAD_GEOCONVERT_TASK = "geoconvert_sa_unload";
-const int GEOCONVERT_CONNECT_TIME_OUT = 2;
+const int GEOCONVERT_CONNECT_TIME_OUT = 5;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const int UNLOAD_GEOCONVERT_DELAY_TIME = 10 * EVENT_INTERVAL_UNITE;
 const int TIMEOUT_WATCHDOG = 60; // s
