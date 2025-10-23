@@ -139,7 +139,7 @@ bool IsLocationEnabled()
     dataParcel.WriteDouble(request.latitude); // latitude
     dataParcel.WriteDouble(request.longitude); // longitude
     if (request.maxItems) {
-        dataParcel.WriteInt32(request.maxItems); // maxItems
+        dataParcel.WriteInt32(*request.maxItems); // maxItems
     } else {
         dataParcel.WriteInt32(1); // maxItems
     }
@@ -152,6 +152,7 @@ bool IsLocationEnabled()
     std::list<std::shared_ptr<GeoAddress>> replyList;
     errorCode = Locator::GetInstance()->GetAddressByCoordinateV9(dataParcel, replyList);
     if (replyList.empty() || errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
         return {};
     }
     std::vector<::ohos::geoLocationManager::GeoAddress> geoAddressList;
@@ -480,6 +481,7 @@ bool isGeocoderAvailable()
     std::list<std::shared_ptr<GeoAddress>> replyList;
     errorCode = Locator::GetInstance()->GetAddressByLocationNameV9(dataParcel, replyList);
     if (replyList.empty() || errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
         return {};
     }
     std::vector<::ohos::geoLocationManager::GeoAddress> geoAddressList;

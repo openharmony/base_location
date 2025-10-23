@@ -73,15 +73,13 @@ int Util::ConvertErrorCodeTaihe(int errorCode)
     return errorCode;
 }
 
-std::string Util::GetErrorMsgByCodeTaihe(int code)
+std::string Util::GetErrorMsgByCodeTaihe(int& code)
 {
     static std::map<int, std::string> errorCodeMap = GetErrorCodeMapTaihe();
     auto iter = errorCodeMap.find(code);
     if (iter != errorCodeMap.end()) {
-        std::string errMessage = "BussinessError ";
         code = ConvertErrorCodeTaihe(code);
-        errMessage.append(std::to_string(code)).append(": ").append(iter->second);
-        return errMessage;
+        return iter->second;
     }
     return "undefined error.";
 }
@@ -89,7 +87,7 @@ std::string Util::GetErrorMsgByCodeTaihe(int code)
 void Util::ThrowBussinessError(int code)
 {
     std::string errMsg = GetErrorMsgByCodeTaihe(code);
-    taihe::set_business_error(LocationErrCode::ERRCODE_NOT_SUPPORTED, errMsg);
+    taihe::set_business_error(code, errMsg);
 }
 
 void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::unique_ptr<Location>& lastlocation)
