@@ -41,7 +41,7 @@ struct ReverseGeoCodeRequest {
     country: Optional<String>;
     latitude: f64;
     longitude: f64;
-    maxItems: i32;
+    maxItems: Optional<i32>;
 }
 
 struct GeoCodeRequest {
