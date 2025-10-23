@@ -202,7 +202,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         } catch (error) {
             this.tapEventIsAllowed = true;
             this.cancelSendProgressNotification();
-            this.pullUpReceiveResultNotification();
             this.oppProfile.off('transferStateChange');
             let err: BusinessError = error as BusinessError;
             console.error(TAG, `unlink failed, code is ${err.code}, message is ${err.message}`);
@@ -263,7 +262,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               break;
           }
           case 'usual.event.bluetooth.OPP.TAP.REJECT': {
-              console.info(TAG, 'tapEventIsAllowed is ' + this.tapEventIsAllowed);
+              console.info(TAG, 'user reject tapEventIsAllowed is ' + this.tapEventIsAllowed);
               if (!this.tapEventIsAllowed) {
                   break;
               }
@@ -280,7 +279,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               break;
           }
           case 'usual.event.bluetooth.OPP.TAP.REMOVE': {
-              console.info(TAG, 'tapEventIsAllowed is ' + this.tapEventIsAllowed);
+              console.info(TAG, 'user remove tapEventIsAllowed is ' + this.tapEventIsAllowed);
               clearTimeout(this.timerIdReceive);
               this.transfering = false;
               this.oppProfile.setIncomingFileConfirmation(false, -1);
@@ -294,9 +293,9 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               break;
           }
           case 'ohos.event.notification.BT.LIVEVIEW_REMOVE': {
+              console.info(TAG, 'user liveview remove.');
               this.tapEventIsAllowed = true;
               this.oppProfile.cancelTransfer();
-              this.pullUpReceiveResultNotification();
               break;
           }
           case 'usual.event.bluetooth.OPP.FINISH.NOTIFICATION': {
@@ -474,8 +473,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 this.transfering = false;
                 this.oppProfile.setIncomingFileConfirmation(false, -1);
                 this.reportBtChrDataByResult(RESULT_ERROR_NOT_ACCEPTABLE);
-                this.pullUpReceiveResultNotification();
-                this.handleTerminate();
             }, waitTime);
         }).catch((err: Base.BusinessError) => {
             console.error(TAG, 'publishReceiveNotification fail');
@@ -579,7 +576,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
         };
 
         notificationManager.publish(notificationRequest).then(() => {
-            console.info(TAG, 'publishTransProgessNotification success');
+            console.info(TAG, 'publishTransProgessNotification success percent is ' + percent);
             if (percent == 100 && this.currentCount == this.totalCount) {
                 this.cancelSendProgressNotification();
             }
@@ -650,7 +647,6 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                         this.tapEventIsAllowed = true;
                         this.oppProfile.cancelTransfer();
                         this.cancelSendProgressNotification();
-                        this.pullUpReceiveResultNotification();
                         break;
                     }
                     default: {
