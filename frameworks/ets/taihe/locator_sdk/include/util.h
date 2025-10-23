@@ -38,8 +38,8 @@ class Util {
 public:
     static std::map<int, std::string> GetErrorCodeMapTaihe();
     static int ConvertErrorCodeTaihe(int errorCode);
-    static std::string GetErrorMsgByCodeTaihe(int code);
-    static void ThrowBussinessError(int& code);
+    static std::string GetErrorMsgByCodeTaihe(int& code);
+    static void ThrowBussinessError(int code);
     static void LocationToTaihe(::ohos::geoLocationManager::Location& location,
         std::unique_ptr<Location>& lastlocation);
     static void TaiheToLocation(::ohos::geoLocationManager::Location& location,
