@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 @!namespace("@ohos.geoLocationManager", "geoLocationManager")
+@!sts_inject("""
+  static { loadLibrary("location_framework_taihe_native.z") }
+""")
 @!sts_inject_into_module("
   import {WantAgent} from '@ohos.app.ability.wantAgent';
   //import { NotificationRequest } from './notification/notificationRequest';
