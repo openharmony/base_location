@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Pedido por",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Serviços de localização",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Os Serviços de localização necessitam de aceder à Internet e utilizam informações do GNSS ou da rede (WLAN, rede celular, Bluetooth e IP) para fornecer serviços com base na localização. Quando isto está ativado, as informações de localização do dispositivo serão partilhadas com os serviços aos quais foi concedido acesso à localização. As suas informações de localização também serão utilizadas pelos serviços do sistema, para fins como atualizar o fuso horário e chamadas de emergência. Consulte a <a>Declaração sobre os Serviços de Localização e Privacidade</a> para obter mais informações sobre os Serviços de localização.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

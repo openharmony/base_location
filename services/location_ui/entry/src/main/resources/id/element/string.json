@@ -1,0 +1,46 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"Setuju",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"Batal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Diminta oleh",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"Permintaan lokasi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Layanan Lokasi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Layanan Lokasi membutuhkan koneksi Internet dan menggunakan GNSS atau informasi jaringan (WLAN, jaringan seluler, Bluetooth, IP) untuk memberi Anda layanan berbasis lokasi. Ketika ini diaktifkan, informasi lokasi perangkat Anda akan dibagikan dengan layanan yang telah diberi akses lokasi. Informasi lokasi Anda juga akan digunakan oleh layanan sistem, untuk tujuan, seperti memperbarui zona waktu Anda dan panggilan darurat. Untuk informasi lainnya tentang Layanan Lokasi, lihat <a>Pernyataan Tentang Layanan Lokasi dan Privasi</a>.",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}

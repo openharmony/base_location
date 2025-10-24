@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Angefordert von",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Standortservices",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Standortservices ben?tigt eine Internetverbindung und nutzt GNSS- oder Netzwerkinformationen (WLAN, Mobilfunknetz, Bluetooth, IP), um Ihnen standortbasierte Services bereitzustellen. Bei Aktivierung dieser Option werden die Standortinformationen Ihres Ger?ts an Services weitergegeben, denen die Zugriffsberechtigung auf Ihren Standort erteilt wurde. Ihre Standortinformationen werden zudem von Systemservices genutzt, um z. B. Ihre Zeitzone und Notrufe zu aktualisieren. Weitere Informationen zu Standortservices finden Sie in der <a>Erkl?rung zu Standortservices und Datenschutz</a>.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

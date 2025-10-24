@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"İsteyen:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Konum Servisleri",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Konum Servisleri İnternet bağlantısı gerektirir ve size konum tabanlı servisler sunmak için GNSS veya ağ bilgilerini (WLAN, hücresel ağ, Bluetooth, IP) kullanır. Etkinleştirildiğinde cihazınızın konumu, konum erişimi verilen servislerle paylaşılacaktır. Konum bilgileriniz, saat diliminizi güncelleme ve acil durum aramaları gibi amaçlarla sistem servisleri tarafından da kullanılacaktır. Konum Servisleri hakkında daha fazla bilgi için <a>Konum Servisleri ve Gizlilik Hakkında Beyan</a> içeriğine bakın.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

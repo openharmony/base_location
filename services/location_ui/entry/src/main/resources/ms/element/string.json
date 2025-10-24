@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Diminta oleh",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Khidmat Lokasi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Khidmat Lokasi memerlukan sambungan Internet dan menggunakan GNSS atau maklumat rangkaian (WLAN, rangkaian selular, Bluetooth, IP) untuk memberi anda perkhidmatan berasaskan lokasi. Apabila ini didayakan, maklumat lokasi peranti anda akan dikongsi dengan perkhidmatan yang telah diberikan akses lokasi. Maklumat lokasi anda juga akan digunakan oleh perkhidmatan sistem, untuk tujuan seperti mengemas kini zon waktu anda dan panggilan kecemasan. Untuk maklumat lebih lanjut tentang Khidmat Lokasi, rujuk kepada <a>Kenyataan Mengenai Perkhidmatan Lokasi dan Privasi</a>.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

@@ -4,21 +4,21 @@
             "name":"confirm_button",
             "value":"Принимаю",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"ni_notify_title",
             "value":"Запрос геоданных",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"cancel_button",
             "value":"Отмена",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -130,7 +130,7 @@
             "name":"ni_notify_message",
             "value":"Запрос отправлен:",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -233,9 +233,9 @@
         },
         {
             "name":"location_target_statement_title",
-            "value":"Службы определения местоположения",
+            "value":"Службы геолокации",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -305,7 +305,7 @@
             "name":"location_target_statement_content",
             "value":"Службам геолокации требуется доступ в Интернет, они используют данные GNSS или сети (WLAN, сотовая сеть, Bluetooth, IP) для предоставления служб на базе геоданных. Когда эта функция включена, геоданные вашего устройства будут предоставляться службам, у которых есть право доступа к геоданным. Ваши геоданные также будут использоваться системными службами в целях обновления часового пояса и выполнения экстренных вызовов. Подробную информацию о Службах геолокации см. в <a>Уведомлении о Службах геолокации и конфиденциальности</a>.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
