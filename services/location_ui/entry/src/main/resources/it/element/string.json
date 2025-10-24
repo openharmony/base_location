@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Richiesta da",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Servizi di Posizione",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"I servizi di posizione richiedono una connessione Internet e utilizzano informazioni GNSS o di rete (WLAN, rete cellulare, Bluetooth, IP) per fornirti servizi basati sulla posizione. Se questa opzione ии abilitata, le informazioni sulla posizione del tuo dispositivo verranno condivise con i servizi a cui ии stato concesso l'accesso alla posizione. Le informazioni sulla tua posizione verranno utilizzate anche dai servizi di sistema, per scopi come l'aggiornamento del fuso orario e le chiamate di emergenza. Per maggiori informazioni sui Servizi di posizione, consulta l'<a>Informativa sui Servizi di Posizione e sulla Privacy</a>.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

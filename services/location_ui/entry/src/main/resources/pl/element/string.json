@@ -20,6 +20,27 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Osoba prosząca:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Usługi lokalizacyjne",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Usługi lokalizacyjne wymagają połączenia z Internetem i wykorzystują GNSS lub informacje o sieci (WLAN, sieć komórkowa, Bluetooth, IP), aby zapewnić Ci usługi oparte na lokalizacji. Gdy ta opcja jest włączona, informacje o lokalizacji urządzenia będą udostępniane usługom, którym przyznano dostęp do lokalizacji. Twoje dane lokalizacyjne będą również wykorzystywane przez usługi systemowe, na przykład do aktualizacji strefy czasowej i połączeń alarmowych. Więcej informacji o Usługach lokalizacyjnych można znaleźć w dokumencie <a>Oświadczenie dotyczące Usług lokalizacyjnych oraz ochrony prywatności</a>.",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

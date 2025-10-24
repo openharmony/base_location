@@ -1,0 +1,46 @@
+{
+    "string":[
+        {
+            "name":"confirm_button",
+            "value":"ເຫັນດີນໍາ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"ຍົກເລີກ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"ຂໍໂດຍ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"ຄຳຂໍທີ່ຕັ້ງ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"ການບໍລິການທີ່ຕັ້ງ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"ການບໍລິການທີ່ຕັ້ງ ຈຳເປັນຕ້ອງມີການເຊື່ອມຕໍ່ອິນເຕີເນັດ ແລະ ໃຊ້ GNSS ຫຼື ຂໍ້ມູນເຄືອຂ່າຍ (WLAN, ເຄືອຂ່າຍເຊລລູລາ, Bluetooth, IP) ເພື່ອໃຫ້ການບໍລິການຕາມທີ່ຕັ້ງແກ່ທ່ານ. ເມື່ອເປີດໃຊ້ງານສິ່ງນີ້ແລ້ວ, ຂໍ້ມູນທີ່ຕັ້ງຂອງອຸປະກອນຂອງທ່ານຈະຖືກແຊຣ໌ກັບການບໍລິການທີ່ໄດ້ໃຫ້ການເຂົ້າເຖິງທີ່ຕັ້ງ. ຂໍ້ມູນທີ່ຕັ້ງຂອງທ່ານຍັງຈະຖືກໃຊ້ໂດຍການບໍລິການລະບົບ, ສຳລັບຈຸດປະສົງ ເຊັ່ນ: ການອັບເດດເຂດເວລາ ແລະ ການໂທສຸກເສີນຂອງທ່ານ. ສຳລັບຂໍ້ມູນເພີ່ມເຕີມກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ, ເບິ່ງ <a>ຄຳຖະແຫຼງກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ ແລະ ຄວາມເປັນສ່ວນຕົວ</a>.",
+            "attr":{
+                "priority":"translate"
+            }
+        }
+    ]
+}
