@@ -62,10 +62,10 @@ ohos_fuzztest("LocationSwitchCallbackHostFuzzTest") {
     "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "libuv:uv",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "libuv:uv",
   ]
 
   defines = []

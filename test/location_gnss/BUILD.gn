@@ -59,12 +59,6 @@ if (location_feature_with_gnss) {
     ]
 
     external_deps = [
-      "napi:ace_napi",
-      "googletest:gmock_main",
-      "googletest:gtest_main",
-      "ipc:ipc_core",
-      "safwk:system_ability_fwk",
-      "samgr:samgr_proxy",
       "ability_base:want",
       "ability_runtime:ability_connect_callback_stub",
       "access_token:libaccesstoken_sdk",
@@ -77,12 +71,18 @@ if (location_feature_with_gnss) {
       "distributed_notification_service:ans_innerkits",
       "eventhandler:libeventhandler",
       "ffrt:libffrt",
+      "googletest:gmock_main",
+      "googletest:gtest_main",
       "hdf_core:libhdi",
       "hdf_core:libpub_utils",
       "hilog:libhilog",
       "hisysevent:libhisysevent",
       "init:libbegetutil",
+      "ipc:ipc_core",
+      "napi:ace_napi",
+      "safwk:system_ability_fwk",
       "samgr:dynamic_cache",
+      "samgr:samgr_proxy",
       "selinux_adapter:librestorecon",
     ]
 

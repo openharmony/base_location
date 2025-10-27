@@ -40,9 +40,9 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$LOCATION_ROOT_DIR/test/location_locator/source/locator_required_data_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/locator_service_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/permission_manager_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/poi_info_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/report_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/work_record_test.cpp",
-    "$LOCATION_ROOT_DIR/test/location_locator/source/poi_info_manager_test.cpp",
   ]
 
   include_dirs = [
@@ -74,22 +74,22 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "bundle_framework:appexecfwk_core",
+    "cJSON:cjson",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "distributed_notification_service:ans_innerkits",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
+    "googletest:gmock_main",
+    "googletest:gtest_main",
     "hilog:libhilog",
     "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
-    "cJSON:cjson",
     "samgr:dynamic_cache",
-    "googletest:gmock_main",
-    "googletest:gtest_main",
+    "samgr:samgr_proxy",
     "selinux_adapter:librestorecon",
   ]
 

@@ -40,7 +40,6 @@ ohos_fuzztest("LocatorBackgroundProxyFuzzTest") {
     "$LOCATION_ROOT_DIR/services/location_locator/locator:lbsservice_locator_static",
   ]
   external_deps = [
-    "libuv:uv",
     "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:app_manager",
     "access_token:libaccesstoken_sdk",
@@ -51,6 +50,7 @@ ohos_fuzztest("LocatorBackgroundProxyFuzzTest") {
     "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "libuv:uv",
     "napi:ace_napi",
     "samgr:samgr_proxy",
   ]

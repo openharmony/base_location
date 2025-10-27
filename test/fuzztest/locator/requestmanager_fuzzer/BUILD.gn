@@ -49,9 +49,9 @@ ohos_fuzztest("RequestManagerFuzzTest") {
     "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "libuv:uv",
     "napi:ace_napi",
     "samgr:samgr_proxy",
-    "libuv:uv",
   ]
 }
 

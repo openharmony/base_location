@@ -52,9 +52,9 @@ if (location_feature_with_geocode) {
       "hisysevent:libhisysevent",
       "init:libbegetutil",
       "ipc:ipc_core",
-      "samgr:samgr_proxy",
       "napi:ace_napi",
-      "safwk:system_ability_fwk"
+      "safwk:system_ability_fwk",
+      "samgr:samgr_proxy",
     ]
 
     defines = []
