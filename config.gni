@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-LOCATION_ROOT_DIR = "//base/location"
+LOCATION_ROOT_DIR = "//base/location/location"
 SUBSYSTEM_DIR = "$LOCATION_ROOT_DIR/services"
 ARKUI_ROOT_DIR = "//foundation/arkui"
 IPC_ROOT_DIR = "//foundation/communication/ipc"
@@ -174,7 +174,8 @@ declare_args() {
     startup_init = false
   }
 
-  if (defined(global_parts_info) && !defined(global_parts_info.hiviewdfx_hiappevent)) {
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.hiviewdfx_hiappevent)) {
     location_hiappevent_enable = false
   }
 }

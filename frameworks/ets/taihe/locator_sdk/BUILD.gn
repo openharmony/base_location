@@ -14,7 +14,7 @@
 import("//build/config/components/ets_frontend/ets2abc_config.gni")
 import("//build/ohos.gni")
 import("//build/ohos/taihe_idl/taihe.gni")
-import("//base/location/config.gni")
+import("//base/location/location/config.gni")
 
 copy_taihe_idl("copy_cryptoFramework") {
     sources = [ "./idl/ohos.geoLocationManager.taihe" ]

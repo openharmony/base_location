@@ -10,7 +10,7 @@
     "publishAs": "code-segment",
     "private": false,
     "segment": {
-        "destPath": "base/location"
+        "destPath": "base/location/location"
     },
     "component": {
         "name": "location",
@@ -37,7 +37,7 @@
         "rom": "1769KB",
         "ram": "8458KB",
         "hisysevent_config": [
-            "//base/location/services/location_locator/hisysevent.yaml"
+            "//base/location/location/services/location_locator/hisysevent.yaml"
         ],
         "deps": {
             "components": [
@@ -92,87 +92,87 @@
         "build": {
             "group_type": {
                 "base_group": [
-                    "//base/location/services/utils:lbsresources",
-                    "//base/location/frameworks/base_module:lbsbase_module"
+                    "//base/location/location/services/utils:lbsresources",
+                    "//base/location/location/frameworks/base_module:lbsbase_module"
                 ],
                 "fwk_group": [
-                    "//base/location/frameworks/native/locator_sdk:locator_sdk",
-                    "//base/location/frameworks/js/napi:geolocation",
-                    "//base/location/frameworks/js/napi/fence_extension_ability:fenceextensionability_napi",
-                    "//base/location/frameworks/js/napi/fence_extension_ability_context:fenceextensioncontext_napi",
-                    "//base/location/frameworks/native/fence_extension_ability:fence_extension_ability",
-                    "//base/location/frameworks/js/napi:geolocationmanager",
-                    "//base/location/frameworks/cj:cj_geolocationmanager_ffi",
-                    "//base/location/frameworks/ets/taihe/locator_sdk:locationframework_taihe",
-                    "//base/location/frameworks/location_common/common:lbsservice_common",
-                    "//base/location/frameworks/native/locator_agent:locator_agent",
-                    "//base/location/frameworks/native/geofence_sdk:geofence_sdk",
-                    "//base/location/frameworks/native/location_ndk:location_ndk"
+                    "//base/location/location/frameworks/native/locator_sdk:locator_sdk",
+                    "//base/location/location/frameworks/js/napi:geolocation",
+                    "//base/location/location/frameworks/js/napi/fence_extension_ability:fenceextensionability_napi",
+                    "//base/location/location/frameworks/js/napi/fence_extension_ability_context:fenceextensioncontext_napi",
+                    "//base/location/location/frameworks/native/fence_extension_ability:fence_extension_ability",
+                    "//base/location/location/frameworks/js/napi:geolocationmanager",
+                    "//base/location/location/frameworks/cj:cj_geolocationmanager_ffi",
+                    "//base/location/location/frameworks/ets/taihe/locator_sdk:locationframework_taihe",
+                    "//base/location/location/frameworks/location_common/common:lbsservice_common",
+                    "//base/location/location/frameworks/native/locator_agent:locator_agent",
+                    "//base/location/location/frameworks/native/geofence_sdk:geofence_sdk",
+                    "//base/location/location/frameworks/native/location_ndk:location_ndk"
                 ],
                 "service_group": [
-                    "//base/location/services/location_geocode/geocode:lbsservice_geocode",
-                    "//base/location/services/location_gnss/gnss:lbsservice_gnss",
-                    "//base/location/services/location_locator/locator:lbsservice_locator",
-                    "//base/location/services/location_network/network:lbsservice_network",
-                    "//base/location/services/location_passive/passive:lbsservice_passive",
-                    "//base/location/services/etc:etc",
-                    "//base/location/sa_profile:location_sa_profile",
-                    "//base/location/services/location_ui:location_dialog_hap"
+                    "//base/location/location/services/location_geocode/geocode:lbsservice_geocode",
+                    "//base/location/location/services/location_gnss/gnss:lbsservice_gnss",
+                    "//base/location/location/services/location_locator/locator:lbsservice_locator",
+                    "//base/location/location/services/location_network/network:lbsservice_network",
+                    "//base/location/location/services/location_passive/passive:lbsservice_passive",
+                    "//base/location/location/services/etc:etc",
+                    "//base/location/location/sa_profile:location_sa_profile",
+                    "//base/location/location/services/location_ui:location_dialog_hap"
                 ]
             },
             "inner_kits": [
                 {
                     "header": {
-                        "header_base": "//base/location/interfaces/inner_api/include",
+                        "header_base": "//base/location/location/interfaces/inner_api/include",
                         "header_files": [
                             "locator_impl.h"
                         ]
                     },
-                    "name": "//base/location/frameworks/native/locator_sdk:locator_sdk"
+                    "name": "//base/location/location/frameworks/native/locator_sdk:locator_sdk"
                 },
                 {
                     "header": {
-                        "header_base": "//base/location/interfaces/inner_api/include",
+                        "header_base": "//base/location/location/interfaces/inner_api/include",
                         "header_files": []
                     },
-                    "name": "//base/location/frameworks/location_common/common:lbsservice_common"
+                    "name": "//base/location/location/frameworks/location_common/common:lbsservice_common"
                 },
                 {
                     "header": {
-                        "header_base": "//base/location/interfaces/inner_api/include",
+                        "header_base": "//base/location/location/interfaces/inner_api/include",
                         "header_files": []
                     },
-                    "name": "//base/location/frameworks/native/locator_agent:locator_agent"
+                    "name": "//base/location/location/frameworks/native/locator_agent:locator_agent"
                 },
                 {
                     "header": {
-                        "header_base": "//base/location/interfaces/inner_api/include",
+                        "header_base": "//base/location/location/interfaces/inner_api/include",
                         "header_files": []
                     },
-                    "name": "//base/location/frameworks/native/geofence_sdk:geofence_sdk"
+                    "name": "//base/location/location/frameworks/native/geofence_sdk:geofence_sdk"
                 },
                 {
                     "header": {
-                        "header_base": "//base/location/frameworks/cj/include",
+                        "header_base": "//base/location/location/frameworks/cj/include",
                         "header_files": []
                     },
-                    "name": "//base/location/frameworks/cj:cj_geolocationmanager_ffi"
+                    "name": "//base/location/location/frameworks/cj:cj_geolocationmanager_ffi"
                 },
                 {
-                    "name": "//base/location/frameworks/ets/taihe/locator_sdk:copy_cryptoFramework"
+                    "name": "//base/location/location/frameworks/ets/taihe/locator_sdk:copy_cryptoFramework"
                 }
             ],
             "test": [
-                "//base/location/test/location_common:unittest",
-                "//base/location/test/location_geocode:unittest",
-                "//base/location/test/location_geofence:unittest",
-                "//base/location/test/location_gnss:unittest",
-                "//base/location/test/location_locator:unittest",
-                "//base/location/test/location_manager:unittest",
-                "//base/location/test/location_network:unittest",
-                "//base/location/test/location_passive:unittest",
-                "//base/location/test/location_mock_ipc:unittest",
-                "//base/location/test/fuzztest:fuzztest"
+                "//base/location/location/test/location_common:unittest",
+                "//base/location/location/test/location_geocode:unittest",
+                "//base/location/location/test/location_geofence:unittest",
+                "//base/location/location/test/location_gnss:unittest",
+                "//base/location/location/test/location_locator:unittest",
+                "//base/location/location/test/location_manager:unittest",
+                "//base/location/location/test/location_network:unittest",
+                "//base/location/location/test/location_passive:unittest",
+                "//base/location/location/test/location_mock_ipc:unittest",
+                "//base/location/location/test/fuzztest:fuzztest"
             ]
         }
     }

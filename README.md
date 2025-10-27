@@ -46,13 +46,13 @@
 ## 目录<a name="section161941989596"></a>
 
 ```
-/base/location      # 源代码目录结构：
-  ├── figures       # 存放readme中的架构图
-  ├── frameworks    # 框架代码
-  ├── interfaces    # 对外接口
-  ├── sa_profile    # SA的配置文件
-  ├── services      # 定位服务各个SA代码目录
-  ├── test          # 测试代码目录
+/base/location/location   # 源代码目录结构：
+  ├── figures             # 存放readme中的架构图
+  ├── frameworks          # 框架代码
+  ├── interfaces          # 对外接口
+  ├── sa_profile          # SA的配置文件
+  ├── services            # 定位服务各个SA代码目录
+  ├── test                # 测试代码目录
 ```
 
 ## 约束<a name="section119744591305"></a>
