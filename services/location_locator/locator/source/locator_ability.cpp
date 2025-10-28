@@ -954,7 +954,11 @@ ErrCode LocatorAbility::RemoveFence(const GeofenceRequest& request)
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    request.Marshalling(dataToStub);
+    std::shared_ptr<GeofenceRequest> fenceRequest =
+        std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
+    fenceRequest->SetBundleName(identity.GetBundleName());
+    fenceRequest->SetUid(identity.GetUid());
+    fenceRequest->Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
 #else
