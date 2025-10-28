@@ -12,7 +12,7 @@
 # limitations under the License.
 
 #####################hydra-fuzz###################
-import("//base/location/config.gni")
+import("//base/location/location/config.gni")
 import("//build/config/features.gni")
 import("//build/test.gni")
 
@@ -63,10 +63,10 @@ ohos_fuzztest("LocatorCallbackStubFuzzTest") {
     "hisysevent:libhisysevent",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "libuv:uv",
     "napi:ace_napi",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "libuv:uv",
   ]
 
   defines = []

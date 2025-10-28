@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/location/config.gni")
+import("//base/location/location/config.gni")
 import("//build/ohos.gni")
 
 local_base_sources = [
@@ -83,7 +83,7 @@ ohos_shared_library("lbsservice_locator") {
     "access_token:libaccesstoken_sdk",
     "access_token:libprivacy_sdk",
     "cJSON:cjson",
-    "common_event_service:cesfwk_innerkits",   
+    "common_event_service:cesfwk_innerkits",
     "eventhandler:libeventhandler",
     "ffrt:libffrt",
     "hilog:libhilog",

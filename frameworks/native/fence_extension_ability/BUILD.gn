@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/location/config.gni")
+import("//base/location/location/config.gni")
 import("//build/ohos.gni")
 
 config("fence_extension_ability_config") {
@@ -51,12 +51,12 @@ fence_extension_ability_external_deps = [
   "eventhandler:libeventhandler",
   "ffrt:libffrt",
   "hilog:libhilog",
+  "ipc:ipc_napi",
   "ipc:ipc_single",
   "napi:ace_napi",
   "os_account:os_account_innerkits",
   "safwk:system_ability_fwk",
   "samgr:samgr_proxy",
-  "ipc:ipc_napi",
 ]
 
 ohos_shared_library("fence_extension_ability") {

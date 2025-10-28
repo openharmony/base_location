@@ -46,13 +46,13 @@ Location awareness helps determine where a mobile device locates. The system ide
 ## Directory Structure<a name="section161941989596"></a>
 
 ```
-/base/location      # Source code directory structure：
-  ├── figures       # Store the architecture diagram in readme
-  ├── frameworks    # Location framework code
-  ├── interfaces    # External interface
-  ├── sa_profile    # SA's profile
-  ├── services      # Directory of SA codes for location services
-  ├── test          # Test Code Directory
+/base/location/location   # Source code directory structure：
+  ├── figures             # Store the architecture diagram in readme
+  ├── frameworks          # Location framework code
+  ├── interfaces          # External interface
+  ├── sa_profile          # SA's profile
+  ├── services            # Directory of SA codes for location services
+  ├── test                # Test Code Directory
 ```
 
 ## Constraints<a name="section119744591305"></a>

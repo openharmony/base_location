@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/location/config.gni")
+import("//base/location/location/config.gni")
 import("//build/ohos.gni")
 
 config("location_common_config") {
@@ -21,8 +21,8 @@ config("location_common_config") {
 
 local_base_sources = [
   "$LOCATION_COMMON_DIR/source/app_identity.cpp",
-  "$LOCATION_COMMON_DIR/source/beacon_fence_request.cpp",
   "$LOCATION_COMMON_DIR/source/beacon_fence.cpp",
+  "$LOCATION_COMMON_DIR/source/beacon_fence_request.cpp",
   "$LOCATION_COMMON_DIR/source/bluetooth_scan_result.cpp",
   "$LOCATION_COMMON_DIR/source/common_hisysevent.cpp",
   "$LOCATION_COMMON_DIR/source/common_utils.cpp",
@@ -61,7 +61,7 @@ ohos_shared_library("lbsservice_common") {
 
   deps = [ "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module" ]
 
-  external_deps = [ 
+  external_deps = [
     "ability_runtime:ability_connect_callback_stub",
     "cJSON:cjson",
   ]
@@ -141,9 +141,7 @@ ohos_static_library("lbsservice_common_static") {
     "samgr:samgr_proxy",
   ]
 
-  external_deps = [
-    "cJSON:cjson",
-  ]
+  external_deps = [ "cJSON:cjson" ]
 
   defines = []
 
