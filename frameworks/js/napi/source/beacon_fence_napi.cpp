@@ -75,6 +75,9 @@ bool GenBeaconFenceRequest(
 void JsObjToBeaconFenceTransitionCallback(const napi_env& env, const napi_value& object,
     sptr<LocationGnssGeofenceCallbackNapi> callbackHost)
 {
+    if (callbackHost == nullptr) {
+        return;
+    }
     napi_ref handlerRef = nullptr;
     napi_value callbackNapiValue = nullptr;
     NAPI_CALL_RETURN_VOID(env,
