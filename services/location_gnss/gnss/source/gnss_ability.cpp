@@ -377,7 +377,7 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CachedLocationCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     {
-        std::unique_lock<std::mutex> lock(batchingMutex_);
+        std::unique_lock<ffrt::mutex> lock(batchingMutex_);
         if (batchingCallbackMap_.size() < MAX_CACHE_CALLBACK_NUM) {
             batchingCallbackMap_[callback] = std::make_unique<CachedGnssLocationsRequest>(*request);
         } else {
