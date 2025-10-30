@@ -42,7 +42,14 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     }
     
     onRequest(want: Want, startId: number): void {
-        console.info(TAG, `WifiServiceAbility onRequest, want: ${JSON.stringify(want)}`);
+        let logWant = { ...want };
+        let originalSSID = want.parameters?.['ssid'] as string;
+        delete logWant.parameters?.['ssid'];
+        logWant.parameters = {
+            ...logWant.parameters,
+            'ssid': this.maskSSID(originalSSID)
+        };
+        console.info(TAG, `WifiServiceAbility onRequest, want: ${JSON.stringify(logWant)}`);        
         let file: fs.File | undefined;
         let operateType : number = want.parameters?.['operateType'] as number;
         let notificationId : number = want.parameters?.['notificationId'] as number;
@@ -158,5 +165,12 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     getFormatString(resource: Resource, subStr: string): string {
         let result = this.context.resourceManager.getStringSync(resource.id);
         return result.replace(new RegExp('%s', 'gm'), subStr);
+    }
+
+    maskSSID(ssid: string): string {
+        if (!ssid) {
+            return '';
+        }
+        return ssid.length > 2 ? ssid.substring(0, 2) + '****' : '****';
     }
 }
