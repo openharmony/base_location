@@ -692,6 +692,15 @@ public:
      */
     bool IsBeaconFenceSupported();
 
+    /**
+     * Check whether the app is locating.
+     *
+    * @param pid - pid.
+    * @param uid - uid .
+     * @return { boolean } Returns {@code true} if app is locating.
+     */
+    bool IsAppLocating(pid_t pid, pid_t uid);
+
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<ILocatorService> GetProxy();
     bool IsLocationCallbackRegistered(const sptr<ILocatorCallback>& callback);

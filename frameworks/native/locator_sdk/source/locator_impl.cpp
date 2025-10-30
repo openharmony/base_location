@@ -1797,6 +1797,22 @@ bool LocatorImpl::IsBeaconFenceSupported()
 #endif
 }
 
+bool LocatorImpl::IsAppLocating(pid_t pid, pid_t uid)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsAppLocating()");
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    bool isAppLocating = false;
+    proxy->IsAppLocating(pid, uid, isAppLocating);
+    return isAppLocating;
+}
+
 void CallbackResumeManager::ResumeCallback()
 {
     ResumeGnssStatusCallback();

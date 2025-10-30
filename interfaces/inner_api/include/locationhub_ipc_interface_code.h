@@ -76,7 +76,8 @@ enum class LocatorInterfaceCode {
     START_SCAN_BLUETOOTH_DEVICE = 54,
     STOP_SCAN_BLUETOOTH_DEVICE = 55,
     ADD_BEACON_FENCE = 57,
-    REMOVE_BEACON_FENCE = 58
+    REMOVE_BEACON_FENCE = 58,
+    IS_APP_LOCATING = 59
 };
 
 enum class GeoConvertInterfaceCode {

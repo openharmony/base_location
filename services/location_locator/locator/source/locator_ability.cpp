@@ -2100,6 +2100,47 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     return locationErrCode;
 }
 
+ErrCode LocatorAbility::IsAppLocating(pid_t pid, pid_t uid, bool& isAppLocating)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::IS_APP_LOCATING, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    auto requests = GetRequests();
+    if (requests == nullptr) {
+        isAppLocating = false;
+        return ERRCODE_SUCCESS;
+    }
+    auto gnssMapIter = requests.find(GNSS_ABILITY);
+    if (gnssMapIter != requests->end()) {
+        auto gnssRequest = gnssMapIter->second;
+        for (auto iter = gnssRequest.begin(); iter != gnssRequest.end(); iter++) {
+            auto request = *iter;
+            if (request->GetPid() == pid && request->GetUid() == uid) {
+                isAppLocating = true;
+                return ERRCODE_SUCCESS;
+            }
+        }
+    }
+    auto netWorkMapIter = requests.find(NETWORK_ABILITY);
+    if (netWorkMapIter != requests->end()) {
+        auto netWorkRequest = netWorkMapIter->second;
+        for (auto iter = netWorkRequest.begin(); iter != netWorkRequest.end(); iter++) {
+            auto request = *iter;
+            if (request->GetPid() == pid && request->GetUid() == uid) {
+                isAppLocating = true;
+                return ERRCODE_SUCCESS;
+            }
+        }
+    }
+    isAppLocating = false;
+    return ERRCODE_SUCCESS;
+}
+
 ErrCode LocatorAbility::ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid)
 {
     AppIdentity identity;
