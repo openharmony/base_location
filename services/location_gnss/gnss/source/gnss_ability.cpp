@@ -391,7 +391,7 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
         int64_t batchIntervalMs = std::max(getReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
         StartGnssBatching(batchIntervalMs, getWakeUpCacheQueueFullParam());
     }
-    LBSLOGD(GNSS, "request:%{public}d %{public}d",
+    LBSLOGD(GNSS, "request:%{public}d ,%{public}d",
         request->reportingPeriodSec, request->wakeUpCacheQueueFull ? 1 : 0);
     return ERRCODE_SUCCESS;
 }
