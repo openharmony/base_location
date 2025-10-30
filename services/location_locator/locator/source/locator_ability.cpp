@@ -2105,9 +2105,11 @@ ErrCode LocatorAbility::IsAppLocating(pid_t pid, pid_t uid, bool& isAppLocating)
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::IS_APP_LOCATING, identity)) {
+        isAppLocating = false;
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        isAppLocating = false;
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     auto requests = GetRequests();
@@ -2115,7 +2117,7 @@ ErrCode LocatorAbility::IsAppLocating(pid_t pid, pid_t uid, bool& isAppLocating)
         isAppLocating = false;
         return ERRCODE_SUCCESS;
     }
-    auto gnssMapIter = requests.find(GNSS_ABILITY);
+    auto gnssMapIter = requests->find(GNSS_ABILITY);
     if (gnssMapIter != requests->end()) {
         auto gnssRequest = gnssMapIter->second;
         for (auto iter = gnssRequest.begin(); iter != gnssRequest.end(); iter++) {
@@ -2126,7 +2128,7 @@ ErrCode LocatorAbility::IsAppLocating(pid_t pid, pid_t uid, bool& isAppLocating)
             }
         }
     }
-    auto netWorkMapIter = requests.find(NETWORK_ABILITY);
+    auto netWorkMapIter = requests->find(NETWORK_ABILITY);
     if (netWorkMapIter != requests->end()) {
         auto netWorkRequest = netWorkMapIter->second;
         for (auto iter = netWorkRequest.begin(); iter != netWorkRequest.end(); iter++) {
