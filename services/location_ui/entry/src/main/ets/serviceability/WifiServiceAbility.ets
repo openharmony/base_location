@@ -138,6 +138,9 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                     text: templateText
                 }
             },
+            extraInfo: {
+                hw_custom_appname: templateTitle
+            },
             slotType: Notification.SlotType.SERVICE_INFORMATION,
             notificationControlFlags: 2,
             isUnremovable: true,
