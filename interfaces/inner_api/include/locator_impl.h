@@ -697,7 +697,7 @@ public:
      *
      * @return Returns ERRCODE_SUCCESS if Get app locating list.
      */
-    LocationErrCode GetAppLocatingList(std::unorsered_map<int32_t, int32_t>& appLocatingList);
+    LocationErrCode GetAppLocatingList(std::unordered_map<int32_t, int32_t>& appLocatingList);
 
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<ILocatorService> GetProxy();

@@ -2100,7 +2100,7 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     return locationErrCode;
 }
 
-ErrCode LocatorAbility::GetAppLocatingList(std::unorsered_map<int32_t, int32_t>& appLocatingList)
+ErrCode LocatorAbility::GetAppLocatingList(std::unordered_map<int32_t, int32_t>& appLocatingList)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);

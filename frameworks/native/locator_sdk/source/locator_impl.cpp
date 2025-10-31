@@ -1797,7 +1797,7 @@ bool LocatorImpl::IsBeaconFenceSupported()
 #endif
 }
 
-LocationErrCode LocatorImpl::GetAppLocatingList(std::unorsered_map<int32_t, int32_t>& appLocatingList)
+LocationErrCode LocatorImpl::GetAppLocatingList(std::unordered_map<int32_t, int32_t>& appLocatingList)
 {
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;

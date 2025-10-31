@@ -1260,7 +1260,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAppLocatingList001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppLocatingList001 begin");
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
-    std::unorsered_map<int32_t, int32_t> appLocatingList;
+    std::unordered_map<int32_t, int32_t> appLocatingList;
     locatorImpl->GetAppLocatingList(appLocatingList);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppLocatingList001 end");
 }
