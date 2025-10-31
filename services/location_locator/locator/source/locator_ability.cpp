@@ -2104,26 +2104,23 @@ ErrCode LocatorAbility::GetAppLocatingList(std::unorsered_map<int32_t, int32_t>&
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
-    if (!CheckRequestAvailable(LocatorInterfaceCode::IS_APP_LOCATING, identity)) {
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
     if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    auto requests = GetRequests();
-    if (requests == nullptr) {
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
+    if (requests_ == nullptr) {
         return ERRCODE_SUCCESS;
     }
-    auto gnssMapIter = requests->find(GNSS_ABILITY);
-    if (gnssMapIter != requests->end()) {
+    auto gnssMapIter = requests_->find(GNSS_ABILITY);
+    if (gnssMapIter != requests_->end()) {
         auto gnssRequest = gnssMapIter->second;
         for (auto iter = gnssRequest.begin(); iter != gnssRequest.end(); iter++) {
             auto request = *iter;
             appLocatingList.insert(std::make_pair(request->GetPid(), request->GetUid()));
         }
     }
-    auto netWorkMapIter = requests->find(NETWORK_ABILITY);
-    if (netWorkMapIter != requests->end()) {
+    auto netWorkMapIter = requests_->find(NETWORK_ABILITY);
+    if (netWorkMapIter != requests_->end()) {
         auto netWorkRequest = netWorkMapIter->second;
         for (auto iter = netWorkRequest.begin(); iter != netWorkRequest.end(); iter++) {
             auto request = *iter;

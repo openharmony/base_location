@@ -1802,7 +1802,7 @@ LocationErrCode LocatorImpl::GetAppLocatingList(std::unorsered_map<int32_t, int3
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsAppLocating()");
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::GetAppLocatingList()");
     sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
