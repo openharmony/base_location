@@ -80,5 +80,5 @@ interface OHOS.Location.ILocatorService {
     [ipccode 56] void IsPoiServiceSupported([out] boolean isPoiAvailable);
     [ipccode 57] void AddBeaconFence([in] BeaconFenceRequest request);
     [ipccode 58] void RemoveBeaconFence([in] BeaconFence beaconFence);
-    [ipccode 59] void IsAppLocating([in] int pid, [in] int uid, [out] boolean isAppLocating);
+    [ipccode 59] void GetAppLocatingList([out] Map<int, int> appLocatingList);
 }

@@ -2100,21 +2100,18 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     return locationErrCode;
 }
 
-ErrCode LocatorAbility::IsAppLocating(pid_t pid, pid_t uid, bool& isAppLocating)
+ErrCode LocatorAbility::GetAppLocatingList(std::unorsered_map<int32_t, int32_t>& appLocatingList)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::IS_APP_LOCATING, identity)) {
-        isAppLocating = false;
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        isAppLocating = false;
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     auto requests = GetRequests();
     if (requests == nullptr) {
-        isAppLocating = false;
         return ERRCODE_SUCCESS;
     }
     auto gnssMapIter = requests->find(GNSS_ABILITY);
@@ -2122,10 +2119,7 @@ ErrCode LocatorAbility::IsAppLocating(pid_t pid, pid_t uid, bool& isAppLocating)
         auto gnssRequest = gnssMapIter->second;
         for (auto iter = gnssRequest.begin(); iter != gnssRequest.end(); iter++) {
             auto request = *iter;
-            if (request->GetPid() == pid && request->GetUid() == uid) {
-                isAppLocating = true;
-                return ERRCODE_SUCCESS;
-            }
+            appLocatingList.insert(std::make_pair(request->GetPid(), request->GetUid()));
         }
     }
     auto netWorkMapIter = requests->find(NETWORK_ABILITY);
@@ -2133,13 +2127,9 @@ ErrCode LocatorAbility::IsAppLocating(pid_t pid, pid_t uid, bool& isAppLocating)
         auto netWorkRequest = netWorkMapIter->second;
         for (auto iter = netWorkRequest.begin(); iter != netWorkRequest.end(); iter++) {
             auto request = *iter;
-            if (request->GetPid() == pid && request->GetUid() == uid) {
-                isAppLocating = true;
-                return ERRCODE_SUCCESS;
-            }
+            appLocatingList.insert(std::make_pair(request->GetPid(), request->GetUid()));
         }
     }
-    isAppLocating = false;
     return ERRCODE_SUCCESS;
 }
 

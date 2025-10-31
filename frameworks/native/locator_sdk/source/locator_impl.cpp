@@ -1797,7 +1797,7 @@ bool LocatorImpl::IsBeaconFenceSupported()
 #endif
 }
 
-bool LocatorImpl::IsAppLocating(pid_t pid, pid_t uid)
+LocationErrCode LocatorImpl::GetAppLocatingList(std::unorsered_map<int32_t, int32_t>& appLocatingList)
 {
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -1808,9 +1808,9 @@ bool LocatorImpl::IsAppLocating(pid_t pid, pid_t uid)
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    bool isAppLocating = false;
-    proxy->IsAppLocating(pid, uid, isAppLocating);
-    return isAppLocating;
+    ErrCode errorCodeValue = proxy->GetAppLocatingList(appLocatingList);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
 }
 
 void CallbackResumeManager::ResumeCallback()

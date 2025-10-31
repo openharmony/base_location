@@ -693,13 +693,11 @@ public:
     bool IsBeaconFenceSupported();
 
     /**
-     * Check whether the app is locating.
+     * Get app locating list.
      *
-     * @param pid - pid.
-     * @param uid - uid .
-     * @return { boolean } Returns {@code true} if app is locating.
+     * @return Returns ERRCODE_SUCCESS if Get app locating list.
      */
-    bool IsAppLocating(pid_t pid, pid_t uid);
+    LocationErrCode GetAppLocatingList(std::unorsered_map<int32_t, int32_t>& appLocatingList);
 
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<ILocatorService> GetProxy();
