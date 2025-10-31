@@ -411,7 +411,7 @@ LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>&
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
     {
-        std::unique_lock<std::mutex> lock(batchingMutex_);
+        std::unique_lock<ffrt::mutex> lock(batchingMutex_);
         auto iter = batchingCallbackMap_.find(callback);
         if (iter != batchingCallbackMap_.end()) {
             batchingCallbackMap_.erase(iter);
@@ -1147,7 +1147,7 @@ void GnssAbility::ReportGnssSessionStatus(int status)
 
 void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Location>> &cacheLocations)
 {
-    std::unique_lock<std::mutex> lock(batchingMutex_);
+    std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
         auto callback = iter.first;
         sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
@@ -1289,7 +1289,7 @@ void GnssAbility::ResetGnssBatchingWorkStatus()
  
 int GnssAbility::GetBatchingRequestNum()
 {
-    std::unique_lock<std::mutex> lock(batchingMutex_);
+    std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     return batchingCallbackMap_.size();
 }
 
@@ -1371,7 +1371,7 @@ void GnssAbility::InitBatchingEnableStatus()
 int64_t GnssAbility::getReportingPeriodSecParam()
 {
     int reportingPeriodSec = 1000;
-    std::unique_lock<std::mutex> lock(batchingMutex_);
+    std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
         if (iter.second != nullptr) {
             reportingPeriodSec = std::min(reportingPeriodSec, iter.second->reportingPeriodSec);
@@ -1382,7 +1382,7 @@ int64_t GnssAbility::getReportingPeriodSecParam()
 
 bool GnssAbility::getWakeUpCacheQueueFullParam()
 {
-    std::unique_lock<std::mutex> lock(batchingMutex_);
+    std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
         if (iter.second != nullptr && iter.second->wakeUpCacheQueueFull) {
             return true;
