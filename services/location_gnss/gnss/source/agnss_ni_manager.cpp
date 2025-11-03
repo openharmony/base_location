@@ -41,6 +41,7 @@ namespace Location {
 using namespace EventFwk;
 constexpr uint32_t MAX_RETRY_TIMES = 3;
 constexpr uint32_t TIME_AFTER_EMERGENCY_CALL = 10 * 1000;
+constexpr int32_t DEFAULT_USERID = 100;
 constexpr int32_t INVALID_SUBID = -1;
 const std::string URN_APPLICATION_ID = "x-oma-application:ulp.ua";
 const std::string AGNSS_NI_SERVICE_NAME = "agnss_ni";
@@ -356,6 +357,10 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
 #ifdef NOTIFICATION_ENABLE
     std::shared_ptr<Notification::NotificationNormalContent> notificationNormalContent =
         std::make_shared<Notification::NotificationNormalContent>();
+    if (notificationNormalContent == nullptr) {
+        LBSLOGE(GNSS, "get notification normal content nullptr");
+        return;
+    }
     std::string title = "Location Request";
     std::string msgBody = DecodeNiString(notif.supplicantInfo, notif.supplicantInfoEncoding) +
         DecodeNiString(notif.notificationText, notif.notificationTextEncoding);
@@ -367,15 +372,23 @@ void AGnssNiManager::SendNiNotification(const GnssNiNotificationRequest &notif)
     notificationNormalContent->SetText(message);
     std::shared_ptr<OHOS::Notification::NotificationContent> notificationContent =
         std::make_shared<OHOS::Notification::NotificationContent>(notificationNormalContent);
+    if (notificationContent == nullptr) {
+        LBSLOGE(GNSS, "get notification content nullptr");
+        return;
+    }
     Notification::NotificationRequest request;
     request.SetNotificationId(GNSS_AGNSS_NI_NOTIFICATION_ID);
     request.SetContent(notificationContent);
-    request.SetCreatorUid(LOCATION_GNSS_SA_ID);
+    request.SetCreatorUid(LOCATOR_UID);
+    request.SetCreatorPid(getpid());
     request.SetAutoDeletedTime(NOTIFICATION_AUTO_DELETED_TIME);
     request.SetTapDismissed(true);
-    request.SetCreatorBundleName(AGNSS_NI_SERVICE_NAME);
     request.SetSlotType(Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
-
+    int32_t userId = DEFAULT_USERID;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    request.SetCreatorUserId(userId);
     int32_t ret = Notification::NotificationHelper::PublishNotification(request);
     if (ret != 0) {
         LBSLOGE(GNSS, "Publish Notification errorCode = %{public}d", ret);
