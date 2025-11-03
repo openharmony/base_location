@@ -2100,6 +2100,36 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     return locationErrCode;
 }
 
+ErrCode LocatorAbility::GetAppLocatingList(std::unordered_map<int32_t, int32_t>& appLocatingList)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    std::unique_lock<ffrt::mutex> lock(requestsMutex_);
+    if (requests_ == nullptr) {
+        return ERRCODE_SUCCESS;
+    }
+    auto gnssMapIter = requests_->find(GNSS_ABILITY);
+    if (gnssMapIter != requests_->end()) {
+        auto gnssRequest = gnssMapIter->second;
+        for (auto iter = gnssRequest.begin(); iter != gnssRequest.end(); iter++) {
+            auto request = *iter;
+            appLocatingList.insert(std::make_pair(request->GetPid(), request->GetUid()));
+        }
+    }
+    auto netWorkMapIter = requests_->find(NETWORK_ABILITY);
+    if (netWorkMapIter != requests_->end()) {
+        auto netWorkRequest = netWorkMapIter->second;
+        for (auto iter = netWorkRequest.begin(); iter != netWorkRequest.end(); iter++) {
+            auto request = *iter;
+            appLocatingList.insert(std::make_pair(request->GetPid(), request->GetUid()));
+        }
+    }
+    return ERRCODE_SUCCESS;
+}
+
 ErrCode LocatorAbility::ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid)
 {
     AppIdentity identity;

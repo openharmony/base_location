@@ -998,6 +998,21 @@ bool LocatorAbilityStub052FuzzTest(const char* data, size_t size)
     return true;
 }
 
+bool LocatorAbilityStub053FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_APP_LOCATING_LIST),
+        requestParcel, reply, option);
+    return true;
+}
+
 void OnStop()
 {
     Bluetooth::BluetoothHost::GetDefaultHost().Close();
