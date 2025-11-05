@@ -41,6 +41,97 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"ปฏิเสธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"ยอมรับ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"บลูทูธ: กําลังส่ง %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"บลูทูธ: กําลังรับ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"การถ่ายโอนบลูทูธเสร็จสิ้นแล้ว",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"กำลังรับ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"การถ่ายโอนบลูทูธเสร็จสิ้นแล้ว",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"กำลังส่ง…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"บลูทูธ",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

@@ -1,0 +1,52 @@
+{
+    "plural":[
+        {
+            "name":"bluetooth_receive_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"%d မအောင်မြင်ပါ",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"%d မအောင်မြင်ပါ",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_receive_finish_success_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"ဖိုင် %d ဖိုင် လက်ခံရရှိထားပါသည်",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_success_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"ဖိုင် %d ဖိုင် ပေးပို့ပြီး",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        }
+    ]
+}

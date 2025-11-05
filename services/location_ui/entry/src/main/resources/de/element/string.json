@@ -41,6 +41,97 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Dateiübertragung über Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Ablehnen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Annehmen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: %1$d/%2$d senden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: %1$d/%2$d empfangen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Bluetooth-Übertragung abgeschlossen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Dateiübertragung über Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Empfangen ...",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"Bluetooth-Übertragung abgeschlossen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"Senden ...",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

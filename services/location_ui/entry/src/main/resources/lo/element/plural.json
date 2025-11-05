@@ -1,0 +1,52 @@
+{
+    "plural":[
+        {
+            "name":"bluetooth_receive_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"%d ບໍ່ສຳເລັດ",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"%d ບໍ່ສຳເລັດ",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_receive_finish_success_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"ໄດ້ຮັບ %d ໄຟລ໌ແລ້ວ",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_success_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"ສົ່ງ %d ໄຟລ໌ແລ້ວ",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -41,6 +41,98 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"ປະຕິເສດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"ຍອມຮັບ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: ກຳລັງສົ່ງ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: ກຳລັງຮັບ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"ສຳເລັດການໂອນຍ້າຍຜ່ານ Bluetooth ແລ້ວ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"ກຳລັງຮັບ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"ສຳເລັດການໂອນຍ້າຍຜ່ານ Bluetooth ແລ້ວ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"ກໍາລັງສົ່ງ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
         }
+
     ]
 }

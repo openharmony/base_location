@@ -1,0 +1,80 @@
+{
+    "plural":[
+        {
+            "name":"bluetooth_receive_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"%d fehlgeschlagen",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"one",
+                    "value":"%d fehlgeschlagen",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"%d fehlgeschlagen",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"other",
+                    "value":"%d fehlgeschlagen",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_receive_finish_success_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"%d Datei empfangen",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"other",
+                    "value":"%d Dateien empfangen",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_success_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"%d Datei gesendet",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"other",
+                    "value":"%d Dateien gesendet",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        }
+    ]
+}

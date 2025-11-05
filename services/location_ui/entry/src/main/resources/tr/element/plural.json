@@ -1,0 +1,80 @@
+{
+    "plural":[
+        {
+            "name":"bluetooth_receive_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"other",
+                    "value":"%d başarısız",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"one",
+                    "value":"%d başarısız",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_fail_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"%d başarısız",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"other",
+                    "value":"%d başarısız",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_receive_finish_success_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"%d dosya alındı",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"other",
+                    "value":"%d dosya alındı",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        },
+        {
+            "name":"bluetooth_send_finish_success_text",
+            "value":[
+                {
+                    "quantity":"one",
+                    "value":"%d dosya gönderildi",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                },
+                {
+                    "quantity":"other",
+                    "value":"%d dosya gönderildi",
+                    "attr":{
+                        "priority":"translate"
+                    }
+                }
+            ]
+        }
+    ]
+}

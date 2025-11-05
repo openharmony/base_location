@@ -41,6 +41,97 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"ဘလူးတုသ် ဖိုင် လွှဲပြောင်းမှု",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"ငြင်းပယ်ရန်",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"လက်ခံရန်",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"ဘလူးတုသ်- ပေးပို့နေဆဲ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"ဘလူးတုသ်- လက်ခံနေဆဲ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီးစီးပါပြီ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s၊ %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s၊ %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"ဘလူးတုသ် ဖိုင် လွှဲပြောင်းမှု",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"လက်ခံနေဆဲ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_title",
+            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီးစီးပါပြီ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_send_text",
+            "value":"ပေးပို့နေဆဲ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"share_name",
+            "value":"ဘလူးတုသ်",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
