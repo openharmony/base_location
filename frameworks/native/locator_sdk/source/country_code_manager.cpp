@@ -34,6 +34,7 @@
 namespace OHOS {
 namespace Location {
 const int MAX_COUNTRY_CODE_CALLBACKS_NUM = 1000;
+const int LOCATION_VALID_TIME = 60 * 1000; // 1min
 CountryCodeManager* CountryCodeManager::GetInstance()
 {
     static CountryCodeManager data;
@@ -128,6 +129,27 @@ bool CountryCodeManager::IsCountryCodeRegistered()
     return countryCodeCallbacksMap_.size() != 0;
 }
 
+std::string CountryCodeManager::GetCountryCodeByCurrentLocation()
+{
+    std::string code = "";
+    auto locatorImpl = LocatorImpl::GetInstance();
+    if (locatorImpl) {
+        std::unique_ptr<Location> lastLocation = std::make_unique<Location>();
+        LocationErrCode errorCode = locatorImpl->GetCachedLocationV9(lastLocation);
+        if (errorCode != ERRCODE_SUCCESS) {
+            return code;
+        }
+        auto curTime = CommonUtils::GetCurrentTimeMilSec();
+        auto locationTime = lastLocation->GetTimeStamp();
+        if (abs(curTime - locationTime) < LOCATION_VALID_TIME) {
+            // Valid
+            LBSLOGI(COUNTRY_CODE, "Latest Location Valid, use Latest Location To Get CountryCode");
+            code = GetCountryCodeByLocation(lastLocation);
+        }
+    }
+    return code;
+}
+
 std::string CountryCodeManager::GetCountryCodeByLastLocation()
 {
     std::string code = "";
@@ -150,6 +172,13 @@ std::string CountryCodeManager::GetCountryCodeByLastLocation()
     return lastCountryByLocation_->GetCountryCodeStr();
 }
 
+void CountryCodeManager::SwapCurrentLocationType(int &type)
+{
+    if (type == COUNTRY_CODE_FROM_CURRENT_LOCATION) {
+        type = COUNTRY_CODE_FROM_LOCATION;
+    }
+}
+
 void CountryCodeManager::UpdateCountryCode(std::string countryCode, int type)
 {
     if (lastCountry_ == nullptr) {
@@ -160,6 +189,7 @@ void CountryCodeManager::UpdateCountryCode(std::string countryCode, int type)
         LBSLOGI(COUNTRY_CODE, "lastCountry_ is more reliable,there is no need to update the data");
         return;
     }
+    SwapCurrentLocationType(type);
     lastCountry_->SetCountryCodeStr(countryCode);
     lastCountry_->SetCountryCodeType(type);
 }
@@ -222,14 +252,19 @@ std::shared_ptr<CountryCode> CountryCodeManager::GetIsoCountryCode()
 {
     LBSLOGD(COUNTRY_CODE, "CountryCodeManager::GetIsoCountryCode");
     int type = COUNTRY_CODE_FROM_LOCALE;
-    std::string countryCodeStr8;
+    std::string countryCodeStr8 = GetCountryCodeByCurrentLocation();
+    if (!countryCodeStr8.empty()) {
+        type = COUNTRY_CODE_FROM_CURRENT_LOCATION;
+    }
 #if defined(TEL_CORE_SERVICE_ENABLE) && defined(TEL_CELLULAR_DATA_ENABLE)
     int slotId = Telephony::CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
-    std::u16string countryCodeForNetwork;
-    DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIsoCountryCodeForNetwork(
-        slotId, countryCodeForNetwork);
-    countryCodeStr8 = Str16ToStr8(countryCodeForNetwork);
-    type = COUNTRY_CODE_FROM_NETWORK;
+    if (countryCodeStr8.empty()) {
+        std::u16string countryCodeForNetwork;
+        DelayedRefSingleton<Telephony::CoreServiceClient>::GetInstance().GetIsoCountryCodeForNetwork(
+            slotId, countryCodeForNetwork);
+        countryCodeStr8 = Str16ToStr8(countryCodeForNetwork);
+        type = COUNTRY_CODE_FROM_NETWORK;
+    }
 #endif
     if (countryCodeStr8.empty()) {
         countryCodeStr8 = GetCountryCodeByLastLocation();

@@ -48,6 +48,8 @@ private:
     std::string GetCountryCodeByLocation(const std::unique_ptr<Location>& location);
     bool UpdateCountryCodeByLocation(std::string countryCode, int type);
     void UpdateCountryCode(std::string countryCode, int type);
+    void SwapCurrentLocationType(int &type);
+    std::string GetCountryCodeByCurrentLocation();
     std::string GetCountryCodeByLastLocation();
     void NotifyAllListener();
     bool SubscribeSimEvent();
