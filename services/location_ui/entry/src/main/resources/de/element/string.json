@@ -22,92 +22,64 @@
             }
         },
         {
-            "name":"ni_notify_message",
-            "value":"Angefordert von",
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"Zulassen, dass sich %s mit diesem Gerät verbindet?",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"location_target_statement_title",
-            "value":"Standortservices",
+            "name":"wifipro_better_network_notify_text",
+            "value":"Zum Verbinden mit „%s“ antippen.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"location_target_statement_content",
-            "value":"Standortservices ben?tigt eine Internetverbindung und nutzt GNSS- oder Netzwerkinformationen (WLAN, Mobilfunknetz, Bluetooth, IP), um Ihnen standortbasierte Services bereitzustellen. Bei Aktivierung dieser Option werden die Standortinformationen Ihres Ger?ts an Services weitergegeben, denen die Zugriffsberechtigung auf Ihren Standort erteilt wurde. Ihre Standortinformationen werden zudem von Systemservices genutzt, um z. B. Ihre Zeitzone und Notrufe zu aktualisieren. Weitere Informationen zu Standortservices finden Sie in der <a>Erkl?rung zu Standortservices und Datenschutz</a>.",
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"Zur Anmeldung bei %s antippen.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Dateiübertragung über Bluetooth",
+            "name":"wifi_three_vap_notify_title",
+            "value":"Bei Nutzung des WLAN-Kanals kann kein Hotspot erstellt werden. Bei Nutzung von WLAN Direct oder Bildschirmcasting trennen Sie die Verbindung und versuchen Sie es erneut.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Ablehnen",
+            "name":"wifi_portal_found_notify_title",
+            "value":"Authentifizierung erforderlich",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Annehmen",
+            "name":"wifi_portal_connected_notify_title",
+            "value":"Mit %s verbunden",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: %1$d/%2$d senden",
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"Authentifizierung abgelaufen",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: %1$d/%2$d empfangen",
+            "name":"stop_idle_tether_notification_message",
+            "value":"Keine Geräte verbunden; Hotspot deaktiviert, Akkulaufzeit verlängert",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Bluetooth-Übertragung abgeschlossen",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Dateiübertragung über Bluetooth",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Empfangen ...",
+            "name":"wifi_portal_found_notify_text",
+            "value":"Zur Anmeldung bei %s antippen.",
             "attr":{
                 "priority":"translate"
             }
@@ -120,6 +92,55 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"Dieses WLAN-Netzwerk hat keinen Internetzugriff. Trotzdem verbinden?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: %1$d/%2$d senden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Empfangen ...",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"„%s“ vertrauen und verbinden?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"Zulassen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"Zur Anmeldung antippen.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Angefordert von",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_send_text",
             "value":"Senden ...",
             "attr":{
@@ -127,8 +148,183 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"Abbrechen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"Besseres WLAN-Netzwerk gefunden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Bluetooth-Übertragung abgeschlossen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"Verbindung trennen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"Verbinden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"Verweigern",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Hotspot einschalten",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Annehmen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Dateiübertragung über Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"Abbrechen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"Verbindungsanfrage",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Ablehnen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Standortservices",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"Zulassen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"Gerätetemperatur hoch, Hotspot wurde deaktiviert.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"Hotspot deaktiviert",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"Abbrechen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"Verbinden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: %1$d/%2$d empfangen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"Ablehnen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Dateiübertragung über Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"Verbindung zu einem besseren Netzwerk „%s“ mit dem Passwort für das aktuelle WLAN-Netzwerk zulassen?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Standortservices benötigt eine Internetverbindung und nutzt GNSS- oder Netzwerkinformationen (WLAN, Mobilfunknetz, Bluetooth, IP), um Ihnen standortbasierte Services bereitzustellen. Bei Aktivierung dieser Option werden die Standortinformationen Ihres Geräts an Services weitergegeben, denen die Zugriffsberechtigung auf Ihren Standort erteilt wurde. Ihre Standortinformationen werden zudem von Systemservices genutzt, um z. B. Ihre Zeitzone und Notrufe zu aktualisieren. Weitere Informationen zu Standortservices finden Sie in der <a>Erklärung zu Standortservices und Datenschutz</a>.",
             "attr":{
                 "priority":"translate"
             }

@@ -7,7 +7,7 @@
                     "quantity":"other",
                     "value":"失敗：%d件のファイル",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -19,7 +19,7 @@
                     "quantity":"other",
                     "value":"失敗：%d件のファイル",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -31,7 +31,7 @@
                     "quantity":"other",
                     "value":"受信済み：%d件のファイル",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -43,7 +43,7 @@
                     "quantity":"other",
                     "value":"送信済み：%d件のファイル",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

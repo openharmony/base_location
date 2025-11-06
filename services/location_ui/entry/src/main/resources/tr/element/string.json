@@ -22,92 +22,64 @@
             }
         },
         {
-            "name":"ni_notify_message",
-            "value":"İsteyen:",
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"%s cihazının bu cihaza bağlanmasına izin verilsin mi?",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"location_target_statement_title",
-            "value":"Konum Servisleri",
+            "name":"wifipro_better_network_notify_text",
+            "value":"\"%s\" ağına bağlanmak için dokunun.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"location_target_statement_content",
-            "value":"Konum Servisleri İnternet bağlantısı gerektirir ve size konum tabanlı servisler sunmak için GNSS veya ağ bilgilerini (WLAN, hücresel ağ, Bluetooth, IP) kullanır. Etkinleştirildiğinde cihazınızın konumu, konum erişimi verilen servislerle paylaşılacaktır. Konum bilgileriniz, saat diliminizi güncelleme ve acil durum aramaları gibi amaçlarla sistem servisleri tarafından da kullanılacaktır. Konum Servisleri hakkında daha fazla bilgi için <a>Konum Servisleri ve Gizlilik Hakkında Beyan</a> içeriğine bakın.",
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"%s ağına giriş yapmak için dokunun.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Bluetooth dosya aktarımı",
+            "name":"wifi_three_vap_notify_title",
+            "value":"WLAN kanalı kullanımdayken ortak erişim noktası oluşturulamaz. WLAN Direct veya ekran yayını kullanıyorsanız bağlantıyı kesin ve tekrar deneyin.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Reddet",
+            "name":"wifi_portal_found_notify_title",
+            "value":"Kimlik doğrulama gerekiyor",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Kabul et",
+            "name":"wifi_portal_connected_notify_title",
+            "value":"%s ile bağlantı kuruldu",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: Gönderiliyor %1$d/%2$d",
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"Kimlik doğrulama süresi sona erdi",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: Alınıyor %1$d/%2$d",
+            "name":"stop_idle_tether_notification_message",
+            "value":"Bağlı cihaz yok. Ortak erişim noktası devre dışı bırakıldı. Pil ömrü uzayacaktır.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Bluetooth aktarımı tamamlandı",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Bluetooth dosya aktarımı",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Alınıyor…",
+            "name":"wifi_portal_found_notify_text",
+            "value":"%s ağına giriş yapmak için dokunun.",
             "attr":{
                 "priority":"translate"
             }
@@ -120,6 +92,55 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"Bu WLAN ağında İnternet erişimi yok. Yine de bağlanılsın mı?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: Gönderiliyor %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Alınıyor…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"\"%s\" ağına güvenilsin ve bağlanılsın mı?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"İzin veriyorum",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"Giriş yapmak için dokunun.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"İsteyen:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_send_text",
             "value":"Gönderiliyor…",
             "attr":{
@@ -127,8 +148,183 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"İptal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"Daha iyi bir WLAN ağı bulundu",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Bluetooth aktarımı tamamlandı",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"Bağlantıyı kes",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"Bağlan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"Reddet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Ortak erişim noktasını aç",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Kabul et",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Bluetooth dosya aktarımı",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"İptal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"Bağlantı isteği",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Reddet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Konum Servisleri",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"İzin veriyorum",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"Cihaz sıcaklığı yüksek. Ortak erişim noktası devre dışı bırakıldı.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"Ortak erişim noktası devre dışı bırakıldı",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"İptal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"Bağlan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: Alınıyor %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"Reddet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Bluetooth dosya aktarımı",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"Mevcut WLAN ağının şifresini kullanarak daha iyi bir ağ \"%s\" bağlantısına izin verilsin mi?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Konum Servisleri İnternet bağlantısı gerektirir ve size konum tabanlı servisler sunmak için GNSS veya ağ bilgilerini (WLAN, hücresel ağ, Bluetooth, IP) kullanır. Etkinleştirildiğinde cihazınızın konumu, konum erişimi verilen servislerle paylaşılacaktır. Konum bilgileriniz, saat diliminizi güncelleme ve acil durum aramaları gibi amaçlarla sistem servisleri tarafından da kullanılacaktır. Konum Servisleri hakkında daha fazla bilgi için <a>Konum Servisleri ve Gizlilik Hakkında Beyan</a> içeriğine bakın.",
             "attr":{
                 "priority":"translate"
             }

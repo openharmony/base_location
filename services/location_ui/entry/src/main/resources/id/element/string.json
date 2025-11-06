@@ -1,113 +1,71 @@
 {
     "string":[
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"Izinkan %s terhubung ke perangkat ini?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"Ketuk untuk menghubungkan \"%s\".",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"Ketuk untuk masuk ke %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"Tidak dapat membuat hotspot ketika saluran WLAN sedang digunakan. Jika Anda menggunakan WLAN Direct atau penyiaran layar, putuskan koneksi dan coba lagi.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"Autentikasi diperlukan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"Terhubung ke %s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"Autentikasi kedaluwarsa",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"Tidak ada perangkat yang terhubung. Hotspot telah dinonaktifkan. Usia baterai akan diperpanjang.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"Ketuk untuk masuk ke %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"confirm_button",
             "value":"Setuju",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"cancel_button",
-            "value":"Batal",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"ni_notify_message",
-            "value":"Diminta oleh",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"ni_notify_title",
-            "value":"Permintaan lokasi",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"location_target_statement_title",
-            "value":"Layanan Lokasi",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"location_target_statement_content",
-            "value":"Layanan Lokasi membutuhkan koneksi Internet dan menggunakan GNSS atau informasi jaringan (WLAN, jaringan seluler, Bluetooth, IP) untuk memberi Anda layanan berbasis lokasi. Ketika ini diaktifkan, informasi lokasi perangkat Anda akan dibagikan dengan layanan yang telah diberi akses lokasi. Informasi lokasi Anda juga akan digunakan oleh layanan sistem, untuk tujuan, seperti memperbarui zona waktu Anda dan panggilan darurat. Untuk informasi lainnya tentang Layanan Lokasi, lihat <a>Pernyataan Tentang Layanan Lokasi dan Privasi</a>.",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Transfer file melalui Bluetooth",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Tolak",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Terima",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: Mengirim %1$d/%2$d",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: Menerima %1$d/%2$d",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Transfer melalui Bluetooth selesai",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Transfer file melalui Bluetooth",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Menerima…",
             "attr":{
                 "priority":"translate"
             }
@@ -120,6 +78,62 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"Jaringan WLAN ini tidak memiliki akses Internet. Tetap hubungkan?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"Batal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: Mengirim %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"Menerima…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"Percayai dan hubungkan ke \"%s\"?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"Izinkan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"Ketuk untuk masuk.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"Diminta oleh",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_send_text",
             "value":"Mengirim…",
             "attr":{
@@ -127,8 +141,190 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"Batal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"Ditemukan jaringan WLAN yang lebih baik",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"Transfer melalui Bluetooth selesai",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"Putuskan koneksi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"Hubungkan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"Tolak",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Hidupkan hotspot",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"Terima",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"Transfer file melalui Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"Permintaan lokasi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"Batal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"Permintaan koneksi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"Tolak",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"Layanan Lokasi",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"Izinkan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"Suhu perangkat tinggi. Hotspot telah dinonaktifkan.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"Hotspot dinonaktifkan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"Batal",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"Hubungkan",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: Menerima %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"Tolak",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"Transfer file melalui Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"Izinkan koneksi ke jaringan yang lebih baik \"%s\" menggunakan kata sandi untuk jaringan WLAN saat ini?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"Layanan Lokasi membutuhkan koneksi Internet dan menggunakan GNSS atau informasi jaringan (WLAN, jaringan seluler, Bluetooth, IP) untuk memberi Anda layanan berbasis lokasi. Ketika ini diaktifkan, informasi lokasi perangkat Anda akan dibagikan dengan layanan yang telah diberi akses lokasi. Informasi lokasi Anda juga akan digunakan oleh layanan sistem, untuk tujuan, seperti memperbarui zona waktu Anda dan panggilan darurat. Untuk informasi lainnya tentang Layanan Lokasi, lihat <a>Pernyataan Tentang Layanan Lokasi dan Privasi</a>.",
             "attr":{
                 "priority":"translate"
             }

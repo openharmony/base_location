@@ -5,9 +5,9 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":"%d개 실패",
+                    "value":"%d개 실패함",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -17,9 +17,9 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":"%d개 실패",
+                    "value":"%d개 실패함",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -31,7 +31,7 @@
                     "quantity":"other",
                     "value":"%d개 파일 수신됨",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -43,7 +43,7 @@
                     "quantity":"other",
                     "value":"%d개 파일 전송됨",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

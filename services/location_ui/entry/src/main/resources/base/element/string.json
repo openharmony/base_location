@@ -166,21 +166,21 @@
             "name":"wifi_candidate_connect_notify_title",
             "value":"Trust and connect to \"%s\"?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"Cancel",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"Connect",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -233,17 +233,17 @@
             }
         },
         {
-            "name":"thermal_stop_tether_notification_message",
-            "value":"Device temperature high. Hotspot has been disabled.",
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"Turn on hotspot",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"stop_idle_tether_notification_action_text",
-            "value":"Turn on hotspot",
+            "name":"thermal_stop_tether_notification_message",
+            "value":"Device temperature high. Hotspot has been disabled.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -278,14 +278,14 @@
             "name":"bluetooth_send_count_text",
             "value":"Bluetooth: Sending %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
             "value":"Bluetooth: Receiving %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
