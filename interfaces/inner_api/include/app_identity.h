@@ -115,7 +115,7 @@ public:
 
     static AppIdentity* Unmarshalling(Parcel& parcel)
     {
-        auto identity = std::make_shared<AppIdentity>();
+        auto identity = new AppIdentity();
         identity->ReadFromParcel(parcel);
         return identity;
     }
