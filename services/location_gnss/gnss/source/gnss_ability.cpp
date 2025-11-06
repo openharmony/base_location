@@ -398,6 +398,10 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
 
 LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>& callback)
 {
+    if (callback == nullptr) {
+        LBSLOGE(GNSS, "register an invalid cached location callback");
+        return LOCATION_ERRCODE_INVALID_PARAM;
+    }
     if (!IsSupportGps()) {
         LBSLOGI(GNSS, "Is Not Support Gps");
         return LOCATION_ERRCODE_NOT_SUPPORTED;
@@ -405,10 +409,6 @@ LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>&
     if (!IsSupportBatching()) {
         LBSLOGE(GNSS, "Is Not Support Batching");
         return LOCATION_ERRCODE_NOT_SUPPORTED;
-    }
-    if (callback == nullptr) {
-        LBSLOGE(GNSS, "register an invalid cached location callback");
-        return LOCATION_ERRCODE_INVALID_PARAM;
     }
     {
         std::unique_lock<ffrt::mutex> lock(batchingMutex_);
