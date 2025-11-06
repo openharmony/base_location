@@ -2116,6 +2116,9 @@ ErrCode LocatorAbility::GetAppsInitiatingLocation(std::vector<AppIdentity>& apps
         auto netWorkRequest = netWorkMapIter->second;
         for (auto iter = netWorkRequest.begin(); iter != netWorkRequest.end(); iter++) {
             auto request = *iter;
+            if (request == nullptr) {
+                continue;
+            }
             AppIdentity appIdentity;
             appIdentity.SetPid(request->GetPid());
             appIdentity.SetUid(request->GetUid());
