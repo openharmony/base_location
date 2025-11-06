@@ -1808,7 +1808,7 @@ LocationErrCode LocatorImpl::GetAppsInitiatingLocation(std::vector<AppIdentity>&
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    ErrCode errorCodeValue = proxy->GetAppLocatingList(appsInitiatingLocationList);
+    ErrCode errorCodeValue = proxy->GetAppsInitiatingLocation(appsInitiatingLocationList);
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
