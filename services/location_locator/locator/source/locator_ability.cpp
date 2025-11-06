@@ -2100,7 +2100,7 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     return locationErrCode;
 }
 
-ErrCode LocatorAbility::GetAppLocatingList(std::unordered_map<int32_t, int32_t>& appLocatingList)
+ErrCode LocatorAbility::GetAppsInitiatingLocation(std::vector<AppIdentity>& appsInitiatingLocationList)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
@@ -2111,20 +2111,22 @@ ErrCode LocatorAbility::GetAppLocatingList(std::unordered_map<int32_t, int32_t>&
     if (requests_ == nullptr) {
         return ERRCODE_SUCCESS;
     }
-    auto gnssMapIter = requests_->find(GNSS_ABILITY);
-    if (gnssMapIter != requests_->end()) {
-        auto gnssRequest = gnssMapIter->second;
-        for (auto iter = gnssRequest.begin(); iter != gnssRequest.end(); iter++) {
-            auto request = *iter;
-            appLocatingList.insert(std::make_pair(request->GetPid(), request->GetUid()));
-        }
-    }
     auto netWorkMapIter = requests_->find(NETWORK_ABILITY);
     if (netWorkMapIter != requests_->end()) {
         auto netWorkRequest = netWorkMapIter->second;
         for (auto iter = netWorkRequest.begin(); iter != netWorkRequest.end(); iter++) {
             auto request = *iter;
-            appLocatingList.insert(std::make_pair(request->GetPid(), request->GetUid()));
+            if (request == nullptr) {
+                continue;
+            }
+            AppIdentity appIdentity;
+            appIdentity.SetPid(request->GetPid());
+            appIdentity.SetUid(request->GetUid());
+            appIdentity.SetTokenId(request->GetTokenId());
+            appIdentity.SetTokenIdEx(request->GetTokenIdEx());
+            appIdentity.SetFirstTokenId(request->GetFirstTokenId());
+            appIdentity.SetBundleName(request->GetPackageName());
+            appsInitiatingLocationList.push_back(appIdentity);
         }
     }
     return ERRCODE_SUCCESS;

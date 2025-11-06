@@ -106,9 +106,16 @@ public:
            parcel.WriteString(bundleName_);
     }
 
-    static std::shared_ptr<AppIdentity> Unmarshalling(Parcel& parcel)
+    static std::shared_ptr<AppIdentity> UnmarshallingShared(Parcel& parcel)
     {
         auto identity = std::make_shared<AppIdentity>();
+        identity->ReadFromParcel(parcel);
+        return identity;
+    }
+
+    static AppIdentity* Unmarshalling(Parcel& parcel)
+    {
+        auto identity = new AppIdentity();
         identity->ReadFromParcel(parcel);
         return identity;
     }
