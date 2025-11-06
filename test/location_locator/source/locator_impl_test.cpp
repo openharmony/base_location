@@ -1260,7 +1260,7 @@ HWTEST_F(LocatorImplTest, locatorImplGetAppsInitiatingLocation001, TestSize.Leve
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsInitiatingLocation001 begin");
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
-    std::vector<AppIdentity> appsInitiatingLocationList
+    std::vector<AppIdentity> appsInitiatingLocationList;
     locatorImpl->GetAppsInitiatingLocation(appsInitiatingLocationList);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsInitiatingLocation001 end");
 }
