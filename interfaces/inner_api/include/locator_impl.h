@@ -693,11 +693,11 @@ public:
     bool IsBeaconFenceSupported();
 
     /**
-     * Get app locating list.
+     * Get apps initiating location.
      *
      * @return Returns ERRCODE_SUCCESS if Get app locating list.
      */
-    LocationErrCode GetAppLocatingList(std::unordered_map<int32_t, int32_t>& appLocatingList);
+    LocationErrCode GetAppsInitiatingLocation(std::vector<AppIdentity>& appsInitiatingLocationList);
 
     void ResetLocatorProxy(const wptr<IRemoteObject> &remote);
     sptr<ILocatorService> GetProxy();

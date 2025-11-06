@@ -59,6 +59,8 @@ idl_gen_interface("locator_interface") {
         "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/beacon_fence_request.cpp"),
     rebase_path(
         "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/beacon_fence.cpp"),
+    rebase_path(
+        "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/app_identity.cpp"),
   ]
   sequenceable_ext_deps = [
     "ability_base:want",
