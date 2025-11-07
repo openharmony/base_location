@@ -221,7 +221,7 @@ void AGnssNiManager::CheckWapSuplInit(const EventFwk::Want &want)
 void AGnssNiManager::CheckSmsSuplInit(const EventFwk::Want &want)
 {
 #ifdef SMS_MMS_ENABLE
-    short smsPort = want.GetShortParm("port", 0);
+    short smsPort = want.GetShortParam("port", 0);
     if (smsPort != SMS_AGNSS_PORT) {
         LBSLOGI(GNSS, "sms port = %{public}u", smsPort);
         return;
