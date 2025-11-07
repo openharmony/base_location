@@ -29,9 +29,9 @@ Request::Request()
     packageName_ = "";
     isRequesting_ = false;
     permUsedType_ = 0;
-    requestConfig_ = new (std::nothrow) RequestConfig();
-    lastLocation_ = new (std::nothrow) Location();
-    bestLocation_ = new (std::nothrow) Location();
+    requestConfig_ = new RequestConfig();
+    lastLocation_ = new Location();
+    bestLocation_ = new Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
@@ -52,9 +52,9 @@ Request::Request(std::unique_ptr<RequestConfig>& requestConfig,
     packageName_ = "";
     isRequesting_ = false;
     permUsedType_ = 0;
-    requestConfig_ = new (std::nothrow) RequestConfig();
-    lastLocation_ = new (std::nothrow) Location();
-    bestLocation_ = new (std::nothrow) Location();
+    requestConfig_ = new RequestConfig();
+    lastLocation_ = new Location();
+    bestLocation_ = new Location();
     isUsingLocationPerm_ = false;
     isUsingBackgroundPerm_ = false;
     isUsingApproximatelyPerm_ = false;
