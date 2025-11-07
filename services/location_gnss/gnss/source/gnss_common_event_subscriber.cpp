@@ -29,7 +29,7 @@ void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEvent
 
     auto agnssNiManager = AGnssNiManager::GetInstance();
     if (action == CommonEventSupport::COMMON_EVENT_SMS_RECEIVE_COMPLETED) {
-        LBSLOGI(GNSS, "[AGNSS NI]:receive sms data msg");
+        LBSLOGI(GNSS, "[AGNSS NI]:receive sms msg");
         agnssNiManager->CheckSmsSuplInit(want);
     } else if (action == CommonEventSupport::COMMON_EVENT_SMS_WAPPUSH_RECEIVE_COMPLETED) {
         LBSLOGI(GNSS, "[AGNSS NI]:receive wap push msg");
