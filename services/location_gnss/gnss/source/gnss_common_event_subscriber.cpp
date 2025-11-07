@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace Location {
-static constexpr int32_t DATA_MSG_RECEIVE_CODE = 1;
 void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventData &data)
 {
     LBSLOGD(GNSS, "OnReceiveEvent");
@@ -29,7 +28,7 @@ void GnssCommonEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEvent
     std::string action = want.GetAction();
 
     auto agnssNiManager = AGnssNiManager::GetInstance();
-    if (action == CommonEventSupport::COMMON_EVENT_SMS_RECEIVE_COMPLETED && data.GetCode() == DATA_MSG_RECEIVE_CODE) {
+    if (action == CommonEventSupport::COMMON_EVENT_SMS_RECEIVE_COMPLETED) {
         LBSLOGI(GNSS, "[AGNSS NI]:receive sms data msg");
         agnssNiManager->CheckSmsSuplInit(want);
     } else if (action == CommonEventSupport::COMMON_EVENT_SMS_WAPPUSH_RECEIVE_COMPLETED) {
