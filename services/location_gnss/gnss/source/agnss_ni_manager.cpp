@@ -43,6 +43,7 @@ constexpr uint32_t MAX_RETRY_TIMES = 3;
 constexpr uint32_t TIME_AFTER_EMERGENCY_CALL = 10 * 1000;
 constexpr int32_t DEFAULT_USERID = 100;
 constexpr int32_t INVALID_SUBID = -1;
+constexpr short SMS_AGNSS_PORT = 7275;
 const std::string URN_APPLICATION_ID = "x-oma-application:ulp.ua";
 const std::string AGNSS_NI_SERVICE_NAME = "agnss_ni";
 const std::string LOCATION_DIALOG_BUNDLE_NAME = "com.ohos.locationdialog";
@@ -220,6 +221,11 @@ void AGnssNiManager::CheckWapSuplInit(const EventFwk::Want &want)
 void AGnssNiManager::CheckSmsSuplInit(const EventFwk::Want &want)
 {
 #ifdef SMS_MMS_ENABLE
+    short smsPort = want.GetShortParam("port", 0);
+    if (smsPort != SMS_AGNSS_PORT) {
+        LBSLOGI(GNSS, "sms port =%{public}u", smsPort);
+        return;
+    }
     AgnssNiSuplInit();
     if (!IsFromDefaultSubId(want)) {
         LBSLOGE(GNSS, "supl init message does not come from default sub");
