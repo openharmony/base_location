@@ -114,6 +114,28 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
         static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType());
 }
 
+void Util::TaiheToLocation(::ohos::geoLocationManager::Location& location, std::unique_ptr<Location>& lastlocation)
+{
+    location.latitude = lastlocation->GetLatitude();
+    location.longitude = lastlocation->GetLongitude();
+    location.altitude = lastlocation->GetAltitude();
+    location.accuracy = lastlocation->GetAccuracy();
+    location.speed = lastlocation->GetSpeed();
+    location.direction = lastlocation->GetDirection();
+    location.timeStamp = lastlocation->GetTimeStamp();
+    location.timeSinceBoot = lastlocation->GetTimeSinceBoot();
+    location.additionSize = lastlocation->GetAdditionSize();
+    if (lastlocation->GetIsSystemApp() != 0) {
+        location.isFromMock = lastlocation->GetIsFromMock();
+    }
+    location.altitudeAccuracy = lastlocation->GetAltitudeAccuracy();
+    location.speedAccuracy = lastlocation->GetSpeedAccuracy();
+    location.directionAccuracy = lastlocation->GetDirectionAccuracy();
+    location.uncertaintyOfTimeSinceBoot = lastlocation->GetUncertaintyOfTimeSinceBoot();
+    location.sourceType =
+        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType());
+}
+
 void Util::TaiheCurrentRequestObjToRequestConfig(
     ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request,
     std::unique_ptr<RequestConfig>& requestConfig)
