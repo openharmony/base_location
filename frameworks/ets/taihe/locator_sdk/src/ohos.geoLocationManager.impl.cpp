@@ -117,7 +117,7 @@ bool IsPoiServiceSupported()
 {
     LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsPoiServiceSupported() enter");
     bool poiServiceSupportState = false;
-    poiServiceSupportState = Locator::GetInstance()->IsPoiServiceSupported(poiServiceSupportState);
+    poiServiceSupportState = Locator::GetInstance()->IsPoiServiceSupported();
     return poiServiceSupportState;
 }
 
