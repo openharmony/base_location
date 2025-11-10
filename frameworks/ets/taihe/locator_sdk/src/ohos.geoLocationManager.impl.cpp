@@ -113,6 +113,14 @@ bool IsLocationEnabled()
     return isEnabled;
 }
 
+bool IsPoiServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsPoiServiceSupported() enter");
+    bool poiServiceSupportState = false;
+    poiServiceSupportState = Locator::GetInstance()->IsPoiServiceSupported();
+    return poiServiceSupportState;
+}
+
 ::taihe::array<::ohos::geoLocationManager::GeoAddress> GetAddressesFromLocationSync(
     ::ohos::geoLocationManager::ReverseGeoCodeRequest const& request)
 {
@@ -305,6 +313,22 @@ bool IsLocationPrivacyConfirmed(::ohos::geoLocationManager::LocationPrivacyType 
         Util::LocationToTaihe(location, loc);
     }
     return location;
+}
+
+double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& location1,
+    ::ohos::geoLocationManager::Location const& location2)
+{
+    std::unique_ptr<Location> loc1;
+    std::unique_ptr<Location> loc2;
+    Util::TaiheToLocation(location1, loc1);
+    Util::TaiheToLocation(location2, loc2);
+    double distance;
+    LocationErrCode errorCode =
+        Locator::GetInstance()->GetDistanceBetweenLocations(*loc1, *loc2, distance);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return distance;
 }
 
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,
@@ -616,6 +640,7 @@ void OffGnssFenceStatusChange(::ohos::geoLocationManager::GeofenceRequest const&
 // Since these macros are auto-generate, lint will cause false positive.
 // NOLINTBEGIN
 TH_EXPORT_CPP_API_IsLocationEnabled(IsLocationEnabled);
+TH_EXPORT_CPP_API_IsPoiServiceSupported(IsPoiServiceSupported);
 TH_EXPORT_CPP_API_GetAddressesFromLocationSync(GetAddressesFromLocationSync);
 TH_EXPORT_CPP_API_GetCurrentLocationSync(GetCurrentLocationSync);
 TH_EXPORT_CPP_API_GetCurrentLocationSyncNoRequest(GetCurrentLocationSyncNoRequest);
@@ -623,6 +648,7 @@ TH_EXPORT_CPP_API_EnableLocationSync(EnableLocationSync);
 TH_EXPORT_CPP_API_DisableLocation(DisableLocation);
 TH_EXPORT_CPP_API_IsLocationPrivacyConfirmed(IsLocationPrivacyConfirmed);
 TH_EXPORT_CPP_API_GetLastLocation(GetLastLocation);
+TH_EXPORT_CPP_API_GetDistanceBetweenLocations(GetDistanceBetweenLocations);
 TH_EXPORT_CPP_API_OnCachedGnssLocationsChange(OnCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OffCachedGnssLocationsChange(OffCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OnLocationChange(OnLocationChange);

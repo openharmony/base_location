@@ -114,6 +114,11 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
         static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType());
 }
 
+void Util::TaiheToLocation(::ohos::geoLocationManager::Location const& location,
+    std::unique_ptr<Location>& lastlocation)
+{
+}
+
 void Util::TaiheCurrentRequestObjToRequestConfig(
     ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request,
     std::unique_ptr<RequestConfig>& requestConfig)

@@ -253,6 +253,10 @@ function IsLocationPrivacyConfirmed(type: LocationPrivacyType): bool;
 
 function GetLastLocation(): Location;
 
+function GetDistanceBetweenLocations(location1: Location, location2: Location): f64;
+
+function IsPoiServiceSupported(): bool;
+
 @!sts_inject("""
 export function on(type: string, cb: (arg_0: Object) => void) {
     switch(type) {
