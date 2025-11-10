@@ -117,11 +117,7 @@ bool IsPoiServiceSupported()
 {
     LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsPoiServiceSupported() enter");
     bool poiServiceSupportState = false;
-    LocationErrCode errorCode =
-        Locator::GetInstance()->IsPoiServiceSupported(poiServiceSupportState)
-    if (errorCode != ERRCODE_SUCCESS) {
-        TH_THROW(std::runtime_error, "IsPoiServiceSupported not implemented");
-    }
+    poiServiceSupportState = Locator::GetInstance()->IsPoiServiceSupported(poiServiceSupportState);
     return poiServiceSupportState;
 }
 
@@ -328,7 +324,7 @@ double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& l
     Util::TaiheToLocation(location2, loc2);
     double distance;
     LocationErrCode errorCode =
-        Locator::GetInstance()->GetDistanceBetweenLocations(loc1, loc2, distance);
+        Locator::GetInstance()->GetDistanceBetweenLocations(*loc1, *loc2, distance);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }

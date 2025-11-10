@@ -253,7 +253,7 @@ function IsLocationPrivacyConfirmed(type: LocationPrivacyType): bool;
 
 function GetLastLocation(): Location;
 
-function GetDistanceBetweenLocations(location1: Location, location2: Location): double;
+function GetDistanceBetweenLocations(location1: Location, location2: Location): f64;
 
 function IsPoiServiceSupported(): bool;
 
