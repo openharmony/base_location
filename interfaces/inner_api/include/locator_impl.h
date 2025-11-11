@@ -695,7 +695,7 @@ public:
     /**
      * Get apps perform locating.
      *
-     * @return Returns ERRCODE_SUCCESS if Get apps perform locating.
+     * @return Returns ERRCODE_SUCCESS if Get apps perform locating list.
      */
     LocationErrCode GetAppsPerformLocating(std::vector<AppIdentity>& appsPerformLocatingList);
 
