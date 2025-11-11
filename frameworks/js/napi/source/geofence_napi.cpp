@@ -61,6 +61,10 @@ bool GenGnssGeofenceRequest(
     JsObjToNotificationRequestList(env, value, notificationRequestList);
     geofenceRequest->SetNotificationRequestList(notificationRequestList);
 #endif
+    int loiterTimeMs = 0;
+    if (JsObjectToInt(env, object, "loiterTimeMs", loiterTimeMs) == SUCCESS) {
+        geofenceRequest->SetLoiterTimeMs(loiterTimeMs);
+    }
     return true;
 }
 

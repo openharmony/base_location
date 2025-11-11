@@ -55,6 +55,10 @@ public:
 
     void SetScenario(int scenario);
 
+    int GetLoiterTimeMs();
+
+    void SetLoiterTimeMs(int loiterTimeMs);
+
     void SetWantAgent(const std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent);
 
     std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> GetWantAgent();
@@ -105,6 +109,7 @@ private:
     sptr<IRemoteObject> callback_ = nullptr;
     GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;
+    int loiterTimeMs_;
     int fenceId_;
     int32_t uid_;
     std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent_;
