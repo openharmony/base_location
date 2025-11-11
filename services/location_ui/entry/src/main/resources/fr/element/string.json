@@ -25,26 +25,26 @@
             "name":"p2p_wsc_pbc_dialog_text",
             "value":"Autoriser %s à se connecter à cet appareil ?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_better_network_notify_text",
-            "value":"Touchez pour se connecter à \"%s\".",
+            "value":"Veuillez toucher pour vous connecter à \"%s\".",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_text",
-            "value":"Touchez pour se connecter à %s.",
+            "value":"Veuillez toucher pour vous connecter à %s.",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"wifi_three_vap_notify_title",
-            "value":"Impossible de créer un point d'accès lorsque le canal WLAN est utilisé. Si vous utilisez WLAN Direct ou la diffusion d'écran, déconnectez-vous et réessayez.",
+            "value":"La création d'un point d'accès a échoué lorsque le canal WLAN est utilisé. Si vous utilisez WLAN Direct ou la diffusion d'écran, déconnectez-vous et réessayez.",
             "attr":{
                 "priority":"translate"
             }
@@ -60,26 +60,26 @@
             "name":"wifi_portal_connected_notify_title",
             "value":"Connecté à %s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"Authentification expirée",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"stop_idle_tether_notification_message",
             "value":"Aucun appareil connecté. Le point d'accès a été désactivé. L'autonomie de la batterie sera prolongée.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_found_notify_text",
-            "value":"Touchez pour se connecter à %s.",
+            "value":"Veuillez toucher pour vous connecter à %s.",
             "attr":{
                 "priority":"translate"
             }
@@ -88,26 +88,26 @@
             "name":"bluetooth_send_finish_title",
             "value":"Transfert par Bluetooth terminé",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_cdd_notify_title",
-            "value":"Ce réseau WLAN n'a pas d'accès à Internet. Se connecter quand-même ?",
+            "value":"Ce réseau WLAN n'a pas d'accès à Internet. S'y connecter malgré tout ?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_receive_text",
             "value":"Réception en cours.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_candidate_connect_notify_title",
-            "value":"Faire confiance et se connecter à \" %s \" ?",
+            "value":"Faire confiance et se connecter à \"%s\" ?",
             "attr":{
                 "priority":"translate"
             }
@@ -116,12 +116,12 @@
             "name":"p2p_wsc_pbc_dialog_ok_button",
             "value":"Autoriser",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connected_notify_text",
-            "value":"Touchez pour se connecter.",
+            "value":"Veuillez toucher pour vous connecter.",
             "attr":{
                 "priority":"translate"
             }
@@ -137,7 +137,7 @@
             "name":"bluetooth_transfer_send_text",
             "value":"Envoi en cours.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -151,14 +151,14 @@
             "name":"wifipro_better_network_pop_up_title",
             "value":"Trouver un meilleur réseau WLAN",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_title",
             "value":"Transfert par Bluetooth terminé",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -170,30 +170,30 @@
         },
         {
             "name":"wifi_candidate_connect_notify_yes_button",
-            "value":"Connecter",
+            "value":"Se connecter",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_no_button",
             "value":"Refuser",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"stop_idle_tether_notification_action_text",
             "value":"Activer le point d'accès",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_accept",
             "value":"Accepter",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -214,21 +214,21 @@
             "name":"share_name",
             "value":"Bluetooth",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"Demande de connexion",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_reject",
             "value":"Rejeter",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -242,21 +242,21 @@
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"Autoriser",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"condition_netshare_hotspot_close",
             "value":"Point d'accès désactivé",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"Annuler",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -270,21 +270,21 @@
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"Refuser",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -310,23 +310,23 @@
         },
         {
             "name":"bluetooth_send_count_text",
-            "value":"Bluetooth : envoi %1$d/%2$d",
+            "value":"Bluetooth : envoi en cours %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth : réception %1$d/%2$d",
+            "value":"Bluetooth : réception en cours %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"thermal_stop_tether_notification_message",
             "value":"La température de l'appareil est élevée. Le point d'accès a été désactivé.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

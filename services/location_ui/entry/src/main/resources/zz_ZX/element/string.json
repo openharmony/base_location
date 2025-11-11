@@ -177,6 +177,18 @@
             "value":"[TS_1053167]_Deny"
         },
         {
+            "name":"bluetooth_send_count_text",
+            "value":"[TS_1094782]_Bluetooth: Sending %1$d/%2$d"
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"[TS_1094785]_Bluetooth: Receiving %1$d/%2$d"
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"[TS_1113300]_Device temperature high. Hotspot has been disabled."
+        },
+        {
             "name":"MainAbility_desc",
             "value":"[TS_962316]_manage the permissions of all applications from the permission and application dimensions"
         },
@@ -211,18 +223,6 @@
         {
             "name":"ConfirmCallbackAbility_label",
             "value":"[TS_962323]_label"
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"[TS_1094782]_Bluetooth: Sending %1$d/%2$d"
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"[TS_1094785]_Bluetooth: Receiving %1$d/%2$d"
-        },
-        {
-            "name":"thermal_stop_tether_notification_message",
-            "value":"[TS_1113300]_Device temperature high. Hotspot has been disabled."
         }
     ]
 }

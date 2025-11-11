@@ -312,21 +312,21 @@
             "name":"bluetooth_send_count_text",
             "value":"藍牙共享：正在傳送 %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
             "value":"藍牙共享：正在接收 %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"thermal_stop_tether_notification_message",
             "value":"目前裝置溫度太高，已為您自動關閉熱點",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

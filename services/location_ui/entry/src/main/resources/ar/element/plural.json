@@ -14,7 +14,7 @@
                     "quantity":"one",
                     "value":"تعذر استلام ملف واحد",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
@@ -42,7 +42,7 @@
                     "quantity":"two",
                     "value":"تعذر استلام ملفين",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -54,14 +54,14 @@
                     "quantity":"one",
                     "value":"تعذر إرسال ملف واحد",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
                     "quantity":"other",
                     "value":"تعذر إرسال %d ملف",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
@@ -89,7 +89,7 @@
                     "quantity":"two",
                     "value":"تعذر إرسال ملفين",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -108,7 +108,7 @@
                     "quantity":"other",
                     "value":"تم استلام %d ملف",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
@@ -136,7 +136,7 @@
                     "quantity":"two",
                     "value":"تم استلام ملفين",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -148,14 +148,14 @@
                     "quantity":"one",
                     "value":"تم إرسال ملف واحد",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
                     "quantity":"other",
                     "value":"تم إرسال %d ملف",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
@@ -183,7 +183,7 @@
                     "quantity":"two",
                     "value":"تم إرسال ملفين",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

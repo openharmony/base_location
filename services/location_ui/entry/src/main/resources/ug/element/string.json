@@ -254,7 +254,7 @@
         },
         {
             "name":"bluetooth_transfer_receive_text",
-            "value":"قوبۇللاۋاتىدۇ...",
+            "value":"قوبۇللاۋاتىدۇ",
             "attr":{
                 "priority":"LT"
             }
@@ -268,7 +268,7 @@
         },
         {
             "name":"bluetooth_transfer_send_text",
-            "value":"يوللاۋاتىدۇ...",
+            "value":"يوللاۋاتىدۇ",
             "attr":{
                 "priority":"LT"
             }
@@ -312,21 +312,21 @@
             "name":"bluetooth_send_count_text",
             "value":"كۆكچىش: يوللاۋاتىدۇ %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
             "value":"كۆكچىش: قوبۇللاۋاتىدۇ %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"thermal_stop_tether_notification_message",
             "value":"ئۈسكۈنە قىزىپ كېتىپ، تور نۇقتىسى ئېتىلدى.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

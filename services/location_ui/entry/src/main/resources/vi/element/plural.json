@@ -7,7 +7,7 @@
                     "quantity":"other",
                     "value":"%d không thành công",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -19,7 +19,7 @@
                     "quantity":"other",
                     "value":"%d không thành công",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -31,7 +31,7 @@
                     "quantity":"other",
                     "value":"Đã nhận được %d tệp tin",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -43,7 +43,7 @@
                     "quantity":"other",
                     "value":"Đã gửi %d tệp tin",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

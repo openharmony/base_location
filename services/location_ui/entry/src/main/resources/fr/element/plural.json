@@ -5,16 +5,16 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":"%d a échoué",
+                    "value":"%d ont échoué",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
                     "quantity":"one",
-                    "value":"%d ont échoué",
+                    "value":"%d a échoué",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -24,16 +24,16 @@
             "value":[
                 {
                     "quantity":"one",
-                    "value":"%d ont échoué",
+                    "value":"%d a échoué",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
                     "quantity":"other",
-                    "value":"%d a échoué",
+                    "value":"%d ont échoué",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -52,7 +52,7 @@
                     "quantity":"other",
                     "value":"%d fichiers reçus",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

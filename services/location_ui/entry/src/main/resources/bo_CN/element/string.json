@@ -312,21 +312,21 @@
             "name":"bluetooth_send_count_text",
             "value":"སོ་སྔོན་མཉམ་སྤྱོད། : %1$d/%2$d སྐུར་བཞིན་པ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
             "value":"སོ་སྔོན་མཉམ་སྤྱོད། : %1$d/%2$d ལེན་བཞིན་པ།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"thermal_stop_tether_notification_message",
             "value":"མིག་སྔར་སྒྲིག་ཆས་ཀྱི་དྲོད་ཚད་མཐོ་དྲགས། ཚ་གནས་རང་འགུལ་གྱིས་ཁ་བརྒྱབ་ཟིན།",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

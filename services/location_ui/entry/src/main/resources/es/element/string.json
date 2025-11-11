@@ -23,16 +23,16 @@
         },
         {
             "name":"p2p_wsc_pbc_dialog_text",
-            "value":"¿Deseas permitir a %s que se conecte a este dispositivo?",
+            "value":"¿Quieres permitir a %s que se conecte a este dispositivo?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_better_network_notify_text",
-            "value":"Pulsa para conectarte a “%s”.",
+            "value":"Pulsa para conectarte a la red “%s”.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -60,21 +60,21 @@
             "name":"wifi_portal_connected_notify_title",
             "value":"Conectado a %s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"La autenticación ha caducado",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"stop_idle_tether_notification_message",
             "value":"No hay ningún dispositivo conectado. Se ha deshabilitado la zona Wi-Fi. Se extenderá la autonomía de la batería.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -88,7 +88,7 @@
             "name":"bluetooth_send_finish_title",
             "value":"Transferencia vía Bluetooth finalizada",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -102,21 +102,21 @@
             "name":"bluetooth_transfer_receive_text",
             "value":"Recibiendo…",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_candidate_connect_notify_title",
             "value":"¿Confiar en “%s” y conectarse?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_ok_button",
             "value":"Permitir",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -137,7 +137,7 @@
             "name":"bluetooth_transfer_send_text",
             "value":"Enviando…",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -151,14 +151,14 @@
             "name":"wifipro_better_network_pop_up_title",
             "value":"Se ha encontrado una red WLAN mejor",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_title",
             "value":"Transferencia vía Bluetooth finalizada",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -172,35 +172,35 @@
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"Conectar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_no_button",
             "value":"Denegar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"stop_idle_tether_notification_action_text",
             "value":"Activar zona Wi-Fi",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_accept",
             "value":"Aceptar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_title",
             "value":"Transferencia de archivos vía Bluetooth",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -214,21 +214,21 @@
             "name":"share_name",
             "value":"Bluetooth",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"Solicitud de conexión",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_button_reject",
             "value":"Rechazar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -242,21 +242,21 @@
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"Permitir",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"condition_netshare_hotspot_close",
             "value":"Zona Wi-Fi deshabilitada",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"Cancelar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -270,35 +270,35 @@
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_finish_text",
             "value":"%1$s, %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"Denegar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_transfer_notification_title",
             "value":"Transferencia de archivos vía Bluetooth",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_context",
             "value":"¿Permitir la conexión a una red mejor, “%s”, con la contraseña de la red WLAN actual?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -312,21 +312,21 @@
             "name":"bluetooth_send_count_text",
             "value":"Bluetooth: Enviando %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
             "value":"Bluetooth: Recibiendo %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"thermal_stop_tether_notification_message",
             "value":"La temperatura del dispositivo es alta. Zona Wi-Fi deshabilitada.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

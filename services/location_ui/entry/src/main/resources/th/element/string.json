@@ -22,92 +22,64 @@
             }
         },
         {
-            "name":"ni_notify_message",
-            "value":"ส่งคำขอโดย",
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"อนุญาตให้ %s เชื่อมต่อกับอุปกรณ์นี้หรือไม่",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"location_target_statement_title",
-            "value":"บริการระบุตำแหน่ง",
+            "name":"wifipro_better_network_notify_text",
+            "value":"แตะเพื่อเชื่อมต่อกับ \"%s\"",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"location_target_statement_content",
-            "value":"บริการระบุตำแหน่งต้องใช้การเชื่อมต่ออินเทอร์เน็ตและใช้ GNSS หรือข้อมูลเครือข่าย (WLAN, เครือข่ายโทรศัพท์มือถือ, บลูทูธ, IP) เพื่อให้บริการตามตำแหน่งให้แก่คุณ เมื่อเปิดใช้งานแล้ว จะมีการแบ่งปันข้อมูลตำแหน่งของอุปกรณ์ของคุณกับบริการที่ได้รับอนุญาตให้เข้าถึงตำแหน่ง บริการระบบจะใช้ข้อมูลตำแหน่งของคุณด้วยเช่นกันเพื่อวัตถุประสงค์ต่าง ๆ เช่น การอัปเดตโซนเวลาและการโทรฉุกเฉิน สำหรับข้อมูลเพิ่มเติมเกี่ยวกับบริการระบุตำแหน่ง โปรดดูที่<a>คำชี้แจงเกี่ยวกับบริการระบุตำแหน่ง และความเป็นส่วนตัว</a>",
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"แตะเพื่อล็อกอินเข้าสู่ %s",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_title",
-            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
+            "name":"wifi_three_vap_notify_title",
+            "value":"ไม่สามารถสร้างฮอตสปอตได้ในขณะที่มีการใช้งานช่องสัญญาณ WLAN อยู่ หากคุณกำลังใช้ WLAN Direct หรือการแพร่ภาพหน้าจออยู่ ให้ยกเลิกการเชื่อมต่อและลองอีกครั้ง",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"ปฏิเสธ",
+            "name":"wifi_portal_found_notify_title",
+            "value":"ต้องมีการรับรองความถูกต้อง",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"ยอมรับ",
+            "name":"wifi_portal_connected_notify_title",
+            "value":"เชื่อมต่อกับ %s แล้ว",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_send_count_text",
-            "value":"บลูทูธ: กําลังส่ง %1$d/%2$d",
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"การรับรองความถูกต้องหมดอายุแล้ว",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_count_text",
-            "value":"บลูทูธ: กําลังรับ %1$d/%2$d",
+            "name":"stop_idle_tether_notification_message",
+            "value":"ไม่มีอุปกรณ์ที่เชื่อมต่อ ปิดใช้งานฮอตสปอตแล้ว ซึ่งจะยืดอายุการใช้งานแบตเตอรี่ออกไป",
             "attr":{
                 "priority":"translate"
             }
         },
         {
-            "name":"bluetooth_receive_finish_title",
-            "value":"การถ่ายโอนบลูทูธเสร็จสิ้นแล้ว",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"กำลังรับ…",
+            "name":"wifi_portal_found_notify_text",
+            "value":"แตะเพื่อล็อกอินเข้าสู่ %s",
             "attr":{
                 "priority":"translate"
             }
@@ -120,6 +92,55 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"เครือข่าย WLAN นี้ไม่มีการเข้าถึงอินเทอร์เน็ต ยืนยันที่จะเชื่อมต่อหรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"บลูทูธ: กําลังส่ง %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"กำลังรับ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"เชื่อถือและเชื่อมต่อกับ \"%s\" หรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"อนุญาต",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"แตะเพื่อล็อกอินเข้า",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"ส่งคำขอโดย",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_send_text",
             "value":"กำลังส่ง…",
             "attr":{
@@ -127,8 +148,183 @@
             }
         },
         {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"ยกเลิก",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"พบเครือข่าย WLAN ที่ดีกว่า",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"การถ่ายโอนบลูทูธเสร็จสิ้นแล้ว",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"ยกเลิกการเชื่อมต่อ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"เชื่อมต่อ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"ปฏิเสธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"เปิดฮอตสปอต",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"ยอมรับ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"ยกเลิก",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"share_name",
             "value":"บลูทูธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"คำขอเชื่อมต่อ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"ปฏิเสธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"บริการระบุตำแหน่ง",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"อนุญาต",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"อุณหภูมิอุปกรณ์สูง ปิดใช้งานฮอตสปอตแล้ว",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"ปิดใช้งานฮอตสปอตแล้ว",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"ยกเลิก",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"เชื่อมต่อ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"บลูทูธ: กําลังรับ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"ปฏิเสธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"อนุญาตให้เชื่อมต่อกับเครือข่ายที่ดีกว่า \"%s\" โดยใช้รหัสผ่านสำหรับเครือข่าย WLAN ปัจจุบันหรือไม่",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"บริการระบุตำแหน่งต้องใช้การเชื่อมต่ออินเทอร์เน็ตและใช้ GNSS หรือข้อมูลเครือข่าย (WLAN, เครือข่ายโทรศัพท์มือถือ, บลูทูธ, IP) เพื่อให้บริการตามตำแหน่งให้แก่คุณ เมื่อเปิดใช้งานแล้ว จะมีการแบ่งปันข้อมูลตำแหน่งของอุปกรณ์ของคุณกับบริการที่ได้รับอนุญาตให้เข้าถึงตำแหน่ง บริการระบบจะใช้ข้อมูลตำแหน่งของคุณด้วยเช่นกันเพื่อวัตถุประสงค์ต่าง ๆ เช่น การอัปเดตโซนเวลาและการโทรฉุกเฉิน สำหรับข้อมูลเพิ่มเติมเกี่ยวกับบริการระบุตำแหน่ง โปรดดูที่<a>คำชี้แจงเกี่ยวกับบริการระบุตำแหน่ง และความเป็นส่วนตัว</a>",
             "attr":{
                 "priority":"translate"
             }

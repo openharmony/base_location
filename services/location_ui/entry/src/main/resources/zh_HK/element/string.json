@@ -312,14 +312,14 @@
             "name":"bluetooth_send_count_text",
             "value":"藍牙分享：發送中 %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
             "value":"藍牙分享：接收中 %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

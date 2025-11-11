@@ -1,113 +1,71 @@
 {
     "string":[
         {
+            "name":"p2p_wsc_pbc_dialog_text",
+            "value":"ອະນຸຍາດ​​ໃຫ້ %s ​ເຊື່ອມຕໍ່ກັບ​​ອຸປະກອນ​ເຄື່ອງນີ້ບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_notify_text",
+            "value":"ແຕະເພື່ອເຊື່ອມຕໍ່ກັບ \"%s\".",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_text",
+            "value":"ແຕະເພື່ອເຂົ້າສູ່ລະບົບ %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_title",
+            "value":"ບໍ່ສາມາດສ້າງຮັອດສະປອດໃນຂະນະທີ່ຊ່ອງ WLAN ກຳລັງໃຊ້ງານຢູ່. ຖ້າທ່ານກຳລັງໃຊ້ WLAN Direct ຫຼື ການອອກອາກາດໜ້າຈໍ, ຕັດການເຊື່ອມຕໍ່ ແລະ ລອງໃໝ່ອີກ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_title",
+            "value":"ຈຳເປັນຕ້ອງມີການຮັບຮອງຄວາມຖືກຕ້ອງ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_title",
+            "value":"ເຊື່ອມຕໍ່ກັບ %s ແລ້ວ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connect_timeout_notify_title",
+            "value":"ການຮັບຮອງຄວາມຖືກຕ້ອງໝົດອາຍຸແລ້ວ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_message",
+            "value":"ບໍ່ມີອຸປະກອນທີ່ເຊື່ອມຕໍ່. ຮັອດສະປອດໄດ້ຖືກປິດໃຊ້ງານແລ້ວ. ອາຍຸແບັດເຕີຣີຈະຖືກຂະຫຍາຍ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_found_notify_text",
+            "value":"ແຕະເພື່ອເຂົ້າສູ່ລະບົບ %s.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"confirm_button",
             "value":"ເຫັນດີນໍາ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"cancel_button",
-            "value":"ຍົກເລີກ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"ni_notify_message",
-            "value":"ຂໍໂດຍ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"ni_notify_title",
-            "value":"ຄຳຂໍທີ່ຕັ້ງ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"location_target_statement_title",
-            "value":"ການບໍລິການທີ່ຕັ້ງ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"location_target_statement_content",
-            "value":"ການບໍລິການທີ່ຕັ້ງ ຈຳເປັນຕ້ອງມີການເຊື່ອມຕໍ່ອິນເຕີເນັດ ແລະ ໃຊ້ GNSS ຫຼື ຂໍ້ມູນເຄືອຂ່າຍ (WLAN, ເຄືອຂ່າຍເຊລລູລາ, Bluetooth, IP) ເພື່ອໃຫ້ການບໍລິການຕາມທີ່ຕັ້ງແກ່ທ່ານ. ເມື່ອເປີດໃຊ້ງານສິ່ງນີ້ແລ້ວ, ຂໍ້ມູນທີ່ຕັ້ງຂອງອຸປະກອນຂອງທ່ານຈະຖືກແຊຣ໌ກັບການບໍລິການທີ່ໄດ້ໃຫ້ການເຂົ້າເຖິງທີ່ຕັ້ງ. ຂໍ້ມູນທີ່ຕັ້ງຂອງທ່ານຍັງຈະຖືກໃຊ້ໂດຍການບໍລິການລະບົບ, ສຳລັບຈຸດປະສົງ ເຊັ່ນ: ການອັບເດດເຂດເວລາ ແລະ ການໂທສຸກເສີນຂອງທ່ານ. ສຳລັບຂໍ້ມູນເພີ່ມເຕີມກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ, ເບິ່ງ <a>ຄຳຖະແຫຼງກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ ແລະ ຄວາມເປັນສ່ວນຕົວ</a>.",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"ປະຕິເສດ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"ຍອມຮັບ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: ກຳລັງສົ່ງ %1$d/%2$d",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: ກຳລັງຮັບ %1$d/%2$d",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"ສຳເລັດການໂອນຍ້າຍຜ່ານ Bluetooth ແລ້ວ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"ກຳລັງຮັບ…",
             "attr":{
                 "priority":"translate"
             }
@@ -120,8 +78,141 @@
             }
         },
         {
+            "name":"wifi_cdd_notify_title",
+            "value":"ເຄືອຂ່າຍ WLAN ນີ້ບໍ່ມີການເຂົ້າເຖິງອິນເຕີເນັດ. ເຊື່ອມຕໍ່ເລີຍບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"cancel_button",
+            "value":"ຍົກເລີກ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_count_text",
+            "value":"Bluetooth: ກຳລັງສົ່ງ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_receive_text",
+            "value":"ກຳລັງຮັບ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_title",
+            "value":"ເຊື່ອໝັ້ນ ແລະ ເຊື່ອມຕໍ່ກັບ \"%s\" ບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_ok_button",
+            "value":"ອະ​ນຸ​ຍາດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_portal_connected_notify_text",
+            "value":"ແຕະເພື່ອເຂົ້າສູ່ລະບົບ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_message",
+            "value":"ຂໍໂດຍ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"bluetooth_transfer_send_text",
             "value":"ກໍາລັງສົ່ງ…",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_no_button",
+            "value":"ຍົກເລີກ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title",
+            "value":"ພົບເຄືອຂ່າຍ WLAN ທີ່ດີກວ່າ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_title",
+            "value":"ສຳເລັດການໂອນຍ້າຍຜ່ານ Bluetooth ແລ້ວ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_three_vap_notify_yes_button",
+            "value":"ຕັດການເຊື່ອມຕໍ່",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_yes_button",
+            "value":"ເຊື່ອມຕໍ່",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_no_button",
+            "value":"ປະຕິເສດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"stop_idle_tether_notification_action_text",
+            "value":"ເປີດຮັອດສະປອດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_accept",
+            "value":"ຍອມຮັບ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_title",
+            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"ni_notify_title",
+            "value":"ຄຳຂໍທີ່ຕັ້ງ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_no_button",
+            "value":"ຍົກເລີກ",
             "attr":{
                 "priority":"translate"
             }
@@ -132,7 +223,111 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_title",
+            "value":"ຄຳ​ຂໍ​​ການເຊື່ອມ​ຕໍ່",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_notification_button_reject",
+            "value":"ປະຕິເສດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_title",
+            "value":"ການບໍລິການທີ່ຕັ້ງ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_ok_button",
+            "value":"ອະນຸຍາດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"thermal_stop_tether_notification_message",
+            "value":"ອຸນຫະພູມອຸປະກອນສູງ. ຮັອດສະປອດໄດ້ຖືກປິດໃຊ້ງານແລ້ວ.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"condition_netshare_hotspot_close",
+            "value":"ຮັອດ​ສະ​ປອດປິດໃຊ້ງານແລ້ວ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_candidate_connect_notify_no_button",
+            "value":"ຍົກເລີກ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_cdd_notify_yes_button",
+            "value":"ເຊື່ອມຕໍ່",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_receive_count_text",
+            "value":"Bluetooth: ກຳລັງຮັບ %1$d/%2$d",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_send_finish_text",
+            "value":"%1$s, %2$s",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_pbc_dialog_no_button",
+            "value":"ປະ​ຕິ​ເສດ",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"bluetooth_transfer_notification_title",
+            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_context",
+            "value":"ອະນຸຍາດການເຊື່ອມຕໍ່ກັບເຄືອຂ່າຍທີ່ດີກວ່າ \"%s\" ໂດຍໃຊ້ລະຫັດຜ່ານສຳລັບເຄືອຂ່າຍ WLAN ປະຈຸບັນບໍ?",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"location_target_statement_content",
+            "value":"ການບໍລິການທີ່ຕັ້ງ ຈຳເປັນຕ້ອງມີການເຊື່ອມຕໍ່ອິນເຕີເນັດ ແລະ ໃຊ້ GNSS ຫຼື ຂໍ້ມູນເຄືອຂ່າຍ (WLAN, ເຄືອຂ່າຍເຊລລູລາ, Bluetooth, IP) ເພື່ອໃຫ້ການບໍລິການຕາມທີ່ຕັ້ງແກ່ທ່ານ. ເມື່ອເປີດໃຊ້ງານສິ່ງນີ້ແລ້ວ, ຂໍ້ມູນທີ່ຕັ້ງຂອງອຸປະກອນຂອງທ່ານຈະຖືກແຊຣ໌ກັບການບໍລິການທີ່ໄດ້ໃຫ້ການເຂົ້າເຖິງທີ່ຕັ້ງ. ຂໍ້ມູນທີ່ຕັ້ງຂອງທ່ານຍັງຈະຖືກໃຊ້ໂດຍການບໍລິການລະບົບ, ສຳລັບຈຸດປະສົງ ເຊັ່ນ: ການອັບເດດເຂດເວລາ ແລະ ການໂທສຸກເສີນຂອງທ່ານ. ສຳລັບຂໍ້ມູນເພີ່ມເຕີມກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ, ເບິ່ງ <a>ຄຳຖະແຫຼງກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ ແລະ ຄວາມເປັນສ່ວນຕົວ</a>.",
+            "attr":{
+                "priority":"translate"
+            }
         }
-
     ]
 }

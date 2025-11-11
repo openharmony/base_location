@@ -7,7 +7,7 @@
                     "quantity":"one",
                     "value":"%d file sent",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 },
                 {
