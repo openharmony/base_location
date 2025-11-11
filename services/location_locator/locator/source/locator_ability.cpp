@@ -667,7 +667,7 @@ ErrCode LocatorAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject>& cb
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -691,7 +691,7 @@ ErrCode LocatorAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObject>& 
     if (!CheckRequestAvailable(LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -717,7 +717,7 @@ ErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& c
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -741,7 +741,7 @@ ErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>&
     if (!CheckRequestAvailable(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -768,7 +768,7 @@ ErrCode LocatorAbility::RegisterCachedLocationCallback(int32_t reportingPeriodSe
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {
@@ -802,7 +802,7 @@ ErrCode LocatorAbility::UnregisterCachedLocationCallback(const sptr<ICachedLocat
     if (!CheckRequestAvailable(LocatorInterfaceCode::UNREG_CACHED_CALLBACK, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {
@@ -832,7 +832,7 @@ ErrCode LocatorAbility::GetCachedGnssLocationsSize(int32_t& size)
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     size = -1;
@@ -863,7 +863,7 @@ ErrCode LocatorAbility::FlushCachedGnssLocations()
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -883,9 +883,6 @@ ErrCode LocatorAbility::SendCommand(int32_t scenario, const std::string& command
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::SEND_COMMAND, identity)) {
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -919,7 +916,7 @@ ErrCode LocatorAbility::AddFence(const GeofenceRequest& request)
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -950,7 +947,7 @@ ErrCode LocatorAbility::RemoveFence(const GeofenceRequest& request)
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -1973,7 +1970,7 @@ ErrCode LocatorAbility::SubscribeBluetoothScanResultChange(
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {
@@ -2000,7 +1997,7 @@ ErrCode LocatorAbility::UnSubscribeBluetoothScanResultChange(
     if (!CheckRequestAvailable(LocatorInterfaceCode::STOP_SCAN_BLUETOOTH_DEVICE, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {
@@ -2079,7 +2076,7 @@ ErrCode LocatorAbility::AddBeaconFence(const BeaconFenceRequest& request)
     if (!CheckBluetoothSwitchState()) {
         return ERRCODE_BEACONFENCE_BLUETOOTH_SWITCH_OFF;
     }
-    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     std::shared_ptr<BeaconFenceRequest> beaconFenceRequest =
@@ -2099,7 +2096,7 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     std::shared_ptr<BeaconFence> beacon =
