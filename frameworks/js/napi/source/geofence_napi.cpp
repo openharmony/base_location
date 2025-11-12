@@ -62,7 +62,7 @@ bool GenGnssGeofenceRequest(
     geofenceRequest->SetNotificationRequestList(notificationRequestList);
 #endif
     int loiterTimeMs = 0;
-    if (JsObjectToInt(env, object, "loiterTimeMs", loiterTimeMs) == SUCCESS) {
+    if (JsObjectToInt(env, value, "loiterTimeMs", loiterTimeMs) == SUCCESS) {
         if (loiterTimeMs < 0) {
             LBSLOGE(NAPI_UTILS, "loiterTimeMs is invaild");
             return false;
