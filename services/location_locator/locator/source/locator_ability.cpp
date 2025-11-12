@@ -2134,7 +2134,7 @@ ErrCode LocatorAbility::GetAppsPerformLocating(std::vector<AppIdentity>& perform
             appIdentity.SetTokenIdEx(request->GetTokenIdEx());
             appIdentity.SetFirstTokenId(request->GetFirstTokenId());
             appIdentity.SetBundleName(request->GetPackageName());
-            appsPerformLocatingList.push_back(appIdentity);
+            performLocatingAppList.push_back(appIdentity);
         }
     }
     return ERRCODE_SUCCESS;
