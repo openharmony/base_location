@@ -1253,16 +1253,16 @@ HWTEST_F(LocatorImplTest, locatorImplRemoveBeaconFence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplRemoveBeaconFence001 end");
 }
 
-HWTEST_F(LocatorImplTest, locatorImplGetAppsInitiatingLocation001, TestSize.Level1)
+HWTEST_F(LocatorImplTest, locatorImplGetAppsPerformLocating001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorImplTest, locatorImplGetAppsInitiatingLocation001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsInitiatingLocation001 begin");
+        << "LocatorImplTest, locatorImplGetAppsPerformLocating001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsPerformLocating001 begin");
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
-    std::vector<AppIdentity> appsInitiatingLocationList;
-    locatorImpl->GetAppsInitiatingLocation(appsInitiatingLocationList);
-    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsInitiatingLocation001 end");
+    std::vector<AppIdentity> performLocatingAppList;
+    locatorImpl->GetAppsPerformLocating(performLocatingAppList);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsPerformLocating001 end");
 }
 }  // namespace Location
 }  // namespace OHOS

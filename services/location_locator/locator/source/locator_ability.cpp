@@ -2108,7 +2108,7 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     return locationErrCode;
 }
 
-ErrCode LocatorAbility::GetAppsInitiatingLocation(std::vector<AppIdentity>& appsInitiatingLocationList)
+ErrCode LocatorAbility::GetAppsPerformLocating(std::vector<AppIdentity>& performLocatingAppList)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
@@ -2134,7 +2134,7 @@ ErrCode LocatorAbility::GetAppsInitiatingLocation(std::vector<AppIdentity>& apps
             appIdentity.SetTokenIdEx(request->GetTokenIdEx());
             appIdentity.SetFirstTokenId(request->GetFirstTokenId());
             appIdentity.SetBundleName(request->GetPackageName());
-            appsInitiatingLocationList.push_back(appIdentity);
+            performLocatingAppList.push_back(appIdentity);
         }
     }
     return ERRCODE_SUCCESS;

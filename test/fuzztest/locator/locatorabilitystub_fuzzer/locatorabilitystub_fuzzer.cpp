@@ -1008,7 +1008,7 @@ bool LocatorAbilityStub053FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_APPS_INITIATING_LOCATING),
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_APPS_PERFORM_LOCATING),
         requestParcel, reply, option);
     return true;
 }

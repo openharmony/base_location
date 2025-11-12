@@ -1797,18 +1797,18 @@ bool LocatorImpl::IsBeaconFenceSupported()
 #endif
 }
 
-LocationErrCode LocatorImpl::GetAppsInitiatingLocation(std::vector<AppIdentity>& appsInitiatingLocationList)
+LocationErrCode LocatorImpl::GetAppsPerformLocating(std::vector<AppIdentity>& performLocatingAppList)
 {
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::GetAppsInitiatingLocation()");
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::GetAppsPerformLocating()");
     sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    ErrCode errorCodeValue = proxy->GetAppsInitiatingLocation(appsInitiatingLocationList);
+    ErrCode errorCodeValue = proxy->GetAppsPerformLocating(performLocatingAppList);
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
