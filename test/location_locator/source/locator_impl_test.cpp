@@ -1260,8 +1260,8 @@ HWTEST_F(LocatorImplTest, locatorImplGetAppsPerformLocating001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsPerformLocating001 begin");
     auto locatorImpl = Locator::GetInstance();
     EXPECT_NE(nullptr, locatorImpl);
-    std::vector<AppIdentity> appsPerformLocatingList;
-    locatorImpl->GetAppsPerformLocating(appsPerformLocatingList);
+    std::vector<AppIdentity> performLocatingAppList;
+    locatorImpl->GetAppsPerformLocating(performLocatingAppList);
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplGetAppsPerformLocating001 end");
 }
 }  // namespace Location

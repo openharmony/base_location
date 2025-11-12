@@ -190,7 +190,7 @@ public:
     ErrCode SetLocationSwitchIgnored(bool isEnabled) override;
     ErrCode AddBeaconFence(const BeaconFenceRequest& beaconFenceRequest) override;
     ErrCode RemoveBeaconFence(const BeaconFence& beaconFence) override;
-    ErrCode GetAppsPerformLocating(std::vector<AppIdentity>& appsPerformLocatingList) override;
+    ErrCode GetAppsPerformLocating(std::vector<AppIdentity>& performLocatingAppList) override;
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();

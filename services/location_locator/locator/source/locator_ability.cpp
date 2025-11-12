@@ -2108,7 +2108,7 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     return locationErrCode;
 }
 
-ErrCode LocatorAbility::GetAppsPerformLocating(std::vector<AppIdentity>& appsPerformLocatingList)
+ErrCode LocatorAbility::GetAppsPerformLocating(std::vector<AppIdentity>& performLocatingAppList)
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
