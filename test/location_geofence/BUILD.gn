@@ -39,6 +39,7 @@ ohos_unittest("GeofenceSdkTest") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_base:zuri",
     "ability_runtime:dataobs_manager",

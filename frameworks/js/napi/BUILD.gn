@@ -80,9 +80,11 @@ ohos_shared_library("geolocation") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   defines = []
@@ -129,6 +131,7 @@ ohos_static_library("geolocation_static") {
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   defines = []
@@ -171,6 +174,7 @@ ohos_shared_library("geolocationmanager") {
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "window_manager:libwm",
   ]
 
   if (notification_distributed_notification_service_enable) {

@@ -55,6 +55,10 @@ ohos_shared_library("geofence_sdk") {
     "samgr:samgr_proxy",
   ]
 
+  external_deps = [
+    "ability_base:configuration",
+  ]
+
   defines = []
 
   if (notification_distributed_notification_service_enable) {
@@ -105,6 +109,10 @@ ohos_static_library("geofence_sdk_static") {
     "$LOCATION_COMMON_DIR:lbsservice_common",
     "$LOCATION_NATIVE_DIR/locator_sdk:liblocator_interface_proxy",
     "$LOCATION_ROOT_DIR/frameworks/base_module:lbsbase_module",
+  ]
+
+  external_deps = [
+    "ability_base:configuration",
   ]
 
   public_external_deps = [

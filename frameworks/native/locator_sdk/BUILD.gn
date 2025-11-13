@@ -63,6 +63,7 @@ idl_gen_interface("locator_interface") {
         "${LOCATION_ROOT_DIR}/frameworks/location_common/common/source/app_identity.cpp"),
   ]
   sequenceable_ext_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
   ]
