@@ -30,6 +30,7 @@ GeofenceRequest::GeofenceRequest()
     fenceId_ = -1;
     uid_ = 0;
     appAliveStatus_ = true;
+    loiterTimeMs_ = 0;
 }
 
 GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
@@ -44,6 +45,7 @@ GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
     this->SetGeofenceTransitionCallback(geofenceRequest.GetGeofenceTransitionCallback());
     this->SetFenceId(geofenceRequest.GetFenceId());
     this->SetBundleName(geofenceRequest.GetBundleName());
+    this->SetLoiterTimeMs(geofenceRequest.GetLoiterTimeMs());
 }
 
 GeofenceRequest::~GeofenceRequest() {}
@@ -66,6 +68,16 @@ int GeofenceRequest::GetScenario()
 void GeofenceRequest::SetScenario(int scenario)
 {
     scenario_ = scenario;
+}
+
+int GeofenceRequest::GetLoiterTimeMs()
+{
+    return loiterTimeMs_;
+}
+
+void GeofenceRequest::SetLoiterTimeMs(int loiterTimeMs)
+{
+    loiterTimeMs_ = loiterTimeMs;
 }
 
 void GeofenceRequest::SetWantAgent(const std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent)
@@ -185,6 +197,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
     scenario_ = data.ReadInt32();
+    loiterTimeMs_ = data.ReadInt32();
     geofence_.latitude = data.ReadDouble();
     geofence_.longitude = data.ReadDouble();
     geofence_.radius = data.ReadDouble();
@@ -226,6 +239,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
     parcel.WriteInt32(scenario_);
+    parcel.WriteInt32(loiterTimeMs_);
     parcel.WriteDouble(geofence_.latitude);
     parcel.WriteDouble(geofence_.longitude);
     parcel.WriteDouble(geofence_.radius);
