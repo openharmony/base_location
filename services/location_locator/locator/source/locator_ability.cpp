@@ -717,7 +717,7 @@ ErrCode LocatorAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& c
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
@@ -741,7 +741,7 @@ ErrCode LocatorAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObject>&
     if (!CheckRequestAvailable(LocatorInterfaceCode::UNREG_NMEA_CALLBACK_V9, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     MessageParcel dataToStub;
