@@ -219,7 +219,6 @@ LocationErrCode GnssAbility::SetEnable(bool state)
     if (state && gnssEnableState) {
         EnableGnss();
         StartGnss();
-        InitBatchingEnableStatus();
     } else {
         StopGnssBatching();
         /*
@@ -386,11 +385,9 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
         }
     }
     StopGnssBatching();
-    if (batchingEnabled_) {
-        StopGnss();
-        int64_t batchIntervalMs = std::max(getReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
-        StartGnssBatching(batchIntervalMs, getWakeUpCacheQueueFullParam());
-    }
+    StopGnss();
+    int64_t batchIntervalMs = std::max(getReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
+    StartGnssBatching(batchIntervalMs, getWakeUpCacheQueueFullParam());
     LBSLOGD(GNSS, "request:%{public}d ,%{public}d",
         request->reportingPeriodSec, request->wakeUpCacheQueueFull ? 1 : 0);
     return ERRCODE_SUCCESS;
@@ -1354,17 +1351,6 @@ void GnssAbility::StopGnss()
         HookUtils::ExecuteHook(LocationProcessStage::STOP_GNSS_PROCESS, nullptr, nullptr);
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
-    }
-}
-
-void GnssAbility::InitBatchingEnableStatus()
-{
-    int cachedGnssLocationsSize = 0;
-    GetCachedGnssLocationsSize(cachedGnssLocationsSize);
-    if (cachedGnssLocationsSize > 0) {
-        batchingEnabled_ = true;
-    } else {
-        batchingEnabled_ = false;
     }
 }
 

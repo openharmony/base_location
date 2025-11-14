@@ -197,7 +197,6 @@ public:
     void UnloadGnssSystemAbility() override;
     void StartGnss();
     void StopGnss();
-    void InitBatchingEnableStatus();
     void StartGnssBatching(int reportingPeriodSec, bool wakeUpCacheQueueFull);
     void StopGnssBatching();
     bool EnableGnss();
@@ -279,7 +278,6 @@ private:
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
     int gnssBatchingWorkingStatus_ = 0;
-    bool batchingEnabled_ = false;
     int64_t fixInterval_ = 1000;
     std::shared_ptr<GnssHandler> gnssHandler_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
