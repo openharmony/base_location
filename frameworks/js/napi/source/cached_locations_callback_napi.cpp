@@ -54,7 +54,7 @@ int CachedLocationsCallbackNapi::OnRemoteRequest(
         case RECEIVE_CACHED_LOCATIONS_EVENT: {
             int size = data.ReadInt32();
             if (size > 0 && size < MAXIMUM_CACHE_LOCATIONS) {
-                std::vector<std::unique_ptr<Location>> locations(size);
+                std::vector<std::unique_ptr<Location>> locations;
                 for (int i = 0; i < size; i++) {
                     locations.push_back(Location::UnmarshallingMakeUnique(data));
                 }
@@ -191,8 +191,8 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             napi_value jsEvent = nullptr;
-            CHK_NAPI_ERR_CLOSE_SCOPE(context->env, napi_create_object(context->env, &jsEvent),
-                scope, context, work);
+            NAPI_CALL_RETURN_VOID(context->env,
+                napi_create_array_with_length(context->env, context->locationList.size(), &jsEvent));
             LocationsToJs(context->env, context->locationList, jsEvent);
             if (context->callback[0] != nullptr) {
                 napi_value undefine;

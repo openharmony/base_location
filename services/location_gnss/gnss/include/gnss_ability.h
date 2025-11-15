@@ -65,6 +65,7 @@ namespace Location {
 using HDI::Location::Gnss::V2_0::IGnssInterface;
 using HDI::Location::Gnss::V2_0::IGnssCallback;
 using HDI::Location::Gnss::V2_0::GNSS_START_TYPE_NORMAL;
+using HDI::Location::Gnss::V2_0::GNSS_START_TYPE_GNSS_CACHE;
 using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_NONE;
 using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_SESSION_BEGIN;
 using HDI::Location::Gnss::V2_0::GNSS_WORKING_STATUS_SESSION_END;
@@ -99,6 +100,14 @@ enum class GnssAbilityInterfaceCode {
     REMOVE_FENCE = 0x0106,
     ADD_GEOFENCE = 0x0107,
     REMOVE_GEOFENCE = 0x0108,
+};
+
+enum GnssBatchingWorkStatus {
+    GNSS_BATCHING_WORKING_STATUS_NONE = 0,
+    GNSS_BATCHING_WORKING_STATUS_SESSION_BEGIN = 1,
+    GNSS_BATCHING_WORKING_STATUS_SESSION_END = 2,
+    GNSS_BATCHING_WORKING_STATUS_ENGINE_ON = 3,
+    GNSS_BATCHING_WORKING_STATUS_ENGINE_OFF = 4,
 };
 
 typedef struct {
@@ -177,6 +186,7 @@ public:
     void ReportGnssSessionStatus(int status);
     void ReportNmea(int64_t timestamp, const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
+    void ReportCachedLocation(const std::vector<std::unique_ptr<Location>> &cacheLocations);
     LocationErrCode EnableMock() override;
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
@@ -187,6 +197,8 @@ public:
     void UnloadGnssSystemAbility() override;
     void StartGnss();
     void StopGnss();
+    void StartGnssBatching(int reportingPeriodSec, bool wakeUpCacheQueueFull);
+    void StopGnssBatching();
     bool EnableGnss();
     void DisableGnss();
     bool ConnectHdi();
@@ -205,6 +217,7 @@ public:
     void ReConnectHdi();
     bool CheckIfHdiConnected();
     void RestGnssWorkStatus();
+    void ResetGnssBatchingWorkStatus();
     bool RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> &request,
         const sptr<IRemoteObject>& callback);
     bool UnregisterGnssGeofenceCallback(int fenceId);
@@ -230,12 +243,15 @@ private:
     bool Init();
     static void SaDumpInfo(std::string& result);
     bool IsGnssEnabled();
+    bool IsGnssBatchingEnabled();
+    int GetBatchingRequestNum();
     int32_t ReportMockedLocation(const std::shared_ptr<Location> location);
     bool CheckIfGnssConnecting();
     bool IsMockProcessing();
     void RegisterLocationHdiDeathRecipient();
     bool GetCommandFlags(std::unique_ptr<LocationCommand>& commands, GnssAuxiliaryDataType& flags);
     LocationErrCode SetPositionMode();
+    LocationErrCode SetCachePositionMode(int reportingPeriodSec, bool wakeUpCacheQueueFull);
     void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
@@ -245,6 +261,9 @@ private:
     bool ConnectGnssHdi();
     bool IsSupportGps();
     bool IsSupportGeofence();
+    bool IsSupportBatching();
+    int64_t getReportingPeriodSecParam();
+    bool getWakeUpCacheQueueFullParam();
 
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     bool ConnectAgnssHdi();
@@ -258,14 +277,18 @@ private:
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
     int gnssWorkingStatus_ = 0;
+    int gnssBatchingWorkingStatus_ = 0;
+    int64_t fixInterval_ = 1000;
     std::shared_ptr<GnssHandler> gnssHandler_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     ffrt::mutex gnssMutex_;
+    ffrt::mutex batchingMutex_;
     ffrt::mutex nmeaMutex_;
     ffrt::mutex hdiMutex_;
     ffrt::mutex statusMutex_;
     std::map<sptr<IRemoteObject>, AppIdentity> gnssStatusCallbackMap_;
     std::map<sptr<IRemoteObject>, AppIdentity> nmeaCallbackMap_;
+    std::map<sptr<IRemoteObject>, std::unique_ptr<CachedGnssLocationsRequest>> batchingCallbackMap_;
     sptr<IGnssCallback> gnssCallback_;
     Location nlpLocation_;
 #ifdef TIME_SERVICE_ENABLE

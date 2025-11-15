@@ -95,6 +95,7 @@ void LocationsToJs(const napi_env& env, const std::vector<std::unique_ptr<Locati
     if (locations.size() > 0) {
         for (unsigned int index = 0; index < locations.size(); index++) {
             napi_value value;
+            NAPI_CALL_RETURN_VOID(env, napi_create_object(env, &value));
             LocationToJs(env, locations[index], value);
             NAPI_CALL_RETURN_VOID(env, napi_set_element(env, result, index, value));
         }
