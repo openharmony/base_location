@@ -47,6 +47,7 @@ ohos_unittest("LocationCommonTest") {
   ]
 
   external_deps = [
+    "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:ability_connect_callback_stub",
     "ability_runtime:dataobs_manager",

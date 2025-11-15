@@ -79,6 +79,7 @@
                 "selinux_adapter",
                 "sms_mms",
                 "wifi",
+                "window_manager",
                 "bluetooth",
                 "distributed_notification_service",
                 "image_framework",
