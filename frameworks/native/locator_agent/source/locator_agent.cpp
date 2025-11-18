@@ -204,7 +204,7 @@ sptr<ILocatorService> LocatorAgentManager::InitLocatorAgent(sptr<IRemoteObject>&
         return nullptr;
     }
     std::unique_lock<std::mutex> lock(mutex_);
-    client_ = iface_cast<LocatorServiceProxy>(saObject);
+    client_ = iface_cast<ILocatorService>(saObject);
     if (!client_ || !client_->AsObject()) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s: get locator service failed.", __func__);
         return nullptr;
