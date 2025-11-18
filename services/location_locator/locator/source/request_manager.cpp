@@ -215,7 +215,7 @@ bool RequestManager::RestorRequest(std::shared_ptr<Request> newRequest)
     newRequest->SetRequesting(true);
     sptr<IRemoteObject> newCallback = newRequest->GetLocatorCallBack()->AsObject();
 
-    LBSLOGI(REQUEST_MANAGER, "add request:%{public}s", newRequest->ToString().c_str());
+    HILOG_COMM_INFO("[Request_Manager] add request:%{public}s", newRequest->ToString().c_str());
     // if callback and request config type is same, take new request configuration over the old one in request list
     // otherwise, add restore the new request in the list.
     auto iterator = receivers->find(newCallback);
@@ -353,7 +353,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         locatorAbility->UnregisterPermissionCallback(request->GetTokenId());
         deadRequests->push_back(request);
         HookUtils::ExecuteHookWhenStopLocation(request);
-        LBSLOGI(REQUEST_MANAGER, "remove request:%{public}s", request->ToString().c_str());
+        HILOG_COMM_INFO("[Request_Manager] remove request:%{public}s", request->ToString().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "get %{public}zu dead request", deadRequests->size());
     // update request map
@@ -529,7 +529,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
             request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE",
             std::to_string(LOCATION_ERRCODE_PERMISSION_DENIED)});
-        LBSLOGI(LOCATOR, "CheckLocationPermission return false, Id=%{public}d", tokenId);
+        HILOG_COMM_INFO("[Locator] CheckLocationPermission return false, Id=%{public}d", tokenId);
         return false;
     }
     std::string bundleName = "";
