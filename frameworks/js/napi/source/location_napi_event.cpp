@@ -1655,19 +1655,6 @@ napi_value GetCurrentLocation(napi_env env, napi_callback_info cbinfo)
 }
 
 #ifdef ENABLE_NAPI_MANAGER
-napi_value GetPoiInfo(napi_env env, napi_callback_info info)
-{
-    size_t argc = MAXIMUM_JS_PARAMS;
-    napi_value argv[MAXIMUM_JS_PARAMS] = {0};
-    napi_value thisVar = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, nullptr));
-    NAPI_ASSERT(env, g_locatorProxy != nullptr, "locator instance is null.");
-    LBSLOGD(LOCATION_NAPI, "Get PoiInfo enter");
-    return RequestPoiInfoOnce(env, argc, argv);
-}
-#endif
-
-#ifdef ENABLE_NAPI_MANAGER
 LocationErrCode CheckLocationSwitchEnable()
 {
     bool isEnabled = false;

@@ -34,6 +34,7 @@ local_base_sources = [
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/locator_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/napi_util.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/nmea_message_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/poi_info_callback_napi.cpp",
 ]
 
 if (notification_distributed_notification_service_enable) {
@@ -50,6 +51,7 @@ if (notification_distributed_notification_service_enable) {
     "ability_base:session_info",
     "ability_base:want",
     "ability_runtime:napi_common",
+    "cJSON:cjson",
     "distributed_notification_service:ans_innerkits",
     "image_framework:image",
     "relational_store:native_rdb",

@@ -23,6 +23,7 @@
 #include "beacon_fence_request.h"
 #include "beacon_fence_napi.h"
 #include "location_hiappevent.h"
+#include "poi_info_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
@@ -298,6 +299,77 @@ napi_value IsPoiServiceSupported(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_boolean(env, poiServiceSupportState, &res));
     g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isPoiServiceSupported");
     return res;
+}
+#endif
+
+#ifdef ENABLE_NAPI_MANAGER
+void CreateGetPoiInfoAsyncContext(PoiInfoAsyncContext* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) ->void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<PoiInfoAsyncContext*>(data);
+        if (context->callbackHost_ == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "callbackHost_ is nullptr!");
+            return;
+        }
+        auto callbackPtr = sptr<IPoiInfoCallback>(context->callbackHost_);
+        context->errCode = g_locatorClient->GetPoiInfo(callbackPtr);
+        if (context->errCode == SUCCESS) {
+            context->callbackHost_->Wait();
+            context->errCode = context->callbackHost_->GetErrorCode();
+        }
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "data is nullptr!");
+            return;
+        }
+        auto context = static_cast<PoiInfoAsyncContext*>(data);
+        if (context->callbackHost_ == nullptr) {
+            LBSLOGE(LOCATOR_STANDARD, "callbackHost_ is nullptr!");
+            NAPI_CALL_RETURN_VOID(
+                context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+            return;
+        }
+        if (context->errCode == SUCCESS) {
+            auto poiInfo = context->callbackHost_->GetResult();
+            if (poiInfo != nullptr) {
+                PoiInfo poi = *poiInfo;
+                napi_value poiObj = CreatePoiInfoJsObj(context->env, poi);
+                context->result[PARAM1] = poiObj;
+            } else {
+                NAPI_CALL_RETURN_VOID(
+                    context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+            }
+        }
+        if (context->callbackHost_) {
+            context->callbackHost_ = nullptr;
+        }
+    };
+}
+
+napi_value GetPoiInfo(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    auto asyncContext = new PoiInfoAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    if (napi_create_string_latin1(env, "getPoiInfo", NAPI_AUTO_LENGTH, &asyncContext->resourceName)
+        != napi_ok) {
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->callbackHost_ = sptr<PoiInfoCallbackNapi>(new PoiInfoCallbackNapi());
+    CreateGetPoiInfoAsyncContext(asyncContext);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 #endif
 

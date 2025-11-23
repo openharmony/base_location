@@ -66,6 +66,7 @@
 #include "xcollie/xcollie_define.h"
 #endif
 #include "common_event_helper.h"
+#include "poi_info_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -2444,6 +2445,39 @@ ErrCode LocatorAbility::IsPoiServiceSupported(bool& poiServiceSupportState)
     } else {
         poiServiceSupportState = true;
     }
+    return ERRCODE_SUCCESS;
+}
+
+ErrCode LocatorAbility::GetPoiInfo(const sptr<IRemoteObject>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::GET_POI_INFO, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!GetLocationSwitchIgnoredFlag(identity.GetTokenId()) && !CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    auto reportManager = ReportManager::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
+            identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
+            !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            return LOCATION_ERRCODE_PERMISSION_DENIED;
+        }
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+#if !defined(FEATURE_NETWORK_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
+#endif
+    PoiInfoManager::GetInstance()->PreRequestPoiInfo(cb, identity);
     return ERRCODE_SUCCESS;
 }
 

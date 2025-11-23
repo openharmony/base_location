@@ -1478,6 +1478,25 @@ bool LocatorImpl::IsPoiServiceSupported()
     return poiServiceSupportState;
 }
 
+LocationErrCode LocatorImpl::GetPoiInfo(sptr<IPoiInfoCallback> &poiInfoCallback)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (poiInfoCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s poiInfoCallback is null", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCode = proxy->GetPoiInfo(poiInfoCallback->AsObject());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCode);
+    return locationErrCode;
+}
+
 LocationErrCode LocatorImpl::GetDistanceBetweenLocations(const Location& location1,
     const Location& location2, double& distance)
 {

@@ -82,4 +82,5 @@ interface OHOS.Location.ILocatorService {
     [ipccode 57] void AddBeaconFence([in] BeaconFenceRequest request);
     [ipccode 58] void RemoveBeaconFence([in] BeaconFence beaconFence);
     [ipccode 59] void GetAppsPerformLocating([out] List<AppIdentity> performLocatingAppList);
+    [ipccode 60] void GetPoiInfo([in] IRemoteObject cb);
 }
