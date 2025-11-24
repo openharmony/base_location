@@ -151,7 +151,7 @@ public:
             arraySize = INPUT_WIFI_LIST_MAX_SIZE;
         }
         marshallingState = parcel.WriteInt32(arraySize);
-        for (int i = 0; i < arraySize; ++i) {
+        for (size_t i = 0; i < arraySize; ++i) {
             marshallingState = parcel.WriteString(wlanBssidArray[i]);
         }
         return marshallingState;

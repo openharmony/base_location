@@ -30,6 +30,7 @@ public:
         rssi_ = 0;
         frequency_ = 0;
         timestamp_ = 0;
+        securityType_ = -1;
     }
 
     explicit WifiScanInfo(WifiScanInfo& wifiScanInfo)
@@ -39,6 +40,7 @@ public:
         SetRssi(wifiScanInfo.GetRssi());
         SetFrequency(wifiScanInfo.GetFrequency());
         SetTimestamp(wifiScanInfo.GetTimestamp());
+        SetSecurityType(wifiScanInfo.GetSecurityType());
     }
 
     ~WifiScanInfo() override = default;
@@ -93,6 +95,16 @@ public:
         timestamp_ = timestamp;
     }
 
+    inline int32_t GetSecurityType() const
+    {
+        return securityType_;
+    }
+
+    inline void SetSecurityType(int32_t securityType)
+    {
+        securityType_ = securityType;
+    }
+
     void ReadFromParcel(Parcel& parcel)
     {
         ssid_ =  Str16ToStr8(parcel.ReadString16());
@@ -100,6 +112,7 @@ public:
         rssi_ = parcel.ReadInt32();
         frequency_ = parcel.ReadInt32();
         timestamp_ = parcel.ReadInt64();
+        securityType_ = parcel.ReadInt32();
     }
 
     bool Marshalling(Parcel& parcel) const override
@@ -108,7 +121,8 @@ public:
             parcel.WriteString16(Str8ToStr16(bssid_)) &&
             parcel.WriteInt32(rssi_) &&
             parcel.WriteInt32(frequency_) &&
-            parcel.WriteInt64(timestamp_);
+            parcel.WriteInt64(timestamp_) &&
+            parcel.WriteInt32(securityType_);
     }
 
     static std::shared_ptr<WifiScanInfo> Unmarshalling(Parcel& parcel)
@@ -123,7 +137,8 @@ public:
         std::string str = "ssid_ : " + ssid_ +
             ", bssid_ : " + bssid_ +
             ", rssi_ : " + std::to_string(rssi_) +
-            ", timestamp_ : " + std::to_string(timestamp_);
+            ", timestamp_ : " + std::to_string(timestamp_) +
+            ", securityType_ : " + std::to_string(securityType_);
         return str;
     }
 
@@ -133,6 +148,7 @@ private:
     int rssi_;
     int frequency_;
     int64_t timestamp_;
+    int32_t securityType_;
 };
 } // namespace Location
 } // namespace OHOS

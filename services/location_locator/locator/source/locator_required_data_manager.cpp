@@ -441,6 +441,7 @@ bool LocatorRequiredDataManager::GetLocatingRequiredDataByWifi(
             DEFAULT_INVALID_10_SECONDS) {
             validTimes ++;
         }
+        wifiData->SetSecurityType(static_cast<int32_t>(wifiScanInfo[i].securityType));
         info->SetType(LocatingRequiredDataType::WIFI);
         info->SetWifiScanInfo(wifiData);
         requiredData.push_back(info);
