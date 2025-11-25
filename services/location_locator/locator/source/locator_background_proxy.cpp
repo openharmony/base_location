@@ -43,6 +43,7 @@
 #ifdef FMSKIT_NATIVE_SUPPORT
 #include "form_mgr.h"
 #endif
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -256,6 +257,7 @@ void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
     if (locatorAbility != nullptr) {
         locatorAbility->ApplyRequests(0);
     }
+    HookUtils::ExecuteHookWhenOnUserSwitch(userId);
 }
 
 void LocatorBackgroundProxy::OnUserRemove(int32_t userId)

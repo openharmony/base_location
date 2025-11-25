@@ -306,5 +306,11 @@ void HookUtils::ExecuteHookWhenGnssEnable()
     ExecuteHook(
         LocationProcessStage::ENABLE_GNSS_PROCESS, nullptr, nullptr);
 }
+
+void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
+{
+    ExecuteHook(
+        LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&userId, nullptr);
+}
 } // namespace Location
 } // namespace OHOS
