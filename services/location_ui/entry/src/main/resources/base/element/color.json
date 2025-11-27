@@ -16,6 +16,13 @@
       "name": "tv_dialog_background_color",
       "value": "#3C3C3C"
     },
-    
+    {
+      "name": "transparent_color",
+      "value": "#00000000"
+    },
+    {
+      "name": "not_tv_dialog_button_font_color",
+      "value": "#317AFF"
+    }
   ]
 }
