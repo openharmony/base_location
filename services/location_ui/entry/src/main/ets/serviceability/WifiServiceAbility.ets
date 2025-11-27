@@ -26,7 +26,6 @@ import { WantAgent } from '@ohos.app.ability.wantAgent'
 
 const TAG: string = '[WIFI_SERVICE_NI]==>'
 
-
 export default class WifiServiceAbility extends ServiceExtensionAbility {
     private WIFI_PORTAL_CONNECTED: number = 0;
     private WIFI_PORTAL_TIMEOUT: number = 1;
@@ -37,11 +36,11 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     onCreate(want: Want): void {
         console.info(TAG, `WifiServiceAbility onCreate`);
     }
-    
+
     onDestroy(): void {
         console.info(TAG, `WifiServiceAbility onDestroy`);
     }
-    
+
     onRequest(want: Want, startId: number): void {
         let logWant = { ...want };
         let originalSSID = want.parameters?.['ssid'] as string;
