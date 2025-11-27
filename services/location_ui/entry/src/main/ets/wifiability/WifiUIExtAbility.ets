@@ -21,7 +21,8 @@ import deviceInfo from '@ohos.deviceInfo';
 const TAG: string = '[WIFI-NI]==>';
 const DEVICE_TYPE_TV = 'tv';
 const WIFI_DIALOG_P2P_WSC_PBC: number = 4;
-
+const WIFI_DIALOG_P2P_WSC_DISPLAY: number = 6;
+const WIFI_DIALOG_P2P_WSC_KEYPAD: number = 7;
 
 export default class WifiUIExtAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
@@ -34,6 +35,7 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         AppStorage.setOrCreate('wifiDialogType', want.parameters?.['wifiDialogType']);
         AppStorage.setOrCreate('wifi5gSsid', want.parameters?.['wifi5gSsid']);
         AppStorage.setOrCreate('p2pDeviceName', want.parameters?.['p2pDeviceName']);
+        AppStorage.setOrCreate('p2pPinCode', want.parameters?.['p2pPinCode']);
         AppStorage.setOrCreate('targetSsid', want.parameters?.['targetSsid']);
 
         let param: Record<string, UIExtensionContentSession> = {
@@ -41,8 +43,10 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         }
         let storage: LocalStorage = new LocalStorage(param);
         let type : number = AppStorage.get('wifiDialogType') as number
-        if (type == WIFI_DIALOG_P2P_WSC_PBC) {
-            session.loadContent('pages/P2pWscPbcDialog', storage);
+        if (type == WIFI_DIALOG_P2P_WSC_PBC || type == WIFI_DIALOG_P2P_WSC_DISPLAY ||
+            type == WIFI_DIALOG_P2P_WSC_KEYPAD) {
+            session.loadContent('pages/P2pWscDialog', storage);
+
         } else {
             session.loadContent('pages/WifiDialog', storage);
         }
