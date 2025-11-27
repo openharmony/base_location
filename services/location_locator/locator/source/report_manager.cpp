@@ -192,7 +192,7 @@ bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
             RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_PERMISSION_DENIED, request);
             return false;
         }
-        LBSLOGI(REPORT_MANAGER, "report location to %{public}d, uuid : %{public}s, bundleName : %{public}s," \
+        LBSLOGW(REPORT_MANAGER, "report location to %{public}d, uuid : %{public}s, bundleName : %{public}s," \
             "uid : %{public}d, TimeSinceBoot : %{public}s, Altitude : %{public}f, Speed : %{public}f," \
             "Direction : %{public}f, SourceType : %{public}d",
             request->GetTokenId(), request->GetUuid().c_str(), request->GetPackageName().c_str(), request->GetUid(),
