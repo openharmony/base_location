@@ -34,6 +34,7 @@ struct dialogPlusPage {
   private WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN: number = 3;
   private WIFI_DIALOG_P2P_WSC_PBC: number = 4;
   private WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN: number = 5;
+  
   private noActionTimer: number | undefined = undefined;
   private noAction: boolean = true;
 

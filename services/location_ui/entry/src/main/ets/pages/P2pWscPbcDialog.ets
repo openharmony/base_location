@@ -35,6 +35,7 @@ struct dialogPlusPage {
   private customDialogComponentId: number = -1;
   private closeDialogTaskId: number = -1;
   private WIFI_DIALOG_P2P_INVITATION_RECEIVE: number = 4;
+  
 
   @Builder
   buildDialog() {

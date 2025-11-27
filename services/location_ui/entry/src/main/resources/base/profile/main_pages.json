@@ -7,6 +7,6 @@
     "pages/LocationPrivacyDialog",
     "pages/WifiDialog",
     "pages/PrivacyLoadPage",
-    "pages/P2pWscPbcDialog"
+    "pages/P2pWscDialog"
   ]
 }

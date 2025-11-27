@@ -26,6 +26,7 @@ import { WantAgent } from '@ohos.app.ability.wantAgent'
 
 const TAG: string = '[WIFI_SERVICE_NI]==>'
 
+
 export default class WifiServiceAbility extends ServiceExtensionAbility {
     private WIFI_PORTAL_CONNECTED: number = 0;
     private WIFI_PORTAL_TIMEOUT: number = 1;

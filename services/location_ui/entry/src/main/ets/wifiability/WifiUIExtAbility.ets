@@ -22,6 +22,7 @@ const TAG: string = '[WIFI-NI]==>';
 const DEVICE_TYPE_TV = 'tv';
 const WIFI_DIALOG_P2P_WSC_PBC: number = 4;
 
+
 export default class WifiUIExtAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
         console.info(TAG, `WifiUIExtAbility onSessionCreate, want: ${JSON.stringify(want)}`)
