@@ -106,6 +106,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
     private receiveDirectory: string = '';
     private fileName: string = '';
     private sandBoxUri: string = '';
+    private fileFd: number = -1;
     private oppProfile = opp.createOppServerProfile();
     private tapEventIsAllowed = true;
     private transfering: boolean = false;
@@ -198,6 +199,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             console.info(TAG, `unlink file begin`);
             const uri = new fileUri.FileUri(this.receiveDirectory);
             let deleteSandBoxUri = uri.path;
+            if (this.fileFd != -1) {
+                fs.close(this.fileFd);
+                this.fileFd = -1;
+            }
             fs.unlinkSync(deleteSandBoxUri);
         } catch (error) {
             this.tapEventIsAllowed = true;
@@ -377,6 +382,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                     this.oppProfile.off('transferStateChange');
                     console.info(TAG, 'transferStateChange' + data.result);
                 }
+                if (this.fileFd != -1) {
+                    fs.close(this.fileFd);
+                    this.fileFd = -1;
+                }
             }
         });
 
@@ -399,10 +408,14 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                 this.sandBoxUri = this.receiveDirectory;
             }
             let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
+            this.fileFd = file.fd;
             await this.oppProfile.setIncomingFileConfirmation(true, file.fd);
-            fs.close(file.fd);
         } catch (err) {
             console.error(TAG, `openFd failed, code: ${err?.code} message:${err?.message}`);
+            if (this.fileFd != -1) {
+                fs.close(this.fileFd);
+                this.fileFd = -1;
+            }
             return;
         }
     }
@@ -632,6 +645,10 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             console.error(TAG, `failed to cancel notification. Code is ${err.code}, message is ${err.message}`)
         });
         this.transfering = false;
+        if (this.fileFd != -1) {
+            fs.close(this.fileFd);
+            this.fileFd = -1;
+        }
         if (this.successCount == 0) {
             console.info(TAG, 'no success file, terminate it.');
             this.handleTerminate();
