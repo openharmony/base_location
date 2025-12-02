@@ -165,6 +165,7 @@ struct dialogPlusPage {
         .textAlign(TextAlign.Center)
       TextInput({ text: this.inputPinCode })
         .showUnderline(true)
+        .maxLength(8)
         .onChange((value: string) => {
           this.inputPinCode = value;
         })
