@@ -941,7 +941,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         return false;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTime(CommonUtils::GetCurrentTimeStamp() + geofence.expiration * MILL_TO_NANOS);
+    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() + geofence.expiration * MILL_TO_NANOS);
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
@@ -1230,7 +1230,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         LBSLOGE(GNSS, "request is nullptr");
         return;
     }
-    if (CommonUtils::GetCurrentTimeStamp() > request->GetRequestExpirationTime()) {
+    if (CommonUtils::GetCurrentTimeStamp() > request->GetRequestExpirationTimeStamp()) {
         LBSLOGE(GNSS, "request is expiration");
         if (gnssHandler_ != nullptr) {
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
