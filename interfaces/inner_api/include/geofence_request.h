@@ -21,6 +21,7 @@
 #include "geofence_definition.h"
 #include <parcel.h>
 #include "iremote_object.h"
+#include "nlohmann/json.hpp"
 
 namespace OHOS {
 namespace Notification {
