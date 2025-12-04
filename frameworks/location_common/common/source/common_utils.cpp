@@ -19,6 +19,7 @@
 #include <sstream>
 #include <chrono>
 #include <cJSON.h>
+#include <fstream>
 
 #include "common_utils.h"
 #include "bundle_mgr_client.h"
@@ -577,6 +578,44 @@ bool CommonUtils::IsStrValidForStoi(const std::string &str)
         return false;
     }
     return !str.empty() && std::all_of(str.begin(), str.end(), ::isdigit);
+}
+
+bool CommonUtils::IsExistFile(const std::string& filename)
+{
+    bool bExist = false;
+    std::fstream ioFile;
+    char path[PATH_MAX + 1] = {0x00};
+    if (strlen(filename.c_str()) > PATH_MAX || realpath(filename.c_str(), path) == NULL) {
+        LBSLOGI(GNSS, "IsExistFile false,realpath fail");
+        return false;
+    }
+    ioFile.open(path, std::ios::in);
+    if (ioFile) {
+        bExist = true;
+    } else {
+        LBSLOGI(GNSS, "IsExistFile false,open fail");
+        return false;
+    }
+    ioFile.clear();
+    ioFile.close();
+    LBSLOGI(GNSS, "IsExistFile = %{public}d", bExist ? 1 : 0);
+    return bExist;
+}
+
+bool CommonUtils::CreateFile(const std::string& filename, const std::string& filedata)
+{
+    std::ofstream outFile;
+    outFile.open(filename.c_str());
+    if (!outFile) {
+        LBSLOGE(GNSS, "file open failed");
+        return false;
+    }
+    outFile.flush();
+    outFile << filedata << std::endl;
+    outFile.clear();
+    outFile.close();
+    LBSLOGI(GNSS, "CreateFile success");
+    return true;
 }
 } // namespace Location
 } // namespace OHOS
