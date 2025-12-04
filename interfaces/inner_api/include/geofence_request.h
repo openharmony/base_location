@@ -103,7 +103,12 @@ public:
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> UnmarshallingShared(Parcel& parcel);
     static GeofenceRequest* Unmarshalling(Parcel& parcel);
+    bool ToJson(nlohmann::json &jsonObject);
+    static std::shared_ptr<GeofenceRequest> FromJson(const nlohmann::json &jsonObject);
+    static void ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+
 private:
+    static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
     std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;

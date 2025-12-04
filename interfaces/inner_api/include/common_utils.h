@@ -189,11 +189,11 @@ public:
     static bool GetAllUserId(std::vector<int>& activeIds);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);
+    static bool IsExistFile(const std::string& filename);
+    static bool CreateFile(const std::string& filename, const std::string& filedata);
     static LocationErrCode ErrCodeToLocationErrCode(ErrCode errorCode);
     static bool IsValidForStoull(const std::string input, size_t size);
     static bool IsStrValidForStoi(const std::string &str);
-    static bool IsExistFile(const std::string& filename);
-    static bool CreateFile(const std::string& filename, const std::string& filedata);
 };
 
 class CountDownLatch {
