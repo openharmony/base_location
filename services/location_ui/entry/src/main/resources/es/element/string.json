@@ -23,7 +23,7 @@
         },
         {
             "name":"p2p_wsc_pbc_dialog_text",
-            "value":"¿Quieres permitir a %s que se conecte a este dispositivo?",
+            "value":"¿Permitir que %s se conecte a este dispositivo?",
             "attr":{
                 "priority":"LT"
             }
@@ -128,7 +128,7 @@
         },
         {
             "name":"ni_notify_message",
-            "value":"La ha solicitado",
+            "value":"Solicitada por",
             "attr":{
                 "priority":"LT"
             }
