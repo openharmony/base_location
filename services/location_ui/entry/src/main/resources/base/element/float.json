@@ -127,6 +127,22 @@
       {
         "name": "value_vp_24",
         "value": "24vp"
+      },
+      {
+        "name": "value_vp_25",
+        "value": "25vp"
+      },
+      {
+        "name": "value_vp_30",
+        "value": "30vp"
+      },
+      {
+        "name": "value_vp_40",
+        "value": "40vp"
+      },
+      {
+        "name": "value_vp_120",
+        "value": "120vp"
       }
     ]
   }

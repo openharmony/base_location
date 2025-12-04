@@ -36,11 +36,11 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     onCreate(want: Want): void {
         console.info(TAG, `WifiServiceAbility onCreate`);
     }
-    
+
     onDestroy(): void {
         console.info(TAG, `WifiServiceAbility onDestroy`);
     }
-    
+
     onRequest(want: Want, startId: number): void {
         let logWant = { ...want };
         let originalSSID = want.parameters?.['ssid'] as string;
