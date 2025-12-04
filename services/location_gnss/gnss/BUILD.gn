@@ -62,6 +62,7 @@ if (location_feature_with_gnss) {
       "ability_base:configuration",
       "ability_base:want",
       "ability_runtime:ability_connect_callback_stub",
+      "cJSON:cjson",
       "eventhandler:libeventhandler",
       "ffrt:libffrt",
       "hdf_core:libhdi",
@@ -196,6 +197,7 @@ if (location_feature_with_gnss) {
     external_deps = [
       "ability_base:configuration",
       "ability_base:want",
+      "cJSON:cjson",
       "eventhandler:libeventhandler",
       "ffrt:libffrt",
       "hdf_core:libhdi",
