@@ -128,7 +128,7 @@
         },
         {
             "name":"ni_notify_message",
-            "value":"La ha solicitado",
+            "value":"Solicitada por",
             "attr":{
                 "priority":"LT"
             }
