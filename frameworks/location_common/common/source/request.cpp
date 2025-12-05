@@ -471,5 +471,14 @@ int Request::GetAllCategoryCounts()
     }
     return sum;
 }
+
+void Request::ClearAllCategoryCounts()
+{
+    locationSrcStaticMap_[GNSS_TYPE] = 0;
+    locationSrcStaticMap_[NETWORK_TYPE] = 0;
+    locationSrcStaticMap_[INDOOR_TYPE] = 0;
+    locationSrcStaticMap_[RTK_TYPE] = 0;
+    return;
+}
 } // namespace Location
 } // namespace OHOS
