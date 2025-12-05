@@ -106,7 +106,7 @@
         },
         {
             "name":"stop_idle_tether_notification_message",
-            "value":"[TS_1018643]_No devices connected. Hotspot has been disabled. Battery life will be extended."
+            "value":"[TS_1018643]_No devices connected. Hotspot has been disabled to extend battery life."
         },
         {
             "name":"stop_idle_tether_notification_action_text",
