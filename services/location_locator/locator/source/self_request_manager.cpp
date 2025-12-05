@@ -76,6 +76,7 @@ void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Requ
     request_->SetTokenId(IPCSkeleton::GetCallingTokenID());
     request_->SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     request_->SetLocatorCallBack(callback_);
+    request_->ClearAllCategoryCounts();
     LBSLOGI(LOCATOR, "SelfRequestManager start locating");
     LocatorAbility::GetInstance()->HandleStartLocating(request_, callback_);
 }

@@ -353,6 +353,7 @@ void RequestManager::HandleStopLocating(sptr<ILocatorCallback> callback)
         locatorAbility->UnregisterPermissionCallback(request->GetTokenId());
         deadRequests->push_back(request);
         HookUtils::ExecuteHookWhenStopLocation(request);
+        request->ClearAllCategoryCounts();
         HILOG_COMM_INFO("[Request_Manager] remove request:%{public}s", request->ToString().c_str());
     }
     LBSLOGD(REQUEST_MANAGER, "get %{public}zu dead request", deadRequests->size());

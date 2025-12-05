@@ -77,6 +77,7 @@ public:
     std::string GetAllCategoryCountsTostring();
     int GetLocationSrcStaticMapCount(int locSrc);
     int GetAllCategoryCounts();
+    void ClearAllCategoryCounts();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
 
