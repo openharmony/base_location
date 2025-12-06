@@ -148,7 +148,7 @@ bool LocationErrorCallbackNapi::Send(int32_t errorCode)
 
 void LocationErrorCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
-    uv_queue_work(
+    uv_queue_work_interval(
         loop,
         work,
         [](uv_work_t *work) {},
@@ -195,7 +195,7 @@ void LocationErrorCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
-    });
+    }, "locationErrorCallback");
 }
 
 void LocationErrorCallbackNapi::OnLocationReport(const std::unique_ptr<Location>& location)

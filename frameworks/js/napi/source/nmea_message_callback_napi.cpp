@@ -168,7 +168,7 @@ bool NmeaMessageCallbackNapi::Send(const std::string msg)
 
 void NmeaMessageCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
-    uv_queue_work(
+    uv_queue_work_interval(
         loop,
         work,
         [](uv_work_t *work) {},
@@ -217,7 +217,7 @@ void NmeaMessageCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
-    });
+    }, "nmeaMessageCallback");
 }
 
 void NmeaMessageCallbackNapi::OnMessageChange(int64_t timestamp, const std::string msg)

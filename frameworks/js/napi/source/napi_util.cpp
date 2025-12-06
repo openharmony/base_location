@@ -1192,7 +1192,7 @@ void DeleteQueueWork(AsyncContext* context)
 
 void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
 {
-    uv_queue_work(loop, work, [](uv_work_t *work) {},
+    uv_queue_work_interval(loop, work, [](uv_work_t *work) {},
         [](uv_work_t *work, int status) {
             AsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;
@@ -1231,7 +1231,7 @@ void DeleteCallbackHandler(uv_loop_s *&loop, uv_work_t *&work)
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
-    });
+    }, "deleteCallback");
 }
 
 bool CheckIfParamIsFunctionType(napi_env env, napi_value param)
