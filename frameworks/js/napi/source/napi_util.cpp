@@ -398,6 +398,9 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
         config->SetScanTimeoutMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
+    if (JsObjectToInt(env, object, "slotId", valueInt) == SUCCESS) {
+        config->SetSlotId(valueInt);
+    }
 }
 
 void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,

@@ -32,6 +32,7 @@ public:
         fixNumber_ = 0;
         isWlanMatchCalled_ = false;
         rssiThreshold_ = 0;
+        slotId_ = 0;
     }
 
     explicit LocatingRequiredDataConfig(LocatingRequiredDataConfig& LocatingRequiredDataConfig)
@@ -112,6 +113,16 @@ public:
     inline void SetRssiThreshold(int rssiThreshold)
     {
         rssiThreshold_ = rssiThreshold;
+    }
+
+    inline int GetSlotId() const
+    {
+        return slotId__;
+    }
+
+    inline void SetSlotId(int slotId)
+    {
+        slotId_ = slotId;
     }
 
     inline std::vector<std::string> GetWlanBssidArray() const
@@ -195,6 +206,7 @@ private:
     bool isWlanMatchCalled_;
     int rssiThreshold_;
     std::vector<std::string> wlanBssidArray_;
+    int slotId_;
 };
 } // namespace Location
 } // namespace OHOS
