@@ -117,7 +117,7 @@ public:
 
     inline int GetSlotId() const
     {
-        return slotId__;
+        return slotId_;
     }
 
     inline void SetSlotId(int slotId)
