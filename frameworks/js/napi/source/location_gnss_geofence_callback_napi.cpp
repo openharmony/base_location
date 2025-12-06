@@ -206,7 +206,7 @@ bool LocationGnssGeofenceCallbackNapi::IsRemoteDied()
 
 void LocationGnssGeofenceCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
-    uv_queue_work_interval(
+    uv_queue_work_internal(
         loop, work, [](uv_work_t *work) {}, [](uv_work_t *work, int status) {
             GnssGeofenceAsyncContext *context = nullptr;
             napi_handle_scope scope = nullptr;

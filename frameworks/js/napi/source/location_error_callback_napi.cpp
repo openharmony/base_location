@@ -148,7 +148,7 @@ bool LocationErrorCallbackNapi::Send(int32_t errorCode)
 
 void LocationErrorCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
-    uv_queue_work_interval(
+    uv_queue_work_internal(
         loop,
         work,
         [](uv_work_t *work) {},
