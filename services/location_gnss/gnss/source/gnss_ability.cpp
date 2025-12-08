@@ -765,9 +765,9 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     auto geofence = request->GetGeofence();
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
-    fenceInfo.latitude = geofence->GetLatitude();
-    fenceInfo.longitude = geofence->GetLongitude();
-    fenceInfo.radius = geofence->GetRadius();
+    fenceInfo.latitude = geofence.latitude;
+    fenceInfo.longitude = geofence.longitude;
+    fenceInfo.radius = geofence.radius;
     int monitorEvent = static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER) |
         static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT);
     int32_t ret = geofenceInterface->AddGnssGeofence(fenceInfo, monitorEvent);
@@ -841,9 +841,9 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     auto geofence = request->GetGeofence();
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
-    fenceInfo.latitude = geofence->GetLatitude();
-    fenceInfo.longitude = geofence->GetLongitude();
-    fenceInfo.radius = geofence->GetRadius();
+    fenceInfo.latitude = geofence.latitude;
+    fenceInfo.longitude = geofence.longitude;
+    fenceInfo.radius = geofence.radius;
     auto transitionList = request->GetGeofenceTransitionEventList();
     uint32_t monitorEvent = 0;
     for (size_t i = 0; i < transitionList.size(); i++) {
@@ -873,7 +873,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         return false;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTime(CommonUtils::GetSinceBootTime() + geofence->GetExpiration() * MILL_TO_NANOS);
+    request->SetRequestExpirationTime(CommonUtils::GetSinceBootTime() + geofence.expiration * MILL_TO_NANOS);
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);

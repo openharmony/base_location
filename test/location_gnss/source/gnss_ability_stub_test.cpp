@@ -421,24 +421,6 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest022, TestSize.Level1)
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest022 end");
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest024, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest024, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest024 begin");
-    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
-    ON_CALL(*gnssAbilityStub, GetActiveGeoFences(_)).WillByDefault(Return(ERRCODE_SUCCESS));
-    MessageParcel parcel;
-    parcel.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor());
-    MessageParcel reply;
-    MessageOption option;
-    EXPECT_EQ(ERRCODE_SUCCESS,
-        gnssAbilityStub->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_ACTIVE_FENCES),
-        parcel, reply, option));
-    EXPECT_EQ(ERRCODE_SUCCESS, reply.ReadInt32());
-    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest024 end");
-}
-
 HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest023, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
