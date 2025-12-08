@@ -48,7 +48,7 @@ public:
 
     ~GeofenceRequest();
 
-    GeoFence GetGeofence();	
+    GeoFence GetGeofence();
     void SetGeofence(GeoFence geofence);
 
     int GetScenario();

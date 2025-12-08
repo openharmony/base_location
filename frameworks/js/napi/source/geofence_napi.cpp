@@ -174,7 +174,7 @@ void GetGeofenceTransitionEventArray(const napi_env& env, const napi_value& moni
     }
 }
 
-static bool CheckGeofenceParameter(const Geofence& fenceInfo)
+static bool CheckGeofenceParameter(const GeoFence& fenceInfo)
 {
     if (fenceInfo.latitude > MAX_LATITUDE || fenceInfo.latitude < MIN_LATITUDE) {
         LBSLOGE(LOCATOR_STANDARD, "latitude error.");
@@ -208,7 +208,6 @@ bool JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
         return false;
     }
     GeoFence geofence = {0};
-    double latitude = 0.0;
     if (JsObjectToDouble(env, geofenceValue, "latitude", geofence.latitude) != SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "parse latitude failed");
         return false;
@@ -217,7 +216,6 @@ bool JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
         LBSLOGE(LOCATOR_STANDARD, "parse longitude failed");
         return false;
     }
-    geofence->SetLongitude(longitude);
     if (JsObjectToInt(env, geofenceValue, "coordinateSystemType", value) == SUCCESS) {
         geofence.coordinateSystemType = static_cast<CoordinateSystemType>(value);
     } else {

@@ -198,10 +198,10 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
     scenario_ = data.ReadInt32();
     loiterTimeMs_ = data.ReadInt32();
-    geofence_.latitude = data.ReadDouble();	
-    geofence_.longitude = data.ReadDouble();	
-    geofence_.radius = data.ReadDouble();	
-    geofence_.expiration = data.ReadDouble();	
+    geofence_.latitude = data.ReadDouble();
+    geofence_.longitude = data.ReadDouble();
+    geofence_.radius = data.ReadDouble();
+    geofence_.expiration = data.ReadDouble();
     geofence_.coordinateSystemType = static_cast<CoordinateSystemType>(data.ReadInt32());
     int monitorGeofenceTransitionSize = data.ReadInt32();
     if (monitorGeofenceTransitionSize > MAX_TRANSITION_SIZE) {
@@ -240,10 +240,10 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
     parcel.WriteInt32(scenario_);
     parcel.WriteInt32(loiterTimeMs_);
-    parcel.WriteDouble(geofence_.latitude);	
-    parcel.WriteDouble(geofence_.longitude);	
-    parcel.WriteDouble(geofence_.radius);	
-    parcel.WriteDouble(geofence_.expiration);	
+    parcel.WriteDouble(geofence_.latitude);
+    parcel.WriteDouble(geofence_.longitude);
+    parcel.WriteDouble(geofence_.radius);
+    parcel.WriteDouble(geofence_.expiration);
     parcel.WriteInt32(static_cast<int>(geofence_.coordinateSystemType));
     if (transitionStatusList_.size() > MAX_TRANSITION_SIZE) {
         LBSLOGE(LOCATOR, "fence transition list size should not be greater than 3");
