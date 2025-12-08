@@ -469,7 +469,8 @@ LocationErrCode GnssAbilityProxy::SendNetworkLocation(const std::unique_ptr<Loca
     return LocationErrCode(replyToStub.ReadInt32());
 }
 
-LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::map<int, std::shared_ptr<Geofence>>& fenceMap)
+LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::string bundleName,
+    std::map<int, std::shared_ptr<Geofence>>& fenceMap)
 {
     MessageParcel dataToStub;
     MessageParcel replyToStub;
@@ -477,7 +478,7 @@ LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::map<int, std::shared_p
     if (!dataToStub.WriteInterfaceToken(GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteString(identity.GetBundleName());
+    dataToStub.WriteString(bundleName);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         LBSLOGE(GNSS, "SendNetworkLocation remote is null");
@@ -486,7 +487,7 @@ LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::map<int, std::shared_p
     int error = remote->SendRequest(
         static_cast<uint32_t>(GnssInterfaceCode::GET_ACTIVE_FENCES), dataToStub, replyToStub, option);
     LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
-    auto errCode = reply.ReadInt32();
+    auto errCode = replyToStub.ReadInt32();
     if (errCode == ERRCODE_SUCCESS) {
         int size = replyToStub.ReadInt32();
         int circleSize = size > MAX_FENCE_NUM ? MAX_FENCE_NUM : size;

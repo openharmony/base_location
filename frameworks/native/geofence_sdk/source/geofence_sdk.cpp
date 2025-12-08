@@ -198,3 +198,4 @@ LocationErrCode GeofenceManager::GetActiveGeoFences(std::map<int, Geofence>& fen
     return locationErrCode;
 }
 }
+}
