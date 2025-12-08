@@ -1079,7 +1079,7 @@ void ScanFuzzTest(const char* ch, size_t size)
     OHOS::LocatorAbilityStub051FuzzTest(ch, size);
     OHOS::LocatorAbilityStub052FuzzTest(ch, size);
     OHOS::LocatorAbilityStub054FuzzTest(ch, size);
-	OHOS::LocatorAbilityStub055FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub055FuzzTest(ch, size);
 }
 
 /* Fuzzer entry point */
