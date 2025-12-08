@@ -69,7 +69,7 @@ public:
         (std::vector<CoordinateSystemType>& coordinateSystemTypes));
     MOCK_METHOD(LocationErrCode, SendNetworkLocation, (const std::unique_ptr<Location>& location));
     MOCK_METHOD(LocationErrCode, GetActiveGeoFences, (std::string bundleName,
-        std::map<int, std::shared_ptr<Geofence>>& fenceMap));
+        (std::map<int, std::shared_ptr<Geofence>>& fenceMap)));
 };
 } // namespace Location
 } // namespace OHOS
