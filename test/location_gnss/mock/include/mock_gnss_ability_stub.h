@@ -30,6 +30,7 @@
 #undef private
 #include "location.h"
 #include "work_record.h"
+#include "geofence.h"
 #include "geofence_request.h"
 
 namespace OHOS {
