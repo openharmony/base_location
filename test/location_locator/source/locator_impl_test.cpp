@@ -53,6 +53,7 @@
 #include "geofence_request.h"
 #include "geofence_sdk.h"
 #include "location_data_rdb_manager.h"
+#include "poi_info_callback_napi.h"
 
 using namespace testing::ext;
 
@@ -957,6 +958,16 @@ HWTEST_F(LocatorImplTest, IsPoiServiceSupported, TestSize.Level1)
     bool poiServiceSupportState = false;
     poiServiceSupportState = locatorImpl_->IsPoiServiceSupported();
     LBSLOGI(LOCATOR, "[LocatorImplTest] IsPoiServiceSupported end");
+}
+
+HWTEST_F(LocatorImplTest, GetPoiInfo, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, GetPoiInfo, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] GetPoiInfo begin");
+    sptr<IPoiInfoCallback> callback = sptr<IPoiInfoCallback>(new PoiInfoCallbackNapi());
+    auto errorCode = locatorImpl_->GetPoiInfo(callback);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] GetPoiInfo end");
 }
 
 HWTEST_F(LocatorImplTest, SetLocationSwitchIgnored001, TestSize.Level1)

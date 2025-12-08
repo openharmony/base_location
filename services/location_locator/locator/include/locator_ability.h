@@ -48,6 +48,7 @@
 #include "beacon_fence.h"
 #include "beacon_fence_manager.h"
 #include "locationhub_ipc_interface_code.h"
+#include "i_poi_info_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -228,6 +229,7 @@ public:
     ErrCode UnSubscribeLocationError(const sptr<ILocatorCallback>& cb) override;
     ErrCode GetCurrentWifiBssidForLocating(std::string& bssid) override;
     ErrCode IsPoiServiceSupported(bool& poiServiceSupportState) override;
+    ErrCode GetPoiInfo(const sptr<IRemoteObject>& cb) override;
     LocationErrCode SetSwitchState(bool isEnabled);
 
 private:
