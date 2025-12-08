@@ -113,7 +113,7 @@ void DeleteBlueToothCallback(napi_ref cb)
 
 void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& work)
 {
-    uv_queue_work(loop, work, [](uv_work_t* work) {}, [](uv_work_t* work, int status) {
+    uv_queue_work_internal(loop, work, [](uv_work_t* work) {}, [](uv_work_t* work, int status) {
         if (work == nullptr) {
             return;
         }
@@ -159,7 +159,7 @@ void BluetoothScanResultCallbackNapi::DoSendWork(uv_loop_s*& loop, uv_work_t*& w
         NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
         delete context;
         delete work;
-    });
+    }, "bluetoothScanResultCallback");
 }
 
 void BluetoothScanResultCallbackNapi::OnBluetoothScanResultChange(
