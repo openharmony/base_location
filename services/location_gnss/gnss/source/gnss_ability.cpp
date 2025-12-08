@@ -1799,7 +1799,7 @@ LocationErrCode GnssAbility::GetActiveGeoFences(std::string bundleName,
             geofence->SetRadius(request->GetGeofence().radius);
             geofence->SetExpiration(request->GetGeofence().expiration);
             geofence->SetCoordinateSystemType(request->GetGeofence().coordinateSystemType);
-            fenceMap.insert(std::make_pair(request->GetFenceId(), request->GetGeofence()));
+            fenceMap.insert(std::make_pair(request->GetFenceId(), geofence));
         }
     }
     LBSLOGI(GNSS, "map size = %{public}u", fenceMap.size());
