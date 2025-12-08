@@ -26,6 +26,7 @@
 #include "subability_common.h"
 
 #include "app_identity.h"
+#include "geofence.h"
 #include "geofence_request.h"
 
 namespace OHOS {
