@@ -13,6 +13,7 @@
     "*CheckIfParamIsFunctionType*";
     "*JsObjToLocationRequest*";
     "*JsObjToGeoFenceRequest*";
+    "*Geofence*";
     "*GeofenceRequest*";
     "*JsObjToCachedLocationRequest*";
     "*JsObjToCurrentLocationRequest*";

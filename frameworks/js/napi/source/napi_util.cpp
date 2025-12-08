@@ -232,6 +232,37 @@ napi_value CreateJsMap(napi_env env, const std::map<std::string, std::string>& a
     return map;
 }
 
+void GeofenceResultToJs(const napi_env& env, const Geofence& fence, napi_value& result)
+{
+    SetValueDouble(env, "latitude", fence.GetLatitude(), result);
+    SetValueDouble(env, "longitude", fence.GetLongitude(), result);
+    SetValueDouble(env, "radius", fence.GetRadius(), result);
+    SetValueDouble(env, "expiration", fence.GetExpiration(), result);
+    SetValueInt32(env, "coordinateSystemType", fence.GetCoordinateSystemType(), result);
+}
+
+napi_value CreateFenceMap(napi_env env, const std::map<int, Geofence>& fenceMap)
+{
+    napi_value global = nullptr;
+    napi_value mapFunc = nullptr;
+    napi_value map = nullptr;
+    NAPI_CALL(env, napi_get_global(env, &global));
+    NAPI_CALL(env, napi_get_named_property(env, global, "Map", &mapFunc));
+    NAPI_CALL(env, napi_new_instance(env, mapFunc, 0, nullptr, &map));
+    napi_value setFunc = nullptr;
+    NAPI_CALL(env, napi_get_named_property(env, map, "set", &setFunc));
+    for (auto iter : fenceMap) {
+        napi_value key = nullptr;
+        napi_value value = nullptr;
+        NAPI_CALL(env, napi_create_int32(env, iter.first, &key));
+        NAPI_CALL(env, napi_create_object(env, &value));
+        GeofenceResultToJs(env, iter.second, value);
+        napi_value setArgs[] = { key, value };
+        NAPI_CALL(env, napi_call_function(env, map, setFunc, sizeof(setArgs) / sizeof(setArgs[0]), setArgs, nullptr));
+    }
+    return map;
+}
+
 void CountryCodeToJs(const napi_env& env, const std::shared_ptr<CountryCode>& country, napi_value& result)
 {
     SetValueUtf8String(env, "country", country->GetCountryCodeStr().c_str(), result);

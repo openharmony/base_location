@@ -54,6 +54,8 @@ public:
     LocationErrCode QuerySupportCoordinateSystemType(
         std::vector<CoordinateSystemType>& coordinateSystemTypes) override;
     LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location) override;
+    LocationErrCode GetActiveGeoFences(std::string bundleName,
+            std::map<int, std::shared_ptr<Geofence>>& fenceMap) override;
 private:
     static inline BrokerDelegator<GnssAbilityProxy> delegator_;
 };

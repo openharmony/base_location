@@ -765,9 +765,9 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     auto geofence = request->GetGeofence();
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
-    fenceInfo.latitude = geofence.latitude;
-    fenceInfo.longitude = geofence.longitude;
-    fenceInfo.radius = geofence.radius;
+    fenceInfo.latitude = geofence->GetLatitude();
+    fenceInfo.longitude = geofence->GetLongitude();
+    fenceInfo.radius = geofence->GetRadius();
     int monitorEvent = static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER) |
         static_cast<int>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT);
     int32_t ret = geofenceInterface->AddGnssGeofence(fenceInfo, monitorEvent);
@@ -841,9 +841,9 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     auto geofence = request->GetGeofence();
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
-    fenceInfo.latitude = geofence.latitude;
-    fenceInfo.longitude = geofence.longitude;
-    fenceInfo.radius = geofence.radius;
+    fenceInfo.latitude = geofence->GetLatitude();
+    fenceInfo.longitude = geofence->GetLongitude();
+    fenceInfo.radius = geofence->GetRadius();
     auto transitionList = request->GetGeofenceTransitionEventList();
     uint32_t monitorEvent = 0;
     for (size_t i = 0; i < transitionList.size(); i++) {
@@ -873,7 +873,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         return false;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTime(CommonUtils::GetSinceBootTime() + geofence.expiration * MILL_TO_NANOS);
+    request->SetRequestExpirationTime(CommonUtils::GetSinceBootTime() + geofence->GetExpiration() * MILL_TO_NANOS);
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
@@ -1784,6 +1784,19 @@ LocationErrCode GnssAbility::QuerySupportCoordinateSystemType(
         LocationProcessStage::FENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);
     coordinateSystemTypes = fenceStruct.coordinateSystemTypes;
 
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode GnssAbility::GetActiveGeoFences(std::string bundleName,
+    std::map<int, std::shared_ptr<Geofence>>& fenceMap)
+{
+    for (const auto& pair : gnssGeofenceRequestMap_) {
+        auto request = pair.first;
+        if (request->GetBundleName() == bundleName) {
+            fenceMap.insert(std::make_pair(request->GetFenceId(), request->GetGeofence()));
+        }
+    }
+    LBSLOGI(GNSS, "map size = %{public}u", fenceMap.size());
     return ERRCODE_SUCCESS;
 }
 

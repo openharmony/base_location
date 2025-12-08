@@ -18,6 +18,7 @@
 
 #include <mutex>
 #include <vector>
+#include "geofence.h"
 #include "geofence_definition.h"
 #include <parcel.h>
 #include "iremote_object.h"
@@ -32,14 +33,6 @@ namespace AbilityRuntime::WantAgent {
 }
 
 namespace Location {
-typedef struct {
-    double latitude;
-    double longitude;
-    double radius;
-    double expiration;
-    CoordinateSystemType coordinateSystemType;
-} GeoFence;
-
 class GeofenceRequest : public Parcelable {
 public:
     GeofenceRequest();
@@ -48,8 +41,8 @@ public:
 
     ~GeofenceRequest();
 
-    GeoFence GetGeofence();
-    void SetGeofence(GeoFence geofence);
+    std::shared_ptr<Geofence> GetGeofence();
+    void SetGeofence(std::shared_ptr<Geofence> geofence);
 
     int GetScenario();
 
@@ -107,7 +100,7 @@ private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
     std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;
-    GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
+    std::shared_ptr<Geofence> geofence_;
     int scenario_;
     int loiterTimeMs_;
     int fenceId_;

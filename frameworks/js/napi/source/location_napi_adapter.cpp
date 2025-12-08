@@ -2062,6 +2062,60 @@ bool CompareBeaconFence(
     LBSLOGD(BEACON_FENCE_MANAGER, "%{public}s res:true", __func__);
     return true;
 }
+
+void CreateGeofenceAsyncContext(GeofenceAsyncContext* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GeofenceAsyncContext*>(data);
+        context->errCode = g_geofenceClient->GetActiveGeoFences(context->geofenceMap_);
+    };
+
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GeofenceAsyncContext*>(data);
+        NAPI_CALL_RETURN_VOID(context->env, napi_create_map(context->env, &context->result[PARAM1]));
+        context->result[PARAM1] = CreateFenceMap(context->env, context->geofenceMap_);
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "getActiveGeoFences");
+        LBSLOGI(LOCATOR_STANDARD, "Push GetActiveGeoFences result to client");
+    };
+}
+
+napi_value GetActiveGeoFences(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    if (argc > PARAM1) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto asyncContext = new (std::nothrow) GeofenceAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    if (napi_create_string_latin1(env, "GetActiveGeoFences",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    CreateGeofenceAsyncContext(asyncContext);
+    if (asyncContext == nullptr) {
+        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
 #endif
 } // namespace Location
 } // namespace OHOS

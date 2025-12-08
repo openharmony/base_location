@@ -26,6 +26,7 @@ sequenceable OHOS.Location.GeocodingMockInfo;
 sequenceable OHOS.Location.GeofenceRequest;
 sequenceable OHOS.Location.BeaconFenceRequest;
 sequenceable OHOS.Location.BeaconFence;
+sequenceable OHOS.Location.Geofence;
 
 interface OHOS.Location.ILocatorCallback;
 interface OHOS.Location.ICachedLocationsCallback;
@@ -83,4 +84,5 @@ interface OHOS.Location.ILocatorService {
     [ipccode 58] void RemoveBeaconFence([in] BeaconFence beaconFence);
     [ipccode 59] void GetAppsPerformLocating([out] List<AppIdentity> performLocatingAppList);
     [ipccode 60] void GetPoiInfo([in] IRemoteObject cb);
+    [ipccode 61] void GetActiveGeoFences([out] OrderedMap<int, Geofence> fenceMap);
 }

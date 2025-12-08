@@ -174,21 +174,21 @@ void GetGeofenceTransitionEventArray(const napi_env& env, const napi_value& moni
     }
 }
 
-static bool CheckGeofenceParameter(const GeoFence& fenceInfo)
+static bool CheckGeofenceParameter(const std::shared_ptr<Geofence>& fenceInfo)
 {
-    if (fenceInfo.latitude > MAX_LATITUDE || fenceInfo.latitude < MIN_LATITUDE) {
+    if (fenceInfo->GetLatitude() > MAX_LATITUDE || fenceInfo->GetLatitude() < MIN_LATITUDE) {
         LBSLOGE(LOCATOR_STANDARD, "latitude error.");
         return false;
     }
-    if (fenceInfo.longitude > MAX_LONGITUDE || fenceInfo.longitude < MIN_LONGITUDE) {
+    if (fenceInfo->GetLongitude() > MAX_LONGITUDE || fenceInfo->GetLongitude() < MIN_LONGITUDE) {
         LBSLOGE(LOCATOR_STANDARD, "longitude error.");
         return false;
     }
-    if (!(fenceInfo.radius > 0)) {
+    if (!(fenceInfo->GetRadius() > 0)) {
         LBSLOGE(LOCATOR_STANDARD, "radius error.");
         return false;
     }
-    if (!(fenceInfo.expiration > 0)) {
+    if (!(fenceInfo->GetExpiration() > 0)) {
         LBSLOGE(LOCATOR_STANDARD, "expiration error.");
         return false;
     }
@@ -207,28 +207,36 @@ bool JsObjToGeoFenceRequest(const napi_env& env, const napi_value& object,
         LBSLOGE(LOCATOR_STANDARD, "parse geofence failed");
         return false;
     }
-    GeoFence geofence = {0};
-    if (JsObjectToDouble(env, geofenceValue, "latitude", geofence.latitude) != SUCCESS) {
+    std::shared_ptr<Geofence> geofence = std::make_shared<Geofence>();
+    double latitude = 0.0;
+    if (JsObjectToDouble(env, geofenceValue, "latitude", latitude) != SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "parse latitude failed");
         return false;
     }
-    if (JsObjectToDouble(env, geofenceValue, "longitude", geofence.longitude) != SUCCESS) {
+    geofence->SetLatitude(latitude);
+    double longitude = 0.0;
+    if (JsObjectToDouble(env, geofenceValue, "longitude", longitude) != SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "parse longitude failed");
         return false;
     }
+    geofence->SetLongitude(longitude);
     if (JsObjectToInt(env, geofenceValue, "coordinateSystemType", value) == SUCCESS) {
-        geofence.coordinateSystemType = static_cast<CoordinateSystemType>(value);
+        geofence->SetCoordinateSystemType(static_cast<CoordinateSystemType>(value));
     } else {
-        geofence.coordinateSystemType = CoordinateSystemType::WGS84;
+        geofence->SetCoordinateSystemType(CoordinateSystemType::WGS84);
     }
-    if (JsObjectToDouble(env, geofenceValue, "radius", geofence.radius) != SUCCESS) {
+    double radius = 0.0;
+    if (JsObjectToDouble(env, geofenceValue, "radius", radius) != SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "parse radius failed");
         return false;
     }
-    if (JsObjectToDouble(env, geofenceValue, "expiration", geofence.expiration) != SUCCESS) {
+    geofence->SetRadius(radius);
+    double expiration = 0.0;
+    if (JsObjectToDouble(env, geofenceValue, "expiration", expiration) != SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "parse expiration failed");
         return false;
     }
+    geofence->SetExpiration(expiration);
     bool isValidParameter = CheckGeofenceParameter(geofence);
     if (!isValidParameter) {
         return false;

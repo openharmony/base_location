@@ -238,6 +238,8 @@ public:
     void ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &request, GnssGeofenceOperateType type,
         LocationErrCode code);
     GnssGeofenceOperateResult DealOperationResult(LocationErrCode code);
+    LocationErrCode GetActiveGeoFences(std::string bundleName,
+        std::map<int, std::shared_ptr<Geofence>>& fenceMap) override;
 
 private:
     bool Init();
