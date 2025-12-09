@@ -120,6 +120,10 @@ void GnssAbilityStub::InitGnssEnhanceMsgHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
         return SendNetworkLocationInner(data, reply, identity);
         };
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_ACTIVE_FENCES)] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
+        return GetActiveGeoFencesInner(data, reply, identity);
+        };
 }
 
 GnssAbilityStub::GnssAbilityStub()
@@ -353,6 +357,27 @@ int GnssAbilityStub::SendNetworkLocationInner(MessageParcel &data, MessageParcel
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION), data, reply);
     isMessageRequest_ = true;
+    return ERRCODE_SUCCESS;
+}
+
+int GnssAbilityStub::GetActiveGeoFencesInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    std::map<int, std::shared_ptr<Geofence>> fenceMap;
+    std::string bundleName = data.ReadString();
+    auto errCode = GetActiveGeoFences(bundleName, fenceMap);
+    reply.WriteInt32(errCode);
+    if (errCode != ERRCODE_SUCCESS) {
+        return errCode;
+    }
+    reply.WriteInt32(fenceMap.size());
+    for (const auto& pair : fenceMap) {
+        reply.WriteInt32(pair.first);
+        auto fence = pair.second;
+        fence->Marshalling(reply);
+    }
     return ERRCODE_SUCCESS;
 }
 

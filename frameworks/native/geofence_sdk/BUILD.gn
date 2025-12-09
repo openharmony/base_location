@@ -24,6 +24,7 @@ config("geofence_sdk_config") {
 }
 
 local_base_sources = [
+  "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence.cpp",
   "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_request.cpp",
   "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_sdk.cpp",
 ]

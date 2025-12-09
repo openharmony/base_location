@@ -90,6 +90,8 @@ sptr<LocationGnssGeofenceCallbackNapi> FindRequestByBeaconFence(std::shared_ptr<
 bool CompareBeaconFence(std::shared_ptr<BeaconFence> beaconFence1, std::shared_ptr<BeaconFence> beaconFence2);
 void SetExecuteFuncForCountryCodeContext(CountryCodeContext* asyncContext);
 void SetCompleteFuncForCountryCodeContext(CountryCodeContext* asyncContext);
+napi_value GetActiveGeoFences(napi_env env, napi_callback_info info);
+void CreateGeoFenceAsyncContext(GeofenceAsyncContext* asyncContext);
 #endif
 }  // namespace Location
 }  // namespace OHOS

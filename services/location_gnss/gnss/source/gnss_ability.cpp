@@ -1787,6 +1787,25 @@ LocationErrCode GnssAbility::QuerySupportCoordinateSystemType(
     return ERRCODE_SUCCESS;
 }
 
+LocationErrCode GnssAbility::GetActiveGeoFences(std::string bundleName,
+    std::map<int, std::shared_ptr<Geofence>>& fenceMap)
+{
+    for (const auto& pair : gnssGeofenceRequestMap_) {
+        auto request = pair.first;
+        if (request->GetBundleName() == bundleName) {
+            std::shared_ptr<Geofence> geofence = std::make_shared<Geofence>();
+            geofence->SetLatitude(request->GetGeofence().latitude);
+            geofence->SetLongitude(request->GetGeofence().longitude);
+            geofence->SetRadius(request->GetGeofence().radius);
+            geofence->SetExpiration(request->GetGeofence().expiration);
+            geofence->SetCoordinateSystemType(request->GetGeofence().coordinateSystemType);
+            fenceMap.insert(std::make_pair(request->GetFenceId(), geofence));
+        }
+    }
+    LBSLOGI(GNSS, "map size = %{public}u", fenceMap.size());
+    return ERRCODE_SUCCESS;
+}
+
 bool GnssAbility::IsMockEnabled()
 {
     return IsLocationMocked();

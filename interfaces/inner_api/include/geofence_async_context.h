@@ -52,6 +52,19 @@ public:
 
     ~GnssGeofenceAsyncContext() override {}
 };
+
+class GeofenceAsyncContext : public AsyncContext {
+public:
+    std::map<int, Geofence> geofenceMap_;
+
+    explicit GeofenceAsyncContext(
+        napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred) {}
+
+    GeofenceAsyncContext() = delete;
+
+    ~GeofenceAsyncContext() override {}
+};
 }  // namespace Location
 }  // namespace OHOS
 #endif // GEOFENCE_ASYNC_CONTEXT_H

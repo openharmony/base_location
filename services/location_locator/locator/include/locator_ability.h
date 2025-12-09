@@ -230,6 +230,7 @@ public:
     ErrCode GetCurrentWifiBssidForLocating(std::string& bssid) override;
     ErrCode IsPoiServiceSupported(bool& poiServiceSupportState) override;
     ErrCode GetPoiInfo(const sptr<IRemoteObject>& cb) override;
+    ErrCode GetActiveGeoFences(std::map<int, Geofence>& fenceMap) override;
     LocationErrCode SetSwitchState(bool isEnabled);
 
 private:

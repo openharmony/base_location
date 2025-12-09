@@ -36,6 +36,7 @@
 #include "request_config.h"
 #include "satellite_status.h"
 #include "bluetooth_scan_result.h"
+#include "geofence.h"
 
 namespace OHOS {
 namespace Location {
@@ -108,6 +109,8 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
 napi_value CreateError(napi_env env, int32_t err, const std::string &msg);
 napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo);
 napi_status SetValuePoi(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
+napi_value CreateFenceMap(const napi_env& env, const std::map<int, Geofence>& fenceMap);
+void GeofenceResultToJs(const napi_env& env, const Geofence& fence, napi_value& result);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

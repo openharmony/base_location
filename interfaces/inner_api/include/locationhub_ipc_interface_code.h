@@ -78,7 +78,8 @@ enum class LocatorInterfaceCode {
     ADD_BEACON_FENCE = 57,
     REMOVE_BEACON_FENCE = 58,
     GET_APPS_PERFORM_LOCATING = 59,
-    GET_POI_INFO = 60
+    GET_POI_INFO = 60,
+	GET_ACTIVE_GEO_FENCES = 61
 };
 
 enum class GeoConvertInterfaceCode {
@@ -121,6 +122,7 @@ enum class GnssInterfaceCode {
     REMOVE_GNSS_GEOFENCE = 28,
     GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE = 29,
     SEND_NETWORK_LOCATION = 30,
+    GET_ACTIVE_FENCES = 31,
 };
 
 enum class NetworkInterfaceCode {
