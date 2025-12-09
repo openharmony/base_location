@@ -376,7 +376,9 @@ int GnssAbilityStub::GetActiveGeoFencesInner(MessageParcel &data, MessageParcel 
     for (const auto& pair : fenceMap) {
         reply.WriteInt32(pair.first);
         auto fence = pair.second;
-        fence->Marshalling(reply);
+        if (fence != nullptr) {
+            fence->Marshalling(reply);
+        }
     }
     return ERRCODE_SUCCESS;
 }

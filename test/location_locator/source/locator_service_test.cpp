@@ -58,6 +58,7 @@
 #include "nmea_message_callback_napi.h"
 #endif
 #include "permission_manager.h"
+#include "geofence.h"
 #include "geofence_request.h"
 #include "location_data_rdb_manager.h"
 #include "mock_i_remote_object.h"
@@ -1005,6 +1006,18 @@ HWTEST_F(LocatorServiceTest, IsPorcessRunning, TestSize.Level1)
     auto result = locatorAbility->IsProcessRunning(1000, 1000);
     EXPECT_EQ(false, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning end");
+}
+
+HWTEST_F(LocatorServiceTest, GetActiveGeoFences, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetActiveGeoFences, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetActiveGeoFences begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    std::map<int, Geofence> geofenceMap;
+    auto result = locatorAbility->GetActiveGeoFences(geofenceMap);
+    EXPECT_EQ(0, geofenceMap.size());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetActiveGeoFences end");
 }
 }  // namespace Location
 }  // namespace OHOS

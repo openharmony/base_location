@@ -2078,7 +2078,6 @@ void CreateGeofenceAsyncContext(GeofenceAsyncContext* asyncContext)
             return;
         }
         auto context = static_cast<GeofenceAsyncContext*>(data);
-        NAPI_CALL_RETURN_VOID(context->env, napi_create_map(context->env, &context->result[PARAM1]));
         context->result[PARAM1] = CreateFenceMap(context->env, context->geofenceMap_);
         g_hiAppEventClient->WriteEndEvent(
             context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "getActiveGeoFences");
@@ -2095,7 +2094,7 @@ napi_value GetActiveGeoFences(napi_env env, napi_callback_info info)
     void* data = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
-    if (argc > PARAM1) {
+    if (argc >= PARAM1) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -2109,11 +2108,7 @@ napi_value GetActiveGeoFences(napi_env env, napi_callback_info info)
     }
     asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
     CreateGeofenceAsyncContext(asyncContext);
-    if (asyncContext == nullptr) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
-    size_t objectArgsNum = 1;
+    size_t objectArgsNum = 0;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 #endif

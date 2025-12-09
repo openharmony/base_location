@@ -493,7 +493,7 @@ LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::string bundleName,
         int circleSize = size > MAX_FENCE_NUM ? MAX_FENCE_NUM : size;
         for (auto i = 0; i < circleSize; i++) {
             int fenceId = replyToStub.ReadInt32();
-            auto geofence = Geofence::Unmarshalling(replyToStub);
+            auto geofence = Geofence::UnmarshallingShared(replyToStub);
             fenceMap.insert(std::make_pair(fenceId, geofence));
         }
     }

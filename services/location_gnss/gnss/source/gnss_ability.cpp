@@ -1790,6 +1790,11 @@ LocationErrCode GnssAbility::QuerySupportCoordinateSystemType(
 LocationErrCode GnssAbility::GetActiveGeoFences(std::string bundleName,
     std::map<int, std::shared_ptr<Geofence>>& fenceMap)
 {
+    if (!IsSupportGps()) {
+        LBSLOGI(GNSS, "Is Not Support Gps");
+        return LOCATION_ERRCODE_NOT_SUPPORTED;
+    }
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     for (const auto& pair : gnssGeofenceRequestMap_) {
         auto request = pair.first;
         if (request->GetBundleName() == bundleName) {
