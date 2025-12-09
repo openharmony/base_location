@@ -241,7 +241,7 @@ void GeofenceResultToJs(const napi_env& env, const Geofence& fence, napi_value& 
     SetValueInt32(env, "coordinateSystemType", fence.GetCoordinateSystemType(), result);
 }
 
-napi_value CreateFenceMap(napi_env env, const std::map<int, Geofence>& fenceMap)
+napi_value CreateFenceMap(const napi_env& env, const std::map<int, Geofence>& fenceMap)
 {
     napi_value global = nullptr;
     napi_value mapFunc = nullptr;
