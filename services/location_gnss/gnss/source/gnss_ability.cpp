@@ -712,7 +712,7 @@ void GnssAbility::CheckIfNeedRestoreGeofenceRequest()
     }
     if (fenceId > 0) {
         // 初始化fenceId
-        ExecuteHookWhenRestoreGeofence(fenceId);
+        ExecuteHookWhenInitGeofenceId(fenceId);
     }
     LBSLOGI(GNSS, "After RestoreGeofenceRequest size %{public}zu", gnssGeofenceRequestMap_.size());
 }
@@ -1386,7 +1386,7 @@ bool GnssAbility::ExecuteHookWhenRestoreGeofence(std::shared_ptr<GeofenceRequest
     return fenceStruct.retCode;
 }
 
-void GnssAbility::ExecuteHookWhenRestoreGeofence(int fenceId)
+void GnssAbility::ExecuteHookWhenInitGeofenceId(int fenceId)
 {
     HookUtils::ExecuteHook(
         LocationProcessStage::INIT_GEOFENCE_ID_PROCESS, (void *)&fenceId, nullptr);
