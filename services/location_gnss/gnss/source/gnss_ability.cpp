@@ -1298,29 +1298,29 @@ void GnssAbility::NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRe
         return;
     }
     auto transitionStatusList = request->GetGeofenceTransitionEventList();
+#ifdef NOTIFICATION_ENABLE
+        auto notificationRequestList = request->GetNotificationRequestList();
+        if (transitionStatusList.size() != notificationRequestList.size()) {
+            LBSLOGE(GNSS, "transitionStatusList size does not equals to notificationRequestList size");
+            return;
+        }
     for (size_t i = 0; i < transitionStatusList.size(); i++) {
         if (transitionStatusList[i] !=
             static_cast<GeofenceTransitionEvent>(event)) {
             continue;
         }
-#ifdef NOTIFICATION_ENABLE
-        auto notificationRequestList = request->GetNotificationRequestList();
-        if (transitionStatusList.size() == notificationRequestList.size()) {
-            auto notificationRequest = notificationRequestList[i];
-            if (notificationRequest != nullptr) {
-                int32_t notificationId = GenerateNotificationId();
-                notificationRequest->SetCreatorUid(request->GetUid());
-                notificationRequest->SetNotificationId(notificationId);
-                int returncode = Notification::NotificationHelper::PublishNotification(*notificationRequest);
-                if (returncode != ERR_OK) {
-                    LBSLOGE(GNSS, "PublishNotification faild returncode :%{public}d", returncode);
-                } else {
-                    std::unique_lock<ffrt::mutex> lock(notificationMapMutex_);
-                    notificationMap_.insert(std::make_pair(notificationId, request->GetFenceId()));
-                }
+        auto notificationRequest = notificationRequestList[i];
+        if (notificationRequest != nullptr) {
+            int32_t notificationId = GenerateNotificationId();
+            notificationRequest->SetCreatorUid(request->GetUid());
+            notificationRequest->SetNotificationId(notificationId);
+            int returncode = Notification::NotificationHelper::PublishNotification(*notificationRequest);
+            if (returncode != ERR_OK) {
+                LBSLOGE(GNSS, "PublishNotification faild returncode :%{public}d", returncode);
+            } else {
+                std::unique_lock<ffrt::mutex> lock(notificationMapMutex_);
+                notificationMap_.insert(std::make_pair(notificationId, request->GetFenceId()));
             }
-        } else {
-            LBSLOGE(GNSS, "transitionStatusList size does not equals to notificationRequestList size");
         }
 #endif
     }
