@@ -129,6 +129,7 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     }
 #endif
 
+    notificationId_ = 0;
     auto agnssNiManager = AGnssNiManager::GetInstance();
     if (agnssNiManager != nullptr) {
         agnssNiManager->SubscribeSaStatusChangeListerner();
@@ -692,8 +693,8 @@ void GnssAbility::CheckIfNeedRestoreGeofenceRequest()
             hasNotification = true;
         }
 #endif
-        if (!appAliveStatus && !hasNotification) {
-            LBSLOGI(GNSS, "app not alive and no notification , not need restore, %{public}s, %{public}d",
+        if (!appAliveStatus && !hasNotification && iter->GetWantAgent() == nullptr) {
+            LBSLOGI(GNSS, "have not callback type, not need restore, %{public}s, %{public}d",
                 iter->GetBundleName().c_str(), iter->GetFenceId());
             continue;
         }

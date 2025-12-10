@@ -233,7 +233,6 @@ public:
     void PreSaveGeoFenceRequestToFile(std::shared_ptr<GeofenceRequest> &request, GeofenceOperateType type);
     void SaveGeoFenceRequestToFile(std::vector<std::shared_ptr<GeofenceRequest>> &requestList);
     std::vector<std::shared_ptr<GeofenceRequest>> ReadGeoFenceRequestFromFile();
-    void ClearGeoFenceRequestFile();
     void ReportGeofenceOperationResult(
         int fenceId, GeofenceOperateType type, GeofenceOperateResult result);
 #endif
@@ -270,7 +269,6 @@ private:
     void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
-    void ExecuteHookWhenRestoreGeofence(int fenceId);
     bool IsGnssfenceRequestMapExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
     bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
