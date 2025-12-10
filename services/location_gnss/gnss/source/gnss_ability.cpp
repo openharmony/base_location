@@ -830,7 +830,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() + geofence.expiration * MILL_TO_NANOS);
+    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() + geofence.expiration);
     GeofenceInfo fenceInfo;
     fenceInfo.latitude = geofence.latitude;
     fenceInfo.longitude = geofence.longitude;
@@ -945,7 +945,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         return false;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() + geofence.expiration * MILL_TO_NANOS);
+    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() + geofence.expiration);
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
