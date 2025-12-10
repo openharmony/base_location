@@ -244,10 +244,7 @@ public:
     LocationErrCode InjectLocation();
     LocationErrCode InjectTime();
     LocationErrCode UpdateNtpTime(int64_t ntpTime, int64_t elapsedTime);
-    void CheckIfNeedRestoreGeofenceRequest();
-    size_t GetGnssGeofenceRequestMapSize();
     size_t GetFenceWantAgentMapSize();
-    bool SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &request);
     void PreRestoreGeofenceRequest();
     void CheckIfNeedRestoreGeofenceRequest();
     size_t GetGnssGeofenceRequestMapSize();
