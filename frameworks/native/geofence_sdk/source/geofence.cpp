@@ -50,12 +50,11 @@ void Geofence::ReadFromParcel(Parcel& parcel)
 
 bool Geofence::Marshalling(Parcel& parcel) const
 {
-    parcel.WriteDouble(latitude_);
-    parcel.WriteDouble(longitude_);
-    parcel.WriteDouble(radius_);
-    parcel.WriteDouble(expiration_);
-    parcel.WriteInt32(static_cast<int>(coordinateSystemType_));
-    return true;
+    return parcel.WriteDouble(latitude_) &&
+        parcel.WriteDouble(longitude_) &&
+        parcel.WriteDouble(radius_) &&
+        parcel.WriteDouble(expiration_) &&
+        parcel.WriteInt32(static_cast<int>(coordinateSystemType_));
 }
 
 std::shared_ptr<Geofence> Geofence::UnmarshallingShared(Parcel& parcel)
