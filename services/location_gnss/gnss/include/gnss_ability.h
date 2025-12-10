@@ -229,11 +229,13 @@ public:
     void ReportGeofenceEvent(int fenceId, GeofenceEvent event);
     bool NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
     void NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
-    void ReportGeofenceOperationResult(
-        int fenceId, GeofenceOperateType type, GeofenceOperateResult result);
+    int32_t GenerateNotificationId();
     void PreSaveGeoFenceRequestToFile(std::shared_ptr<GeofenceRequest> &request, GeofenceOperateType type);
     void SaveGeoFenceRequestToFile(std::vector<std::shared_ptr<GeofenceRequest>> &requestList);
     std::vector<std::shared_ptr<GeofenceRequest>> ReadGeoFenceRequestFromFile();
+    void ClearGeoFenceRequestFile();
+    void ReportGeofenceOperationResult(
+        int fenceId, GeofenceOperateType type, GeofenceOperateResult result);
 #endif
     bool RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callbackObj);
     LocationErrCode QuerySupportCoordinateSystemType(
@@ -242,10 +244,13 @@ public:
     LocationErrCode InjectLocation();
     LocationErrCode InjectTime();
     LocationErrCode UpdateNtpTime(int64_t ntpTime, int64_t elapsedTime);
-    void PreReportGeofenceOperationResult();
     void CheckIfNeedRestoreGeofenceRequest();
     size_t GetGnssGeofenceRequestMapSize();
     size_t GetFenceWantAgentMapSize();
+    bool SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &request);
+    void PreRestoreGeofenceRequest();
+    void CheckIfNeedRestoreGeofenceRequest();
+    size_t GetGnssGeofenceRequestMapSize();
     bool SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &request);
     void MonitorNetwork();
     void ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &request, GnssGeofenceOperateType type,
@@ -272,6 +277,9 @@ private:
     bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
     bool IsGnssfenceRequestMapExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
+    bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
+    bool ExecuteHookWhenRestoreGeofence(std::shared_ptr<GeofenceRequest>& request);
+    void ExecuteHookWhenInitGeofenceId(int fenceId);
     bool ConnectGnssHdi();
     bool IsSupportGps();
     bool IsSupportGeofence();
@@ -317,12 +325,16 @@ private:
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     sptr<IGeofenceCallback> geofenceCallback_;
 #endif
-    int32_t fenceId_;
-    ffrt::mutex fenceIdMutex_;
+    int32_t notificationId_;
+    ffrt::mutex notificationIdMutex_;
     ffrt::mutex gnssGeofenceRequestMapMutex_;
+    ffrt::mutex notificationMapMutex_;
     ffrt::mutex fenceWantAgentMapMutex_;
     std::map<std::shared_ptr<GeofenceRequest>,
         std::pair<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>> gnssGeofenceRequestMap_;
+#ifdef NOTIFICATION_ENABLE
+    std::map<int32_t, int> notificationMap_;
+#endif
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {

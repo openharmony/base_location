@@ -107,6 +107,7 @@ public:
     bool ToJson(nlohmann::json &jsonObject);
     static std::shared_ptr<GeofenceRequest> FromJson(const nlohmann::json &jsonObject);
     static void ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    static void ConvertWantAgent(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
 
 private:
     static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);

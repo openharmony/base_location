@@ -48,6 +48,7 @@
 #ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
 #include "notification_helper.h"
+#include "notification_bundle_option.h"
 #endif
 
 #include "hook_utils.h"
@@ -76,8 +77,8 @@ const int MAX_NMEA_CALLBACK_NUM = 1000;
 const int MAX_GNSS_GEOFENCE_REQUEST_NUM = 1000;
 const int64_t MAX_BATCH_LENGTH_MS = 24 * 60 * 60 * 1000;
 const int64_t MIN_BATCH_LENGTH_MS = 1000;
-const int MAX_CACHE_CALLBACK_NUM = 1000;
 const int WANT_CODE_ELEVEN = 11;
+const int MAX_CACHE_CALLBACK_NUM = 1000;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 constexpr const char *AGNSS_SERVICE_NAME = "agnss_interface_service";
 #endif
@@ -128,13 +129,12 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
     }
 #endif
 
-    fenceId_ = 0;
     auto agnssNiManager = AGnssNiManager::GetInstance();
     if (agnssNiManager != nullptr) {
         agnssNiManager->SubscribeSaStatusChangeListerner();
     }
     MonitorNetwork();
-    PreReportGeofenceOperationResult();
+    PreRestoreGeofenceRequest();
     LBSLOGI(GNSS, "ability constructed.");
 }
 
@@ -657,7 +657,7 @@ void GnssAbility::MonitorNetwork()
 }
 
 
-void GnssAbility::PreReportGeofenceOperationResult()
+void GnssAbility::PreRestoreGeofenceRequest()
 {
     if (gnssHandler_ != nullptr) {
         AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
@@ -672,8 +672,11 @@ void GnssAbility::CheckIfNeedRestoreGeofenceRequest()
     std::vector<std::shared_ptr<GeofenceRequest>> requestList = ReadGeoFenceRequestFromFile();
     int fenceId = 0;
     for (auto iter : requestList) {
-        // 是否白名单，非白名单不恢复
-
+        // 是否允许恢复
+        if (!ExecuteHookWhenRestoreGeofence(iter)) {
+            LBSLOGE(GNSS, "not allow restore request bundleName:%{public}s", iter->GetBundleName().c_str());
+            continue;
+        }
         // 是否超期，超期不恢复
         if (CommonUtils::GetCurrentTimeStamp() > iter->GetRequestExpirationTimeStamp()) {
             LBSLOGI(GNSS, "geofence request is expiration, not need restore, %{public}s, %{public}d",
@@ -696,9 +699,9 @@ void GnssAbility::CheckIfNeedRestoreGeofenceRequest()
         }
         // 满足恢复条件
         if (iter->GetWantAgent() == nullptr) {
-            AddGnssGeofence(iter);
             std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
             gnssGeofenceRequestMap_.insert(std::make_pair(iter, std::make_pair(nullptr, nullptr)));
+            AddGnssGeofence(iter);
         } else {
             AddFence(iter);
         }
@@ -840,7 +843,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         LBSLOGE(GNSS, "wantAgen is nullptr!");
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
-    if (ExecuteFenceProcess(GnssInterfaceCode::ADD_FENCE_INFO, request)) {
+    if (ExecuteFenceProcess(GnssInterfaceCode::ADD_GNSS_GEOFENCE, request)) {
         return ERRCODE_SUCCESS;
     }
     return LOCATION_ERRCODE_NOT_SUPPORTED;
@@ -869,7 +872,7 @@ LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& reque
     int32_t ret = geofenceInterface->DeleteGnssGeofence(request->GetFenceId());
     LBSLOGD(GNSS, "Successfully RemoveFence!, %{public}d", ret);
 #endif
-    if (ExecuteFenceProcess(GnssInterfaceCode::REMOVE_FENCE_INFO, request)) {
+    if (ExecuteFenceProcess(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE, request)) {
         return ERRCODE_SUCCESS;
     }
     return LOCATION_ERRCODE_NOT_SUPPORTED;
@@ -1043,7 +1046,6 @@ bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr
         auto bundleNameInMap = requestInMap->GetBundleName();
         if (AbilityRuntime::WantAgent::WantAgentHelper::IsEquals(wantAgentPtr, request->GetWantAgent()) == 0 &&
             bundleNameInMap.compare(request->GetBundleName()) == 0) {
-                LBSLOGE(GNSS, "RemoveFence fencefenceIdInMapId : %{public}d", fenceIdInMap);
                 request->SetFenceId(fenceIdInMap);
                 return true;
         }
@@ -1306,14 +1308,33 @@ void GnssAbility::NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRe
         if (transitionStatusList.size() == notificationRequestList.size()) {
             auto notificationRequest = notificationRequestList[i];
             if (notificationRequest != nullptr) {
+                int32_t notificationId = GenerateNotificationId();
                 notificationRequest->SetCreatorUid(request->GetUid());
-                Notification::NotificationHelper::PublishNotification(*notificationRequest);
+                notificationRequest->SetNotificationId(notificationId);
+                int returncode = Notification::NotificationHelper::PublishNotification(*notificationRequest);
+                if (returncode != ERR_OK) {
+                    LBSLOGE(GNSS, "PublishNotification faild returncode :%{public}d", returncode);
+                } else {
+                    std::unique_lock<ffrt::mutex> lock(notificationMapMutex_);
+                    notificationMap_.insert(std::make_pair(notificationId, request->GetFenceId()));
+                }
             }
         } else {
             LBSLOGE(GNSS, "transitionStatusList size does not equals to notificationRequestList size");
         }
 #endif
     }
+}
+
+int32_t GnssAbility::GenerateNotificationId()
+{
+    std::lock_guard<ffrt::mutex> lock(notificationIdMutex_);
+    if (notificationId_ >= INT32_MAX -1) {
+        notificationId_ = 0;
+    }
+    notificationId_++;
+    std::int32_t id = notificationId_;
+    return id;
 }
 #endif
 
@@ -1345,6 +1366,19 @@ bool GnssAbility::ExecuteFenceProcess(
 #endif
     LocationErrCode errCode = HookUtils::ExecuteHook(
         LocationProcessStage::FENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);
+    if (errCode != ERRCODE_SUCCESS) {
+        return false;
+    }
+    return fenceStruct.retCode;
+}
+
+bool GnssAbility::ExecuteHookWhenRestoreGeofence(std::shared_ptr<GeofenceRequest>& request)
+{
+    FenceStruct fenceStruct;
+    fenceStruct.request = request;
+    fenceStruct.retCode = false;
+    LocationErrCode errCode = HookUtils::ExecuteHook(
+        LocationProcessStage::RESTORE_GEOFENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);
     if (errCode != ERRCODE_SUCCESS) {
         return false;
     }

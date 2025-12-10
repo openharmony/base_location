@@ -291,7 +291,6 @@ GeofenceRequest* GeofenceRequest::Unmarshalling(Parcel& parcel)
 bool GeofenceRequest::ToJson(nlohmann::json &jsonObject)
 {
     jsonObject["transitionStatusList"] = transitionStatusList_;
-
 #ifdef NOTIFICATION_ENABLE
     nlohmann::json notificationArr = nlohmann::json::array();
     for (auto notificationRequest : notificationRequestList_) {
@@ -367,6 +366,27 @@ void GeofenceRequest::ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& 
 #endif
 }
 
+void GeofenceRequest::ConvertWantAgent(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
+{
+    if (jsonObject.find("wantAgent") != jsonObject.cend() && jsonObject.at("wantAgent").is_string()) {
+        auto wantAgentValue  = jsonObject.at("wantAgent").get<std::string>();
+        auto wantAgent = AbilityRuntime::WantAgent::WantAgentHelper::FromString(wantAgentValue);
+        if (wantAgent != nullptr) {
+            AbilityRuntime::WantAgent::WantAgentConstant::OperationType operationType =
+                AbilityRuntime::WantAgent::WantAgentHelper::GetType(wantAgent);
+            std::shared_ptr<AAFwk::Want> want = OHOS::AbilityRuntime::WantAgent::WantAgentHelper::GetWant(wantAgent);
+            std::vector<std::shared_ptr<AAFwk::Want>> wants;
+            wants.push_back(want);
+            std::vector<OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
+            flags.push_back(OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags::UPDATE_PRESENT_FLAG);
+            AbilityRuntime::WantAgent::WantAgentInfo wantAgentInfo(
+                0, operationType, flags, wants, nullptr);
+            request->wantAgent_ = AbilityRuntime::WantAgent::WantAgentHelper::GetWantAgent(wantAgentInfo);
+        }
+    }
+}
+
 std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json &jsonObject)
 {
     if (jsonObject.is_null() || !jsonObject.is_object()) {
@@ -387,6 +407,7 @@ std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json 
         }
     }
     ConvertNotificationInfo(request, jsonObject);
+    ConvertWantAgent(request, jsonObject);
     if (jsonObject.find("geofence") != jsonObject.cend()) {
         auto geofenceObj = jsonObject.at("geofence");
         if (!geofenceObj.is_null()) {
@@ -401,13 +422,6 @@ std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json 
     }
     if (jsonObject.find("uid") != jsonObject.cend()) {
         request->uid_ = jsonObject.at("uid").get<int>();
-    }
-    if (jsonObject.find("wantAgent") != jsonObject.cend() && jsonObject.at("wantAgent").is_string()) {
-        auto wantAgentValue  = jsonObject.at("wantAgent").get<std::string>();
-        auto want = AbilityRuntime::WantAgent::WantAgentHelper::FromString(wantAgentValue);
-        if (want != nullptr) {
-            request->wantAgent_ = want;
-        }
     }
     if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
         request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
