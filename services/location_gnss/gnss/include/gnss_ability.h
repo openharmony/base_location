@@ -271,7 +271,6 @@ private:
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     void ExecuteHookWhenRestoreGeofence(int fenceId);
-    bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
     bool IsGnssfenceRequestMapExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
     bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
