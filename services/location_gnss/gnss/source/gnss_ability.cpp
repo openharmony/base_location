@@ -1790,8 +1790,8 @@ LocationErrCode GnssAbility::QuerySupportCoordinateSystemType(
 LocationErrCode GnssAbility::GetActiveGeoFences(std::string bundleName,
     std::map<int, std::shared_ptr<Geofence>>& fenceMap)
 {
-    if (!IsSupportGps()) {
-        LBSLOGI(GNSS, "Is Not Support Gps");
+    if (!IsSupportGeofence()) {
+        LBSLOGI(GNSS, "Is Not Support Geofence");
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
