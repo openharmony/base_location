@@ -108,6 +108,7 @@ napi_value GetArrayProperty(const napi_env& env, const napi_value& object, std::
 napi_value CreateError(napi_env env, int32_t err, const std::string &msg);
 napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo);
 napi_status SetValuePoi(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
+bool GetIntArrayFromJsObj(napi_env env, napi_value value, std::vector<int>& outArray);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

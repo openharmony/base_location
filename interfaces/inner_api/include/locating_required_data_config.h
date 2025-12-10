@@ -21,6 +21,11 @@
 
 namespace OHOS {
 namespace Location {
+struct ArfcnInfo {
+    int arfcnCount_;
+    std::vector<int> arfcnArray_;
+}
+
 class LocatingRequiredDataConfig : public Parcelable {
 public:
     LocatingRequiredDataConfig()
@@ -33,6 +38,7 @@ public:
         isWlanMatchCalled_ = false;
         rssiThreshold_ = 0;
         slotId_ = 0;
+        arfcnInfo_ = nullptr;
     }
 
     explicit LocatingRequiredDataConfig(LocatingRequiredDataConfig& LocatingRequiredDataConfig)
@@ -125,6 +131,26 @@ public:
         slotId_ = slotId;
     }
 
+    inline int GetSlotId() const
+    {
+        return slotId_;
+    }
+
+    inline void SetSlotId(int slotId)
+    {
+        slotId_ = slotId;
+    }
+
+    inline std::shared_ptr<ArfcnInfo> GetArfcnInfo() const
+    {
+        return arfcnInfo_;
+    }
+
+    inline void SetArfcnInfo(std::shared_ptr<ArfcnInfo> arfcnInfo)
+    {
+        arfcnInfo_ = arfcnInfo;
+    }
+
     inline std::vector<std::string> GetWlanBssidArray() const
     {
         return wlanBssidArray_;
@@ -144,6 +170,8 @@ public:
         fixNumber_ = parcel.ReadInt32();
         isWlanMatchCalled_ = parcel.ReadBool();
         rssiThreshold_ = parcel.ReadInt32();
+        arfcnInfo_->arfcnCount_ = parcel.ReadInt32();
+        parcel.ReadInt32Vector(arfcnInfo_->arfcnArray_);
         int wlanArraySize = parcel.ReadInt32();
         if (wlanArraySize > INPUT_WIFI_LIST_MAX_SIZE) {
             wlanArraySize = INPUT_WIFI_LIST_MAX_SIZE;
@@ -177,6 +205,9 @@ public:
             parcel.WriteInt32(fixNumber_) &&
             parcel.WriteBool(isWlanMatchCalled_) &&
             parcel.WriteInt32(rssiThreshold_) &&
+            parcel.WriteInt32(slotId_) &&
+            parcel.WriteInt32(arfcnInfo_->arfcnCount_) &&
+            parcel.WriteInt32Vector(arfcnInfo_->arfcnArray_) &&
             MarshallingWlanBssidArray(parcel, wlanBssidArray_);
     }
 
@@ -207,6 +238,7 @@ private:
     int rssiThreshold_;
     std::vector<std::string> wlanBssidArray_;
     int slotId_;
+    std::shared_ptr<ArfcnInfo> arfcnInfo_;
 };
 } // namespace Location
 } // namespace OHOS

@@ -18,6 +18,7 @@
 
 #include "bluetooth_scan_info.h"
 #include "wifi_scan_info.h"
+#include "cell_info.h"
 
 namespace OHOS {
 namespace Location {
@@ -62,18 +63,49 @@ public:
         blueToothData_ = blueToothData;
     }
 
+    inline std::shared_ptr<CellInfo> GetCampedCellInfo() const
+    {
+        return campedCellInfo_;
+    }
+
+    inline void SetCampedCellInfo(std::shared_ptr<CellInfo> campedCellInfo)
+    {
+        campedCellInfo_ = campedCellInfo;
+    }
+
+    inline std::vector<std::shared_ptr<CellInfo>> GetNeighboringCellInfo() const
+    {
+        return neighboringCellInfo_;
+    }
+
+    inline void SetNeighboringCellInfo(std::vector<std::shared_ptr<CellInfo>> neighboringCellInfo)
+    {
+        neighboringCellInfo_ = neighboringCellInfo;
+    }
+
     void ReadFromParcel(Parcel& parcel)
     {
         type_ =  parcel.ReadInt32();
         wifiData_ = WifiScanInfo::Unmarshalling(parcel);
         blueToothData_ = BluetoothScanInfo::Unmarshalling(parcel);
+        campedCellInfo_ = CellInfo::Unmarshalling(parcel);
+        auto size = parcel.ReadInt32();
+        for (int i = 0; i < size; i++) {
+            neighboringCellInfo_[i] = CellInfo::Unmarshalling(parcel);
+        }
     }
 
     bool Marshalling(Parcel& parcel) const override
     {
-        return parcel.WriteInt32(type_) &&
-            wifiData_->Marshalling(parcel) &&
-            blueToothData_->Marshalling(parcel);
+        parcel.WriteInt32(type_);
+        wifiData_->Marshalling(parcel);
+        campedCellInfo_->Marshalling(parcel);
+        blueToothData_->Marshalling(parcel);
+        parcel.WriteInt32(neighboringCellInfo_.size());
+        for (size_t i = 0; i < neighboringCellInfo_.size(); i++) {
+            neighboringCellInfo_[i].Marshalling(parcel);
+        }
+        return true;
     }
 
     static std::shared_ptr<LocatingRequiredData> Unmarshalling(Parcel& parcel)
@@ -93,6 +125,8 @@ private:
     int type_;
     std::shared_ptr<WifiScanInfo> wifiData_;
     std::shared_ptr<BluetoothScanInfo> blueToothData_;
+    std::shared_ptr<CellInfo> campedCellInfo_;
+    std::vector<std::shared_ptr<CellInfo>> neighboringCellInfo_;
 };
 } // namespace Location
 } // namespace OHOS
