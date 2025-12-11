@@ -20,6 +20,7 @@
 #include "notification_request.h"
 #endif
 #include "want_agent.h"
+#include "want_agent_helper.h"
 
 namespace OHOS {
 namespace Location {
@@ -31,6 +32,7 @@ GeofenceRequest::GeofenceRequest()
     uid_ = 0;
     appAliveStatus_ = true;
     loiterTimeMs_ = 0;
+    wantAgent_ = nullptr;
 }
 
 GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
@@ -178,14 +180,14 @@ bool GeofenceRequest::GetAppAliveStatus()
     return appAliveStatus_;
 }
 
-int64_t GeofenceRequest::GetRequestExpirationTime()
+int64_t GeofenceRequest::GetRequestExpirationTimeStamp()
 {
-    return requestExpirationTime_;
+    return requestExpirationTimeStamp_;
 }
 
-void GeofenceRequest::SetRequestExpirationTime(int64_t requestExpirationTime)
+void GeofenceRequest::SetRequestExpirationTimeStamp(int64_t requestExpirationTimeStamp)
 {
-    requestExpirationTime_ = requestExpirationTime;
+    requestExpirationTimeStamp_ = requestExpirationTimeStamp;
 }
 
 void GeofenceRequest::SetAppAliveStatus(bool appAliveStatus)
@@ -284,6 +286,153 @@ GeofenceRequest* GeofenceRequest::Unmarshalling(Parcel& parcel)
     auto geofenceRequest = new GeofenceRequest();
     geofenceRequest->ReadFromParcel(parcel);
     return geofenceRequest;
+}
+
+bool GeofenceRequest::ToJson(nlohmann::json &jsonObject)
+{
+    jsonObject["transitionStatusList"] = transitionStatusList_;
+#ifdef NOTIFICATION_ENABLE
+    nlohmann::json notificationArr = nlohmann::json::array();
+    for (auto notificationRequest : notificationRequestList_) {
+        nlohmann::json jsonObj;
+        notificationRequest->ToJson(jsonObj);
+        notificationArr.emplace_back(jsonObj);
+    }
+    jsonObject["notificationRequestList"] = notificationArr;
+#endif
+
+    nlohmann::json jsonGeofenceObj;
+    jsonGeofenceObj["latitude"] = geofence_.latitude;
+    jsonGeofenceObj["longitude"] = geofence_.longitude;
+    jsonGeofenceObj["radius"] = geofence_.radius;
+    jsonGeofenceObj["expiration"] = geofence_.expiration;
+    jsonGeofenceObj["coordinateSystemType"] = geofence_.coordinateSystemType;
+    jsonObject["geofence"] = jsonGeofenceObj;
+    jsonObject["scenario"] = scenario_;
+    jsonObject["fenceId"] = fenceId_;
+    jsonObject["uid"] = uid_;
+
+    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> want =
+        std::make_shared<AbilityRuntime::WantAgent::WantAgent>();
+    if (want != nullptr) {
+        want = wantAgent_;
+    } else {
+        LBSLOGE(LOCATOR, "want malloc fail");
+        return false;
+    }
+    jsonObject["wantAgent"] = want ? AbilityRuntime::WantAgent::WantAgentHelper::ToString(want) : "";
+    jsonObject["bundleName"] = bundleName_;
+    jsonObject["appAliveStatus"] = appAliveStatus_;
+    jsonObject["requestExpirationTimeStamp"] = requestExpirationTimeStamp_;
+    return true;
+}
+
+void GeofenceRequest::ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence)
+{
+    if (geofenceObj.find("latitude") != geofenceObj.cend() && geofenceObj.at("latitude").is_number()) {
+        geofence.latitude = geofenceObj.at("latitude").get<double>();
+    }
+    if (geofenceObj.find("longitude") != geofenceObj.cend() && geofenceObj.at("longitude").is_number()) {
+        geofence.longitude = geofenceObj.at("longitude").get<double>();
+    }
+    if (geofenceObj.find("radius") != geofenceObj.cend() && geofenceObj.at("radius").is_number()) {
+        geofence.radius = geofenceObj.at("radius").get<double>();
+    }
+    if (geofenceObj.find("expiration") != geofenceObj.cend() && geofenceObj.at("expiration").is_number()) {
+        geofence.expiration = geofenceObj.at("expiration").get<double>();
+    }
+    if (geofenceObj.find("coordinateSystemType") != geofenceObj.cend() &&
+        geofenceObj.at("coordinateSystemType").is_number_integer()) {
+        geofence.coordinateSystemType = geofenceObj.at("coordinateSystemType");
+    }
+}
+
+void GeofenceRequest::ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
+{
+#ifdef NOTIFICATION_ENABLE
+    if (jsonObject.find("notificationRequestList") != jsonObject.cend()) {
+        auto notificationArray = jsonObject.at("notificationRequestList");
+        for (auto &notificationJson : notificationArray) {
+            OHOS::Notification::NotificationRequest *notification =
+                OHOS::Notification::NotificationRequest::FromJson(notificationJson);
+            auto notificationPtr = std::make_shared<OHOS::Notification::NotificationRequest>(*notification);
+            if (notificationPtr != nullptr) {
+                request->SetNotificationRequest(notificationPtr);
+            }
+            delete notification;
+        }
+    }
+#endif
+}
+
+void GeofenceRequest::ConvertWantAgent(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
+{
+    if (jsonObject.find("wantAgent") != jsonObject.cend() && jsonObject.at("wantAgent").is_string()) {
+        auto wantAgentValue  = jsonObject.at("wantAgent").get<std::string>();
+        auto wantAgent = AbilityRuntime::WantAgent::WantAgentHelper::FromString(wantAgentValue);
+        if (wantAgent != nullptr) {
+            AbilityRuntime::WantAgent::WantAgentConstant::OperationType operationType =
+                AbilityRuntime::WantAgent::WantAgentHelper::GetType(wantAgent);
+            std::shared_ptr<AAFwk::Want> want = OHOS::AbilityRuntime::WantAgent::WantAgentHelper::GetWant(wantAgent);
+            std::vector<std::shared_ptr<AAFwk::Want>> wants;
+            wants.push_back(want);
+            std::vector<OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags> flags;
+            flags.push_back(OHOS::AbilityRuntime::WantAgent::WantAgentConstant::Flags::UPDATE_PRESENT_FLAG);
+            AbilityRuntime::WantAgent::WantAgentInfo wantAgentInfo(
+                0, operationType, flags, wants, nullptr);
+            request->wantAgent_ = AbilityRuntime::WantAgent::WantAgentHelper::GetWantAgent(wantAgentInfo);
+        }
+    }
+}
+
+std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json &jsonObject)
+{
+    if (jsonObject.is_null() || !jsonObject.is_object()) {
+        LBSLOGE(LOCATOR, "Invalid JSON object");
+        return nullptr;
+    }
+    auto request = std::make_shared<GeofenceRequest>();
+    if (request == nullptr) {
+        LBSLOGE(LOCATOR, "Failed to create request instance");
+        return nullptr;
+    }
+    if (jsonObject.find("transitionStatusList") != jsonObject.cend() &&
+        jsonObject.at("transitionStatusList").is_array()) {
+        for (const auto& elem : jsonObject.at("transitionStatusList")) {
+            if (elem.is_number_integer()) {
+                request->transitionStatusList_.emplace_back(elem.get<GeofenceTransitionEvent>());
+            }
+        }
+    }
+    ConvertNotificationInfo(request, jsonObject);
+    ConvertWantAgent(request, jsonObject);
+    if (jsonObject.find("geofence") != jsonObject.cend()) {
+        auto geofenceObj = jsonObject.at("geofence");
+        if (!geofenceObj.is_null()) {
+            ConvertGeoFenceInfo(geofenceObj, request->geofence_);
+        }
+    }
+    if (jsonObject.find("scenario") != jsonObject.cend()) {
+        request->scenario_ = jsonObject.at("scenario").get<int>();
+    }
+    if (jsonObject.find("fenceId") != jsonObject.cend()) {
+        request->fenceId_ = jsonObject.at("fenceId").get<int>();
+    }
+    if (jsonObject.find("uid") != jsonObject.cend()) {
+        request->uid_ = jsonObject.at("uid").get<int>();
+    }
+    if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
+        request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
+    }
+    if (jsonObject.find("appAliveStatus") != jsonObject.cend()) {
+        request->appAliveStatus_ = jsonObject.at("appAliveStatus").get<bool>();
+    }
+    if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
+        request->requestExpirationTimeStamp_ = jsonObject.at("requestExpirationTimeStamp").get<int64_t>();
+    }
+    return request;
 }
 } // namespace Location
 } // namespace OHOS

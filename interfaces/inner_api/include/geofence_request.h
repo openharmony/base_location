@@ -21,6 +21,7 @@
 #include "geofence_definition.h"
 #include <parcel.h>
 #include "iremote_object.h"
+#include "nlohmann/json.hpp"
 
 namespace OHOS {
 namespace Notification {
@@ -95,15 +96,21 @@ public:
 
     void SetAppAliveStatus(bool appAliveStatus);
 
-    int64_t GetRequestExpirationTime();
+    int64_t GetRequestExpirationTimeStamp();
 
-    void SetRequestExpirationTime(int64_t requestExpirationTime);
+    void SetRequestExpirationTimeStamp(int64_t requestExpirationTimeStamp);
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> UnmarshallingShared(Parcel& parcel);
     static GeofenceRequest* Unmarshalling(Parcel& parcel);
+    bool ToJson(nlohmann::json &jsonObject);
+    static std::shared_ptr<GeofenceRequest> FromJson(const nlohmann::json &jsonObject);
+    static void ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    static void ConvertWantAgent(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+
 private:
+    static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
     std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;
@@ -115,7 +122,7 @@ private:
     std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent_;
     std::string bundleName_;
     bool appAliveStatus_;
-    int64_t requestExpirationTime_ = 0;
+    int64_t requestExpirationTimeStamp_ = 0;
     mutable std::mutex geofenceRequestMutex_;
 };
 } // namespace Location
