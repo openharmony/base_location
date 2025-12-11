@@ -72,8 +72,8 @@ public:
     void ReadFromParcel(Parcel& parcel)
     {
         arfcnCount_ = parcel.ReadInt32();
-        parcel.ReadInt32Vector(arfcnArray_);
-        parcel.ReadInt32Vector(plmnParamArray_);
+        parcel.ReadInt32Vector(&arfcnArray_);
+        parcel.ReadInt32Vector(&plmnParamArray_);
     }
 
     bool Marshalling(Parcel& parcel) const override
@@ -85,15 +85,15 @@ public:
 
     static std::shared_ptr<ArfcnInfo> Unmarshalling(Parcel& parcel)
     {
-        auto ArfcnInfo = std::make_shared<ArfcnInfo>();
-        ArfcnInfo->ReadFromParcel(parcel);
-        return ArfcnInfo;
+        auto arfcnInfo = std::make_shared<ArfcnInfo>();
+        arfcnInfo->ReadFromParcel(parcel);
+        return arfcnInfo;
     }
 private:
     int32_t arfcnCount_;
-    std::vector<int32_t> arfcnArray_;
+    std::vector<int> arfcnArray_;
     std::vector<int32_t> plmnParamArray_;
-}
+};
 
 class LocatingRequiredDataConfig : public Parcelable {
 public:
@@ -262,9 +262,7 @@ public:
             parcel.WriteInt32(fixNumber_) &&
             parcel.WriteBool(isWlanMatchCalled_) &&
             parcel.WriteInt32(rssiThreshold_) &&
-            parcel.slotIdArray_(slotId_) &&
-            parcel.WriteInt32(arfcnInfo_->arfcnCount_) &&
-            parcel.WriteInt32Vector(arfcnInfo_->arfcnArray_) &&
+            parcel.WriteInt32Vector(slotIdArray_) &&
             arfcnInfo_->Marshalling(parcel) &&
             MarshallingWlanBssidArray(parcel, wlanBssidArray_);
     }

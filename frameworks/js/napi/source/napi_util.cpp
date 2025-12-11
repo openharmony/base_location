@@ -358,11 +358,11 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         SetValueInt64(env, "rat", replyList[i]->GetCampedCellInfo()->GetRat(), compedCellInfoObj);
         SetValueInt64(env, "singnalIntensity", replyList[i]->GetCampedCellInfo()->GetSingnalIntensity(), compedCellInfoObj);
         SetValueInt64(env, "arfcn", replyList[i]->GetCampedCellInfo()->GetArfcn(), compedCellInfoObj);
-        SetValueInt64(env, "pci", replyList[i]->GetCampedCellInfo()->GetArfcn(), compedCellInfoObj);
-        napi_value additiosnMap = CreateJsMap(env, replyList[i]->GetCampedCellInfo()->GetAdditionsMap());
+        SetValueInt64(env, "pci", *replyList[i]->GetCampedCellInfo()->GetArfcn(), compedCellInfoObj);
+        napi_value additionsMap = CreateJsMap(env, replyList[i]->GetCampedCellInfo()->GetAdditionsMap());
         SetValueStringMap(env, "additionsMap", additionsMap, compedCellInfoObj);
 
-        napi_value neighboringCellInfoObj;
+        napi_value neighboringCellInfoObj = nullptr;
         for (size_t j = 0; j <  replyList[i]->GetNeighboringCellInfo().size(); j++) {
             napi_value cellInfoObj;
             NAPI_CALL_BASE(env, napi_create_object(env, &cellInfoObj), false);
@@ -377,7 +377,7 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
             SetValueInt64(env, "singnalIntensity", cellInfo->GetSingnalIntensity(), cellInfoObj);
             SetValueInt64(env, "arfcn", cellInfo->GetArfcn(), cellInfoObj);
             SetValueInt64(env, "pci", cellInfo->GetArfcn(), cellInfoObj);
-            napi_value additiosnMap = CreateJsMap(env, cellInfo->GetAdditionsMap());
+            napi_value additionsMap = CreateJsMap(env, *cellInfo->GetAdditionsMap());
             SetValueStringMap(env, "additionsMap", additionsMap, cellInfoObj);
             napi_set_element(env, neighboringCellInfoObj, j, cellInfoObj);
         }
@@ -464,16 +464,23 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
         config->SetScanTimeoutMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
-    napi_value arfcnInfoValue = GetNapiValueByKey(env, "arfcnInfo", value);
+    napi_value arfcnInfoValue = GetNapiValueByKey(env, "arfcnInfo", object);
+    std::vector<int32_t> vector;
     if (arfcnInfoValue != nullptr) {
         std::shared_ptr<ArfcnInfo> arfcnInfo = std::make_shared<ArfcnInfo>();
         if (JsObjectToInt(env, arfcnInfoValue, "arfcnCount", valueInt) == SUCCESS) {
-            arfcnInfo->arfcnCount_ = valueInt;
+            arfcnInfo->SetArfcnCount(valueInt);;
         }
-        GetIntArrayFromJsObj(env, arfcnInfoValue, "arfcnArray", arfcnInfo->arfcnArray_);
-        GetIntArrayFromJsObj(env, arfcnInfoValue, "plmnParamArray", arfcnInfo->plmnParamArray_);
+        if (GetIntArrayFromJsObj(env, arfcnInfoValue, "arfcnArray", vector)) {
+            arfcnInfo->SetArfcnArray(vector);
+        }
+        if (GetIntArrayFromJsObj(env, arfcnInfoValue, "plmnParamArray", vector)) {
+            arfcnInfo->SetPlmnParamArray(vector);
+        }
     }
-    GetIntArrayFromJsObj(env, object, "slotId", arfcnInfo->slotIdArray_);
+    if (GetIntArrayFromJsObj(env, arfcnInfoValue, "slotId", vector)) {
+        config->SetSlotIdArray(vector);
+    }
 }
 
 void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,
@@ -686,7 +693,7 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
 }
 
 bool GetIntArrayFromJsObj(
-    napi_env env, napi_value jsObject, const std::string& key, std::vector<std::string>& outArray)
+    napi_env env, napi_value jsObject, const std::string& key, std::vector<int32_t>& outArray)
 {
     napi_value array = GetNapiValueByKey(env, key, jsObject);
     if (array == nullptr) {
@@ -714,10 +721,9 @@ bool GetIntArrayFromJsObj(
             return false;
         }
         int value = 0;
-        napi_value field;
-        napi_valuetype valueType;
+        napi_value field = nullptr;
         NAPI_CALL_BASE(env, napi_get_value_int32(env, field, &value), false);
-        outArray.push_back(event);
+        outArray.push_back(value);
     }
     return true;
 }

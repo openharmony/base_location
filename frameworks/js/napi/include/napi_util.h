@@ -111,7 +111,8 @@ napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo);
 napi_status SetValuePoi(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 napi_value CreateFenceMap(const napi_env& env, const std::map<int, Geofence>& fenceMap);
 void GeofenceResultToJs(const napi_env& env, const Geofence& fence, napi_value& result);
-bool GetIntArrayFromJsObj(napi_env env, napi_value value, std::vector<int>& outArray);
+bool GetIntArrayFromJsObj(
+    napi_env env, napi_value jsObject, const std::string& key, std::vector<int32_t>& outArray);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

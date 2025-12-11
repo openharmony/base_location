@@ -53,7 +53,7 @@ public:
 
 class LocatorCellScanInfoCallback {
 public:
-    static void OnCellScanInfoReceived(std::vector<CellScanInfo> cellScanInfoList);
+    static void OnCellScanInfoReceived(std::vector<std::shared_ptr<LocatingRequiredData>> result);
 };
 
 #ifdef BLUETOOTH_ENABLE
@@ -220,7 +220,7 @@ private:
 typedef struct LocatorRequiredInfo {
     AppIdentity appIdentity;
     LocatingRequiredDataConfig config;
-}
+} LocatorRequiredInfo;
 
 class LocatorRequiredDataManager {
 public:

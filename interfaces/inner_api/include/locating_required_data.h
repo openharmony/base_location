@@ -103,7 +103,7 @@ public:
         blueToothData_->Marshalling(parcel);
         parcel.WriteInt32(neighboringCellInfo_.size());
         for (size_t i = 0; i < neighboringCellInfo_.size(); i++) {
-            neighboringCellInfo_[i].Marshalling(parcel);
+            neighboringCellInfo_[i]->Marshalling(parcel);
         }
         return true;
     }

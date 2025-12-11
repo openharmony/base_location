@@ -159,7 +159,7 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
         LocatorRequiredInfo locatorRequiredInfo;
-        locatorRequiredInfo.identity = identity;
+        locatorRequiredInfo.appIdentity = identity;
         locatorRequiredInfo.config = *config;
         if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
             callbacksMap_[callback] = locatorRequiredInfo;
@@ -342,7 +342,7 @@ void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDev
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByBtHost(device);
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    dataManager->ReportData(result);
+    dataManager->ReportData(result, LocatingRequiredDataType::BLUE_TOOTH);
 }
 
 void LocatorBluetoothHost::OnPairRequested(const Bluetooth::BluetoothRemoteDevice &device) {}
@@ -486,16 +486,9 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
 #endif
 
 
-void LocatorCellScanInfoCallback::OnCellScanInfoReceived(std::vector<CellScanInfo> cellScanInfoList)
+void LocatorCellScanInfoCallback::OnCellScanInfoReceived(std::vector<std::shared_ptr<LocatingRequiredData>> result)
 {
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    std::vector<std::shared_ptr<LocatingRequiredData>> result;
-    for (auto cellScanInfo : cellScanInfoList) {
-        std::shared_ptr<LocatingRequiredData> locatingRequiredData = std::make_shared<LocatingRequiredData>();
-        locatingRequiredData->SetCampedCellInfo(cellScanInfo.currentCell);
-        locatingRequiredData->SetCampedCellInfo(cellScanInfo.neighborCells);
-        result.push_back(locatingRequiredData);
-    }
     dataManager->ReportData(result, LocatingRequiredDataType::CELLULAR);
 }
 
@@ -514,7 +507,7 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
         if (type != locatorRequiredInfo.config.GetType()) {
             continue;
         }
-        if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo.identity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo.appIdentity)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
         }
     }

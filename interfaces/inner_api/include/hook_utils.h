@@ -165,7 +165,7 @@ typedef struct {
     int32_t arfcnCount;
     std::vector<int32_t> arfcnArray;
     std::vector<int32_t> plmnParamArray;
-    void (*OnCellScanInfoReceived)(std::vector<CellScanInfo> cellScanInfoList);
+    void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result);
 } CellScanStruct;
 
 class HookUtils {
@@ -207,7 +207,8 @@ public:
     static void ExecuteHookWhenOnUserSwitch(int32_t userId);
     static void ExecuteHookWhenStartCellScan(
         std::vector<int32_t> slotIds, int32_t arfcnCount, std::vector<int32_t> arfcnArray,
-        std::vector<int32_t> plmnParamArray, void (*OnCellScanInfoReceived)(CellScanInfo cellScanInfo));
+        std::vector<int32_t> plmnParamArray,
+        void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result));
 };
 } // namespace Location
 } // namespace OHOS

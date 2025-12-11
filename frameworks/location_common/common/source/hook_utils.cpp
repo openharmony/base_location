@@ -313,9 +313,10 @@ void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
         LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&userId, nullptr);
 }
 
-void ExecuteHookWhenStartCellScan(
+void HookUtils::ExecuteHookWhenStartCellScan(
         std::vector<int32_t> slotIds, int32_t arfcnCount, std::vector<int32_t> arfcnArray,
-        std::vector<int32_t> plmnParamArray, void (*OnCellScanInfoReceived)(std::vector<CellScanInfo> cellScanInfoList))
+        std::vector<int32_t> plmnParamArray,
+        void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result))
 {
     CellScanStruct cellScanStruct;
     cellScanStruct.slotIds = slotIds;

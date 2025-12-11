@@ -18,6 +18,7 @@
 
 #include <parcel.h>
 #include <string>
+#include <map>
 namespace OHOS {
 namespace Location {
 class CellInfo : public Parcelable {
@@ -195,9 +196,9 @@ public:
 
     static std::shared_ptr<CellInfo> Unmarshalling(Parcel& parcel)
     {
-        auto CellInfo = std::make_shared<CellInfo>();
-        CellInfo->ReadFromParcel(parcel);
-        return CellInfo;
+        auto cellInfo = std::make_shared<CellInfo>();
+        cellInfo->ReadFromParcel(parcel);
+        return cellInfo;
     }
 
 private:
