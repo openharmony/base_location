@@ -24,6 +24,7 @@
 
 namespace OHOS {
 namespace Location {
+const int MAX_FENCE_NUM = 1000;
 GnssAbilityProxy::GnssAbilityProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<IGnssAbility>(impl)
 {
@@ -466,6 +467,37 @@ LocationErrCode GnssAbilityProxy::SendNetworkLocation(const std::unique_ptr<Loca
         static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION), dataToStub, replyToStub, option);
     LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
     return LocationErrCode(replyToStub.ReadInt32());
+}
+
+LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::string bundleName,
+    std::map<int, std::shared_ptr<Geofence>>& fenceMap)
+{
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    MessageOption option;
+    if (!dataToStub.WriteInterfaceToken(GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    dataToStub.WriteString(bundleName);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGE(GNSS, "SendNetworkLocation remote is null");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    int error = remote->SendRequest(
+        static_cast<uint32_t>(GnssInterfaceCode::GET_ACTIVE_FENCES), dataToStub, replyToStub, option);
+    LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+    auto errCode = replyToStub.ReadInt32();
+    if (errCode == ERRCODE_SUCCESS) {
+        int size = replyToStub.ReadInt32();
+        int circleSize = size > MAX_FENCE_NUM ? MAX_FENCE_NUM : size;
+        for (auto i = 0; i < circleSize; i++) {
+            int fenceId = replyToStub.ReadInt32();
+            auto geofence = Geofence::UnmarshallingShared(replyToStub);
+            fenceMap.insert(std::make_pair(fenceId, geofence));
+        }
+    }
+    return LocationErrCode(errCode);
 }
 } // namespace Location
 } // namespace OHOS

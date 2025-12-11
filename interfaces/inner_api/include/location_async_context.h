@@ -37,6 +37,7 @@
 #include "satellite_status.h"
 #include "location_gnss_geofence_callback_napi.h"
 #include "bluetooth_scan_result.h"
+#include "poi_info_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
@@ -295,6 +296,18 @@ public:
     BluetoothScanResultAsyncContext() = delete;
 
     ~BluetoothScanResultAsyncContext() override {}
+};
+
+class PoiInfoAsyncContext : public AsyncContext {
+public:
+    sptr<PoiInfoCallbackNapi> callbackHost_;
+
+    explicit PoiInfoAsyncContext(napi_env env, napi_async_work work = nullptr,
+        napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), callbackHost_(nullptr) {}
+
+    PoiInfoAsyncContext() = delete;
+
+    ~PoiInfoAsyncContext() override {}
 };
 }  // namespace Location
 }  // namespace OHOS

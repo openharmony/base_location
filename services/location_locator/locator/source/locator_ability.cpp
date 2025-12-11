@@ -66,6 +66,7 @@
 #include "xcollie/xcollie_define.h"
 #endif
 #include "common_event_helper.h"
+#include "poi_info_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -124,6 +125,7 @@ const int MAX_PERMISSION_NUM = 200;
 const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
 const int DEFAULT_USERID = 100;
+const int MAX_FENCE_NUM = 1000;
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -2447,6 +2449,39 @@ ErrCode LocatorAbility::IsPoiServiceSupported(bool& poiServiceSupportState)
     return ERRCODE_SUCCESS;
 }
 
+ErrCode LocatorAbility::GetPoiInfo(const sptr<IRemoteObject>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::GET_POI_INFO, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!GetLocationSwitchIgnoredFlag(identity.GetTokenId()) && !CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    auto reportManager = ReportManager::GetInstance();
+    if (reportManager != nullptr) {
+        if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
+            identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
+            !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            return LOCATION_ERRCODE_PERMISSION_DENIED;
+        }
+    }
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "remote object nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+#if !defined(FEATURE_NETWORK_SUPPORT)
+    LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
+#endif
+    PoiInfoManager::GetInstance()->PreRequestPoiInfo(cb, identity);
+    return ERRCODE_SUCCESS;
+}
+
 LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
 {
     int modeValue = isEnabled ? ENABLED : DISABLED;
@@ -2580,6 +2615,40 @@ ErrCode LocatorAbility::StartLocatingProcess(const RequestConfig& requestConfig,
     }
 #endif
     return ERRCODE_SUCCESS;
+}
+
+ErrCode LocatorAbility::GetActiveGeoFences(std::map<int, Geofence>& fenceMap)
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::GET_ACTIVE_GEO_FENCES, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    dataToStub.WriteString(identity.GetBundleName());
+    LocationErrCode errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::GET_ACTIVE_FENCES), dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        int size = replyToStub.ReadInt32();
+        int circleSize = size > MAX_FENCE_NUM ? MAX_FENCE_NUM : size;
+        for (auto i = 0; i < circleSize; i++) {
+            int fenceId = replyToStub.ReadInt32();
+            auto geofence = Geofence::UnmarshallingShared(replyToStub);
+            fenceMap.insert(std::make_pair(fenceId, *geofence));
+        }
+    }
+    return errCode;
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
 }
 
 void LocatorAbility::GetAppIdentityInfo(AppIdentity& identity)

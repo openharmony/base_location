@@ -32,6 +32,7 @@
 #include "location_error_callback_napi.h"
 #include "bluetooth_scan_result_callback_napi.h"
 #include "bluetooth_host.h"
+#include "poi_info_callback_napi.h"
 
 namespace OHOS {
 using namespace OHOS::Location;
@@ -1013,6 +1014,38 @@ bool LocatorAbilityStub053FuzzTest(const char* data, size_t size)
     return true;
 }
 
+bool LocatorAbilityStub054FuzzTest(const char* data, size_t size)
+{
+    sptr<IPoiInfoCallback> cb = sptr<PoiInfoCallbackNapi>(new PoiInfoCallbackNapi());
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    requestParcel.WriteRemoteObject(cb->AsObject());
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_POI_INFO),
+        requestParcel, reply, option);
+    return true;
+}
+
+bool LocatorAbilityStub055FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"OHOS.Location.ILocatorService");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+
+    MessageParcel reply;
+    MessageOption option;
+    auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
+    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::GET_ACTIVE_GEO_FENCES),
+        requestParcel, reply, option);
+
+    return true;
+}
+
 void OnStop()
 {
     Bluetooth::BluetoothHost::GetDefaultHost().Close();
@@ -1045,6 +1078,8 @@ void ScanFuzzTest(const char* ch, size_t size)
     OHOS::LocatorAbilityStub050FuzzTest(ch, size);
     OHOS::LocatorAbilityStub051FuzzTest(ch, size);
     OHOS::LocatorAbilityStub052FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub054FuzzTest(ch, size);
+    OHOS::LocatorAbilityStub055FuzzTest(ch, size);
 }
 
 /* Fuzzer entry point */

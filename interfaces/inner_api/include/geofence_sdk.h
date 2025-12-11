@@ -51,6 +51,12 @@ public:
     LocationErrCode GetGeofenceSupportedCoordTypes(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
     void ResetGeofenceSdkProxy(const wptr<IRemoteObject> &remote);
+    /**
+     * @brief Get all active geofence list.
+     *
+     * @return Returns ERRCODE_SUCCESS if get all active geofence list successfully.
+     */
+    LocationErrCode GetActiveGeoFences(std::map<int, Geofence>& fenceMap);
 private:
     sptr<ILocatorService> GetProxy();
 

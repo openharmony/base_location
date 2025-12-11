@@ -166,7 +166,7 @@ bool CachedLocationsCallbackNapi::Send(std::vector<std::unique_ptr<Location>>& l
 
 void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
 {
-    uv_queue_work(
+    uv_queue_work_internal(
         loop,
         work,
         [](uv_work_t *work) {},
@@ -214,7 +214,7 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
             NAPI_CALL_RETURN_VOID(context->env, napi_close_handle_scope(context->env, scope));
             delete context;
             delete work;
-    });
+    }, "cachedLocationsCallback");
 }
 
 void CachedLocationsCallbackNapi::OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations)

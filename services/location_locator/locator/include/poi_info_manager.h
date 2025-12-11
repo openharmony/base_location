@@ -22,6 +22,16 @@
 #include <time.h>
 #include <cJSON.h>
 
+#include "ability_connect_callback_interface.h"
+#include "event_handler.h"
+#include "event_runner.h"
+#include "ffrt.h"
+#include "system_ability.h"
+#include "common_utils.h"
+#include "constant_definition.h"
+#include "subability_common.h"
+#include "iremote_stub.h"
+#include "i_poi_info_callback.h"
 #include "location.h"
 
 namespace OHOS {
@@ -32,6 +42,46 @@ typedef struct StrPoiInfoStruct {
     std::string latestPoiInfos = "";
 } StrPoiInfoStruct;
 
+class PoiInfoHandler : public AppExecFwk::EventHandler {
+public:
+    using PoiInfoEventHandler = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
+    using PoiInfoEventHandleMap = std::map<int, PoiInfoEventHandler>;
+    explicit PoiInfoHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
+    ~PoiInfoHandler() override;
+
+private:
+    void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
+    void InitPoiInfoEventProcessMap();
+    void HandleRequestPoiInfo(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleResetServiceProxy(const AppExecFwk::InnerEvent::Pointer& event);
+    PoiInfoEventHandleMap poiEventProcessMap_;
+};
+
+class PoiServiceDeathRecipient : public IRemoteObject::DeathRecipient {
+public:
+    void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
+    PoiServiceDeathRecipient();
+    ~PoiServiceDeathRecipient() override;
+};
+
+class PoiInfoCallback : public IRemoteStub<IPoiInfoCallback> {
+public:
+    PoiInfoCallback();
+    ~PoiInfoCallback();
+    int32_t OnRemoteRequest(uint32_t code,
+        MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    void OnPoiInfoChange(std::shared_ptr<PoiInfo> &results) override;
+    void OnErrorReport(const std::string errorCode) override;
+    bool ReportPoiPermissionCheck(AppIdentity identity);
+    sptr<IRemoteObject> cb_;
+    AppIdentity identity_;
+};
+
+typedef struct PoiInfoRequest {
+    sptr<IRemoteObject> callback;
+    AppIdentity identity;
+}PoiInfoRequest;
+
 class PoiInfoManager {
 public:
     PoiInfoManager();
@@ -40,6 +90,19 @@ public:
     void UpdateCachedPoiInfo(const std::unique_ptr<Location>& location);
     void ClearPoiInfos(const std::unique_ptr<Location>& finalLocation);
     void UpdateLocationPoiInfo(const std::unique_ptr<Location>& finalLocation);
+
+    void PreRequestPoiInfo(const sptr<IRemoteObject>& cb, AppIdentity identity);
+    void RequestPoiInfo(sptr<IRemoteObject>& cb, AppIdentity identity);
+    bool ConnectPoiService();
+    void PreDisconnectAbilityConnect();
+    void DisconnectAbilityConnect();
+    void RegisterPoiServiceDeathRecipient();
+    void UnregisterPoiServiceDeathRecipient();
+    bool PreResetServiceProxy();
+    void ResetServiceProxy();
+    bool IsConnect();
+    void NotifyConnected(const sptr<IRemoteObject>& remoteObject);
+    void NotifyDisConnected();
 
     std::string GetLatestPoiInfo();
     void SetLatestPoiInfo(std::string poiInfo);
@@ -55,6 +118,14 @@ public:
 private:
     std::mutex latestPoiInfoMutex_;
     StrPoiInfoStruct latestPoiInfoStruct_;
+    std::shared_ptr<PoiInfoHandler> poiInfoHandler_;
+    ffrt::mutex poiServiceMutex_;
+    ffrt::mutex connMutex_;
+    sptr<IRemoteObject> poiServiceProxy_;
+    ffrt::condition_variable connectCondition_;
+    sptr<AAFwk::IAbilityConnection> conn_;
+    sptr<IRemoteObject::DeathRecipient> poiServiceRecipient_ = sptr<PoiServiceDeathRecipient>(new
+        PoiServiceDeathRecipient());
 };
 } // namespace OHOS
 } // namespace Location

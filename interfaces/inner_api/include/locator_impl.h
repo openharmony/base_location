@@ -36,6 +36,7 @@
 #include "ilocator_service.h"
 #include "beacon_fence_request.h"
 #include "beacon_fence.h"
+#include "i_poi_info_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -668,6 +669,14 @@ public:
      * @returns { boolean } Returns {@code true} if POI service is available, returns {@code false} otherwise.
      */
     bool IsPoiServiceSupported();
+
+    /**
+     * Get Current POI Info.
+     *
+     * @param poiInfoCallback - Indicates the callback for reporting poi info.
+     * @returns Returns ERRCODE_SUCCESS if get current poi info succeed.
+     */
+    LocationErrCode GetPoiInfo(sptr<IPoiInfoCallback> &poiInfoCallback);
 
     /**
      * add beacon fence.

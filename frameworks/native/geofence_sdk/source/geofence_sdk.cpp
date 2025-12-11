@@ -181,5 +181,21 @@ LocationErrCode GeofenceManager::GetGeofenceSupportedCoordTypes(
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
+
+LocationErrCode GeofenceManager::GetActiveGeoFences(std::map<int, Geofence>& fenceMap)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGI(GEOFENCE_SDK, "GeofenceManager::%{public}s", __func__);
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->GetActiveGeoFences(fenceMap);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
 }
 }

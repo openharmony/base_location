@@ -437,6 +437,23 @@ bool GnssAbility021FuzzTest(const char* data, size_t size)
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
     return true;
 }
+
+bool GnssAbility022FuzzTest(const char* data, size_t size)
+{
+    MessageParcel requestParcel;
+    requestParcel.WriteInterfaceToken(u"location.IGnssAbility");
+    requestParcel.WriteBuffer(data, size);
+    requestParcel.RewindRead(0);
+    MessageParcel reply;
+    MessageOption option;
+
+    auto ability = GnssAbility::GetInstance();
+    ability->OnRemoteRequest(static_cast<uint32_t>(GnssInterfaceCode::GET_ACTIVE_FENCES),
+        requestParcel, reply, option);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIMES));
+    return true;
+}
 #endif
 } // namespace OHOS
 
@@ -468,6 +485,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
         OHOS::GnssAbility019FuzzTest(ch, size);
         OHOS::GnssAbility020FuzzTest(ch, size);
         OHOS::GnssAbility021FuzzTest(ch, size);
+        OHOS::GnssAbility022FuzzTest(ch, size);
 #endif
         free(ch);
         ch = nullptr;

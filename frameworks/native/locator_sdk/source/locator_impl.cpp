@@ -314,6 +314,10 @@ bool LocatorImpl::UnregisterCountryCodeCallback(const sptr<IRemoteObject>& callb
 void LocatorImpl::RegisterCachedLocationCallback(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
+    if (request == nullptr || callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "cachedGnssLocationsRequest or calback is nullptr");
+        return;
+    }
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return;
     }
@@ -943,6 +947,10 @@ LocationErrCode LocatorImpl::UnregisterCountryCodeCallbackV9(const sptr<IRemoteO
 LocationErrCode LocatorImpl::RegisterCachedLocationCallbackV9(std::unique_ptr<CachedGnssLocationsRequest>& request,
     sptr<ICachedLocationsCallback>& callback)
 {
+    if (request == nullptr || callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "cachedGnssLocationsRequest or calback is nullptr");
+        return ERRCODE_INVALID_PARAM;
+    }
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
@@ -1476,6 +1484,25 @@ bool LocatorImpl::IsPoiServiceSupported()
     bool poiServiceSupportState = false;
     proxy->IsPoiServiceSupported(poiServiceSupportState);
     return poiServiceSupportState;
+}
+
+LocationErrCode LocatorImpl::GetPoiInfo(sptr<IPoiInfoCallback> &poiInfoCallback)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (poiInfoCallback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s poiInfoCallback is null", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCode = proxy->GetPoiInfo(poiInfoCallback->AsObject());
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCode);
+    return locationErrCode;
 }
 
 LocationErrCode LocatorImpl::GetDistanceBetweenLocations(const Location& location1,

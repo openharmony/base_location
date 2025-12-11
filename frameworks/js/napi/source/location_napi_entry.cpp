@@ -338,6 +338,7 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("addBeaconFence", AddBeaconFence),
         DECLARE_NAPI_FUNCTION("removeBeaconFence", RemoveBeaconFence),
         DECLARE_NAPI_FUNCTION("isBeaconFenceSupported", IsBeaconFenceSupported),
+        DECLARE_NAPI_FUNCTION("getActiveGeoFences", GetActiveGeoFences),
 
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
