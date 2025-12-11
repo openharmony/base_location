@@ -762,12 +762,14 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
         CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO - dataManager->wifiScanStartTimeStamp_ >
         DEFAULT_NOT_RETRY_TIME_10_SECONDS) {
         LBSLOGI(LOCATOR, "%{public}s retry scan", __func__);
+#ifdef WIFI_ENABLE
         int ret = dataManager->TriggerWifiScan();
         if (ret != Wifi::WIFI_OPT_SUCCESS) {
             LBSLOGE(LOCATOR, "%{public}s retry WifiScan failed, ret=%{public}d", __func__, ret);
             dataManager->ReportData(requiredData);
             dataManager->RemoveGetWifiListEvent();
         }
+#endif
     } else {
         dataManager->ReportData(requiredData);
         dataManager->RemoveGetWifiListEvent();
