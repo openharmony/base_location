@@ -657,7 +657,6 @@ void GnssAbility::MonitorNetwork()
     return;
 }
 
-
 void GnssAbility::PreRestoreGeofenceRequest()
 {
     if (gnssHandler_ != nullptr) {
@@ -669,6 +668,7 @@ void GnssAbility::PreRestoreGeofenceRequest()
 
 void GnssAbility::CheckIfNeedRestoreGeofenceRequest()
 {
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     // 读取固化数据
     std::vector<std::shared_ptr<GeofenceRequest>> requestList = ReadGeoFenceRequestFromFile();
     int fenceId = 0;
@@ -715,6 +715,7 @@ void GnssAbility::CheckIfNeedRestoreGeofenceRequest()
         ExecuteHookWhenInitGeofenceId(fenceId);
     }
     LBSLOGI(GNSS, "After RestoreGeofenceRequest size %{public}zu", gnssGeofenceRequestMap_.size());
+#endif
 }
 
 LocationErrCode GnssAbility::InjectTime()
