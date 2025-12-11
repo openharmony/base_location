@@ -599,17 +599,17 @@ void LocatorRequiredDataManager::SetBluetoothScanStatus(bool bluetoothScanStatus
     bluetoothScanStatus_ = bluetoothScanStatus;
 }
 
-#ifdef WIFI_ENABLE
 int LocatorRequiredDataManager::TriggerWifiScan()
 {
+#ifdef WIFI_ENABLE
     wifiScanStartTimeStamp_ = CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO;
     auto wifiService = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     if (wifiService == nullptr) {
         return Wifi::WIFI_OPT_FAILED;
     }
     return wifiService->Scan();
-}
 #endif
+}
 
 bool LocatorRequiredDataManager::IsWifiConnecting()
 {
@@ -762,14 +762,12 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
         CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO - dataManager->wifiScanStartTimeStamp_ >
         DEFAULT_NOT_RETRY_TIME_10_SECONDS) {
         LBSLOGI(LOCATOR, "%{public}s retry scan", __func__);
-#ifdef WIFI_ENABLE
         int ret = dataManager->TriggerWifiScan();
         if (ret != Wifi::WIFI_OPT_SUCCESS) {
             LBSLOGE(LOCATOR, "%{public}s retry WifiScan failed, ret=%{public}d", __func__, ret);
             dataManager->ReportData(requiredData);
             dataManager->RemoveGetWifiListEvent();
         }
-#endif
     } else {
         dataManager->ReportData(requiredData);
         dataManager->RemoveGetWifiListEvent();
