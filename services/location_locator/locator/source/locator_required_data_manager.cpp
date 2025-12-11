@@ -158,8 +158,11 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 #ifdef WIFI_ENABLE
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
+        LocatorRequiredInfo locatorRequiredInfo;
+        locatorRequiredInfo.identity = identity;
+        locatorRequiredInfo.config = *config;
         if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
-            callbacksMap_[callback] = identity;
+            callbacksMap_[callback] = locatorRequiredInfo;
         } else {
             LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
             lock.unlock();
@@ -188,6 +191,9 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return LOCATION_ERRCODE_NOT_SUPPORTED;
+    } else if (config->GetType() == LocatingRequiredDataType::CELLULAR) {
+        HookUtils::ExecuteHookWhenStartCellScan(config->GetSlotIdArray(), config->GetArfcnInfo()->GetArfcnCount(),
+            config->GetArfcnInfo()->GetArfcnArray(), config->GetArfcnInfo()->GetPlmnParamArray());
     }
     return ERRCODE_SUCCESS;
 }
@@ -479,7 +485,21 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
 }
 #endif
 
-void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result)
+
+void LocatorCellScanInfoCallback::OnCellScanInfoReceived(std::vector<CellScanInfo> cellScanInfoList)
+{
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
+    std::vector<std::shared_ptr<LocatingRequiredData>> result;
+    for (auto cellScanInfo : cellScanInfoList) {
+        std::shared_ptr<LocatingRequiredData> locatingRequiredData = std::make_shared<LocatingRequiredData>();
+        locatingRequiredData->SetCampedCellInfo(cellScanInfo.currentCell);
+        locatingRequiredData->SetCampedCellInfo(cellScanInfo.neighborCells);
+        result.push_back(locatingRequiredData);
+    }
+    dataManager->ReportData(result, LocatingRequiredDataType::CELLULAR);
+}
+
+void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result, int type)
 {
     std::unique_lock<std::mutex> lock(mutex_);
     for (const auto& pair : callbacksMap_) {
@@ -490,8 +510,11 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
             LBSLOGW(LOCATOR, "ReportData nullptr callback.");
             continue;
         }
-        AppIdentity identity = pair.second;
-        if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
+        LocatorRequiredInfo locatorRequiredInfo = pair.second;
+        if (type != locatorRequiredInfo.config.GetType()) {
+            continue;
+        }
+        if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo.identity)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
         }
     }
@@ -765,11 +788,11 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
         int ret = dataManager->TriggerWifiScan();
         if (ret != Wifi::WIFI_OPT_SUCCESS) {
             LBSLOGE(LOCATOR, "%{public}s retry WifiScan failed, ret=%{public}d", __func__, ret);
-            dataManager->ReportData(requiredData);
+            dataManager->ReportData(requiredData, LocatingRequiredDataType::WIFI);
             dataManager->RemoveGetWifiListEvent();
         }
     } else {
-        dataManager->ReportData(requiredData);
+        dataManager->ReportData(requiredData, LocatingRequiredDataType::WIFI);
         dataManager->RemoveGetWifiListEvent();
     }
 }

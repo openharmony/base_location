@@ -67,6 +67,7 @@ enum class LocationProcessStage {
     ENABLE_GNSS_PROCESS,
     ON_LOCATION_REPORT_PROCESS,
     ON_USER_SWITCH_PROCESS,
+    START_CELL_SCAN_PROCESS,
 };
 
 typedef struct {
@@ -159,6 +160,14 @@ typedef struct {
     bool result;
 } BeaconFenceStruct;
 
+typedef struct {
+    std::vector<int32_t> slotIds;
+    int32_t arfcnCount;
+    std::vector<int32_t> arfcnArray;
+    std::vector<int32_t> plmnParamArray;
+    void (*OnCellScanInfoReceived)(std::vector<CellScanInfo> cellScanInfoList);
+} CellScanStruct;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -196,6 +205,9 @@ public:
     static bool ExecuteHookWhenBeaconFenceTransitionStatusChange(const std::string& packageName);
     static void ExecuteHookWhenGnssEnable();
     static void ExecuteHookWhenOnUserSwitch(int32_t userId);
+    static void ExecuteHookWhenStartCellScan(
+        std::vector<int32_t> slotIds, int32_t arfcnCount, std::vector<int32_t> arfcnArray,
+        std::vector<int32_t> plmnParamArray, void (*OnCellScanInfoReceived)(CellScanInfo cellScanInfo));
 };
 } // namespace Location
 } // namespace OHOS

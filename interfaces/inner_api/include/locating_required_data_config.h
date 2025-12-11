@@ -21,9 +21,78 @@
 
 namespace OHOS {
 namespace Location {
-struct ArfcnInfo {
-    int arfcnCount_;
-    std::vector<int> arfcnArray_;
+class ArfcnInfo  : public Parcelable {
+public:
+    ArfcnInfo()
+    {
+        arfcnCount_ = 0;
+        arfcnArray_ = {};
+        plmnParamArray_ = {};
+    }
+
+    explicit ArfcnInfo(ArfcnInfo& arfcnInfo)
+    {
+        SetArfcnCount(arfcnInfo.GetArfcnCount());
+        SetArfcnArray(arfcnInfo.GetArfcnArray());
+        SetPlmnParamArray(arfcnInfo.GetPlmnParamArray());
+    }
+
+    ~ArfcnInfo() override = default;
+
+    inline void SetArfcnCount(int32_t arfcnCount)
+    {
+        arfcnCount_ = arfcnCount;
+    }
+
+    inline int32_t GetArfcnCount()
+    {
+        return arfcnCount_;
+    }
+
+    inline void SetArfcnArray(std::vector<int32_t> arfcnArray)
+    {
+        arfcnArray_ = arfcnArray;
+    }
+
+    inline std::vector<int32_t> GetArfcnArray()
+    {
+        return arfcnArray_;
+    }
+
+    inline void SetPlmnParamArray(std::vector<int32_t> plmnParamArray)
+    {
+        plmnParamArray_ = plmnParamArray;
+    }
+
+    inline std::vector<int32_t> GetPlmnParamArray()
+    {
+        return plmnParamArray_;
+    }
+
+    void ReadFromParcel(Parcel& parcel)
+    {
+        arfcnCount_ = parcel.ReadInt32();
+        parcel.ReadInt32Vector(arfcnArray_);
+        parcel.ReadInt32Vector(plmnParamArray_);
+    }
+
+    bool Marshalling(Parcel& parcel) const override
+    {
+        return parcel.WriteInt32(arfcnCount_) &&
+            parcel.WriteInt32Vector(arfcnArray_) &&
+            parcel.WriteInt32Vector(plmnParamArray_);
+    }
+
+    static std::shared_ptr<ArfcnInfo> Unmarshalling(Parcel& parcel)
+    {
+        auto ArfcnInfo = std::make_shared<ArfcnInfo>();
+        ArfcnInfo->ReadFromParcel(parcel);
+        return ArfcnInfo;
+    }
+private:
+    int32_t arfcnCount_;
+    std::vector<int32_t> arfcnArray_;
+    std::vector<int32_t> plmnParamArray_;
 }
 
 class LocatingRequiredDataConfig : public Parcelable {
@@ -37,7 +106,6 @@ public:
         fixNumber_ = 0;
         isWlanMatchCalled_ = false;
         rssiThreshold_ = 0;
-        slotId_ = 0;
         arfcnInfo_ = nullptr;
     }
 
@@ -121,24 +189,14 @@ public:
         rssiThreshold_ = rssiThreshold;
     }
 
-    inline int GetSlotId() const
+    inline std::vector<int32_t> GetSlotIdArray() const
     {
-        return slotId_;
+        return slotIdArray_;
     }
 
-    inline void SetSlotId(int slotId)
+    inline void SetSlotIdArray(std::vector<int32_t> slotIdArray)
     {
-        slotId_ = slotId;
-    }
-
-    inline int GetSlotId() const
-    {
-        return slotId_;
-    }
-
-    inline void SetSlotId(int slotId)
-    {
-        slotId_ = slotId;
+        slotIdArray_ = slotIdArray;
     }
 
     inline std::shared_ptr<ArfcnInfo> GetArfcnInfo() const
@@ -170,8 +228,7 @@ public:
         fixNumber_ = parcel.ReadInt32();
         isWlanMatchCalled_ = parcel.ReadBool();
         rssiThreshold_ = parcel.ReadInt32();
-        arfcnInfo_->arfcnCount_ = parcel.ReadInt32();
-        parcel.ReadInt32Vector(arfcnInfo_->arfcnArray_);
+        arfcnInfo_ = ArfcnInfo::Unmarshalling(parcel);
         int wlanArraySize = parcel.ReadInt32();
         if (wlanArraySize > INPUT_WIFI_LIST_MAX_SIZE) {
             wlanArraySize = INPUT_WIFI_LIST_MAX_SIZE;
@@ -205,9 +262,10 @@ public:
             parcel.WriteInt32(fixNumber_) &&
             parcel.WriteBool(isWlanMatchCalled_) &&
             parcel.WriteInt32(rssiThreshold_) &&
-            parcel.WriteInt32(slotId_) &&
+            parcel.slotIdArray_(slotId_) &&
             parcel.WriteInt32(arfcnInfo_->arfcnCount_) &&
             parcel.WriteInt32Vector(arfcnInfo_->arfcnArray_) &&
+            arfcnInfo_->Marshalling(parcel) &&
             MarshallingWlanBssidArray(parcel, wlanBssidArray_);
     }
 
@@ -237,7 +295,7 @@ private:
     bool isWlanMatchCalled_;
     int rssiThreshold_;
     std::vector<std::string> wlanBssidArray_;
-    int slotId_;
+    std::vector<int32_t> slotIdArray_;
     std::shared_ptr<ArfcnInfo> arfcnInfo_;
 };
 } // namespace Location

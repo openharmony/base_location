@@ -318,6 +318,7 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
 
         napi_value compedCellInfoObj;
         NAPI_CALL_BASE(env, napi_create_object(env, &compedCellInfoObj), false);
+        SetValueInt64(env, "slotId", replyList[i]->GetCampedCellInfo()->GetSlotId(), compedCellInfoObj);
         SetValueInt64(env, "timeSinceBoot", replyList[i]->GetCampedCellInfo()->GetTimeSinceBoot(), compedCellInfoObj);
         SetValueInt64(env, "cellId", replyList[i]->GetCampedCellInfo()->GetCellId(), compedCellInfoObj);
         SetValueInt64(env, "lat", replyList[i]->GetCampedCellInfo()->GetLat(), compedCellInfoObj);
@@ -335,18 +336,19 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
             napi_value cellInfoObj;
             NAPI_CALL_BASE(env, napi_create_object(env, &cellInfoObj), false);
             std::shared_ptr<CellInfo> cellInfo = replyList[i]->GetNeighboringCellInfo()[i];
-            SetValueInt64(env, "timeSinceBoot", cellInfo->GetTimeSinceBoot(), compedCellInfoObj);
-            SetValueInt64(env, "cellId", cellInfo->GetCellId(), compedCellInfoObj);
-            SetValueInt64(env, "lat", cellInfo->GetLat(), compedCellInfoObj);
-            SetValueInt64(env, "mcc", cellInfo->GetMcc(), compedCellInfoObj);
-            SetValueInt64(env, "mnc", cellInfo->GetMnc(), compedCellInfoObj);
-            SetValueInt64(env, "rat", cellInfo->GetRat(), compedCellInfoObj);
-            SetValueInt64(env, "singnalIntensity", cellInfo->GetSingnalIntensity(), compedCellInfoObj);
-            SetValueInt64(env, "arfcn", cellInfo->GetArfcn(), compedCellInfoObj);
-            SetValueInt64(env, "pci", cellInfo->GetArfcn(), compedCellInfoObj);
+            SetValueInt64(env, "slotId", cellInfo->GetSlotId(), cellInfoObj);
+            SetValueInt64(env, "timeSinceBoot", cellInfo->GetTimeSinceBoot(), cellInfoObj);
+            SetValueInt64(env, "cellId", cellInfo->GetCellId(), cellInfoObj);
+            SetValueInt64(env, "lat", cellInfo->GetLat(), cellInfoObj);
+            SetValueInt64(env, "mcc", cellInfo->GetMcc(), cellInfoObj);
+            SetValueInt64(env, "mnc", cellInfo->GetMnc(), cellInfoObj);
+            SetValueInt64(env, "rat", cellInfo->GetRat(), cellInfoObj);
+            SetValueInt64(env, "singnalIntensity", cellInfo->GetSingnalIntensity(), cellInfoObj);
+            SetValueInt64(env, "arfcn", cellInfo->GetArfcn(), cellInfoObj);
+            SetValueInt64(env, "pci", cellInfo->GetArfcn(), cellInfoObj);
             napi_value additiosnMap = CreateJsMap(env, cellInfo->GetAdditionsMap());
-            SetValueStringMap(env, "additionsMap", additionsMap, compedCellInfoObj);
-            napi_set_element(env, neighboringCellInfoObj, j, cellInfoObj)
+            SetValueStringMap(env, "additionsMap", additionsMap, cellInfoObj);
+            napi_set_element(env, neighboringCellInfoObj, j, cellInfoObj);
         }
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), false);
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), false);
@@ -359,9 +361,6 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
     }
     return true;
 }
-
-bool LocatingRequiredDataToJsObj(const napi_env& env,
-    std::vector<std::shared_ptr<LocatingRequiredData>>& replyList, napi_value& arrayResult)
 
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
     std::unique_ptr<CachedGnssLocationsRequest>& request)
@@ -434,17 +433,16 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
         config->SetScanTimeoutMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
-    napi_value beaconValue = GetNapiValueByKey(env, "beacon", value);
-    if (beaconValue != nullptr) {
+    napi_value arfcnInfoValue = GetNapiValueByKey(env, "arfcnInfo", value);
+    if (arfcnInfoValue != nullptr) {
         std::shared_ptr<ArfcnInfo> arfcnInfo = std::make_shared<ArfcnInfo>();
-        if (JsObjectToInt(env, beaconValue, "arfcnCount", valueInt) == SUCCESS) {
+        if (JsObjectToInt(env, arfcnInfoValue, "arfcnCount", valueInt) == SUCCESS) {
             arfcnInfo->arfcnCount_ = valueInt;
         }
-        GetIntArrayFromJsObj(env, beaconValue, "arfcnArray", arfcnInfo->arfcnArray_);
+        GetIntArrayFromJsObj(env, arfcnInfoValue, "arfcnArray", arfcnInfo->arfcnArray_);
+        GetIntArrayFromJsObj(env, arfcnInfoValue, "plmnParamArray", arfcnInfo->plmnParamArray_);
     }
-    if (JsObjectToInt(env, object, "slotId", valueInt) == SUCCESS) {
-        config->SetSlotId(valueInt);
-    }
+    GetIntArrayFromJsObj(env, object, "slotId", arfcnInfo->slotIdArray_);
 }
 
 void JsObjToCurrentLocationRequest(const napi_env& env, const napi_value& object,

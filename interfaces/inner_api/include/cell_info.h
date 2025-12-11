@@ -24,6 +24,7 @@ class CellInfo : public Parcelable {
 public:
     CellInfo()
     {
+        slotId_ = 0;
         timeSinceBoot_ = 0;
         cellId_ = 0;
         lac_ = 0;
@@ -36,30 +37,31 @@ public:
         additionsMap_ = nullptr;
     }
 
-    explicit CellInfo(CellInfo& CellInfo)
+    explicit CellInfo(CellInfo& cellInfo)
     {
-        SetTimeSinceBoot(CellInfo.GetTimeSinceBoot());
-        SetCellId(CellInfo.GetCellId());
-        SetLat(CellInfo.GetLat());
-        SetMcc(CellInfo.GetMcc());
-        SetMnc(CellInfo.GetMnc());
-        SetRat(CellInfo.GetRat());
-        SetSingnalIntensity(CellInfo.GetSingnalIntensity());
-        SetArfcn(CellInfo.GetArfcn());
-        SetPci(CellInfo.GetPci());
-        SetAdditionsMap(CellInfo.GetAdditionsMap());
+        SetSlotId(cellInfo.GetSlotId());
+        SetTimeSinceBoot(cellInfo.GetTimeSinceBoot());
+        SetCellId(cellInfo.GetCellId());
+        SetLat(cellInfo.GetLat());
+        SetMcc(cellInfo.GetMcc());
+        SetMnc(cellInfo.GetMnc());
+        SetRat(cellInfo.GetRat());
+        SetSingnalIntensity(cellInfo.GetSingnalIntensity());
+        SetArfcn(cellInfo.GetArfcn());
+        SetPci(cellInfo.GetPci());
+        SetAdditionsMap(cellInfo.GetAdditionsMap());
     }
 
     ~CellInfo() override = default;
 
-    inline std::string GetSsid() const
+    inline void SetSlotId(int32_t slotId)
     {
-        return ssid_;
+        slotId_ = slotId;
     }
 
-    inline void SetSsid(std::string ssid)
+    inline int32_t GetSlotId()
     {
-        ssid_ = ssid;
+        return slotId_;
     }
 
     inline void SetTimeSinceBoot(int64_t timeSinceBoot)
@@ -77,7 +79,7 @@ public:
         cellId_ = cellId;
     }
 
-    inline int32_t GetCellId()
+    inline int64_t GetCellId()
     {
         return cellId_;
     }
@@ -164,8 +166,9 @@ public:
 
     void ReadFromParcel(Parcel& parcel)
     {
+        slotId_ = parcel.ReadInt32();
         timeSinceBoot_ = parcel.ReadInt64();
-        cellId_ = parcel.ReadInt32();
+        cellId_ = parcel.ReadInt64();
         lac_ = parcel.ReadInt32();
         mcc_ = parcel.ReadInt32();
         mnc_ = parcel.ReadInt32();
@@ -178,8 +181,9 @@ public:
 
     bool Marshalling(Parcel& parcel) const override
     {
-        return parcel.WriteInt64(timeSinceBoot_) &&
-            parcel.WriteInt32(cellId_) &&
+        return parcel.WriteInt32(slotId_) &&
+            parcel.WriteInt64(timeSinceBoot_) &&
+            parcel.WriteInt64(cellId_) &&
             parcel.WriteInt32(lac_) &&
             parcel.WriteInt32(mcc_) &&
             parcel.WriteInt32(mnc_) &&
@@ -197,6 +201,7 @@ public:
     }
 
 private:
+    int32_t slotId_;
     int64_t timeSinceBoot_;
     int64_t cellId_;
     int32_t lac_;

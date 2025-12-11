@@ -312,5 +312,19 @@ void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
     ExecuteHook(
         LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&userId, nullptr);
 }
+
+void ExecuteHookWhenStartCellScan(
+        std::vector<int32_t> slotIds, int32_t arfcnCount, std::vector<int32_t> arfcnArray,
+        std::vector<int32_t> plmnParamArray, void (*OnCellScanInfoReceived)(std::vector<CellScanInfo> cellScanInfoList))
+{
+    CellScanStruct cellScanStruct;
+    cellScanStruct.slotIds = slotIds;
+    cellScanStruct.arfcnCount = arfcnCount;
+    cellScanStruct.arfcnArray = arfcnArray;
+    cellScanStruct.plmnParamArray = plmnParamArray;
+    cellScanStruct.OnCellScanInfoReceived = OnCellScanInfoReceived;
+    ExecuteHook(
+        LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&cellScanStruct, nullptr);
+}
 } // namespace Location
 } // namespace OHOS
