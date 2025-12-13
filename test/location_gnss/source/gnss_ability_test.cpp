@@ -1875,7 +1875,7 @@ HWTEST_F(GnssAbilityTest, RemoveFence001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence001 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     LocationErrCode result = ability_->RemoveFence(request);
-    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, result);
+    EXPECT_EQ(ERRCODE_GEOFENCE_INCORRECT_ID, result);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveFence001 end");
 }
 
