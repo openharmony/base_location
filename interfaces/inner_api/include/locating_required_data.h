@@ -18,7 +18,7 @@
 
 #include "bluetooth_scan_info.h"
 #include "wifi_scan_info.h"
-#include "cellular_info.h"
+#include "cell_info.h"
 
 namespace OHOS {
 namespace Location {
