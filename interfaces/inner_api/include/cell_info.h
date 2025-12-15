@@ -178,7 +178,7 @@ public:
         arfcn_ = parcel.ReadInt32();
         pci_ = parcel.ReadInt32();
         size_t size = parcel.ReadUint32();
-        size =  size > MAXIMUM_LOCATING_REQUIRED_DATAS ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
+        size = (size > MAXIMUM_LOCATING_REQUIRED_DATAS) ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
         for (size_t i = 0; i < size; i++) {
             std::string key;
             std::string value;
@@ -207,7 +207,7 @@ public:
             return false;
         }
         size_t size = additionsMap_->size();
-        size =  size > MAXIMUM_LOCATING_REQUIRED_DATAS ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
+        size = (size > MAXIMUM_LOCATING_REQUIRED_DATAS) ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
         if (!parcel.WriteUint32(size)) {
             return false;
         }

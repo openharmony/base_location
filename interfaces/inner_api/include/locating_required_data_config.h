@@ -84,7 +84,7 @@ public:
     }
 private:
     int32_t arfcnCount_;
-    std::vector<int> arfcnArray_;
+    std::vector<int32_t> arfcnArray_;
     std::vector<int32_t> plmnParamArray_;
 };
 
