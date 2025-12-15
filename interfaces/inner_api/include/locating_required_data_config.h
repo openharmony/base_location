@@ -30,13 +30,6 @@ public:
         plmnParamArray_ = {};
     }
 
-    explicit ArfcnInfo(ArfcnInfo& arfcnInfo)
-    {
-        SetArfcnCount(arfcnInfo.GetArfcnCount());
-        SetArfcnArray(arfcnInfo.GetArfcnArray());
-        SetPlmnParamArray(arfcnInfo.GetPlmnParamArray());
-    }
-
     ~ArfcnInfo() override = default;
 
     inline void SetArfcnCount(int32_t arfcnCount)
@@ -196,7 +189,7 @@ public:
         return slotIdArray_;
     }
 
-    inline void SetSlotIdArray(std::vector<int32_t> slotIdArray)
+    inline void SetSlotIdArray(const std::vector<int32_t>& slotIdArray)
     {
         slotIdArray_ = slotIdArray;
     }

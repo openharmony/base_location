@@ -32,7 +32,7 @@ public:
         mcc_ = 0;
         mnc_ = 0;
         rat_ = 0;
-        singalIntensity_ = 0;
+        signalIntensity_ = 0;
         arfcn_ = 0;
         pci_ = 0;
         additionsMap_ = std::make_shared<std::map<std::string, std::string>>();
@@ -43,11 +43,11 @@ public:
         SetSlotId(cellularInfo.GetSlotId());
         SetTimeSinceBoot(cellularInfo.GetTimeSinceBoot());
         SetCellId(cellularInfo.GetCellId());
-        SetLat(cellularInfo.GetLat());
+        SetLac(cellularInfo.GetLac());
         SetMcc(cellularInfo.GetMcc());
         SetMnc(cellularInfo.GetMnc());
         SetRat(cellularInfo.GetRat());
-        SetSingnalIntensity(cellularInfo.GetSingnalIntensity());
+        SetSignalIntensity(cellularInfo.GetSignalIntensity());
         SetArfcn(cellularInfo.GetArfcn());
         SetPci(cellularInfo.GetPci());
         SetAdditionsMap(cellularInfo.GetAdditionsMap());
@@ -85,12 +85,12 @@ public:
         return cellId_;
     }
 
-    inline void SetLat(int32_t lac)
+    inline void SetLac(int32_t lac)
     {
         lac_ = lac;
     }
 
-    inline int32_t GetLat()
+    inline int32_t GetLac()
     {
         return lac_;
     }
@@ -125,14 +125,14 @@ public:
         return rat_;
     }
 
-    inline void SetSingnalIntensity(int32_t singalIntensity)
+    inline void SetSignalIntensity(int32_t signalIntensity)
     {
-        singalIntensity_ = singalIntensity;
+        signalIntensity_ = signalIntensity;
     }
 
-    inline int32_t GetSingnalIntensity()
+    inline int32_t GetSignalIntensity()
     {
-        return singalIntensity_;
+        return signalIntensity_;
     }
 
     inline void SetArfcn(int32_t arfcn)
@@ -174,14 +174,19 @@ public:
         mcc_ = parcel.ReadInt32();
         mnc_ = parcel.ReadInt32();
         rat_ = parcel.ReadInt32();
-        singalIntensity_ = parcel.ReadInt32();
+        signalIntensity_ = parcel.ReadInt32();
         arfcn_ = parcel.ReadInt32();
         pci_ = parcel.ReadInt32();
         size_t size = parcel.ReadUint32();
+        size =  size > MAXIMUM_LOCATING_REQUIRED_DATAS ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
         for (size_t i = 0; i < size; i++) {
-            std::string key, value;
+            std::string key;
+            std::string value;
             key = parcel.ReadString();
             value = parcel.ReadString();
+            if (additionsMap_ == nullptr) {
+                additionsMap_ = std::make_shared<std::map<std::string, std::string>>();
+            }
             (*additionsMap_)[key] = value;
         }
     }
@@ -195,13 +200,14 @@ public:
         parcel.WriteInt32(mcc_);
         parcel.WriteInt32(mnc_);
         parcel.WriteInt32(rat_);
-        parcel.WriteInt32(singalIntensity_);
+        parcel.WriteInt32(signalIntensity_);
         parcel.WriteInt32(arfcn_);
         parcel.WriteInt32(pci_);
         if (additionsMap_ == nullptr) {
             return false;
         }
         size_t size = additionsMap_->size();
+        size =  size > MAXIMUM_LOCATING_REQUIRED_DATAS ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
         if (!parcel.WriteUint32(size)) {
             return false;
         }
@@ -227,7 +233,7 @@ private:
     int32_t mcc_;
     int32_t mnc_;
     int32_t rat_;
-    int32_t singalIntensity_;
+    int32_t signalIntensity_;
     int32_t arfcn_;
     int32_t pci_;
     std::shared_ptr<std::map<std::string, std::string>> additionsMap_;

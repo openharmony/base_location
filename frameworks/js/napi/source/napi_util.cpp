@@ -352,19 +352,20 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         CellularInfoToJsObj(env, replyList[i]->GetCampedCellInfo(), compedCellInfoObj);
 
         napi_value neighboringCellInfoObj = nullptr;
-        NAPI_CALL_BASE(env,
-                napi_create_array_with_length(env, replyList[i]->GetNeighboringCellInfo().size(), &neighboringCellInfoObj), false);
+        NAPI_CALL_BASE(env, napi_create_array_with_length(env, replyList[i]->GetNeighboringCellInfo().size(),
+            &neighboringCellInfoObj), false);
         for (size_t j = 0; j <  replyList[i]->GetNeighboringCellInfo().size(); j++) {
             napi_value cellularInfoObj;
             NAPI_CALL_BASE(env, napi_create_object(env, &cellularInfoObj), false);
-            std::shared_ptr<CellularInfo> cellularInfo = replyList[i]->GetNeighboringCellInfo()[i];
+            std::shared_ptr<CellularInfo> cellularInfo = replyList[i]->GetNeighboringCellInfo()[j];
             CellularInfoToJsObj(env, cellularInfo, cellularInfoObj);
-            napi_set_element(env, neighboringCellInfoObj, j, cellularInfoObj);
+            NAPI_CALL_BASE(env, napi_set_element(env, neighboringCellInfoObj, j, cellularInfoObj), false);
         }
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), false);
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), false);
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "campedCellInfo", compedCellInfoObj), false);
-        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "neighboringCellInfo", neighboringCellInfoObj), false);
+        NAPI_CALL_BASE(env,
+            napi_set_named_property(env, eachObj, "neighboringCellInfo", neighboringCellInfoObj), false);
         napi_status status = napi_set_element(env, arrayResult, idx++, eachObj);
         if (status != napi_ok) {
             LBSLOGE(LOCATING_DATA_CALLBACK, "set element error: %{public}d, idx: %{public}d", status, idx - 1);
@@ -469,7 +470,7 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     if (arfcnInfoValue != nullptr) {
         std::shared_ptr<ArfcnInfo> arfcnInfo = std::make_shared<ArfcnInfo>();
         if (JsObjectToInt(env, arfcnInfoValue, "arfcnCount", valueInt) == SUCCESS) {
-            arfcnInfo->SetArfcnCount(valueInt);;
+            arfcnInfo->SetArfcnCount(valueInt);
         }
         if (GetIntArrayFromJsObj(env, arfcnInfoValue, "arfcnArray", vector)) {
             arfcnInfo->SetArfcnArray(vector);

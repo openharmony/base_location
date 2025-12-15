@@ -192,8 +192,8 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     } else if (config->GetType() == LocatingRequiredDataType::CELLULAR) {
-        std::unique_lock<std::mutex> lock(mutex_);
         {
+            std::unique_lock<std::mutex> lock(mutex_);
             LocatorRequiredInfo locatorRequiredInfo;
             locatorRequiredInfo.appIdentity_ = identity;
             locatorRequiredInfo.config_ = *config;
