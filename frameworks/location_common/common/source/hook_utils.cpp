@@ -314,8 +314,8 @@ void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
 }
 
 void HookUtils::ExecuteHookWhenStartCellScan(
-        std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
-        void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result))
+    std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
+    void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result))
 {
     CellScanStruct cellScanStruct;
     cellScanStruct.locatingRequiredDataConfig = *locatingRequiredDataConfig;

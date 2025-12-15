@@ -71,7 +71,6 @@ enum class LocationProcessStage {
     RESTORE_GEOFENCE_REQUEST_PROCESS,
     INIT_GEOFENCE_ID_PROCESS,
     START_CELL_SCAN_PROCESS,
-
 };
 
 typedef struct {

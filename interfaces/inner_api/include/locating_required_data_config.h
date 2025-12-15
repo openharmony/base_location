@@ -103,16 +103,6 @@ public:
         arfcnInfo_ = std::make_shared<ArfcnInfo>();
     }
 
-    explicit LocatingRequiredDataConfig(LocatingRequiredDataConfig& LocatingRequiredDataConfig)
-    {
-        SetType(LocatingRequiredDataConfig.GetType());
-        SetNeedStartScan(LocatingRequiredDataConfig.GetNeedStartScan());
-        SetScanIntervalMs(LocatingRequiredDataConfig.GetScanIntervalMs());
-        SetScanTimeoutMs(LocatingRequiredDataConfig.GetScanTimeoutMs());
-        SetSlotId(LocatingRequiredDataConfig.GetSlotId());
-        SetArfcnInfo(LocatingRequiredDataConfig.GetArfcnInfo());
-    }
-
     ~LocatingRequiredDataConfig() override = default;
 
     inline int GetType() const
