@@ -264,6 +264,8 @@ public:
     bool IsStill();
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
     int TriggerWifiScan();
+    LocationErrCode AddScanCallback(
+        AppIdentity &identity, std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
 
 private:
     int timeInterval_ = 0;

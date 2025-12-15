@@ -156,23 +156,10 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
     }
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
 #ifdef WIFI_ENABLE
-        std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
-        lock.lock();
-        LocatorRequiredInfo locatorRequiredInfo;
-        locatorRequiredInfo.appIdentity_ = identity;
-        locatorRequiredInfo.config_ = *config;
-        if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
-            callbacksMap_[callback] = locatorRequiredInfo;
-        } else {
-            LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
-            lock.unlock();
-            if (config->GetIsWlanMatchCalled()) {
-                return ERRCODE_WIFI_SCAN_FAIL;
-            }
-            return ERRCODE_SCAN_FAIL;
+        auto errCode = AddScanCallback(identity, config, callback);
+        if (errCode != ERRCODE_SUCCESS) {
+            return errCode;
         }
-        LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
-            std::to_string(callbacksMap_.size()).c_str());
         if (!IsWifiCallbackRegistered() && wifiSdkHandler_ != nullptr) {
             wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
         }
@@ -180,7 +167,6 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         if (config->GetNeedStartScan()) {
             needScan = true;
         }
-        lock.unlock();
         if (needScan) {
             SendWifiScanEvent();
             SendGetWifiListEvent(DEFAULT_TIMEOUT_4S >= config->GetScanTimeoutMs() ?
@@ -192,19 +178,35 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     } else if (config->GetType() == LocatingRequiredDataType::CELLULAR) {
-        {
-            std::unique_lock<std::mutex> lock(mutex_);
-            LocatorRequiredInfo locatorRequiredInfo;
-            locatorRequiredInfo.appIdentity_ = identity;
-            locatorRequiredInfo.config_ = *config;
-            if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
-                callbacksMap_[callback] = locatorRequiredInfo;
-            }
+        auto errCode = AddScanCallback(identity, config, callback);
+        if (errCode != ERRCODE_SUCCESS) {
+            return errCode;
         }
         HookUtils::ExecuteHookWhenStartCellScan(config->GetSlotIdArray(), config->GetArfcnInfo()->GetArfcnCount(),
             config->GetArfcnInfo()->GetArfcnArray(), config->GetArfcnInfo()->GetPlmnParamArray(),
             LocatorCellScanInfoCallback::OnCellScanInfoReceived);
     }
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocatorRequiredDataManager::AddScanCallback(
+    AppIdentity &identity, std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    LocatorRequiredInfo locatorRequiredInfo;
+    locatorRequiredInfo.appIdentity_ = identity;
+    locatorRequiredInfo.config_ = *config;
+    if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
+        callbacksMap_[callback] = locatorRequiredInfo;
+    } else {
+        LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
+        if (config->GetIsWlanMatchCalled()) {
+            return ERRCODE_WIFI_SCAN_FAIL;
+        }
+        return ERRCODE_SCAN_FAIL;
+    }
+    LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
+            std::to_string(callbacksMap_.size()).c_str());
     return ERRCODE_SUCCESS;
 }
 
