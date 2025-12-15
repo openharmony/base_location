@@ -514,10 +514,10 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
             continue;
         }
         LocatorRequiredInfo locatorRequiredInfo = pair.second;
-        if (type != locatorRequiredInfo.config.GetType()) {
+        if (type != locatorRequiredInfo.config_->GetType()) {
             continue;
         }
-        if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo.appIdentity)) {
+        if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo->appIdentity_)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
         }
     }

@@ -321,7 +321,7 @@ void HookUtils::ExecuteHookWhenStartCellScan(
     cellScanStruct.locatingRequiredDataConfig = *locatingRequiredDataConfig;
     cellScanStruct.OnCellScanInfoReceived = OnCellScanInfoReceived;
     ExecuteHook(
-        LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&cellScanStruct, nullptr);
+        LocationProcessStage::START_CELL_SCAN_PROCESS, (void *)&cellScanStruct, nullptr);
 }
 } // namespace Location
 } // namespace OHOS
