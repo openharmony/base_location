@@ -102,6 +102,7 @@ enum class GnssAbilityInterfaceCode {
     ADD_GEOFENCE = 0x0107,
     REMOVE_GEOFENCE = 0x0108,
     RESTORE_GEOFENCE_REQUEST = 0x0109,
+    CONNECT_HDI = 0x010A,
 };
 
 enum GnssBatchingWorkStatus {
@@ -147,6 +148,7 @@ private:
     void HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleRestoreGeofenceRequest(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleConnectHdi(const AppExecFwk::InnerEvent::Pointer& event);
 
     using GnssEventProcessHandle = std::function<void(const AppExecFwk::InnerEvent::Pointer &)>;
     using GnssEventProcessMap = std::map<uint32_t, GnssEventProcessHandle>;
@@ -214,6 +216,7 @@ public:
     void SetRefInfo(const AGnssRefInfo& refInfo);
     void SetRefInfoImpl(const AGnssRefInfo &refInfo);
 #endif
+    void ConnectHdiImpl();
     void ReConnectHdiImpl();
     bool IsMockEnabled();
     void ProcessReportLocationMock();
