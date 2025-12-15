@@ -21,6 +21,7 @@
 #include "request.h"
 #include "location.h"
 #include "locating_required_data.h"
+#include "locating_required_data_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -164,10 +165,7 @@ typedef struct {
 } BeaconFenceStruct;
 
 typedef struct {
-    std::vector<int32_t> slotIds;
-    int32_t arfcnCount;
-    std::vector<int32_t> arfcnArray;
-    std::vector<int32_t> plmnParamArray;
+    LocatingRequiredDataConfig locatingRequiredDataConfig;
     void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result);
 } CellScanStruct;
 
@@ -209,8 +207,7 @@ public:
     static void ExecuteHookWhenGnssEnable();
     static void ExecuteHookWhenOnUserSwitch(int32_t userId);
     static void ExecuteHookWhenStartCellScan(
-        std::vector<int32_t> slotIds, int32_t arfcnCount, std::vector<int32_t> arfcnArray,
-        std::vector<int32_t> plmnParamArray,
+        std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
         void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result));
 };
 } // namespace Location
