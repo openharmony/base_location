@@ -379,7 +379,6 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
 void CellularInfoToJsObj(const napi_env& env,
     std::shared_ptr<CellularInfo>& cellularInfo, napi_value& cellularInfoObj)
 {
-    SetValueInt64(env, "slotId", cellularInfo->GetSlotId(), cellularInfoObj);
     SetValueInt64(env, "timeSinceBoot", cellularInfo->GetTimeSinceBoot(), cellularInfoObj);
     SetValueInt64(env, "cellId", cellularInfo->GetCellId(), cellularInfoObj);
     SetValueInt64(env, "laC", cellularInfo->GetLaC(), cellularInfoObj);
@@ -480,8 +479,8 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
             arfcnInfo->SetPlmnParamArray(vector);
         }
     }
-    if (GetIntArrayFromJsObj(env, object, "slotId", vector)) {
-        config->SetSlotIdArray(vector);
+    if (JsObjectToInt(env, object, "slotId", valueInt) == SUCCESS) {
+        config->SetSlotId(valueInt);
     }
 }
 

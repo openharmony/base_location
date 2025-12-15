@@ -26,7 +26,6 @@ class CellularInfo : public Parcelable {
 public:
     CellularInfo()
     {
-        slotId_ = 0;
         timeSinceBoot_ = 0;
         cellId_ = 0;
         lac_ = 0;
@@ -40,16 +39,6 @@ public:
     }
 
     ~CellularInfo() override = default;
-
-    inline void SetSlotId(int32_t slotId)
-    {
-        slotId_ = slotId;
-    }
-
-    inline int32_t GetSlotId()
-    {
-        return slotId_;
-    }
 
     inline void SetTimeSinceBoot(int64_t timeSinceBoot)
     {
@@ -153,7 +142,6 @@ public:
 
     void ReadFromParcel(Parcel& parcel)
     {
-        slotId_ = parcel.ReadInt32();
         timeSinceBoot_ = parcel.ReadInt64();
         cellId_ = parcel.ReadInt64();
         lac_ = parcel.ReadInt32();
@@ -212,7 +200,6 @@ public:
     }
 
 private:
-    int32_t slotId_;
     int64_t timeSinceBoot_;
     int64_t cellId_;
     int32_t lac_;

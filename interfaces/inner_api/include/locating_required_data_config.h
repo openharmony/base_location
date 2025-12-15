@@ -99,6 +99,7 @@ public:
         fixNumber_ = 0;
         isWlanMatchCalled_ = false;
         rssiThreshold_ = 0;
+        slotId_ = -1;
         arfcnInfo_ = std::make_shared<ArfcnInfo>();
     }
 
@@ -108,7 +109,7 @@ public:
         SetNeedStartScan(LocatingRequiredDataConfig.GetNeedStartScan());
         SetScanIntervalMs(LocatingRequiredDataConfig.GetScanIntervalMs());
         SetScanTimeoutMs(LocatingRequiredDataConfig.GetScanTimeoutMs());
-        SetSlotIdArray(LocatingRequiredDataConfig.GetSlotIdArray());
+        SetSlotId(LocatingRequiredDataConfig.GetSlotId());
         SetArfcnInfo(LocatingRequiredDataConfig.GetArfcnInfo());
     }
 
@@ -184,14 +185,14 @@ public:
         rssiThreshold_ = rssiThreshold;
     }
 
-    inline std::vector<int32_t> GetSlotIdArray() const
+    inline void SetSlotId(int32_t slotId)
     {
-        return slotIdArray_;
+        slotId_ = slotId;
     }
 
-    inline void SetSlotIdArray(const std::vector<int32_t>& slotIdArray)
+    inline int32_t GetSlotId()
     {
-        slotIdArray_ = slotIdArray;
+        return slotId_;
     }
 
     inline std::shared_ptr<ArfcnInfo> GetArfcnInfo() const
@@ -223,7 +224,7 @@ public:
         fixNumber_ = parcel.ReadInt32();
         isWlanMatchCalled_ = parcel.ReadBool();
         rssiThreshold_ = parcel.ReadInt32();
-        parcel.ReadInt32Vector(&slotIdArray_);
+        slotId_ = parcel.ReadInt32();
         arfcnInfo_ = ArfcnInfo::Unmarshalling(parcel);
         int wlanArraySize = parcel.ReadInt32();
         if (wlanArraySize > INPUT_WIFI_LIST_MAX_SIZE) {
@@ -258,7 +259,7 @@ public:
         parcel.WriteInt32(fixNumber_);
         parcel.WriteBool(isWlanMatchCalled_);
         parcel.WriteInt32(rssiThreshold_);
-        parcel.WriteInt32Vector(slotIdArray_);
+        parcel.WriteInt32(slotId_);
         arfcnInfo_->Marshalling(parcel);
         MarshallingWlanBssidArray(parcel, wlanBssidArray_);
         return true;
@@ -290,7 +291,7 @@ private:
     bool isWlanMatchCalled_;
     int rssiThreshold_;
     std::vector<std::string> wlanBssidArray_;
-    std::vector<int32_t> slotIdArray_;
+    int32_t slotId_;
     std::shared_ptr<ArfcnInfo> arfcnInfo_;
 };
 } // namespace Location

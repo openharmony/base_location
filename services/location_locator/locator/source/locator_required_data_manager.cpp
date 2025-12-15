@@ -182,7 +182,7 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         if (errCode != ERRCODE_SUCCESS) {
             return errCode;
         }
-        HookUtils::ExecuteHookWhenStartCellScan(config->GetSlotIdArray(), config->GetArfcnInfo()->GetArfcnCount(),
+        HookUtils::ExecuteHookWhenStartCellScan(config->GetSlotId(), config->GetArfcnInfo()->GetArfcnCount(),
             config->GetArfcnInfo()->GetArfcnArray(), config->GetArfcnInfo()->GetPlmnParamArray(),
             LocatorCellScanInfoCallback::OnCellScanInfoReceived);
     }
