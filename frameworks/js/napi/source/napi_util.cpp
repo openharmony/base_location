@@ -349,41 +349,22 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
 
         napi_value compedCellInfoObj;
         NAPI_CALL_BASE(env, napi_create_object(env, &compedCellInfoObj), false);
-        SetValueInt64(env, "slotId", replyList[i]->GetCampedCellInfo()->GetSlotId(), compedCellInfoObj);
-        SetValueInt64(env, "timeSinceBoot", replyList[i]->GetCampedCellInfo()->GetTimeSinceBoot(), compedCellInfoObj);
-        SetValueInt64(env, "cellId", replyList[i]->GetCampedCellInfo()->GetCellId(), compedCellInfoObj);
-        SetValueInt64(env, "lat", replyList[i]->GetCampedCellInfo()->GetLat(), compedCellInfoObj);
-        SetValueInt64(env, "mcc", replyList[i]->GetCampedCellInfo()->GetMcc(), compedCellInfoObj);
-        SetValueInt64(env, "mnc", replyList[i]->GetCampedCellInfo()->GetMnc(), compedCellInfoObj);
-        SetValueInt64(env, "rat", replyList[i]->GetCampedCellInfo()->GetRat(), compedCellInfoObj);
-        SetValueInt64(env, "singnalIntensity", replyList[i]->GetCampedCellInfo()->GetSingnalIntensity(), compedCellInfoObj);
-        SetValueInt64(env, "arfcn", replyList[i]->GetCampedCellInfo()->GetArfcn(), compedCellInfoObj);
-        SetValueInt64(env, "pci", *replyList[i]->GetCampedCellInfo()->GetArfcn(), compedCellInfoObj);
-        napi_value additionsMap = CreateJsMap(env, replyList[i]->GetCampedCellInfo()->GetAdditionsMap());
-        SetValueStringMap(env, "additionsMap", additionsMap, compedCellInfoObj);
+        CellularInfoToJsObj(env, replyList[i]->GetCampedCellInfo(), compedCellInfoObj);
 
         napi_value neighboringCellInfoObj = nullptr;
+        NAPI_CALL_BASE(env,
+                napi_create_array_with_length(env, replyList[i]->GetNeighboringCellInfo().size(), &neighboringCellInfoObj), false);
         for (size_t j = 0; j <  replyList[i]->GetNeighboringCellInfo().size(); j++) {
-            napi_value cellInfoObj;
-            NAPI_CALL_BASE(env, napi_create_object(env, &cellInfoObj), false);
-            std::shared_ptr<CellInfo> cellInfo = replyList[i]->GetNeighboringCellInfo()[i];
-            SetValueInt64(env, "slotId", cellInfo->GetSlotId(), cellInfoObj);
-            SetValueInt64(env, "timeSinceBoot", cellInfo->GetTimeSinceBoot(), cellInfoObj);
-            SetValueInt64(env, "cellId", cellInfo->GetCellId(), cellInfoObj);
-            SetValueInt64(env, "lat", cellInfo->GetLat(), cellInfoObj);
-            SetValueInt64(env, "mcc", cellInfo->GetMcc(), cellInfoObj);
-            SetValueInt64(env, "mnc", cellInfo->GetMnc(), cellInfoObj);
-            SetValueInt64(env, "rat", cellInfo->GetRat(), cellInfoObj);
-            SetValueInt64(env, "singnalIntensity", cellInfo->GetSingnalIntensity(), cellInfoObj);
-            SetValueInt64(env, "arfcn", cellInfo->GetArfcn(), cellInfoObj);
-            SetValueInt64(env, "pci", cellInfo->GetArfcn(), cellInfoObj);
-            napi_value additionsMap = CreateJsMap(env, *cellInfo->GetAdditionsMap());
-            SetValueStringMap(env, "additionsMap", additionsMap, cellInfoObj);
-            napi_set_element(env, neighboringCellInfoObj, j, cellInfoObj);
+            napi_value cellularInfoObj;
+            NAPI_CALL_BASE(env, napi_create_object(env, &cellularInfoObj), false);
+            std::shared_ptr<CellularInfo> cellularInfo = replyList[i]->GetNeighboringCellInfo()[i];
+            CellularInfoToJsObj(env, cellularInfo, cellularInfoObj);
+            napi_set_element(env, neighboringCellInfoObj, j, cellularInfoObj);
         }
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), false);
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), false);
-        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "compedCellInfo", compedCellInfoObj), false);
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "campedCellInfo", compedCellInfoObj), false);
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "neighboringCellInfo", neighboringCellInfoObj), false);
         napi_status status = napi_set_element(env, arrayResult, idx++, eachObj);
         if (status != napi_ok) {
             LBSLOGE(LOCATING_DATA_CALLBACK, "set element error: %{public}d, idx: %{public}d", status, idx - 1);
@@ -391,6 +372,25 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         }
     }
     return true;
+}
+
+bool CellularInfoToJsObj(const napi_env& env,
+    std::shared_ptr<CellularInfo>& cellularInfo, napi_value& cellularInfoObj)
+{
+    SetValueInt64(env, "slotId", cellularInfo->GetSlotId(), cellularInfoObj);
+    SetValueInt64(env, "timeSinceBoot", cellularInfo->GetTimeSinceBoot(), cellularInfoObj);
+    SetValueInt64(env, "cellId", cellularInfo->GetCellId(), cellularInfoObj);
+    SetValueInt64(env, "lat", cellularInfo->GetLat(), cellularInfoObj);
+    SetValueInt64(env, "mcc", cellularInfo->GetMcc(), cellularInfoObj);
+    SetValueInt64(env, "mnc", cellularInfo->GetMnc(), cellularInfoObj);
+    SetValueInt64(env, "rat", cellularInfo->GetRat(), cellularInfoObj);
+    SetValueInt64(env, "singnalIntensity", cellularInfo->GetSingnalIntensity(), cellularInfoObj);
+    SetValueInt64(env, "arfcn", cellularInfo->GetArfcn(), cellularInfoObj);
+    SetValueInt64(env, "pci", cellularInfo->GetPci(), cellularInfoObj);
+    if (cellularInfo->GetAdditionsMap() != nullptr) {
+        napi_value additionsMap = CreateJsMap(env, cellularInfo->GetAdditionsMap());
+        SetValueStringMap(env, "additionsMap", additionsMap, cellularInfoObj);
+    }
 }
 
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
@@ -478,7 +478,7 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
             arfcnInfo->SetPlmnParamArray(vector);
         }
     }
-    if (GetIntArrayFromJsObj(env, arfcnInfoValue, "slotId", vector)) {
+    if (GetIntArrayFromJsObj(env, object, "slotId", vector)) {
         config->SetSlotIdArray(vector);
     }
 }
@@ -721,8 +721,7 @@ bool GetIntArrayFromJsObj(
             return false;
         }
         int value = 0;
-        napi_value field = nullptr;
-        NAPI_CALL_BASE(env, napi_get_value_int32(env, field, &value), false);
+        NAPI_CALL_BASE(env, napi_get_value_int32(env, napiElement, &value), false);
         outArray.push_back(value);
     }
     return true;

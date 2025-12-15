@@ -18,7 +18,7 @@
 
 #include "bluetooth_scan_info.h"
 #include "wifi_scan_info.h"
-#include "cell_info.h"
+#include "cellular_info.h"
 
 namespace OHOS {
 namespace Location {
@@ -29,6 +29,7 @@ public:
         type_ = 0;
         wifiData_ = std::make_shared<WifiScanInfo>();
         blueToothData_ = std::make_shared<BluetoothScanInfo>();
+        campedCellInfo_ = std::make_shared<CellularInfo>();
     }
 
     ~LocatingRequiredData() override = default;
@@ -63,22 +64,22 @@ public:
         blueToothData_ = blueToothData;
     }
 
-    inline std::shared_ptr<CellInfo> GetCampedCellInfo() const
+    inline std::shared_ptr<CellularInfo> GetCampedCellInfo() const
     {
         return campedCellInfo_;
     }
 
-    inline void SetCampedCellInfo(std::shared_ptr<CellInfo> campedCellInfo)
+    inline void SetCampedCellInfo(std::shared_ptr<CellularInfo> campedCellInfo)
     {
         campedCellInfo_ = campedCellInfo;
     }
 
-    inline std::vector<std::shared_ptr<CellInfo>> GetNeighboringCellInfo() const
+    inline std::vector<std::shared_ptr<CellularInfo>> GetNeighboringCellInfo() const
     {
         return neighboringCellInfo_;
     }
 
-    inline void SetNeighboringCellInfo(std::vector<std::shared_ptr<CellInfo>> neighboringCellInfo)
+    inline void SetNeighboringCellInfo(std::vector<std::shared_ptr<CellularInfo>> neighboringCellInfo)
     {
         neighboringCellInfo_ = neighboringCellInfo;
     }
@@ -88,10 +89,10 @@ public:
         type_ =  parcel.ReadInt32();
         wifiData_ = WifiScanInfo::Unmarshalling(parcel);
         blueToothData_ = BluetoothScanInfo::Unmarshalling(parcel);
-        campedCellInfo_ = CellInfo::Unmarshalling(parcel);
+        campedCellInfo_ = CellularInfo::Unmarshalling(parcel);
         auto size = parcel.ReadInt32();
         for (int i = 0; i < size; i++) {
-            neighboringCellInfo_[i] = CellInfo::Unmarshalling(parcel);
+            neighboringCellInfo_.push_back(CellularInfo::Unmarshalling(parcel));
         }
     }
 
@@ -99,8 +100,8 @@ public:
     {
         parcel.WriteInt32(type_);
         wifiData_->Marshalling(parcel);
-        campedCellInfo_->Marshalling(parcel);
         blueToothData_->Marshalling(parcel);
+        campedCellInfo_->Marshalling(parcel);
         parcel.WriteInt32(neighboringCellInfo_.size());
         for (size_t i = 0; i < neighboringCellInfo_.size(); i++) {
             neighboringCellInfo_[i]->Marshalling(parcel);
@@ -125,8 +126,8 @@ private:
     int type_;
     std::shared_ptr<WifiScanInfo> wifiData_;
     std::shared_ptr<BluetoothScanInfo> blueToothData_;
-    std::shared_ptr<CellInfo> campedCellInfo_;
-    std::vector<std::shared_ptr<CellInfo>> neighboringCellInfo_;
+    std::shared_ptr<CellularInfo> campedCellInfo_;
+    std::vector<std::shared_ptr<CellularInfo>> neighboringCellInfo_;
 };
 } // namespace Location
 } // namespace OHOS

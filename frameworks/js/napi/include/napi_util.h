@@ -89,6 +89,8 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     std::unique_ptr<LocatingRequiredDataConfig>& config);
 bool LocatingRequiredDataToJsObj(const napi_env& env,
     std::vector<std::shared_ptr<LocatingRequiredData>>& replyList, napi_value& arrayResult);
+bool CellularInfoToJsObj(const napi_env& env,
+    std::shared_ptr<CellularInfo>& cellularInfo, napi_value& cellularInfoObj);
 std::string GetErrorMsgByCode(int code);
 int ConvertErrorCode(int errorCode);
 std::map<int, std::string> GetErrorCodeMap();

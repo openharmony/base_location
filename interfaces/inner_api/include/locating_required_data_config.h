@@ -106,7 +106,7 @@ public:
         fixNumber_ = 0;
         isWlanMatchCalled_ = false;
         rssiThreshold_ = 0;
-        arfcnInfo_ = nullptr;
+        arfcnInfo_ = std::make_shared<ArfcnInfo>();
     }
 
     explicit LocatingRequiredDataConfig(LocatingRequiredDataConfig& LocatingRequiredDataConfig)
@@ -114,7 +114,8 @@ public:
         SetType(LocatingRequiredDataConfig.GetType());
         SetNeedStartScan(LocatingRequiredDataConfig.GetNeedStartScan());
         SetScanIntervalMs(LocatingRequiredDataConfig.GetScanIntervalMs());
-        SetScanTimeoutMs(LocatingRequiredDataConfig.GetScanTimeoutMs());
+        SetSlotIdArray(LocatingRequiredDataConfig.GetSlotIdArray());
+        SetArfcnInfo(LocatingRequiredDataConfig.GetArfcnInfo());
     }
 
     ~LocatingRequiredDataConfig() override = default;
@@ -228,6 +229,7 @@ public:
         fixNumber_ = parcel.ReadInt32();
         isWlanMatchCalled_ = parcel.ReadBool();
         rssiThreshold_ = parcel.ReadInt32();
+        parcel.ReadInt32Vector(&slotIdArray_);
         arfcnInfo_ = ArfcnInfo::Unmarshalling(parcel);
         int wlanArraySize = parcel.ReadInt32();
         if (wlanArraySize > INPUT_WIFI_LIST_MAX_SIZE) {
@@ -255,16 +257,17 @@ public:
 
     bool Marshalling(Parcel& parcel) const override
     {
-        return parcel.WriteInt32(type_) &&
-            parcel.WriteBool(needStartScan_) &&
-            parcel.WriteInt32(scanIntervalMs_) &&
-            parcel.WriteInt32(scanTimeoutMs_) &&
-            parcel.WriteInt32(fixNumber_) &&
-            parcel.WriteBool(isWlanMatchCalled_) &&
-            parcel.WriteInt32(rssiThreshold_) &&
-            parcel.WriteInt32Vector(slotIdArray_) &&
-            arfcnInfo_->Marshalling(parcel) &&
-            MarshallingWlanBssidArray(parcel, wlanBssidArray_);
+        parcel.WriteInt32(type_);
+        parcel.WriteBool(needStartScan_);
+        parcel.WriteInt32(scanIntervalMs_);
+        parcel.WriteInt32(scanTimeoutMs_);
+        parcel.WriteInt32(fixNumber_);
+        parcel.WriteBool(isWlanMatchCalled_);
+        parcel.WriteInt32(rssiThreshold_);
+        parcel.WriteInt32Vector(slotIdArray_);
+        arfcnInfo_->Marshalling(parcel);
+        MarshallingWlanBssidArray(parcel, wlanBssidArray_);
+        return true;
     }
 
     static LocatingRequiredDataConfig* Unmarshalling(Parcel& parcel)

@@ -159,8 +159,8 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
         lock.lock();
         LocatorRequiredInfo locatorRequiredInfo;
-        locatorRequiredInfo.appIdentity = identity;
-        locatorRequiredInfo.config = *config;
+        locatorRequiredInfo.appIdentity_ = identity;
+        locatorRequiredInfo.config_ = *config;
         if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
             callbacksMap_[callback] = locatorRequiredInfo;
         } else {
@@ -192,8 +192,18 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     } else if (config->GetType() == LocatingRequiredDataType::CELLULAR) {
+        std::unique_lock<std::mutex> lock(mutex_);
+        {
+            LocatorRequiredInfo locatorRequiredInfo;
+            locatorRequiredInfo.appIdentity_ = identity;
+            locatorRequiredInfo.config_ = *config;
+            if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
+                callbacksMap_[callback] = locatorRequiredInfo;
+            }
+        }
         HookUtils::ExecuteHookWhenStartCellScan(config->GetSlotIdArray(), config->GetArfcnInfo()->GetArfcnCount(),
-            config->GetArfcnInfo()->GetArfcnArray(), config->GetArfcnInfo()->GetPlmnParamArray());
+            config->GetArfcnInfo()->GetArfcnArray(), config->GetArfcnInfo()->GetPlmnParamArray(),
+            LocatorCellScanInfoCallback::OnCellScanInfoReceived);
     }
     return ERRCODE_SUCCESS;
 }
@@ -615,17 +625,17 @@ void LocatorRequiredDataManager::SetBluetoothScanStatus(bool bluetoothScanStatus
     bluetoothScanStatus_ = bluetoothScanStatus;
 }
 
+#ifdef WIFI_ENABLE
 int LocatorRequiredDataManager::TriggerWifiScan()
 {
-#ifdef WIFI_ENABLE
     wifiScanStartTimeStamp_ = CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO;
     auto wifiService = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     if (wifiService == nullptr) {
         return Wifi::WIFI_OPT_FAILED;
     }
     return wifiService->Scan();
-#endif
 }
+#endif
 
 bool LocatorRequiredDataManager::IsWifiConnecting()
 {

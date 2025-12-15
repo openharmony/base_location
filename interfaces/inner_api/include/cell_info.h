@@ -13,17 +13,17 @@
  * limitations under the License.
  */
 
-#ifndef LOCATION_CELL_INFO_H
-#define LOCATION_CELL_INFO_H
+#ifndef LOCATION_CELLULAR_INFO_H
+#define LOCATION_CELLULAR_INFO_H
 
 #include <parcel.h>
 #include <string>
 #include <map>
 namespace OHOS {
 namespace Location {
-class CellInfo : public Parcelable {
+class CellularInfo : public Parcelable {
 public:
-    CellInfo()
+    CellularInfo()
     {
         slotId_ = 0;
         timeSinceBoot_ = 0;
@@ -35,25 +35,25 @@ public:
         singalIntensity_ = 0;
         arfcn_ = 0;
         pci_ = 0;
-        additionsMap_ = nullptr;
+        additionsMap_ = std::make_shared<std::map<std::string, std::string>>();
     }
 
-    explicit CellInfo(CellInfo& cellInfo)
+    explicit CellularInfo(CellularInfo& cellularInfo)
     {
-        SetSlotId(cellInfo.GetSlotId());
-        SetTimeSinceBoot(cellInfo.GetTimeSinceBoot());
-        SetCellId(cellInfo.GetCellId());
-        SetLat(cellInfo.GetLat());
-        SetMcc(cellInfo.GetMcc());
-        SetMnc(cellInfo.GetMnc());
-        SetRat(cellInfo.GetRat());
-        SetSingnalIntensity(cellInfo.GetSingnalIntensity());
-        SetArfcn(cellInfo.GetArfcn());
-        SetPci(cellInfo.GetPci());
-        SetAdditionsMap(cellInfo.GetAdditionsMap());
+        SetSlotId(cellularInfo.GetSlotId());
+        SetTimeSinceBoot(cellularInfo.GetTimeSinceBoot());
+        SetCellId(cellularInfo.GetCellId());
+        SetLat(cellularInfo.GetLat());
+        SetMcc(cellularInfo.GetMcc());
+        SetMnc(cellularInfo.GetMnc());
+        SetRat(cellularInfo.GetRat());
+        SetSingnalIntensity(cellularInfo.GetSingnalIntensity());
+        SetArfcn(cellularInfo.GetArfcn());
+        SetPci(cellularInfo.GetPci());
+        SetAdditionsMap(cellularInfo.GetAdditionsMap());
     }
 
-    ~CellInfo() override = default;
+    ~CellularInfo() override = default;
 
     inline void SetSlotId(int32_t slotId)
     {
@@ -177,28 +177,46 @@ public:
         singalIntensity_ = parcel.ReadInt32();
         arfcn_ = parcel.ReadInt32();
         pci_ = parcel.ReadInt32();
-        //additionsMap_ = nullptr;
+        size_t size = parcel.ReadUint32();
+        for (size_t i = 0; i < size; i++) {
+            std::string key, value;
+            key = parcel.ReadString();
+            value = parcel.ReadString();
+            (*additionsMap_)[key] = value;
+        }
     }
 
     bool Marshalling(Parcel& parcel) const override
     {
-        return parcel.WriteInt32(slotId_) &&
-            parcel.WriteInt64(timeSinceBoot_) &&
-            parcel.WriteInt64(cellId_) &&
-            parcel.WriteInt32(lac_) &&
-            parcel.WriteInt32(mcc_) &&
-            parcel.WriteInt32(mnc_) &&
-            parcel.WriteInt32(rat_) &&
-            parcel.WriteInt32(singalIntensity_) &&
-            parcel.WriteInt32(arfcn_) &&
-            parcel.WriteInt32(pci_);
+        parcel.WriteInt32(slotId_);
+        parcel.WriteInt64(timeSinceBoot_);
+        parcel.WriteInt64(cellId_);
+        parcel.WriteInt32(lac_);
+        parcel.WriteInt32(mcc_);
+        parcel.WriteInt32(mnc_);
+        parcel.WriteInt32(rat_);
+        parcel.WriteInt32(singalIntensity_);
+        parcel.WriteInt32(arfcn_);
+        parcel.WriteInt32(pci_);
+        if (additionsMap_ == nullptr) {
+            return false;
+        }
+        size_t size = additionsMap_->size();
+        if (!parcel.WriteUInt32(size)) {
+            return false;
+        }
+        for (const auto& [key, value] : *additionsMap_) {
+            parcel.WriteString(key);
+            parcel.WriteString(value);
+        }
+        return true;
     }
 
-    static std::shared_ptr<CellInfo> Unmarshalling(Parcel& parcel)
+    static std::shared_ptr<CellularInfo> Unmarshalling(Parcel& parcel)
     {
-        auto cellInfo = std::make_shared<CellInfo>();
-        cellInfo->ReadFromParcel(parcel);
-        return cellInfo;
+        auto cellularInfo = std::make_shared<CellularInfo>();
+        cellularInfo->ReadFromParcel(parcel);
+        return cellularInfo;
     }
 
 private:
@@ -216,4 +234,4 @@ private:
 };
 } // namespace Location
 } // namespace OHOS
-#endif // LOCATION_WIFI_SCAN_INFO_H
+#endif // LOCATION_CELLULAR_INFO_H

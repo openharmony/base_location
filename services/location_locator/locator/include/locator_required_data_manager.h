@@ -217,10 +217,18 @@ private:
     WifiSdkEventHandleMap wifiSdkHandlerEventMap_;
 };
 
-typedef struct LocatorRequiredInfo {
-    AppIdentity appIdentity;
-    LocatingRequiredDataConfig config;
-} LocatorRequiredInfo;
+class LocatorRequiredInfo {
+public:
+    LocatorRequiredInfo() = default;
+    LocatorRequiredInfo(const LocatorRequiredInfo& locatorRequiredInfo)
+    {
+        appIdentity_ = locatorRequiredInfo.appIdentity_;
+        config_ = locatorRequiredInfo.config_;
+    }
+    ~LocatorRequiredInfo() = default;
+    AppIdentity appIdentity_;
+    LocatingRequiredDataConfig config_;
+};
 
 class LocatorRequiredDataManager {
 public:
