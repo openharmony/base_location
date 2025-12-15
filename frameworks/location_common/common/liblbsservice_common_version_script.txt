@@ -37,6 +37,7 @@
     "*ExecuteHookWhenCheckIsAppBackground*";
     "*BeaconFence*";
     "*ExecuteHookWhenOnUserSwitch*";
+    "*ExecuteHookWhenStartCellScan*";
   local:
     *;
 };
