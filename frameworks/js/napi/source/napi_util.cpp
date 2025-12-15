@@ -349,7 +349,8 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
 
         napi_value compedCellInfoObj;
         NAPI_CALL_BASE(env, napi_create_object(env, &compedCellInfoObj), false);
-        CellularInfoToJsObj(env, replyList[i]->GetCampedCellInfo(), compedCellInfoObj);
+        std::shared_ptr<CellularInfo> campedCellInfo = replyList[i]->GetCampedCellInfo();
+        CellularInfoToJsObj(env, campedCellInfo, compedCellInfoObj);
 
         napi_value neighboringCellInfoObj = nullptr;
         NAPI_CALL_BASE(env, napi_create_array_with_length(env, replyList[i]->GetNeighboringCellInfo().size(),
@@ -375,21 +376,21 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
     return true;
 }
 
-bool CellularInfoToJsObj(const napi_env& env,
+void CellularInfoToJsObj(const napi_env& env,
     std::shared_ptr<CellularInfo>& cellularInfo, napi_value& cellularInfoObj)
 {
     SetValueInt64(env, "slotId", cellularInfo->GetSlotId(), cellularInfoObj);
     SetValueInt64(env, "timeSinceBoot", cellularInfo->GetTimeSinceBoot(), cellularInfoObj);
     SetValueInt64(env, "cellId", cellularInfo->GetCellId(), cellularInfoObj);
-    SetValueInt64(env, "lat", cellularInfo->GetLat(), cellularInfoObj);
+    SetValueInt64(env, "laC", cellularInfo->GetLaC(), cellularInfoObj);
     SetValueInt64(env, "mcc", cellularInfo->GetMcc(), cellularInfoObj);
     SetValueInt64(env, "mnc", cellularInfo->GetMnc(), cellularInfoObj);
     SetValueInt64(env, "rat", cellularInfo->GetRat(), cellularInfoObj);
-    SetValueInt64(env, "singnalIntensity", cellularInfo->GetSingnalIntensity(), cellularInfoObj);
+    SetValueInt64(env, "signalIntensity", cellularInfo->GetSignalIntensity(), cellularInfoObj);
     SetValueInt64(env, "arfcn", cellularInfo->GetArfcn(), cellularInfoObj);
     SetValueInt64(env, "pci", cellularInfo->GetPci(), cellularInfoObj);
     if (cellularInfo->GetAdditionsMap() != nullptr) {
-        napi_value additionsMap = CreateJsMap(env, cellularInfo->GetAdditionsMap());
+        napi_value additionsMap = CreateJsMap(env, *cellularInfo->GetAdditionsMap());
         SetValueStringMap(env, "additionsMap", additionsMap, cellularInfoObj);
     }
 }

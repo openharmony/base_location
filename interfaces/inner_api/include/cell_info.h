@@ -21,6 +21,7 @@
 #include <map>
 namespace OHOS {
 namespace Location {
+static constexpr int MAXIMUM_ADDITION_MAP_SIZE = 200;
 class CellularInfo : public Parcelable {
 public:
     CellularInfo()
@@ -36,21 +37,6 @@ public:
         arfcn_ = 0;
         pci_ = 0;
         additionsMap_ = std::make_shared<std::map<std::string, std::string>>();
-    }
-
-    explicit CellularInfo(CellularInfo& cellularInfo)
-    {
-        SetSlotId(cellularInfo.GetSlotId());
-        SetTimeSinceBoot(cellularInfo.GetTimeSinceBoot());
-        SetCellId(cellularInfo.GetCellId());
-        SetLac(cellularInfo.GetLac());
-        SetMcc(cellularInfo.GetMcc());
-        SetMnc(cellularInfo.GetMnc());
-        SetRat(cellularInfo.GetRat());
-        SetSignalIntensity(cellularInfo.GetSignalIntensity());
-        SetArfcn(cellularInfo.GetArfcn());
-        SetPci(cellularInfo.GetPci());
-        SetAdditionsMap(cellularInfo.GetAdditionsMap());
     }
 
     ~CellularInfo() override = default;
@@ -178,7 +164,7 @@ public:
         arfcn_ = parcel.ReadInt32();
         pci_ = parcel.ReadInt32();
         size_t size = parcel.ReadUint32();
-        size = (size > MAXIMUM_LOCATING_REQUIRED_DATAS) ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
+        size = (size > MAXIMUM_ADDITION_MAP_SIZE) ? MAXIMUM_ADDITION_MAP_SIZE : size;
         for (size_t i = 0; i < size; i++) {
             std::string key;
             std::string value;
@@ -207,7 +193,7 @@ public:
             return false;
         }
         size_t size = additionsMap_->size();
-        size = (size > MAXIMUM_LOCATING_REQUIRED_DATAS) ? : MAXIMUM_LOCATING_REQUIRED_DATAS : size;
+        size = (size > MAXIMUM_ADDITION_MAP_SIZE) ? MAXIMUM_ADDITION_MAP_SIZE : size;
         if (!parcel.WriteUint32(size)) {
             return false;
         }
