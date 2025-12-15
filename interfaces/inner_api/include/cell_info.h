@@ -167,7 +167,6 @@ public:
 
     bool Marshalling(Parcel& parcel) const override
     {
-        parcel.WriteInt32(slotId_);
         parcel.WriteInt64(timeSinceBoot_);
         parcel.WriteInt64(cellId_);
         parcel.WriteInt32(lac_);

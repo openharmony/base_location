@@ -381,7 +381,7 @@ void CellularInfoToJsObj(const napi_env& env,
 {
     SetValueInt64(env, "timeSinceBoot", cellularInfo->GetTimeSinceBoot(), cellularInfoObj);
     SetValueInt64(env, "cellId", cellularInfo->GetCellId(), cellularInfoObj);
-    SetValueInt64(env, "laC", cellularInfo->GetLaC(), cellularInfoObj);
+    SetValueInt64(env, "lac", cellularInfo->GetLac(), cellularInfoObj);
     SetValueInt64(env, "mcc", cellularInfo->GetMcc(), cellularInfoObj);
     SetValueInt64(env, "mnc", cellularInfo->GetMnc(), cellularInfoObj);
     SetValueInt64(env, "rat", cellularInfo->GetRat(), cellularInfoObj);
