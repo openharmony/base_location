@@ -202,7 +202,7 @@ public:
             return false;
         }
         size_t size = additionsMap_->size();
-        if (!parcel.WriteUInt32(size)) {
+        if (!parcel.WriteUint32(size)) {
             return false;
         }
         for (const auto& [key, value] : *additionsMap_) {

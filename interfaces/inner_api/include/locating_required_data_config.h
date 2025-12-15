@@ -114,6 +114,7 @@ public:
         SetType(LocatingRequiredDataConfig.GetType());
         SetNeedStartScan(LocatingRequiredDataConfig.GetNeedStartScan());
         SetScanIntervalMs(LocatingRequiredDataConfig.GetScanIntervalMs());
+        SetScanTimeoutMs(LocatingRequiredDataConfig.GetScanTimeoutMs());
         SetSlotIdArray(LocatingRequiredDataConfig.GetSlotIdArray());
         SetArfcnInfo(LocatingRequiredDataConfig.GetArfcnInfo());
     }
