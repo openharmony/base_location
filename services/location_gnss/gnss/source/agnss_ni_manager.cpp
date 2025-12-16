@@ -138,7 +138,7 @@ void AGnssNiManager::Run()
     if (gnssInterface == nullptr) {
         auto gnssAbility = GnssAbility::GetInstance();
         if (!gnssAbility->CheckIfHdiConnected()) {
-            gnssAbility->ConnectHdi();
+            gnssAbility->SendConnectHdiEvent();
             gnssInterface = HDI::Location::Gnss::V2_0::IGnssInterface::Get();
         }
     }

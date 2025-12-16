@@ -475,6 +475,15 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
+void GnssAbility::SendConnectHdiEvent()
+{
+    if (gnssHandler_ != nullptr) {
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+            static_cast<uint32_t>(GnssAbilityInterfaceCode::CONNECT_HDI), 0);
+        gnssHandler_->SendEvent(event);
+    }
+}
+
 void GnssAbility::ReConnectHdi()
 {
     if (gnssHandler_ != nullptr) {
@@ -2309,6 +2318,8 @@ void GnssHandler::InitGnssEventProcessMap()
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::SET_AGNSS_REF_INFO)] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSetAgnssRefInfo(event); };
 #endif
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::CONNECT_HDI)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleConnectHdi(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::RECONNECT_HDI)] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleReconnectHdi(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] =
@@ -2415,6 +2426,12 @@ void GnssHandler::HandleSetAgnssRefInfo(const AppExecFwk::InnerEvent::Pointer& e
     }
 }
 #endif
+
+void GnssHandler::HandleConnectHdi(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = GnssAbility::GetInstance();
+    gnssAbility->ConnectHdi();
+}
 
 void GnssHandler::HandleReconnectHdi(const AppExecFwk::InnerEvent::Pointer& event)
 {
