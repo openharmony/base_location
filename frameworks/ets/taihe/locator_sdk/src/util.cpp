@@ -73,15 +73,13 @@ int Util::ConvertErrorCodeTaihe(int errorCode)
     return errorCode;
 }
 
-std::string Util::GetErrorMsgByCodeTaihe(int code)
+std::string Util::GetErrorMsgByCodeTaihe(int& code)
 {
     static std::map<int, std::string> errorCodeMap = GetErrorCodeMapTaihe();
     auto iter = errorCodeMap.find(code);
     if (iter != errorCodeMap.end()) {
-        std::string errMessage = "BussinessError ";
         code = ConvertErrorCodeTaihe(code);
-        errMessage.append(std::to_string(code)).append(": ").append(iter->second);
-        return errMessage;
+        return iter->second;
     }
     return "undefined error.";
 }
@@ -89,7 +87,7 @@ std::string Util::GetErrorMsgByCodeTaihe(int code)
 void Util::ThrowBussinessError(int code)
 {
     std::string errMsg = GetErrorMsgByCodeTaihe(code);
-    taihe::set_business_error(LocationErrCode::ERRCODE_NOT_SUPPORTED, errMsg);
+    taihe::set_business_error(code, errMsg);
 }
 
 void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::unique_ptr<Location>& lastlocation)
@@ -114,9 +112,21 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
         static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType());
 }
 
-void Util::TaiheToLocation(::ohos::geoLocationManager::Location const& location,
-    std::unique_ptr<Location>& lastlocation)
+void Util::TaiheToLocation(::ohos::geoLocationManager::Location& location, std::shared_ptr<Location>& lastlocation)
 {
+    lastlocation->SetLatitude(location.latitude);
+    lastlocation->SetLongitude(location.longitude);
+    lastlocation->SetAltitude(location.altitude);
+    lastlocation->SetAccuracy(location.accuracy);
+    lastlocation->SetSpeed(location.speed);
+    lastlocation->SetDirection(location.direction);
+    lastlocation->SetTimeStamp(location.timeStamp);
+    lastlocation->SetTimeSinceBoot(location.timeSinceBoot);
+    lastlocation->SetAltitudeAccuracy(location.altitudeAccuracy);
+    lastlocation->SetSpeedAccuracy(location.speedAccuracy);
+    lastlocation->SetDirectionAccuracy(location.directionAccuracy);
+    lastlocation->SetUncertaintyOfTimeSinceBoot(location.uncertaintyOfTimeSinceBoot);
+    lastlocation->SetLocationSourceType(location.sourceType);
 }
 
 void Util::TaiheCurrentRequestObjToRequestConfig(
@@ -190,6 +200,30 @@ void Util::GeoAddressToTaihe(std::vector<::ohos::geoLocationManager::GeoAddress>
     }
 }
 
+
+void Util::TaiheToGeoAddress(::ohos::geoLocationManager::GeoAddress& geoAddressTaihe,
+    std::shared_ptr<GeoAddress>& geoAddress)
+{
+    if (geoAddressTaihe.latitude) {
+        geoAddress->latitude_ = *geoAddressTaihe.latitude;
+    }
+    geoAddress->longitude_ = geoAddressTaihe.longitude;
+    geoAddress->locale_ = geoAddressTaihe.locale;
+    geoAddress->placeName_ = geoAddressTaihe.placeName;
+    geoAddress->countryCode_ = geoAddressTaihe.countryCode;
+    geoAddress->countryName_ = geoAddressTaihe.countryName;
+    geoAddress->administrativeArea_ = geoAddressTaihe.administrativeArea;
+    geoAddress->subAdministrativeArea_ = geoAddressTaihe.subAdministrativeArea;
+    geoAddress->locality_ = geoAddressTaihe.locality;
+    geoAddress->subLocality_ = geoAddressTaihe.subLocality;
+    geoAddress->roadName_ = geoAddressTaihe.roadName;
+    geoAddress->subRoadName_ = geoAddressTaihe.subRoadName;
+    geoAddress->premises_ = geoAddressTaihe.premises;
+    geoAddress->postalCode_ = geoAddressTaihe.postalCode;
+    geoAddress->phoneNumber_ = geoAddressTaihe.phoneNumber;
+    geoAddress->addressUrl_ = geoAddressTaihe.addressUrl;
+    geoAddress->descriptionsSize_ = geoAddressTaihe.descriptionsSize;
+}
 void Util::TaiheCurrentRequestObjToRequestConfig(::ohos::geoLocationManager::OnRequest const& request,
     std::unique_ptr<RequestConfig>& requestConfig)
 {
@@ -294,6 +328,12 @@ void Util::BluetoothScanResultToTaihe(::ohos::geoLocationManager::BluetoothScanR
     bluetoothScanResultTaihe.deviceName = bluetoothScanResult->GetDeviceName();
     bluetoothScanResultTaihe.rssi = bluetoothScanResult->GetRssi();
     bluetoothScanResultTaihe.connectable = bluetoothScanResult->GetConnectable();
+}
+
+void Util::TaiheToRevGeocodeMock(::taihe::array_view<::ohos::geoLocationManager::ReverseGeocodingMockInfo>& mockInfos,
+    std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo)
+{
+    // todo
 }
 }
 }
