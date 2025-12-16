@@ -302,7 +302,7 @@ double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& l
 {
     std::unique_ptr<Location> loc1;
     std::unique_ptr<Location> loc2;
-    Util::TaiheToLocation(location1, loc1);	
+    Util::TaiheToLocation(location1, loc1);
     Util::TaiheToLocation(location2, loc2);
     double distance;
     LocationErrCode errorCode =
