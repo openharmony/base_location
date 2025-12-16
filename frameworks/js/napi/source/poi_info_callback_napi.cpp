@@ -60,7 +60,12 @@ int PoiInfoCallbackNapi::OnRemoteRequest(
                 OnErrorReport(errCode);
                 break;
             }
-            poiInfos->timestamp = CommonUtils::GetCurrentTimeMilSec();
+            int64_t currentTime = CommonUtils::GetCurrentTimeMilSec();
+            if (currentTime < 0) {
+                LBSLOGE(POI, "Negative CurrentTime Set POI Time 0.");
+            } else {
+                poiInfos->timestamp = static_cast<uint64_t> (currentTime);
+            }
             for (int i = 0; i < poiNum; i++) {
                 auto poiInfoStr = Str16ToStr8(data.ReadString16());
                 Poi poiInfo = ParsePoiInfoFromJson(poiInfoStr);
