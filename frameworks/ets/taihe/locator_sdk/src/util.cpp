@@ -137,6 +137,7 @@ void Util::TaiheToLocation(::ohos::geoLocationManager::Location& location, std::
     if (location.sourceType) {
         lastlocation->SetLocationSourceType(*location.sourceType);
     }
+}
 
 void Util::TaiheCurrentRequestObjToRequestConfig(
     ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request,
