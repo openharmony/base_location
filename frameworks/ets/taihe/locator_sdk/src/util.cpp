@@ -154,12 +154,8 @@ void Util::TaiheCurrentRequestObjToRequestConfig(
     } else {
         ::ohos::geoLocationManager::SingleLocationRequest singleLocationRequest =
             request->get_type_SingleLocationRequest_ref();
-        if (singleLocationRequest.locatingPriority) {
-            requestConfig->SetPriority(singleLocationRequest.locatingPriority.value());
-        }
-        if (singleLocationRequest.locatingTimeoutMs) {
-            requestConfig->SetTimeOut(*singleLocationRequest.locatingTimeoutMs);
-        }
+        requestConfig->SetPriority(singleLocationRequest.locatingPriority);
+        requestConfig->SetTimeOut(singleLocationRequest.locatingTimeoutMs);
     }
 }
 
@@ -193,6 +189,14 @@ void Util::GeoAddressToTaihe(std::vector<::ohos::geoLocationManager::GeoAddress>
         geoAddressTaihe.phoneNumber = geoAddress->phoneNumber_;
         geoAddressTaihe.addressUrl = geoAddress->addressUrl_;
         geoAddressTaihe.descriptionsSize = geoAddress->descriptionsSize_;
+        std::vector<::taihe::string> descriptions;
+        for (int i = 0; i < geoAddress->descriptionsSize_; i++) {
+            descriptions.push_back(geoAddress->descriptions_[i]);
+        }
+        geoAddressTaihe.descriptions =
+            ::taihe::optional<::taihe::array<::taihe::string>>(std::in_place_t{},
+            ::taihe::array<::taihe::string>{taihe::copy_data_t{},
+            descriptions.data(), descriptions.size()});
         if (geoAddress->GetIsSystemApp()) {
             geoAddressTaihe.isFromMock = geoAddress->isFromMock_;
         }

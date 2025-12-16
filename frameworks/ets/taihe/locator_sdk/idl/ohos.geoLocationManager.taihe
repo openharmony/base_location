@@ -17,8 +17,9 @@
   static { loadLibrary("location_framework_taihe_native.z") }
 """)
 @!sts_inject_into_module("
-  import {WantAgent} from '@ohos.app.ability.wantAgent';
-  //import { NotificationRequest } from './notification/notificationRequest';
+  import { AsyncCallback } from '@ohos.base';
+  import { WantAgent } from '@ohos.app.ability.wantAgent';
+  import { NotificationRequest } from 'notification.notificationRequest';
 ")
 
 enum LocationRequestPriority: i32 { UNSET = 0x200, ACCURACY, LOW_POWER, FIRST_FIX }
@@ -100,8 +101,8 @@ struct CurrentLocationRequest {
 }
 
 struct SingleLocationRequest  {
-    locatingPriority: Optional<LocatingPriority>;
-    locatingTimeoutMs: Optional<i32>;
+    locatingPriority: LocatingPriority;
+    locatingTimeoutMs: i32;
 }
 
 union CurrentRequest {
@@ -226,11 +227,16 @@ struct LocationCommand {
     command: String;
 }
 
+struct GeofenceTransition {
+    geofenceId: i32;
+    transitionEvent: GeofenceTransitionEvent;
+}
+
 struct GnssGeofenceRequest {
     geofence: Geofence;
     monitorTransitionEvents: Array<GeofenceTransitionEvent>;
-    //notifications: Optional<Array<NotificationRequest>>;
-    //geofenceTransitionCallback: AsyncCallback<GeofenceTransition>;
+    notifications: Optional<Array<@sts_type("NotificationRequest") Opaque>>;
+    geofenceTransitionCallback: @sts_type("AsyncCallback<GeofenceTransition>") Opaque;
 }
 
 function IsLocationEnabled(): bool;
