@@ -21,7 +21,7 @@ namespace Location {
 int CountryCodeCallbackTaihe::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(COUNTRY_CODE_CALLBACK, "CountryCodeCallbackTaihe::OnRemoteRequest! code %{punlic}d", code);
+    LBSLOGD(COUNTRY_CODE_CALLBACK, "CountryCodeCallbackTaihe::OnRemoteRequest! code %{public}d", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         LBSLOGE(COUNTRY_CODE_CALLBACK, "invalid token.");
         return -1;

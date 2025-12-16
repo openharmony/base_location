@@ -309,36 +309,6 @@ function GetLocationIconStatus(): LocationIconStatus;
 @gen_promise("getLocatingRequiredData")
 function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
 
-@!sts_inject("""
-export function on(type: String, cb: (arg_0: Object) => void) {
-    switch(type) {
-        case "countryCodeChange": return onCountryCodeChange(cb);
-        case "nmeaMessage": return onNmeaMessage(cb);
-        case "satelliteStatusChange": return onSatelliteStatusChange(cb);
-        case "locationEnabledChange": return onLocationEnabledChange(cb);
-        case "bluetoothScanResultChange": return onBluetoothScanResultChange(cb);
-        case "locationError": return onLocationError(cb);
-        case "locationIconStatusChange": return onLocationIconStatusChange(cb);
-        default: throw new Error(`Unknown type: ${type}`);
-    }
-}
-export function off(type: String, cb?: (arg_0: Object) => void) {
-    switch(type) {
-        case "countryCodeChange": return offCountryCodeChange(cb as (((arg_0: CountryCode) => void) | undefined));
-        case "nmeaMessage":  return offNmeaMessage(cb as (((data: String) => void) | undefined));
-        case "satelliteStatusChange": return offSatelliteStatusChange(cb as (((data: SatelliteStatusInfo) => void) | undefined));
-        case "locationEnabledChange": return offLocationEnabledChange((cb as (((arg_0: boolean) => void)|undefined)));
-        case "bluetoothScanResultChange": return offBluetoothScanResultChange(cb as (((data: BluetoothScanResult) => void) | undefined));
-        case "locationError": return offLocationError(cb as (((data: LocationError) => void) | undefined));
-        case "locationIconStatusChange": return offLocationIconStatusChange(cb as (((data: LocationIconStatus) => void) | undefined));
-        case "cachedGnssLocationsChange": return offCachedGnssLocationsChange(cb as (((arg_0: Array<Location>) => void) | undefined));
-        case "locationChange": return offLocationChange(cb as (((arg_0: Location) => void) | undefined));
-        case "locatingRequiredDataChange": return offLocatingRequiredDataChange(cb as (((arg_0: Array<LocatingRequiredData>) => void) | undefined));
-        default: throw new Error(`Unknown type: ${type}`);
-    }
-}
-""")
-
 @on_off("cachedGnssLocationsChange")
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
 
