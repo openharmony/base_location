@@ -61,24 +61,24 @@ struct GeoCodeRequest {
 
 struct GeoAddress {
     latitude: Optional<f64>;
-    longitude: f64;
-    locale: String;
-    placeName: String;
-    countryCode: String;
-    countryName: String;
-    administrativeArea: String;
-    subAdministrativeArea: String;
-    locality: String;
-    subLocality: String;
-    roadName: String;
-    subRoadName: String;
-    premises: String;
-    postalCode: String;
-    phoneNumber: String;
-    addressUrl: String;
-    descriptions: Array<String>;
-    descriptionsSize: i32;
-    isFromMock: bool;
+    longitude: Optional<f64>;
+    locale: Optional<String>;
+    placeName: Optional<String>;
+    countryCode: Optional<String>;
+    countryName: Optional<String>;
+    administrativeArea: Optional<String>;
+    subAdministrativeArea: Optional<String>;
+    locality: Optional<String>;
+    subLocality: Optional<String>;
+    roadName: Optional<String>;
+    subRoadName: Optional<String>;
+    premises: Optional<String>;
+    postalCode: Optional<String>;
+    phoneNumber: Optional<String>;
+    addressUrl: Optional<String>;
+    descriptions: Optional<Array<String>>;
+    descriptionsSize: Optional<i32>;
+    isFromMock: Optional<bool>;
 }
 
 union ContinuousLocationRequestLocationScenario {
@@ -137,15 +137,15 @@ struct Location {
     timeStamp: i64;
     direction: f64;
     timeSinceBoot: i64;
-    additions: Array<String>;
-    additionsMap: @record Map<String, String>;
-    additionSize: i32;
-    isFromMock: bool;
-    altitudeAccuracy: f64;
-    speedAccuracy: f64;
-    directionAccuracy: f64;
-    uncertaintyOfTimeSinceBoot: i64;
-    sourceType: LocationSourceType;
+    additions: Optional<Array<String>>;
+    additionsMap: Optional<@record Map<String, String>>;
+    additionSize: Optional<i32>;
+    isFromMock: Optional<bool>;
+    altitudeAccuracy: Optional<f64>;
+    speedAccuracy: Optional<f64>;
+    directionAccuracy: Optional<f64>;
+    uncertaintyOfTimeSinceBoot: Optional<i64>;
+    sourceType: Optional<LocationSourceType>;
 }
 
 struct Geofence {

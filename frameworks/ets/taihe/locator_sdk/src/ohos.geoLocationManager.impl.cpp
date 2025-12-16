@@ -173,9 +173,7 @@ bool IsPoiServiceSupported()
     ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request)
 {
     ::taihe::map<::taihe::string, ::taihe::string> ret;
-    ::ohos::geoLocationManager::Location result = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0, {"", ""}, ret, 0, true, 0.0, 0.0, 0.0, 0,
-        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(1) };
+    ::ohos::geoLocationManager::Location result;
     // request to capi request
     auto requestConfig = std::make_unique<OHOS::Location::RequestConfig>();
     Util::TaiheCurrentRequestObjToRequestConfig(request, requestConfig);
@@ -226,9 +224,7 @@ bool IsPoiServiceSupported()
 ::ohos::geoLocationManager::Location GetCurrentLocationSyncNoRequest()
 {
     ::taihe::map<::taihe::string, ::taihe::string> ret;
-    ::ohos::geoLocationManager::Location result = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0, {"", ""}, ret, 0, true, 0.0, 0.0, 0.0, 0,
-        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(1) };
+    ::ohos::geoLocationManager::Location result;
     // request to capi request
     auto requestConfig = std::make_unique<OHOS::Location::RequestConfig>();
     // receive callback
@@ -320,9 +316,7 @@ double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& l
 ::ohos::geoLocationManager::Location GetLastLocation()
 {
     ::taihe::map<::taihe::string, ::taihe::string> ret;
-    ::ohos::geoLocationManager::Location location = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0, {"", ""}, ret, 0, true, 0.0, 0.0, 0.0, 0,
-        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(1) };
+    ::ohos::geoLocationManager::Location location;
     std::unique_ptr<Location> loc;
     LocationErrCode errorCode = Locator::GetInstance()->GetCachedLocationV9(loc);
     if (errorCode != ERRCODE_SUCCESS) {
@@ -625,7 +619,7 @@ void RemoveGnssGeofenceSync(int32_t geofenceId)
 
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,
     ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::Location>)> callback)
-    {
+{
     Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
 }
 

@@ -104,9 +104,7 @@ void LocatorCallbackTaihe::OnLocationReport(const std::unique_ptr<Location>& loc
 {
     std::unique_ptr<Location> locationReport = std::make_unique<Location>(*location);
     ::taihe::map<::taihe::string, ::taihe::string> ret;
-    ::ohos::geoLocationManager::Location locationTaihe = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0, 0, {"", ""}, ret, 0, true, 0.0, 0.0, 0.0, 0,
-        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(1) };
+    ::ohos::geoLocationManager::Location locationTaihe;
     Util::LocationToTaihe(locationTaihe, locationReport);
     if (callback_) {
         (*callback_)(locationTaihe);

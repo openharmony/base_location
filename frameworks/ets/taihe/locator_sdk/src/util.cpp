@@ -100,16 +100,16 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
     location.direction = lastlocation->GetDirection();
     location.timeStamp = lastlocation->GetTimeStamp();
     location.timeSinceBoot = lastlocation->GetTimeSinceBoot();
-    location.additionSize = lastlocation->GetAdditionSize();
+    location.additionSize = ::taihe::optional<int>(std::in_place_t{}, lastlocation->GetAdditionSize());
     if (lastlocation->GetIsSystemApp() != 0) {
-        location.isFromMock = lastlocation->GetIsFromMock();
+        location.isFromMock = ::taihe::optional<bool>(std::in_place_t{}, lastlocation->GetIsFromMock());
     }
-    location.altitudeAccuracy = lastlocation->GetAltitudeAccuracy();
-    location.speedAccuracy = lastlocation->GetSpeedAccuracy();
-    location.directionAccuracy = lastlocation->GetDirectionAccuracy();
-    location.uncertaintyOfTimeSinceBoot = lastlocation->GetUncertaintyOfTimeSinceBoot();
-    location.sourceType =
-        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType());
+    location.altitudeAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetAltitudeAccuracy());
+    location.speedAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetSpeedAccuracy());
+    location.directionAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetDirectionAccuracy());
+    location.uncertaintyOfTimeSinceBoot = ::taihe::optional<long>(std::in_place_t{}, lastlocation->GetUncertaintyOfTimeSinceBoot());
+    location.sourceType = ::taihe::optional<::ohos::geoLocationManager::LocationSourceType>(std::in_place_t{},
+        static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType()));
 }
 
 void Util::TaiheToLocation(::ohos::geoLocationManager::Location& location, std::shared_ptr<Location>& lastlocation)
@@ -122,12 +122,21 @@ void Util::TaiheToLocation(::ohos::geoLocationManager::Location& location, std::
     lastlocation->SetDirection(location.direction);
     lastlocation->SetTimeStamp(location.timeStamp);
     lastlocation->SetTimeSinceBoot(location.timeSinceBoot);
-    lastlocation->SetAltitudeAccuracy(location.altitudeAccuracy);
-    lastlocation->SetSpeedAccuracy(location.speedAccuracy);
-    lastlocation->SetDirectionAccuracy(location.directionAccuracy);
-    lastlocation->SetUncertaintyOfTimeSinceBoot(location.uncertaintyOfTimeSinceBoot);
-    lastlocation->SetLocationSourceType(location.sourceType);
-}
+    if (location.altitudeAccuracy) {
+        lastlocation->SetAltitudeAccuracy(*location.altitudeAccuracy);
+    }
+    if (location.speedAccuracy) {
+        lastlocation->SetSpeedAccuracy(*location.speedAccuracy);
+    }
+    if (location.directionAccuracy) {
+        lastlocation->SetDirectionAccuracy(*location.directionAccuracy);
+    }
+    if (location.uncertaintyOfTimeSinceBoot) {
+        lastlocation->SetUncertaintyOfTimeSinceBoot(*location.uncertaintyOfTimeSinceBoot);
+    }
+    if (location.sourceType) {
+        lastlocation->SetLocationSourceType(*location.sourceType);
+    }
 
 void Util::TaiheCurrentRequestObjToRequestConfig(
     ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request,
@@ -173,22 +182,24 @@ void Util::GeoAddressToTaihe(std::vector<::ohos::geoLocationManager::GeoAddress>
         geoAddress->SetIsSystemApp(flag);
         ::ohos::geoLocationManager::GeoAddress geoAddressTaihe = ::ohos::geoLocationManager::GeoAddress{};
         geoAddressTaihe.latitude = ::taihe::optional<double>(std::in_place_t{}, geoAddress->latitude_);
-        geoAddressTaihe.longitude = geoAddress->longitude_;
-        geoAddressTaihe.locale = geoAddress->locale_;
-        geoAddressTaihe.placeName = geoAddress->placeName_;
-        geoAddressTaihe.countryCode = geoAddress->countryCode_;
-        geoAddressTaihe.countryName = geoAddress->countryName_;
-        geoAddressTaihe.administrativeArea = geoAddress->administrativeArea_;
-        geoAddressTaihe.subAdministrativeArea = geoAddress->subAdministrativeArea_;
-        geoAddressTaihe.locality = geoAddress->locality_;
-        geoAddressTaihe.subLocality = geoAddress->subLocality_;
-        geoAddressTaihe.roadName = geoAddress->roadName_;
-        geoAddressTaihe.subRoadName = geoAddress->subRoadName_;
-        geoAddressTaihe.premises = geoAddress->premises_;
-        geoAddressTaihe.postalCode = geoAddress->postalCode_;
-        geoAddressTaihe.phoneNumber = geoAddress->phoneNumber_;
-        geoAddressTaihe.addressUrl = geoAddress->addressUrl_;
-        geoAddressTaihe.descriptionsSize = geoAddress->descriptionsSize_;
+        geoAddressTaihe.longitude = ::taihe::optional<double>(std::in_place_t{}, geoAddress->longitude_);
+        geoAddressTaihe.locale = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->locale_);
+        geoAddressTaihe.placeName = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->placeName_);
+        geoAddressTaihe.countryCode = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->countryCode_);
+        geoAddressTaihe.countryName = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->countryName_);
+        geoAddressTaihe.administrativeArea =
+            ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->administrativeArea_);
+        geoAddressTaihe.subAdministrativeArea =
+            ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->subAdministrativeArea_);
+        geoAddressTaihe.locality = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->locality_);
+        geoAddressTaihe.subLocality = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->subLocality_);
+        geoAddressTaihe.roadName = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->roadName_);
+        geoAddressTaihe.subRoadName = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->subRoadName_);
+        geoAddressTaihe.premises = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->premises_);
+        geoAddressTaihe.postalCode = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->postalCode_);
+        geoAddressTaihe.phoneNumber = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->phoneNumber_);
+        geoAddressTaihe.addressUrl = ::taihe::optional<taihe::string>(std::in_place_t{}, geoAddress->addressUrl_);
+        geoAddressTaihe.descriptionsSize = ::taihe::optional<int>(std::in_place_t{}, geoAddress->descriptionsSize_);
         std::vector<::taihe::string> descriptions;
         for (int i = 0; i < geoAddress->descriptionsSize_; i++) {
             descriptions.push_back(geoAddress->descriptions_[i]);
@@ -198,7 +209,7 @@ void Util::GeoAddressToTaihe(std::vector<::ohos::geoLocationManager::GeoAddress>
             ::taihe::array<::taihe::string>{taihe::copy_data_t{},
             descriptions.data(), descriptions.size()});
         if (geoAddress->GetIsSystemApp()) {
-            geoAddressTaihe.isFromMock = geoAddress->isFromMock_;
+            geoAddressTaihe.isFromMock = ::taihe::optional<bool>(std::in_place_t{}, geoAddress->isFromMock_);
         }
         geoAddressList.push_back(geoAddressTaihe);
     }
@@ -211,23 +222,56 @@ void Util::TaiheToGeoAddress(::ohos::geoLocationManager::GeoAddress& geoAddressT
     if (geoAddressTaihe.latitude) {
         geoAddress->latitude_ = *geoAddressTaihe.latitude;
     }
-    geoAddress->longitude_ = geoAddressTaihe.longitude;
-    geoAddress->locale_ = geoAddressTaihe.locale;
-    geoAddress->placeName_ = geoAddressTaihe.placeName;
-    geoAddress->countryCode_ = geoAddressTaihe.countryCode;
-    geoAddress->countryName_ = geoAddressTaihe.countryName;
-    geoAddress->administrativeArea_ = geoAddressTaihe.administrativeArea;
-    geoAddress->subAdministrativeArea_ = geoAddressTaihe.subAdministrativeArea;
-    geoAddress->locality_ = geoAddressTaihe.locality;
-    geoAddress->subLocality_ = geoAddressTaihe.subLocality;
-    geoAddress->roadName_ = geoAddressTaihe.roadName;
-    geoAddress->subRoadName_ = geoAddressTaihe.subRoadName;
-    geoAddress->premises_ = geoAddressTaihe.premises;
-    geoAddress->postalCode_ = geoAddressTaihe.postalCode;
-    geoAddress->phoneNumber_ = geoAddressTaihe.phoneNumber;
-    geoAddress->addressUrl_ = geoAddressTaihe.addressUrl;
-    geoAddress->descriptionsSize_ = geoAddressTaihe.descriptionsSize;
+    if (geoAddressTaihe.longitude) {
+        geoAddress->longitude_ = *geoAddressTaihe.longitude;
+    }
+    if (geoAddressTaihe.locale) {
+        geoAddress->locale_ = *geoAddressTaihe.locale;
+    }
+    if (geoAddressTaihe.placeName) {
+        geoAddress->placeName_ = *geoAddressTaihe.placeName;
+    }
+    if (geoAddressTaihe.countryCode) {
+        geoAddress->countryCode_ = *geoAddressTaihe.countryCode;
+    }
+    if (geoAddressTaihe.countryName) {
+        geoAddress->countryName_ = *geoAddressTaihe.countryName;
+    }
+    if (geoAddressTaihe.administrativeArea) {
+        geoAddress->administrativeArea_ = *geoAddressTaihe.administrativeArea;
+    }
+    if (geoAddressTaihe.subAdministrativeArea) {
+        geoAddress->subAdministrativeArea_ = *geoAddressTaihe.subAdministrativeArea;
+    }
+    if (geoAddressTaihe.locality) {
+        geoAddress->locality_ = *geoAddressTaihe.locality;
+    }
+    if (geoAddressTaihe.subLocality) {
+        geoAddress->subLocality_ = *geoAddressTaihe.subLocality;
+    }
+    if (geoAddressTaihe.roadName) {
+        geoAddress->roadName_ = *geoAddressTaihe.roadName;
+    }
+    if (geoAddressTaihe.subRoadName) {
+        geoAddress->subRoadName_ = *geoAddressTaihe.subRoadName;
+    }
+    if (geoAddressTaihe.premises) {
+        geoAddress->premises_ = *geoAddressTaihe.premises;
+    }
+    if (geoAddressTaihe.postalCode) {
+        geoAddress->postalCode_ = *geoAddressTaihe.postalCode;
+    }
+    if (geoAddressTaihe.phoneNumber) {
+        geoAddress->phoneNumber_ = *geoAddressTaihe.phoneNumber;
+    }
+    if (geoAddressTaihe.addressUrl) {
+        geoAddress->addressUrl_ = *geoAddressTaihe.addressUrl;
+    }
+    if (geoAddressTaihe.descriptionsSize) {
+        geoAddress->descriptionsSize_ = *geoAddressTaihe.descriptionsSize;
+    }
 }
+
 void Util::TaiheCurrentRequestObjToRequestConfig(::ohos::geoLocationManager::OnRequest const& request,
     std::unique_ptr<RequestConfig>& requestConfig)
 {
