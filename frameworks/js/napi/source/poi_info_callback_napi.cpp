@@ -63,7 +63,6 @@ int PoiInfoCallbackNapi::OnRemoteRequest(
             int64_t currentTime = CommonUtils::GetCurrentTimeMilSec();
             if (currentTime < 0) {
                 LBSLOGE(POI, "Negative CurrentTime Set POI Time 0.");
-                poiInfos->timestamp = 0;
             } else {
                 poiInfos->timestamp = static_cast<uint64_t> (currentTime);
             }
