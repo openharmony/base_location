@@ -216,7 +216,7 @@ public:
     void SetRefInfo(const AGnssRefInfo& refInfo);
     void SetRefInfoImpl(const AGnssRefInfo &refInfo);
 #endif
-    void ConnectHdiImpl();
+    void SendConnectHdiEvent();
     void ReConnectHdiImpl();
     bool IsMockEnabled();
     void ProcessReportLocationMock();

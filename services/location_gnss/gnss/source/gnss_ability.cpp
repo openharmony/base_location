@@ -475,7 +475,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
     WriteGnssStateEvent(state, workRecord.GetPid(0), workRecord.GetUid(0));
 }
 
-void GnssAbility::ConnectHdiImpl()
+void GnssAbility::SendConnectHdiEvent()
 {
     if (gnssHandler_ != nullptr) {
         AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
