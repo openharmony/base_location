@@ -107,7 +107,8 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
     location.altitudeAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetAltitudeAccuracy());
     location.speedAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetSpeedAccuracy());
     location.directionAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetDirectionAccuracy());
-    location.uncertaintyOfTimeSinceBoot = ::taihe::optional<long>(std::in_place_t{}, lastlocation->GetUncertaintyOfTimeSinceBoot());
+    location.uncertaintyOfTimeSinceBoot =
+        ::taihe::optional<long>(std::in_place_t{}, lastlocation->GetUncertaintyOfTimeSinceBoot());
     location.sourceType = ::taihe::optional<::ohos::geoLocationManager::LocationSourceType>(std::in_place_t{},
         static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType()));
 }

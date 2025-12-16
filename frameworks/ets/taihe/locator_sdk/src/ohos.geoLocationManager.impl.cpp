@@ -297,19 +297,19 @@ bool IsLocationPrivacyConfirmed(::ohos::geoLocationManager::LocationPrivacyType 
     return IsLocationPrivacyConfirmed;
 }
 
-double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& location1,	
+double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& location1,
     ::ohos::geoLocationManager::Location const& location2)
-{	
-    std::unique_ptr<Location> loc1;	
-    std::unique_ptr<Location> loc2;	
+{
+    std::unique_ptr<Location> loc1;
+    std::unique_ptr<Location> loc2;
     Util::TaiheToLocation(location1, loc1);	
     Util::TaiheToLocation(location2, loc2);
     double distance;
     LocationErrCode errorCode =
         Locator::GetInstance()->GetDistanceBetweenLocations(*loc1, *loc2, distance);
-    if (errorCode != ERRCODE_SUCCESS) {	
-        Util::ThrowBussinessError(errorCode);	
-    }	
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
     return distance;
 }
 
