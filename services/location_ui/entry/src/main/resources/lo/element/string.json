@@ -18,7 +18,7 @@
             "name":"wifi_portal_connect_timeout_notify_text",
             "value":"ແຕະເພື່ອເຂົ້າສູ່ລະບົບ %s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -32,21 +32,21 @@
             "name":"wifi_portal_found_notify_title",
             "value":"ຈຳເປັນຕ້ອງມີການຮັບຮອງຄວາມຖືກຕ້ອງ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connected_notify_title",
             "value":"ເຊື່ອມຕໍ່ກັບ %s ແລ້ວ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"ການຮັບຮອງຄວາມຖືກຕ້ອງໝົດອາຍຸແລ້ວ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -60,7 +60,7 @@
             "name":"wifi_portal_found_notify_text",
             "value":"ແຕະເພື່ອເຂົ້າສູ່ລະບົບ %s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -109,7 +109,7 @@
             "name":"wifi_candidate_connect_notify_title",
             "value":"ເຊື່ອໝັ້ນ ແລະ ເຊື່ອມຕໍ່ກັບ \"%s\" ບໍ?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -123,7 +123,7 @@
             "name":"wifi_portal_connected_notify_text",
             "value":"ແຕະເພື່ອເຂົ້າສູ່ລະບົບ.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -172,7 +172,7 @@
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"ເຊື່ອມຕໍ່",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -270,7 +270,7 @@
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"ຍົກເລີກ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

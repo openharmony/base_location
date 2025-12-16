@@ -39,7 +39,7 @@
             "name":"wifi_portal_connect_timeout_notify_text",
             "value":"%s ağına giriş yapmak için dokunun.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -53,21 +53,21 @@
             "name":"wifi_portal_found_notify_title",
             "value":"Kimlik doğrulama gerekiyor",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connected_notify_title",
             "value":"%s ile bağlantı kuruldu",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"Kimlik doğrulama süresi sona erdi",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -81,7 +81,7 @@
             "name":"wifi_portal_found_notify_text",
             "value":"%s ağına giriş yapmak için dokunun.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -116,7 +116,7 @@
             "name":"wifi_candidate_connect_notify_title",
             "value":"\"%s\" ağına güvenilsin ve bağlanılsın mı?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -130,7 +130,7 @@
             "name":"wifi_portal_connected_notify_text",
             "value":"Giriş yapmak için dokunun.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -179,7 +179,7 @@
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"Bağlan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -270,7 +270,7 @@
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"İptal",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

@@ -39,7 +39,7 @@
             "name":"wifi_portal_connect_timeout_notify_text",
             "value":"แตะเพื่อล็อกอินเข้าสู่ %s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -53,21 +53,21 @@
             "name":"wifi_portal_found_notify_title",
             "value":"ต้องมีการรับรองความถูกต้อง",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connected_notify_title",
             "value":"เชื่อมต่อกับ %s แล้ว",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"การรับรองความถูกต้องหมดอายุแล้ว",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -81,7 +81,7 @@
             "name":"wifi_portal_found_notify_text",
             "value":"แตะเพื่อล็อกอินเข้าสู่ %s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -116,7 +116,7 @@
             "name":"wifi_candidate_connect_notify_title",
             "value":"เชื่อถือและเชื่อมต่อกับ \"%s\" หรือไม่",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -128,9 +128,9 @@
         },
         {
             "name":"wifi_portal_connected_notify_text",
-            "value":"แตะเพื่อล็อกอินเข้า",
+            "value":"แตะเพื่อล็อกอิน",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -179,7 +179,7 @@
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"เชื่อมต่อ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -270,7 +270,7 @@
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"ยกเลิก",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
