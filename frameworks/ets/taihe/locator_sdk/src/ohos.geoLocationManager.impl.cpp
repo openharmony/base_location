@@ -301,7 +301,7 @@ double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& l
     ::ohos::geoLocationManager::Location const& location2)
 {
     std::shared_ptr<Location> loc1 = std::make_shared<Location>();
-    std::shared_ptr<Location> loc2 = std::make_shared<Location>();;
+    std::shared_ptr<Location> loc2 = std::make_shared<Location>();
     Util::TaiheToLocation(location1, loc1);
     Util::TaiheToLocation(location2, loc2);
     double distance;
