@@ -314,7 +314,7 @@ function GetLocationIconStatus(): LocationIconStatus;
 
 function IsPoiServiceSupported(): bool;
 
-function GetDistanceBetweenLocations(location1: Location, location2: Location): double;
+function GetDistanceBetweenLocations(location1: Location, location2: Location): f64;
 
 @gen_promise("getLocatingRequiredData")
 function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
