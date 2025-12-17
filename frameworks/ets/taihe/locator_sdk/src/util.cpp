@@ -113,7 +113,8 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
         static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType()));
 }
 
-void Util::TaiheToLocation(const ::ohos::geoLocationManager::Location& location, std::shared_ptr<Location>& lastlocation)
+void Util::TaiheToLocation(const ::ohos::geoLocationManager::Location& location,
+    std::shared_ptr<Location>& lastlocation)
 {
     lastlocation->SetLatitude(location.latitude);
     lastlocation->SetLongitude(location.longitude);
