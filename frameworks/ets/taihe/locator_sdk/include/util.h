@@ -42,7 +42,7 @@ public:
     static void ThrowBussinessError(int code);
     static void LocationToTaihe(::ohos::geoLocationManager::Location& location,
         std::unique_ptr<Location>& lastlocation);
-    static void TaiheToLocation(::ohos::geoLocationManager::Location& location,
+    static void TaiheToLocation(const ::ohos::geoLocationManager::Location& location,
         std::shared_ptr<Location>& lastlocation);
     static void TaiheCurrentRequestObjToRequestConfig(
         ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request,

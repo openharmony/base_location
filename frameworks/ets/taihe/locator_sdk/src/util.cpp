@@ -108,12 +108,12 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
     location.speedAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetSpeedAccuracy());
     location.directionAccuracy = ::taihe::optional<double>(std::in_place_t{}, lastlocation->GetDirectionAccuracy());
     location.uncertaintyOfTimeSinceBoot =
-        ::taihe::optional<long>(std::in_place_t{}, lastlocation->GetUncertaintyOfTimeSinceBoot());
+        ::taihe::optional<long long>(std::in_place_t{}, lastlocation->GetUncertaintyOfTimeSinceBoot());
     location.sourceType = ::taihe::optional<::ohos::geoLocationManager::LocationSourceType>(std::in_place_t{},
         static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType()));
 }
 
-void Util::TaiheToLocation(::ohos::geoLocationManager::Location& location, std::shared_ptr<Location>& lastlocation)
+void Util::TaiheToLocation(const ::ohos::geoLocationManager::Location& location, std::shared_ptr<Location>& lastlocation)
 {
     lastlocation->SetLatitude(location.latitude);
     lastlocation->SetLongitude(location.longitude);

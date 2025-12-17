@@ -312,6 +312,10 @@ function GetGeofenceSupportedCoordTypes(): Array<CoordinateSystemType>;
 
 function GetLocationIconStatus(): LocationIconStatus;
 
+function IsPoiServiceSupported(): bool;
+
+function GetDistanceBetweenLocations(location1: Location, location2: Location): double;
+
 @gen_promise("getLocatingRequiredData")
 function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
 
