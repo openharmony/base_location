@@ -18,7 +18,7 @@
             "name":"wifi_portal_connect_timeout_notify_text",
             "value":"%s သို့ ဝင်ရောက်ရန် နှိပ်ပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -32,21 +32,21 @@
             "name":"wifi_portal_found_notify_title",
             "value":"စစ်မှန်ကြောင်း အတည်ပြုမှု လိုအပ်ပါသည်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connected_notify_title",
             "value":"%s နှင့် ချိတ်ဆက်ထားသည်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"စစ်မှန်ကြောင်း အတည်ပြုမှု သက်တမ်းကုန်သွားပါပြီ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -60,7 +60,7 @@
             "name":"wifi_portal_found_notify_text",
             "value":"%s သို့ ဝင်ရောက်ရန် နှိပ်ပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -109,7 +109,7 @@
             "name":"wifi_candidate_connect_notify_title",
             "value":"\"%s\" ကို ယုံကြည်ပြီး ချိတ်ဆက်မည်လား။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -123,7 +123,7 @@
             "name":"wifi_portal_connected_notify_text",
             "value":"ဝင်ရောက်ရန် နှိပ်ပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -172,7 +172,7 @@
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"ချိတ်ဆက်ရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -268,9 +268,9 @@
         },
         {
             "name":"wifi_candidate_connect_notify_no_button",
-            "value":"ပယ်ဖျက်မည်",
+            "value":"မလုပ်ပါ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

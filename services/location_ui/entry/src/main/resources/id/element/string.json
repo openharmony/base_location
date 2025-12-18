@@ -18,7 +18,7 @@
             "name":"wifi_portal_connect_timeout_notify_text",
             "value":"Ketuk untuk masuk ke %s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -32,21 +32,21 @@
             "name":"wifi_portal_found_notify_title",
             "value":"Autentikasi diperlukan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connected_notify_title",
             "value":"Terhubung ke %s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"Autentikasi kedaluwarsa",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -60,7 +60,7 @@
             "name":"wifi_portal_found_notify_text",
             "value":"Ketuk untuk masuk ke %s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -109,7 +109,7 @@
             "name":"wifi_candidate_connect_notify_title",
             "value":"Percayai dan hubungkan ke \"%s\"?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -123,7 +123,7 @@
             "name":"wifi_portal_connected_notify_text",
             "value":"Ketuk untuk masuk.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -172,7 +172,7 @@
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"Hubungkan",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -270,7 +270,7 @@
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"Batal",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

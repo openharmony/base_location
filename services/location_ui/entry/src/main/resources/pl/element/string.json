@@ -39,7 +39,7 @@
             "name":"wifi_portal_connect_timeout_notify_text",
             "value":"Dotknij, aby zalogować się do %s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -53,21 +53,21 @@
             "name":"wifi_portal_found_notify_title",
             "value":"Wymagane uwierzytelnienie",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connected_notify_title",
             "value":"Połączono z %s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifi_portal_connect_timeout_notify_title",
             "value":"Uwierzytelnienie wygasło",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -81,7 +81,7 @@
             "name":"wifi_portal_found_notify_text",
             "value":"Dotknij, aby zalogować się do %s.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -116,7 +116,7 @@
             "name":"wifi_candidate_connect_notify_title",
             "value":"Zaufać i połączyć się z „%s”?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -130,7 +130,7 @@
             "name":"wifi_portal_connected_notify_text",
             "value":"Dotknij, aby się zalogować.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -179,7 +179,7 @@
             "name":"wifi_candidate_connect_notify_yes_button",
             "value":"Połącz",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -270,7 +270,7 @@
             "name":"wifi_candidate_connect_notify_no_button",
             "value":"Anuluj",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
