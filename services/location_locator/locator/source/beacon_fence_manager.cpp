@@ -21,6 +21,7 @@
 #include "location_data_rdb_manager.h"
 #include "proxy_freeze_manager.h"
 #include "locator_background_proxy.h"
+#include "permission_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -309,17 +310,25 @@ void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceReque
         RemoveBeaconFence(beacon);
         return;
     }
+    ReportByCallback(beaconFenceRequest, event, identity);
+    ReportByFenceExtension(beaconFenceRequest, event, identity);
+}
+
+void BeaconFenceManager::ReportByCallback(std::shared_ptr<BeaconFenceRequest> beaconFenceRequest,
+    GeofenceTransitionEvent event, const AppIdentity &identity)
+{
+    if (beaconFenceRequest == nullptr) {
+        LBSLOGE(BEACON_FENCE_MANAGER, "invalid beaconFenceRequest");
+        return;
+    }
     // 是否后台
     if (LocatorBackgroundProxy::GetInstance()->IsAppBackground(identity.GetUid(), identity.GetBundleName())) {
-        if (beaconFenceRequest->GetFenceExtensionAbilityName().empty()) {
-            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s app is background", __func__);
-            return;
-        }
-        if (!HookUtils::ExecuteHookWhenBeaconFenceTransitionStatusChange(identity.GetBundleName())) {
-            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s can not start extension", __func__);
+        if (!PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "CheckBackgroundPermission failed");
             return;
         }
     }
+    std::shared_ptr<BeaconFence> beacon = beaconFenceRequest->GetBeaconFence();
     std::string fenceId = beaconFenceRequest->GetFenceId();
     // 通过callback回调事件
     auto callback = beaconFenceRequest->GetBeaconFenceTransitionCallback();
@@ -333,6 +342,27 @@ void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceReque
             gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
         }
     }
+}
+
+void BeaconFenceManager::ReportByFenceExtension(std::shared_ptr<BeaconFenceRequest> beaconFenceRequest,
+    GeofenceTransitionEvent event, const AppIdentity &identity)
+{
+    if (beaconFenceRequest == nullptr) {
+        LBSLOGE(BEACON_FENCE_MANAGER, "invalid beaconFenceRequest");
+        return;
+    }
+    // 是否后台
+    if (LocatorBackgroundProxy::GetInstance()->IsAppBackground(identity.GetUid(), identity.GetBundleName())) {
+        if (beaconFenceRequest->GetFenceExtensionAbilityName().empty()) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s app is background", __func__);
+            return;
+        }
+        if (!HookUtils::ExecuteHookWhenBeaconFenceTransitionStatusChange(identity.GetBundleName())) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s can not start extension", __func__);
+            return;
+        }
+    }
+    std::string fenceId = beaconFenceRequest->GetFenceId();
     // 拉起fenceExtension
     if (!beaconFenceRequest->GetFenceExtensionAbilityName().empty()) {
         HookUtils::ExecuteHookWhenReportBeaconFenceOperateResult(fenceId, static_cast<int>(event),

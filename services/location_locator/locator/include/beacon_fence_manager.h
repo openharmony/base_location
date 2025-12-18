@@ -91,6 +91,10 @@ private:
     void RegisterBeaconFenceCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
         const AppIdentity& appIdentity);
     AppIdentity GetAppIdentityByBeaconFenceRequest(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
+    void ReportByCallback(std::shared_ptr<BeaconFenceRequest> beaconFenceRequest,
+        GeofenceTransitionEvent event, const AppIdentity &identity);
+    void ReportByFenceExtension(std::shared_ptr<BeaconFenceRequest> beaconFenceRequest,
+        GeofenceTransitionEvent event, const AppIdentity &identity);
     
     std::mutex beaconFenceRequestMapMutex_;
     std::mutex filterUuidMutex_;
