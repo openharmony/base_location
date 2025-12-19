@@ -1949,15 +1949,15 @@ HWTEST_F(GnssAbilityTest, UnregisterGnssGeofenceCallback001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] UnregisterGnssGeofenceCallback001 end");
 }
 
-HWTEST_F(GnssAbilityTest, RemoveGnssGeofenceRequestByCallback001, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, RemoveGnssGeofenceByCallbackWhenAppDie001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityTest, RemoveGnssGeofenceRequestByCallback001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceRequestByCallback001 begin");
+        << "GnssAbilityTest, RemoveGnssGeofenceByCallbackWhenAppDie001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceByCallbackWhenAppDie001 begin");
     sptr<IRemoteObject> callbackObj = nullptr;
-    bool result = ability_->RemoveGnssGeofenceRequestByCallback(callbackObj);
+    bool result = ability_->RemoveGnssGeofenceByCallbackWhenAppDie(callbackObj);
     EXPECT_EQ(false, result);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceRequestByCallback001 end");
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceByCallbackWhenAppDie001 end");
 }
 
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
@@ -2700,15 +2700,15 @@ HWTEST_F(GnssAbilityTest, RegisterGnssGeofenceCallback002, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] RegisterGnssGeofenceCallback002 end");
 }
 
-HWTEST_F(GnssAbilityTest, RemoveGnssGeofenceRequestByCallback002, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, RemoveGnssGeofenceByCallbackWhenAppDie002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityTest, RemoveGnssGeofenceRequestByCallback002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceRequestByCallback002 begin");
+        << "GnssAbilityTest, RemoveGnssGeofenceByCallbackWhenAppDie002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceByCallbackWhenAppDie002 begin");
     sptr<IRemoteObject> callback = CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID, CommonUtils::InitDeviceId());
-    bool result = ability_->RemoveGnssGeofenceRequestByCallback(callback);
+    bool result = ability_->RemoveGnssGeofenceByCallbackWhenAppDie(callback);
     EXPECT_EQ(false, result);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceRequestByCallback002 end");
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RemoveGnssGeofenceByCallbackWhenAppDie002 end");
 }
 
 HWTEST_F(GnssAbilityTest, DisableGnss002, TestSize.Level1)

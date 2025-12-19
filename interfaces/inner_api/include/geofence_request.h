@@ -99,6 +99,8 @@ public:
     int64_t GetRequestExpirationTimeStamp();
 
     void SetRequestExpirationTimeStamp(int64_t requestExpirationTimeStamp);
+    void SetTransitionCallbackDeathRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
+    sptr<IRemoteObject::DeathRecipient> GetTransitionCallbackRecipient();
 
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
@@ -107,13 +109,15 @@ public:
     bool ToJson(nlohmann::json &jsonObject);
     static std::shared_ptr<GeofenceRequest> FromJson(const nlohmann::json &jsonObject);
     static void ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
-    static void ConvertWantAgent(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    static void ConvertWantAgentInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    static void ConvertTransitionEventInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
 
 private:
     static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
     std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;
+    sptr<IRemoteObject::DeathRecipient> transitionCallbackDeathRecipient_;
     GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;
     int loiterTimeMs_;
