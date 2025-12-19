@@ -38,13 +38,33 @@ public:
     void ClearSingleResult();
     void SetSingleResult(
         std::vector<std::shared_ptr<LocatingRequiredData>> singleResult);
+    bool IsSingleLocationRequest();
     inline std::vector<std::shared_ptr<LocatingRequiredData>> GetSingleResult()
     {
         return singleResult_;
     }
+    void CountDown();
+    void Wait(int time);
+    int GetCount();
+    void SetCount(int count);
+    void InitLatch();
+    inline int GetFixNumber() const
+    {
+        return fixNumber_;
+    }
+
+    inline void SetFixNumber(const int fixNumber)
+    {
+        fixNumber_ = fixNumber;
+    }
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult_;
     ::taihe::optional<::taihe::callback<
         void(::taihe::array_view<::ohos::geoLocationManager::LocatingRequiredData>)>> callback_;
+    int fixNumber_;
+    bool remoteDied_;
+    std::mutex mutex_;
+    std::mutex singleResultMutex_;
+    CountDownLatch* latch_;
 };
 } // namespace Location
 } // namespace OHOS

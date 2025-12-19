@@ -13,8 +13,13 @@
  * limitations under the License.
  */
 @!namespace("@ohos.geoLocationManager", "geoLocationManager")
+@!sts_inject("""
+  static { loadLibrary("location_framework_taihe_native.z") }
+""")
 @!sts_inject_into_module("
-  import {WantAgent} from '@ohos.app.ability.wantAgent';
+  import { AsyncCallback } from '@ohos.base';
+  import { WantAgent } from '@ohos.app.ability.wantAgent';
+  import { NotificationRequest } from 'notification.notificationRequest';
 ")
 
 enum LocationRequestPriority: i32 { UNSET = 0x200, ACCURACY, LOW_POWER, FIRST_FIX }
@@ -33,13 +38,14 @@ enum LocationError: i32 { LOCATING_FAILED_DEFAULT = -1, LOCATING_FAILED_LOCATION
 LOCATING_FAILED_LOCATION_SWITCH_OFF = -4, LOCATING_FAILED_INTERNET_ACCESS_FAILURE = -5 }
 enum LocationIconStatus: i32 { LOCATING_NOT_STARTED = 0, LOCATING_STARTED = 1, HD_LOCATING_STARTED = 2 }
 enum LocatingRequiredDataType: i32 {WIFI = 1, BLUETOOTH}
+enum GeofenceTransitionEvent: i32 {GEOFENCE_TRANSITION_EVENT_ENTER = 1, GEOFENCE_TRANSITION_EVENT_EXIT = 2, GEOFENCE_TRANSITION_EVENT_DWELL = 4}
 
 struct ReverseGeoCodeRequest {
     locale: Optional<String>;
     country: Optional<String>;
     latitude: f64;
     longitude: f64;
-    maxItems: i32;
+    maxItems: Optional<i32>;
 }
 
 struct GeoCodeRequest {
@@ -55,24 +61,24 @@ struct GeoCodeRequest {
 
 struct GeoAddress {
     latitude: Optional<f64>;
-    longitude: f64;
-    locale: String;
-    placeName: String;
-    countryCode: String;
-    countryName: String;
-    administrativeArea: String;
-    subAdministrativeArea: String;
-    locality: String;
-    subLocality: String;
-    roadName: String;
-    subRoadName: String;
-    premises: String;
-    postalCode: String;
-    phoneNumber: String;
-    addressUrl: String;
-    descriptions: Array<String>;
-    descriptionsSize: i32;
-    isFromMock: bool;
+    longitude: Optional<f64>;
+    locale: Optional<String>;
+    placeName: Optional<String>;
+    countryCode: Optional<String>;
+    countryName: Optional<String>;
+    administrativeArea: Optional<String>;
+    subAdministrativeArea: Optional<String>;
+    locality: Optional<String>;
+    subLocality: Optional<String>;
+    roadName: Optional<String>;
+    subRoadName: Optional<String>;
+    premises: Optional<String>;
+    postalCode: Optional<String>;
+    phoneNumber: Optional<String>;
+    addressUrl: Optional<String>;
+    descriptions: Optional<Array<String>>;
+    descriptionsSize: Optional<i32>;
+    isFromMock: Optional<bool>;
 }
 
 union ContinuousLocationRequestLocationScenario {
@@ -95,9 +101,8 @@ struct CurrentLocationRequest {
 }
 
 struct SingleLocationRequest  {
-    locatingPriority: Optional<LocatingPriority>;
-    locatingTimeoutMs: Optional<i32>;
-    needPoi: Optional<bool>;
+    locatingPriority: LocatingPriority;
+    locatingTimeoutMs: i32;
 }
 
 union CurrentRequest {
@@ -132,15 +137,15 @@ struct Location {
     timeStamp: i64;
     direction: f64;
     timeSinceBoot: i64;
-    additions: Array<String>;
-    additionsMap: @record Map<String, String>;
-    additionSize: i32;
-    isFromMock: bool;
-    altitudeAccuracy: f64;
-    speedAccuracy: f64;
-    directionAccuracy: f64;
-    uncertaintyOfTimeSinceBoot: i64;
-    sourceType: LocationSourceType;
+    additions: Optional<Array<String>>;
+    additionsMap: Optional<@record Map<String, String>>;
+    additionSize: Optional<i32>;
+    isFromMock: Optional<bool>;
+    altitudeAccuracy: Optional<f64>;
+    speedAccuracy: Optional<f64>;
+    directionAccuracy: Optional<f64>;
+    uncertaintyOfTimeSinceBoot: Optional<i64>;
+    sourceType: Optional<LocationSourceType>;
 }
 
 struct Geofence {
@@ -212,24 +217,27 @@ struct LocatingRequiredData {
     bluetoothData: Optional<BluetoothScanInfo>;
 }
 
-struct Poi {
-    id: String;
-    confidence: f64;
-    name: String;
-    latitude: f64;
-    longitude: f64;
-    administrativeArea: String;
-    subAdministrativeArea: String;
-    locality: String;
-    subLocality: String;
-    address: String;
+struct ReverseGeocodingMockInfo {
+    location: ReverseGeoCodeRequest;
+    geoAddress: GeoAddress;
 }
 
-struct PoiInfo {
-    poiArray: Array<Poi>;
-    timestamp: i64;
+struct LocationCommand {
+    scenario: LocationRequestScenario;
+    command: String;
 }
 
+struct GeofenceTransition {
+    geofenceId: i32;
+    transitionEvent: GeofenceTransitionEvent;
+}
+
+struct GnssGeofenceRequest {
+    geofence: Geofence;
+    monitorTransitionEvents: Array<GeofenceTransitionEvent>;
+    notifications: Optional<Array<@sts_type("NotificationRequest") Opaque>>;
+    geofenceTransitionCallback: @sts_type("AsyncCallback<GeofenceTransition>") Opaque;
+}
 
 function IsLocationEnabled(): bool;
 @gen_async("getAddressesFromLocation")
@@ -253,39 +261,63 @@ function IsLocationPrivacyConfirmed(type: LocationPrivacyType): bool;
 
 function GetLastLocation(): Location;
 
-function GetDistanceBetweenLocations(location1: Location, location2: Location): f64;
+function SetReverseGeocodingMockInfo(mockInfos: Array<ReverseGeocodingMockInfo>): void;
+function EnableReverseGeocodingMock(): void;
+function DisableReverseGeocodingMock(): void;
+function EnableLocationMock(): void;
+function DisableLocationMock(): void;
+function SetMockedLocations(config: LocationMockConfig): void;
+function SetLocationPrivacyConfirmStatus(type: LocationPrivacyType, isConfirmed: bool): void;
+
+@gen_async("getCountryCode")
+@gen_promise("getCountryCode")
+function GetCountryCodeSync(): CountryCode;
+
+@gen_async("sendCommand")
+@gen_promise("sendCommand")
+function SendCommandSync(command: LocationCommand): void;
+
+@gen_async("flushCachedGnssLocations")
+@gen_promise("flushCachedGnssLocations")
+function FlushCachedGnssLocationsSync(): void;
+
+@gen_async("getCachedGnssLocationsSize")
+@gen_promise("getCachedGnssLocationsSize")
+function GetCachedGnssLocationsSizeSync(): i32;
+
+function isGeocoderAvailable(): bool;
+
+@gen_async("getAddressesFromLocationName")
+@gen_promise("getAddressesFromLocationName")
+function GetAddressesFromLocationNameSync(request: GeoCodeRequest): Array<GeoAddress>;
+
+function SetLocationSwitchIgnored(isIgnored: bool): void;
+
+function IsLocationEnabledByUserId(userId: i32): bool;
+
+function DisableLocationByUserId(userId: i32): void;
+
+@gen_promise("enableLocationByUserId")
+function EnableLocationByUserIdSync(userId: i32): void;
+
+function GetCurrentWifiBssidForLocating(): String;
+
+@gen_promise("addGnssGeofence")
+function AddGnssGeofenceSync(fenceRequest: GnssGeofenceRequest): i32;
+
+@gen_promise("removeGnssGeofence")
+function RemoveGnssGeofenceSync(geofenceId: i32): void;
+
+function GetGeofenceSupportedCoordTypes(): Array<CoordinateSystemType>;
+
+function GetLocationIconStatus(): LocationIconStatus;
 
 function IsPoiServiceSupported(): bool;
 
-@!sts_inject("""
-export function on(type: string, cb: (arg_0: Object) => void) {
-    switch(type) {
-        case "countryCodeChange": return onCountryCodeChange(cb);
-        case "nmeaMessage": return onNmeaMessage(cb);
-        case "satelliteStatusChange": return onSatelliteStatusChange(cb);
-        case "locationEnabledChange": return onLocationEnabledChange(cb);
-        case "bluetoothScanResultChange": return onBluetoothScanResultChange(cb);
-        case "locationError": return onLocationError(cb);
-        case "locationIconStatusChange": return onLocationIconStatusChange(cb);
-        default: throw new Error(`Unknown type: ${type}`);
-    }
-}
-export function off(type: string, cb?: (arg_0: Object) => void) {
-    switch(type) {
-        case "countryCodeChange": return offCountryCodeChange(cb as (((arg_0: CountryCode) => void) | undefined));
-        case "nmeaMessage":  return offNmeaMessage(cb as (((data: String) => void) | undefined));
-        case "satelliteStatusChange": return offSatelliteStatusChange(cb as (((data: SatelliteStatusInfo) => void) | undefined));
-        case "locationEnabledChange": return offLocationEnabledChange((cb as (((arg_0: boolean) => void)|undefined)));
-        case "bluetoothScanResultChange": return offBluetoothScanResultChange(cb as (((data: BluetoothScanResult) => void) | undefined));
-        case "locationError": return offLocationError(cb as (((data: LocationError) => void) | undefined));
-        case "locationIconStatusChange": return offLocationIconStatusChange(cb as (((data: LocationIconStatus) => void) | undefined));
-        case "cachedGnssLocationsChange": return offCachedGnssLocationsChange(cb as (((arg_0: Array<Location>) => void) | undefined));
-        case "locationChange": return offLocationChange(cb as (((arg_0: Location) => void) | undefined));
-        case "locatingRequiredDataChange": return offLocatingRequiredDataChange(cb as (((arg_0: Array<LocatingRequiredData>) => void) | undefined));
-        default: throw new Error(`Unknown type: ${type}`);
-    }
-}
-""")
+function GetDistanceBetweenLocations(location1: Location, location2: Location): f64;
+
+@gen_promise("getLocatingRequiredData")
+function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
 
 @on_off("cachedGnssLocationsChange")
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
