@@ -328,8 +328,7 @@ private:
     ffrt::mutex gnssGeofenceRequestListMutex_;
     ffrt::mutex notificationMapMutex_;
     ffrt::mutex fenceWantAgentMapMutex_;
-    std::map<std::shared_ptr<GeofenceRequest>,
-        std::pair<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>> gnssGeofenceRequestMap_;
+    std::vector<std::shared_ptr<GeofenceRequest>> gnssGeofenceRequestList_;
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {
