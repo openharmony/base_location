@@ -232,7 +232,7 @@ public:
     void ReportGeofenceEvent(int fenceId, GeofenceEvent event);
     bool NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
     void NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
-    void SaveGeoFenceRequestToFile(std::vector<std::shared_ptr<GeofenceRequest>> &requestList);
+    void SaveGeoFenceRequestToFile();
     std::vector<std::shared_ptr<GeofenceRequest>> ReadGeoFenceRequestFromFile();
     void ReportGeofenceOperationResult(
         int fenceId, GeofenceOperateType type, GeofenceOperateResult result);
