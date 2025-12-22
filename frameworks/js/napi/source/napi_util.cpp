@@ -465,22 +465,15 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
         config->SetScanTimeoutMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
     }
-    napi_value arfcnInfoValue = GetNapiValueByKey(env, "arfcnInfo", object);
-    std::vector<int32_t> vector;
-    if (arfcnInfoValue != nullptr) {
-        std::shared_ptr<ArfcnInfo> arfcnInfo = std::make_shared<ArfcnInfo>();
-        if (JsObjectToInt(env, arfcnInfoValue, "arfcnCount", valueInt) == SUCCESS) {
-            arfcnInfo->SetArfcnCount(valueInt);
-        }
-        if (GetIntArrayFromJsObj(env, arfcnInfoValue, "arfcnArray", vector)) {
-            arfcnInfo->SetArfcnArray(vector);
-        }
-        if (GetIntArrayFromJsObj(env, arfcnInfoValue, "plmnParamArray", vector)) {
-            arfcnInfo->SetPlmnParamArray(vector);
-        }
-    }
     if (JsObjectToInt(env, object, "slotId", valueInt) == SUCCESS) {
         config->SetSlotId(valueInt);
+    }
+    std::vector<int32_t> vector;
+    if (GetIntArrayFromJsObj(env, object, "arfcn", vector)) {
+        config->SetArfcnArray(vector);
+    }
+    if (GetIntArrayFromJsObj(env, object, "plmnId", vector)) {
+        config->SetPlmnParamArray(vector);
     }
 }
 

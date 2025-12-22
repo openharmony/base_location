@@ -21,73 +21,6 @@
 
 namespace OHOS {
 namespace Location {
-class ArfcnInfo  : public Parcelable {
-public:
-    ArfcnInfo()
-    {
-        arfcnCount_ = 0;
-        arfcnArray_ = {};
-        plmnParamArray_ = {};
-    }
-
-    ~ArfcnInfo() override = default;
-
-    inline void SetArfcnCount(int32_t arfcnCount)
-    {
-        arfcnCount_ = arfcnCount;
-    }
-
-    inline int32_t GetArfcnCount()
-    {
-        return arfcnCount_;
-    }
-
-    inline void SetArfcnArray(std::vector<int32_t> arfcnArray)
-    {
-        arfcnArray_ = arfcnArray;
-    }
-
-    inline std::vector<int32_t> GetArfcnArray()
-    {
-        return arfcnArray_;
-    }
-
-    inline void SetPlmnParamArray(std::vector<int32_t> plmnParamArray)
-    {
-        plmnParamArray_ = plmnParamArray;
-    }
-
-    inline std::vector<int32_t> GetPlmnParamArray()
-    {
-        return plmnParamArray_;
-    }
-
-    void ReadFromParcel(Parcel& parcel)
-    {
-        arfcnCount_ = parcel.ReadInt32();
-        parcel.ReadInt32Vector(&arfcnArray_);
-        parcel.ReadInt32Vector(&plmnParamArray_);
-    }
-
-    bool Marshalling(Parcel& parcel) const override
-    {
-        return parcel.WriteInt32(arfcnCount_) &&
-            parcel.WriteInt32Vector(arfcnArray_) &&
-            parcel.WriteInt32Vector(plmnParamArray_);
-    }
-
-    static std::shared_ptr<ArfcnInfo> Unmarshalling(Parcel& parcel)
-    {
-        auto arfcnInfo = std::make_shared<ArfcnInfo>();
-        arfcnInfo->ReadFromParcel(parcel);
-        return arfcnInfo;
-    }
-private:
-    int32_t arfcnCount_;
-    std::vector<int32_t> arfcnArray_;
-    std::vector<int32_t> plmnParamArray_;
-};
-
 class LocatingRequiredDataConfig : public Parcelable {
 public:
     LocatingRequiredDataConfig()
@@ -100,7 +33,8 @@ public:
         isWlanMatchCalled_ = false;
         rssiThreshold_ = 0;
         slotId_ = -1;
-        arfcnInfo_ = std::make_shared<ArfcnInfo>();
+        arfcnArray_ = {};
+        plmnParamArray_ = {};
     }
 
     ~LocatingRequiredDataConfig() override = default;
@@ -180,19 +114,29 @@ public:
         slotId_ = slotId;
     }
 
-    inline int32_t GetSlotId()
+    inline int32_t GetSlotId() const
     {
         return slotId_;
     }
 
-    inline std::shared_ptr<ArfcnInfo> GetArfcnInfo() const
+    inline void SetArfcnArray(std::vector<int32_t> arfcnArray)
     {
-        return arfcnInfo_;
+        arfcnArray_ = arfcnArray;
     }
 
-    inline void SetArfcnInfo(std::shared_ptr<ArfcnInfo> arfcnInfo)
+    inline std::vector<int32_t> GetArfcnArray() const
     {
-        arfcnInfo_ = arfcnInfo;
+        return arfcnArray_;
+    }
+
+    inline void SetPlmnParamArray(std::vector<int32_t> plmnParamArray)
+    {
+        plmnParamArray_ = plmnParamArray;
+    }
+
+    inline std::vector<int32_t> GetPlmnParamArray() const
+    {
+        return plmnParamArray_;
     }
 
     inline std::vector<std::string> GetWlanBssidArray() const
@@ -215,7 +159,8 @@ public:
         isWlanMatchCalled_ = parcel.ReadBool();
         rssiThreshold_ = parcel.ReadInt32();
         slotId_ = parcel.ReadInt32();
-        arfcnInfo_ = ArfcnInfo::Unmarshalling(parcel);
+        parcel.ReadInt32Vector(&arfcnArray_);
+        parcel.ReadInt32Vector(&plmnParamArray_);
         int wlanArraySize = parcel.ReadInt32();
         if (wlanArraySize > INPUT_WIFI_LIST_MAX_SIZE) {
             wlanArraySize = INPUT_WIFI_LIST_MAX_SIZE;
@@ -250,7 +195,8 @@ public:
         parcel.WriteBool(isWlanMatchCalled_);
         parcel.WriteInt32(rssiThreshold_);
         parcel.WriteInt32(slotId_);
-        arfcnInfo_->Marshalling(parcel);
+        parcel.WriteInt32Vector(arfcnArray_);
+        parcel.WriteInt32Vector(plmnParamArray_);
         MarshallingWlanBssidArray(parcel, wlanBssidArray_);
         return true;
     }
@@ -282,7 +228,8 @@ private:
     int rssiThreshold_;
     std::vector<std::string> wlanBssidArray_;
     int32_t slotId_;
-    std::shared_ptr<ArfcnInfo> arfcnInfo_;
+    std::vector<int32_t> arfcnArray_;
+    std::vector<int32_t> plmnParamArray_;
 };
 } // namespace Location
 } // namespace OHOS

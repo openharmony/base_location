@@ -28,6 +28,7 @@ public:
     {
         type_ = 0;
         wifiData_ = std::make_shared<WifiScanInfo>();
+        slotId_ = -1;
         blueToothData_ = std::make_shared<BluetoothScanInfo>();
         campedCellInfo_ = std::make_shared<CellularInfo>();
     }
@@ -64,6 +65,16 @@ public:
         blueToothData_ = blueToothData;
     }
 
+    inline void SetSlotId(int32_t slotId)
+    {
+        slotId_ = slotId;
+    }
+
+    inline int32_t GetSlotId() const
+    {
+        return slotId_;
+    }
+
     inline std::shared_ptr<CellularInfo> GetCampedCellInfo() const
     {
         return campedCellInfo_;
@@ -89,6 +100,7 @@ public:
         type_ =  parcel.ReadInt32();
         wifiData_ = WifiScanInfo::Unmarshalling(parcel);
         blueToothData_ = BluetoothScanInfo::Unmarshalling(parcel);
+        slotId_ =  parcel.ReadInt32();
         campedCellInfo_ = CellularInfo::Unmarshalling(parcel);
         auto size = parcel.ReadInt32();
         for (int i = 0; i < size; i++) {
@@ -101,6 +113,7 @@ public:
         parcel.WriteInt32(type_);
         wifiData_->Marshalling(parcel);
         blueToothData_->Marshalling(parcel);
+        parcel.WriteInt32(slotId_);
         campedCellInfo_->Marshalling(parcel);
         parcel.WriteInt32(neighboringCellInfo_.size());
         for (size_t i = 0; i < neighboringCellInfo_.size(); i++) {
@@ -126,6 +139,7 @@ private:
     int type_;
     std::shared_ptr<WifiScanInfo> wifiData_;
     std::shared_ptr<BluetoothScanInfo> blueToothData_;
+    int32_t slotId_;
     std::shared_ptr<CellularInfo> campedCellInfo_;
     std::vector<std::shared_ptr<CellularInfo>> neighboringCellInfo_;
 };
