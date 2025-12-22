@@ -364,6 +364,7 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         }
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), false);
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), false);
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "slotId", replyList[i]->GetSlotId()), false);
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "campedCellInfo", compedCellInfoObj), false);
         NAPI_CALL_BASE(env,
             napi_set_named_property(env, eachObj, "neighboringCellInfo", neighboringCellInfoObj), false);
