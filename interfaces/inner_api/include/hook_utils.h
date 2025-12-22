@@ -21,6 +21,7 @@
 #include "request.h"
 #include "location.h"
 #include "locating_required_data.h"
+#include "locating_required_data_config.h"
 
 namespace OHOS {
 namespace Location {
@@ -69,6 +70,7 @@ enum class LocationProcessStage {
     ON_USER_SWITCH_PROCESS,
     RESTORE_GEOFENCE_REQUEST_PROCESS,
     INIT_GEOFENCE_ID_PROCESS,
+    START_CELL_SCAN_PROCESS,
 };
 
 typedef struct {
@@ -161,6 +163,11 @@ typedef struct {
     bool result;
 } BeaconFenceStruct;
 
+typedef struct {
+    LocatingRequiredDataConfig locatingRequiredDataConfig;
+    void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result);
+} CellScanStruct;
+
 class HookUtils {
 public:
     static HOOK_MGR* GetLocationExtHookMgr();
@@ -198,6 +205,9 @@ public:
     static bool ExecuteHookWhenBeaconFenceTransitionStatusChange(const std::string& packageName);
     static void ExecuteHookWhenGnssEnable();
     static void ExecuteHookWhenOnUserSwitch(int32_t userId);
+    static void ExecuteHookWhenStartCellScan(
+        std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
+        void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result));
 };
 } // namespace Location
 } // namespace OHOS

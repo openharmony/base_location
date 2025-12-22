@@ -224,6 +224,7 @@ enum LocationErr {
 enum LocatingRequiredDataType {
     WIFI = 1,
     BLUE_TOOTH,
+    CELLULAR,
 };
 
 enum LocationSourceType {

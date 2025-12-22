@@ -312,5 +312,16 @@ void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
     ExecuteHook(
         LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&userId, nullptr);
 }
+
+void HookUtils::ExecuteHookWhenStartCellScan(
+    std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
+    void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result))
+{
+    CellScanStruct cellScanStruct;
+    cellScanStruct.locatingRequiredDataConfig = *locatingRequiredDataConfig;
+    cellScanStruct.OnCellScanInfoReceived = OnCellScanInfoReceived;
+    ExecuteHook(
+        LocationProcessStage::START_CELL_SCAN_PROCESS, (void *)&cellScanStruct, nullptr);
+}
 } // namespace Location
 } // namespace OHOS

@@ -156,20 +156,10 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
     }
     if (config->GetType() == LocatingRequiredDataType::WIFI) {
 #ifdef WIFI_ENABLE
-        std::unique_lock<std::mutex> lock(mutex_, std::defer_lock);
-        lock.lock();
-        if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
-            callbacksMap_[callback] = identity;
-        } else {
-            LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
-            lock.unlock();
-            if (config->GetIsWlanMatchCalled()) {
-                return ERRCODE_WIFI_SCAN_FAIL;
-            }
-            return ERRCODE_SCAN_FAIL;
+        auto errCode = AddScanCallback(identity, config, callback);
+        if (errCode != ERRCODE_SUCCESS) {
+            return errCode;
         }
-        LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
-            std::to_string(callbacksMap_.size()).c_str());
         if (!IsWifiCallbackRegistered() && wifiSdkHandler_ != nullptr) {
             wifiSdkHandler_->SendEvent(EVENT_REGISTER_WIFI_CALLBACK, 0, 0);
         }
@@ -177,7 +167,6 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
         if (config->GetNeedStartScan()) {
             needScan = true;
         }
-        lock.unlock();
         if (needScan) {
             SendWifiScanEvent();
             SendGetWifiListEvent(DEFAULT_TIMEOUT_4S >= config->GetScanTimeoutMs() ?
@@ -188,7 +177,34 @@ __attribute__((no_sanitize("cfi"))) LocationErrCode LocatorRequiredDataManager::
 #endif
     } else if (config->GetType() == LocatingRequiredDataType::BLUE_TOOTH) {
         return LOCATION_ERRCODE_NOT_SUPPORTED;
+    } else if (config->GetType() == LocatingRequiredDataType::CELLULAR) {
+        auto errCode = AddScanCallback(identity, config, callback);
+        if (errCode != ERRCODE_SUCCESS) {
+            return errCode;
+        }
+        HookUtils::ExecuteHookWhenStartCellScan(config, LocatorCellScanInfoCallback::OnCellScanInfoReceived);
     }
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocatorRequiredDataManager::AddScanCallback(
+    AppIdentity &identity, std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    LocatorRequiredInfo locatorRequiredInfo;
+    locatorRequiredInfo.appIdentity_ = identity;
+    locatorRequiredInfo.config_ = *config;
+    if (callbacksMap_.size() < MAX_CALLBACKS_MAP_NUM) {
+        callbacksMap_[callback] = locatorRequiredInfo;
+    } else {
+        LBSLOGE(LOCATOR, "LocatorRequiredDataManager::RegisterCallback fail,Exceeded the maximum number limit");
+        if (config->GetIsWlanMatchCalled()) {
+            return ERRCODE_WIFI_SCAN_FAIL;
+        }
+        return ERRCODE_SCAN_FAIL;
+    }
+    LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
+            std::to_string(callbacksMap_.size()).c_str());
     return ERRCODE_SUCCESS;
 }
 
@@ -336,7 +352,7 @@ void LocatorBluetoothHost::OnDiscoveryResult(const Bluetooth::BluetoothRemoteDev
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> result = GetLocatingRequiredDataByBtHost(device);
     auto dataManager = LocatorRequiredDataManager::GetInstance();
-    dataManager->ReportData(result);
+    dataManager->ReportData(result, LocatingRequiredDataType::BLUE_TOOTH);
 }
 
 void LocatorBluetoothHost::OnPairRequested(const Bluetooth::BluetoothRemoteDevice &device) {}
@@ -479,7 +495,14 @@ void LocatorWifiScanEventCallback::OnWifiScanStateChanged(int state, int size)
 }
 #endif
 
-void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result)
+
+void LocatorCellScanInfoCallback::OnCellScanInfoReceived(std::vector<std::shared_ptr<LocatingRequiredData>> result)
+{
+    auto dataManager = LocatorRequiredDataManager::GetInstance();
+    dataManager->ReportData(result, LocatingRequiredDataType::CELLULAR);
+}
+
+void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result, int type)
 {
     std::unique_lock<std::mutex> lock(mutex_);
     for (const auto& pair : callbacksMap_) {
@@ -490,8 +513,11 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
             LBSLOGW(LOCATOR, "ReportData nullptr callback.");
             continue;
         }
-        AppIdentity identity = pair.second;
-        if (CommonUtils::IsAppBelongCurrentAccount(identity)) {
+        LocatorRequiredInfo locatorRequiredInfo = pair.second;
+        if (type != locatorRequiredInfo.config_.GetType()) {
+            continue;
+        }
+        if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo.appIdentity_)) {
             locatingRequiredDataCallback->OnLocatingDataChange(result);
         }
     }
@@ -599,17 +625,17 @@ void LocatorRequiredDataManager::SetBluetoothScanStatus(bool bluetoothScanStatus
     bluetoothScanStatus_ = bluetoothScanStatus;
 }
 
+#ifdef WIFI_ENABLE
 int LocatorRequiredDataManager::TriggerWifiScan()
 {
-#ifdef WIFI_ENABLE
     wifiScanStartTimeStamp_ = CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO;
     auto wifiService = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     if (wifiService == nullptr) {
         return Wifi::WIFI_OPT_FAILED;
     }
     return wifiService->Scan();
-#endif
 }
+#endif
 
 bool LocatorRequiredDataManager::IsWifiConnecting()
 {
@@ -765,11 +791,11 @@ void WifiSdkHandler::GetWifiListEvent(const AppExecFwk::InnerEvent::Pointer& eve
         int ret = dataManager->TriggerWifiScan();
         if (ret != Wifi::WIFI_OPT_SUCCESS) {
             LBSLOGE(LOCATOR, "%{public}s retry WifiScan failed, ret=%{public}d", __func__, ret);
-            dataManager->ReportData(requiredData);
+            dataManager->ReportData(requiredData, LocatingRequiredDataType::WIFI);
             dataManager->RemoveGetWifiListEvent();
         }
     } else {
-        dataManager->ReportData(requiredData);
+        dataManager->ReportData(requiredData, LocatingRequiredDataType::WIFI);
         dataManager->RemoveGetWifiListEvent();
     }
 }
