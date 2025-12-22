@@ -2092,7 +2092,7 @@ LocationErrCode GnssAbility::GetActiveGeoFences(std::string bundleName,
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
-    for (const auto& pair : gnssGeofenceRequestList_) {
+    for (auto iter = gnssGeofenceRequestList_.begin(); iter != gnssGeofenceRequestList_.end(); iter++) {
         auto request = *iter;
         if (request == nullptr) {
             continue;
