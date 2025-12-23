@@ -89,6 +89,8 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     std::unique_ptr<LocatingRequiredDataConfig>& config);
 bool LocatingRequiredDataToJsObj(const napi_env& env,
     std::vector<std::shared_ptr<LocatingRequiredData>>& replyList, napi_value& arrayResult);
+void CellularInfoToJsObj(const napi_env& env,
+    std::shared_ptr<CellularInfo>& cellularInfo, napi_value& cellularInfoObj);
 std::string GetErrorMsgByCode(int code);
 int ConvertErrorCode(int errorCode);
 std::map<int, std::string> GetErrorCodeMap();
@@ -111,6 +113,8 @@ napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo);
 napi_status SetValuePoi(const napi_env& env, const char* fieldStr, napi_value& value, napi_value& result);
 napi_value CreateFenceMap(const napi_env& env, const std::map<int, Geofence>& fenceMap);
 void GeofenceResultToJs(const napi_env& env, const Geofence& fence, napi_value& result);
+bool GetIntArrayFromJsObj(
+    napi_env env, napi_value jsObject, const std::string& key, std::vector<int32_t>& outArray);
 
 #define CHK_NAPIOK_CONTINUE(env, state, message) \
 {                                                \

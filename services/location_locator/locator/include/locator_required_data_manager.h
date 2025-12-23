@@ -51,6 +51,11 @@ public:
 };
 #endif
 
+class LocatorCellScanInfoCallback {
+public:
+    static void OnCellScanInfoReceived(std::vector<std::shared_ptr<LocatingRequiredData>> result);
+};
+
 #ifdef BLUETOOTH_ENABLE
 class LocatorBleCallbackWapper : public Bluetooth::BleCentralManagerCallback {
 public:
@@ -212,6 +217,19 @@ private:
     WifiSdkEventHandleMap wifiSdkHandlerEventMap_;
 };
 
+class LocatorRequiredInfo {
+public:
+    LocatorRequiredInfo() = default;
+    LocatorRequiredInfo(const LocatorRequiredInfo& locatorRequiredInfo)
+    {
+        appIdentity_ = locatorRequiredInfo.appIdentity_;
+        config_ = locatorRequiredInfo.config_;
+    }
+    ~LocatorRequiredInfo() = default;
+    AppIdentity appIdentity_;
+    LocatingRequiredDataConfig config_;
+};
+
 class LocatorRequiredDataManager {
 public:
     LocatorRequiredDataManager();
@@ -219,7 +237,7 @@ public:
     __attribute__((no_sanitize("cfi"))) LocationErrCode RegisterCallback(AppIdentity &identity,
         std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
-    void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result);
+    void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result, int type);
     void ReportBluetoothScanResult(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
     void StartScanBluetoothDevice(sptr<IBluetoothScanResultCallback> callback, AppIdentity identity);
     void StopScanBluetoothDevice(sptr<IRemoteObject> callbackObj);
@@ -246,6 +264,8 @@ public:
     bool IsStill();
     LocationErrCode GetCurrentWifiBssidForLocating(std::string& bssid);
     int TriggerWifiScan();
+    LocationErrCode AddScanCallback(AppIdentity &identity,
+        std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
 
 private:
     int timeInterval_ = 0;
@@ -269,7 +289,7 @@ private:
 #endif
     std::mutex mutex_;
     std::mutex bluetoothcallbacksMapMutex_;
-    std::map<sptr<IRemoteObject>, AppIdentity> callbacksMap_;
+    std::map<sptr<IRemoteObject>, LocatorRequiredInfo> callbacksMap_;
     std::map<sptr<IRemoteObject>,
         std::pair<AppIdentity, sptr<IRemoteObject::DeathRecipient>>> bluetoothcallbacksMap_;
     std::shared_ptr<ScanHandler> scanHandler_;

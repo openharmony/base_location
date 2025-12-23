@@ -188,7 +188,8 @@ napi_value LocatingRequiredDataTypeConstructor(napi_env env)
     napi_value locatingPriority = nullptr;
     NAPI_CALL(env, napi_create_object(env, &locatingPriority));
     SetEnumPropertyByInteger(env, locatingPriority, LocatingRequiredDataType::WIFI, "WIFI");
-    SetEnumPropertyByInteger(env, locatingPriority, LocatingRequiredDataType::BLUE_TOOTH, "BLUE_TOOTH");
+    SetEnumPropertyByInteger(env, locatingPriority, LocatingRequiredDataType::BLUE_TOOTH, "BLUETOOTH");
+    SetEnumPropertyByInteger(env, locatingPriority, LocatingRequiredDataType::CELLULAR, "CELLULAR");
     return locatingPriority;
 }
 

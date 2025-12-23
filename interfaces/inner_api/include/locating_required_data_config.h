@@ -32,14 +32,9 @@ public:
         fixNumber_ = 0;
         isWlanMatchCalled_ = false;
         rssiThreshold_ = 0;
-    }
-
-    explicit LocatingRequiredDataConfig(LocatingRequiredDataConfig& LocatingRequiredDataConfig)
-    {
-        SetType(LocatingRequiredDataConfig.GetType());
-        SetNeedStartScan(LocatingRequiredDataConfig.GetNeedStartScan());
-        SetScanIntervalMs(LocatingRequiredDataConfig.GetScanIntervalMs());
-        SetScanTimeoutMs(LocatingRequiredDataConfig.GetScanTimeoutMs());
+        slotId_ = -1;
+        arfcnArray_ = {};
+        plmnParamArray_ = {};
     }
 
     ~LocatingRequiredDataConfig() override = default;
@@ -114,6 +109,36 @@ public:
         rssiThreshold_ = rssiThreshold;
     }
 
+    inline void SetSlotId(int32_t slotId)
+    {
+        slotId_ = slotId;
+    }
+
+    inline int32_t GetSlotId() const
+    {
+        return slotId_;
+    }
+
+    inline void SetArfcnArray(std::vector<int32_t> arfcnArray)
+    {
+        arfcnArray_ = arfcnArray;
+    }
+
+    inline std::vector<int32_t> GetArfcnArray() const
+    {
+        return arfcnArray_;
+    }
+
+    inline void SetPlmnParamArray(std::vector<int32_t> plmnParamArray)
+    {
+        plmnParamArray_ = plmnParamArray;
+    }
+
+    inline std::vector<int32_t> GetPlmnParamArray() const
+    {
+        return plmnParamArray_;
+    }
+
     inline std::vector<std::string> GetWlanBssidArray() const
     {
         return wlanBssidArray_;
@@ -133,6 +158,9 @@ public:
         fixNumber_ = parcel.ReadInt32();
         isWlanMatchCalled_ = parcel.ReadBool();
         rssiThreshold_ = parcel.ReadInt32();
+        slotId_ = parcel.ReadInt32();
+        parcel.ReadInt32Vector(&arfcnArray_);
+        parcel.ReadInt32Vector(&plmnParamArray_);
         int wlanArraySize = parcel.ReadInt32();
         if (wlanArraySize > INPUT_WIFI_LIST_MAX_SIZE) {
             wlanArraySize = INPUT_WIFI_LIST_MAX_SIZE;
@@ -159,14 +187,18 @@ public:
 
     bool Marshalling(Parcel& parcel) const override
     {
-        return parcel.WriteInt32(type_) &&
-            parcel.WriteBool(needStartScan_) &&
-            parcel.WriteInt32(scanIntervalMs_) &&
-            parcel.WriteInt32(scanTimeoutMs_) &&
-            parcel.WriteInt32(fixNumber_) &&
-            parcel.WriteBool(isWlanMatchCalled_) &&
-            parcel.WriteInt32(rssiThreshold_) &&
-            MarshallingWlanBssidArray(parcel, wlanBssidArray_);
+        parcel.WriteInt32(type_);
+        parcel.WriteBool(needStartScan_);
+        parcel.WriteInt32(scanIntervalMs_);
+        parcel.WriteInt32(scanTimeoutMs_);
+        parcel.WriteInt32(fixNumber_);
+        parcel.WriteBool(isWlanMatchCalled_);
+        parcel.WriteInt32(rssiThreshold_);
+        parcel.WriteInt32(slotId_);
+        parcel.WriteInt32Vector(arfcnArray_);
+        parcel.WriteInt32Vector(plmnParamArray_);
+        MarshallingWlanBssidArray(parcel, wlanBssidArray_);
+        return true;
     }
 
     static LocatingRequiredDataConfig* Unmarshalling(Parcel& parcel)
@@ -195,6 +227,9 @@ private:
     bool isWlanMatchCalled_;
     int rssiThreshold_;
     std::vector<std::string> wlanBssidArray_;
+    int32_t slotId_;
+    std::vector<int32_t> arfcnArray_;
+    std::vector<int32_t> plmnParamArray_;
 };
 } // namespace Location
 } // namespace OHOS

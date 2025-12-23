@@ -347,8 +347,27 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         SetValueInt64(env, "rssi", replyList[i]->GetBluetoothScanInfo()->GetRssi(), blueToothObj);
         SetValueInt64(env, "timestamp", replyList[i]->GetBluetoothScanInfo()->GetTimeStamp(), blueToothObj);
 
+        napi_value compedCellInfoObj;
+        NAPI_CALL_BASE(env, napi_create_object(env, &compedCellInfoObj), false);
+        std::shared_ptr<CellularInfo> campedCellInfo = replyList[i]->GetCampedCellInfo();
+        CellularInfoToJsObj(env, campedCellInfo, compedCellInfoObj);
+
+        napi_value neighboringCellInfoObj = nullptr;
+        NAPI_CALL_BASE(env, napi_create_array_with_length(env, replyList[i]->GetNeighboringCellInfo().size(),
+            &neighboringCellInfoObj), false);
+        for (size_t j = 0; j <  replyList[i]->GetNeighboringCellInfo().size(); j++) {
+            napi_value cellularInfoObj;
+            NAPI_CALL_BASE(env, napi_create_object(env, &cellularInfoObj), false);
+            std::shared_ptr<CellularInfo> cellularInfo = replyList[i]->GetNeighboringCellInfo()[j];
+            CellularInfoToJsObj(env, cellularInfo, cellularInfoObj);
+            NAPI_CALL_BASE(env, napi_set_element(env, neighboringCellInfoObj, j, cellularInfoObj), false);
+        }
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "wifiData", wifiObj), false);
         NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "bluetoothData", blueToothObj), false);
+        SetValueInt32(env, "slotId", replyList[i]->GetSlotId(), eachObj);
+        NAPI_CALL_BASE(env, napi_set_named_property(env, eachObj, "campedCellInfo", compedCellInfoObj), false);
+        NAPI_CALL_BASE(env,
+            napi_set_named_property(env, eachObj, "neighboringCellInfo", neighboringCellInfoObj), false);
         napi_status status = napi_set_element(env, arrayResult, idx++, eachObj);
         if (status != napi_ok) {
             LBSLOGE(LOCATING_DATA_CALLBACK, "set element error: %{public}d, idx: %{public}d", status, idx - 1);
@@ -356,6 +375,24 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         }
     }
     return true;
+}
+
+void CellularInfoToJsObj(const napi_env& env,
+    std::shared_ptr<CellularInfo>& cellularInfo, napi_value& cellularInfoObj)
+{
+    SetValueInt64(env, "timeSinceBoot", cellularInfo->GetTimeSinceBoot(), cellularInfoObj);
+    SetValueInt64(env, "cellId", cellularInfo->GetCellId(), cellularInfoObj);
+    SetValueInt64(env, "lac", cellularInfo->GetLac(), cellularInfoObj);
+    SetValueInt64(env, "mcc", cellularInfo->GetMcc(), cellularInfoObj);
+    SetValueInt64(env, "mnc", cellularInfo->GetMnc(), cellularInfoObj);
+    SetValueInt64(env, "rat", cellularInfo->GetRat(), cellularInfoObj);
+    SetValueInt64(env, "signalIntensity", cellularInfo->GetSignalIntensity(), cellularInfoObj);
+    SetValueInt64(env, "arfcn", cellularInfo->GetArfcn(), cellularInfoObj);
+    SetValueInt64(env, "pci", cellularInfo->GetPci(), cellularInfoObj);
+    if (cellularInfo->GetAdditionsMap() != nullptr) {
+        napi_value additionsMap = CreateJsMap(env, *cellularInfo->GetAdditionsMap());
+        SetValueStringMap(env, "additionsMap", additionsMap, cellularInfoObj);
+    }
 }
 
 void JsObjToCachedLocationRequest(const napi_env& env, const napi_value& object,
@@ -428,6 +465,16 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     }
     if (JsObjectToInt(env, object, "scanTimeout", valueInt) == SUCCESS) {
         config->SetScanTimeoutMs(valueInt < MIN_WIFI_SCAN_TIME ? MIN_WIFI_SCAN_TIME : valueInt);
+    }
+    if (JsObjectToInt(env, object, "slotId", valueInt) == SUCCESS) {
+        config->SetSlotId(valueInt);
+    }
+    std::vector<int32_t> vector;
+    if (GetIntArrayFromJsObj(env, object, "arfcn", vector)) {
+        config->SetArfcnArray(vector);
+    }
+    if (GetIntArrayFromJsObj(env, object, "plmnId", vector)) {
+        config->SetPlmnParamArray(vector);
     }
 }
 
@@ -636,6 +683,41 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
         NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, napiElement, type, sizeof(type), &typeLen), false);
         std::string event = type;
         outArray.push_back(event);
+    }
+    return true;
+}
+
+bool GetIntArrayFromJsObj(
+    napi_env env, napi_value jsObject, const std::string& key, std::vector<int32_t>& outArray)
+{
+    napi_value array = GetNapiValueByKey(env, key, jsObject);
+    if (array == nullptr) {
+        return false;
+    }
+    bool isArray = false;
+    NAPI_CALL_BASE(env, napi_is_array(env, array, &isArray), false);
+    if (!isArray) {
+        LBSLOGE(LOCATOR_STANDARD, "not an array!");
+        return false;
+    }
+    uint32_t arrayLength = 0;
+    NAPI_CALL_BASE(env, napi_get_array_length(env, array, &arrayLength), false);
+    if (arrayLength == 0) {
+        LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
+        return false;
+    }
+    for (size_t i = 0; i < arrayLength; i++) {
+        napi_value napiElement = nullptr;
+        NAPI_CALL_BASE(env, napi_get_element(env, array, i, &napiElement), false);
+        napi_valuetype napiValueType = napi_undefined;
+        NAPI_CALL_BASE(env, napi_typeof(env, napiElement, &napiValueType), false);
+        if (napiValueType != napi_number) {
+            LBSLOGE(LOCATOR_STANDARD, "wrong argument type.");
+            return false;
+        }
+        int value = 0;
+        NAPI_CALL_BASE(env, napi_get_value_int32(env, napiElement, &value), false);
+        outArray.push_back(value);
     }
     return true;
 }
