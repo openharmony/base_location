@@ -482,7 +482,7 @@ void GnssGeofenceCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> 
 {
     auto gnssAbility = GnssAbility::GetInstance();
     if (gnssAbility != nullptr) {
-        gnssAbility->RemoveGnssGeofenceRequestByCallback(remote.promote());
+        gnssAbility->RemoveGnssGeofenceByCallbackWhenAppDie(remote.promote());
         gnssAbility->UnloadGnssSystemAbility();
         LBSLOGI(LOCATOR, "gnss geofence location callback OnRemoteDied");
     }

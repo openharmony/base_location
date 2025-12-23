@@ -195,6 +195,16 @@ void GeofenceRequest::SetAppAliveStatus(bool appAliveStatus)
     appAliveStatus_ = appAliveStatus;
 }
 
+void GeofenceRequest::SetTransitionCallbackDeathRecipient(const sptr<IRemoteObject::DeathRecipient>& deathRecipient)
+{
+    transitionCallbackDeathRecipient_ = deathRecipient;
+}
+
+sptr<IRemoteObject::DeathRecipient> GeofenceRequest::GetTransitionCallbackRecipient()
+{
+    return transitionCallbackDeathRecipient_;
+}
+
 void GeofenceRequest::ReadFromParcel(Parcel& data)
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
@@ -230,11 +240,18 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     callback_ = data.ReadObject<IRemoteObject>();
     data.ReadString(bundleName_);
     uid_ = data.ReadInt32();
-    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent(
-        AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data));
+    AbilityRuntime::WantAgent::WantAgent* wantAgentData =
+        AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data);
+    if (wantAgentData == nullptr) {
+        return;
+    }
+    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent =
+        std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgentData);
     if (wantAgent != nullptr) {
         wantAgent_ = wantAgent;
     }
+    delete wantAgentData;
+    wantAgentData = nullptr;
 }
 
 bool GeofenceRequest::Marshalling(Parcel& parcel) const
@@ -262,7 +279,9 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
         return false;
     }
     for (size_t i = 0; i < notificationRequestList_.size(); i++) {
-        notificationRequestList_[i]->Marshalling(parcel);
+        if (notificationRequestList_[i] != nullptr) {
+            notificationRequestList_[i]->Marshalling(parcel);
+        }
     }
 #endif
     parcel.WriteRemoteObject(callback_);
@@ -294,9 +313,11 @@ bool GeofenceRequest::ToJson(nlohmann::json &jsonObject)
 #ifdef NOTIFICATION_ENABLE
     nlohmann::json notificationArr = nlohmann::json::array();
     for (auto notificationRequest : notificationRequestList_) {
-        nlohmann::json jsonObj;
-        notificationRequest->ToJson(jsonObj);
-        notificationArr.emplace_back(jsonObj);
+        if (notificationRequest != nullptr) {
+            nlohmann::json jsonObj;
+            notificationRequest->ToJson(jsonObj);
+            notificationArr.emplace_back(jsonObj);
+        }
     }
     jsonObject["notificationRequestList"] = notificationArr;
 #endif
@@ -311,16 +332,7 @@ bool GeofenceRequest::ToJson(nlohmann::json &jsonObject)
     jsonObject["scenario"] = scenario_;
     jsonObject["fenceId"] = fenceId_;
     jsonObject["uid"] = uid_;
-
-    std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> want =
-        std::make_shared<AbilityRuntime::WantAgent::WantAgent>();
-    if (want != nullptr) {
-        want = wantAgent_;
-    } else {
-        LBSLOGE(LOCATOR, "want malloc fail");
-        return false;
-    }
-    jsonObject["wantAgent"] = want ? AbilityRuntime::WantAgent::WantAgentHelper::ToString(want) : "";
+    jsonObject["wantAgent"] = wantAgent_ ? AbilityRuntime::WantAgent::WantAgentHelper::ToString(wantAgent_) : "";
     jsonObject["bundleName"] = bundleName_;
     jsonObject["appAliveStatus"] = appAliveStatus_;
     jsonObject["requestExpirationTimeStamp"] = requestExpirationTimeStamp_;
@@ -347,6 +359,19 @@ void GeofenceRequest::ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, Geo
     }
 }
 
+void GeofenceRequest::ConvertTransitionEventInfo(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
+{
+    if (jsonObject.find("transitionStatusList") != jsonObject.cend() &&
+        jsonObject.at("transitionStatusList").is_array()) {
+        for (const auto& elem : jsonObject.at("transitionStatusList")) {
+            if (elem.is_number_integer()) {
+                request->transitionStatusList_.emplace_back(elem.get<GeofenceTransitionEvent>());
+            }
+        }
+    }
+}
+
 void GeofenceRequest::ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request,
     const nlohmann::json &jsonObject)
 {
@@ -356,6 +381,9 @@ void GeofenceRequest::ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& 
         for (auto &notificationJson : notificationArray) {
             OHOS::Notification::NotificationRequest *notification =
                 OHOS::Notification::NotificationRequest::FromJson(notificationJson);
+            if (notification == nullptr) {
+                continue;
+            }
             auto notificationPtr = std::make_shared<OHOS::Notification::NotificationRequest>(*notification);
             if (notificationPtr != nullptr) {
                 request->SetNotificationRequest(notificationPtr);
@@ -366,7 +394,7 @@ void GeofenceRequest::ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& 
 #endif
 }
 
-void GeofenceRequest::ConvertWantAgent(std::shared_ptr<GeofenceRequest>& request,
+void GeofenceRequest::ConvertWantAgentInfo(std::shared_ptr<GeofenceRequest>& request,
     const nlohmann::json &jsonObject)
 {
     if (jsonObject.find("wantAgent") != jsonObject.cend() && jsonObject.at("wantAgent").is_string()) {
@@ -398,38 +426,32 @@ std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json 
         LBSLOGE(LOCATOR, "Failed to create request instance");
         return nullptr;
     }
-    if (jsonObject.find("transitionStatusList") != jsonObject.cend() &&
-        jsonObject.at("transitionStatusList").is_array()) {
-        for (const auto& elem : jsonObject.at("transitionStatusList")) {
-            if (elem.is_number_integer()) {
-                request->transitionStatusList_.emplace_back(elem.get<GeofenceTransitionEvent>());
-            }
-        }
-    }
+    ConvertTransitionEventInfo(request, jsonObject);
     ConvertNotificationInfo(request, jsonObject);
-    ConvertWantAgent(request, jsonObject);
+    ConvertWantAgentInfo(request, jsonObject);
     if (jsonObject.find("geofence") != jsonObject.cend()) {
         auto geofenceObj = jsonObject.at("geofence");
         if (!geofenceObj.is_null()) {
             ConvertGeoFenceInfo(geofenceObj, request->geofence_);
         }
     }
-    if (jsonObject.find("scenario") != jsonObject.cend()) {
+    if (jsonObject.find("scenario") != jsonObject.cend() && jsonObject.at("scenario").is_number()) {
         request->scenario_ = jsonObject.at("scenario").get<int>();
     }
-    if (jsonObject.find("fenceId") != jsonObject.cend()) {
+    if (jsonObject.find("fenceId") != jsonObject.cend() && jsonObject.at("fenceId").is_number()) {
         request->fenceId_ = jsonObject.at("fenceId").get<int>();
     }
-    if (jsonObject.find("uid") != jsonObject.cend()) {
+    if (jsonObject.find("uid") != jsonObject.cend() && jsonObject.at("uid").is_number()) {
         request->uid_ = jsonObject.at("uid").get<int>();
     }
     if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
         request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
     }
-    if (jsonObject.find("appAliveStatus") != jsonObject.cend()) {
+    if (jsonObject.find("appAliveStatus") != jsonObject.cend() && jsonObject.at("appAliveStatus").is_boolean()) {
         request->appAliveStatus_ = jsonObject.at("appAliveStatus").get<bool>();
     }
-    if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
+    if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() &&
+        jsonObject.at("requestExpirationTimeStamp").is_string()) {
         request->requestExpirationTimeStamp_ = jsonObject.at("requestExpirationTimeStamp").get<int64_t>();
     }
     return request;
