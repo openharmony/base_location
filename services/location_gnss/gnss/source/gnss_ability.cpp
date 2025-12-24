@@ -684,7 +684,7 @@ void GnssAbility::RestoreGeofenceRequest()
     int32_t fenceId = 0;
     for (auto iter : requestList) {
         // 是否超期，超期不恢复
-        if (CommonUtils::GetCurrentTimeStamp() > iter->GetRequestExpirationTimeStamp()) {
+        if (CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL > iter->GetRequestExpirationTimeStamp()) {
             LBSLOGI(GNSS, "geofence request is expiration, not need restore, %{public}s, %{public}d",
                 iter->GetBundleName().c_str(), iter->GetFenceId());
             continue;
@@ -1271,7 +1271,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         LBSLOGE(GNSS, "request is nullptr");
         return;
     }
-    if (CommonUtils::GetCurrentTimeStamp() > request->GetRequestExpirationTimeStamp()) {
+    if (CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL > request->GetRequestExpirationTimeStamp()) {
         LBSLOGE(GNSS, "request is expiration");
         if (gnssHandler_ != nullptr) {
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
