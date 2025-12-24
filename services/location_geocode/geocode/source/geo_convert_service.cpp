@@ -41,6 +41,7 @@ const int GEOCONVERT_CONNECT_TIME_OUT = 5;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const int UNLOAD_GEOCONVERT_DELAY_TIME = 10 * EVENT_INTERVAL_UNITE;
 const int TIMEOUT_WATCHDOG = 60; // s
+static const int MAX_RESULT = 10;
 
 GeoConvertService* GeoConvertService::GetInstance()
 {
@@ -489,6 +490,71 @@ bool GeoConvertService::IsConnecting()
     return connectState_ == ServiceConnectState::STATE_CONNECTTING;
 }
 
+bool GeoConvertService::UpdataCahedGeoAddress(
+    std::string locale, double latitude, double longitude, MessageParcel& dataParcel)
+{
+    int errCode = dataParcel.ReadInt32();
+    if (errCode != 0) {
+        LBSLOGE(GEO_CONVERT, "something wrong, errCode = %{public}d", errCode);
+        break;
+    }
+    int cnt = dataParcel.ReadInt32();
+    if (cnt > MAX_RESULT) {
+        cnt = MAX_RESULT;
+    }
+    std::list<std::shared_ptr<GeoAddress>> result;
+    for (int i = 0; i < cnt; i++) {
+        auto geoAddress = GeoAddress::Unmarshalling(dataParcel);
+        if (geoAddress->placeName_.empty()) {
+            continue;
+        }
+        result.push_back(geoAddress);
+    }
+    GeoConvertRequest geoConvertRequest;
+    geoConvertRequest.SetLocale(locale);
+    geoConvertRequest.SetLatitude(latitude);
+    geoConvertRequest.SetLongitude(longitude);
+
+    // todo 缓存10个，删除旧的
+    cachedGeoAddressMapList_[geoConvertRequest] = result;
+}
+
+bool GeoConvertService::UpdataCahedGeoAddress( std::unique_ptr<GeoConvertRequest> geoConvertRequest)
+{
+    // todo 匹配缓存，从cachedGeoAddressMapList_ 中读取缓存上报
+    //geoConvertRequest->GetCallback()->SendRequest(RECEIVE_GEOCODE_INFO_EVENT, data, reply, option);
+}
+
+
+bool GeoConvertService::UpdataCahedGeoAddress(
+    std::string locale, double latitude, double longitude, MessageParcel& dataParcel)
+{
+    int errCode = dataParcel.ReadInt32();
+    if (errCode != 0) {
+        LBSLOGE(GEO_CONVERT, "something wrong, errCode = %{public}d", errCode);
+        break;
+    }
+    int cnt = dataParcel.ReadInt32();
+    if (cnt > MAX_RESULT) {
+        cnt = MAX_RESULT;
+    }
+    std::list<std::shared_ptr<GeoAddress>> result;
+    for (int i = 0; i < cnt; i++) {
+        auto geoAddress = GeoAddress::Unmarshalling(dataParcel);
+        if (geoAddress->placeName_.empty()) {
+            continue;
+        }
+        result.push_back(geoAddress);
+    }
+    GeoConvertRequest geoConvertRequest;
+    geoConvertRequest.SetLocale(locale);
+    geoConvertRequest.SetLatitude(latitude);
+    geoConvertRequest.SetLongitude(longitude);
+
+    // todo 缓存10个，删除旧的
+    cachedGeoAddressMapList_[geoConvertRequest] = result;
+}
+
 GeoServiceDeathRecipient::GeoServiceDeathRecipient()
 {
 }
@@ -561,6 +627,13 @@ void GeoConvertHandler::SendGeocodeRequest(const AppExecFwk::InnerEvent::Pointer
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     MessageOption option;
+    sptr<GeoCodeCallback> callback = new GeoCodeCallback();
+    callback->cb_ = geoConvertRequest->GetCallback();
+    callback->locale_ = geoConvertRequest->GetLocale();
+    callback->latitude_ = geoConvertRequest->GetLatitude();
+    callback->longitude_ = geoConvertRequest->GetLongitude();
+    callback->requestType_ = geoConvertRequest->GetRequestType();
+    geoConvertRequest->SetCallback(callback);
     geoConvertRequest->Marshalling(dataParcel);
     bool ret = geoConvertService->SendGeocodeRequest(static_cast<int>(geoConvertRequest->GetRequestType()),
         dataParcel, replyParcel, option);
@@ -569,6 +642,43 @@ void GeoConvertHandler::SendGeocodeRequest(const AppExecFwk::InnerEvent::Pointer
     }
 }
 
+int GeoConvertCallback::OnRemoteRequest(
+    uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
+{
+    LBSLOGD(GEO_CONVERT, "GeoConvertCallbackHost::OnRemoteRequest, code=%{public}d", code);
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        LBSLOGE(GEO_CONVERT, "invalid token.");
+        return -1;
+    }
+    switch (code) {
+        case RECEIVE_GEOCODE_INFO_EVENT: {
+            int32_t errCode = cb->SendRequest(RECEIVE_GEOCODE_INFO_EVENT, data, reply, option);
+            LBSLOGD(GEO_CONVERT, "SendRequest RECEIVE_GEOCODE_INFO_EVENT, errCode=%{public}d", errCode);
+            if (requestType_ == GeoCodeType::REQUEST_REVERSE_GEOCODE) {
+                GeoConvertService::GetInstance()->UpdataCahedGeoAddress(locale_, latitude_, longitude_, data);
+            }
+            break;
+        }
+        case ERROR_INFO_EVENT: {
+            int32_t errCode = cb->SendRequest(ERROR_INFO_EVENT, data, reply, option);
+            LBSLOGD(GEO_CONVERT, "SendRequest ERROR_INFO_EVENT, errCode=%{public}d", errCode);
+            break;
+        }
+        default: {
+            IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+            break;
+        }
+    }
+    return 0;
+}
+
+void GeoConvertCallbackHost::OnResults(std::list<std::shared_ptr<GeoAddress>> &results)
+{
+}
+
+void GeoConvertCallbackHost::OnErrorReport(const int errorCode)
+{
+}
 } // namespace Location
 } // namespace OHOS
 #endif

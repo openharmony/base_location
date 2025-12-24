@@ -66,6 +66,21 @@ public:
     ~GeoServiceDeathRecipient() override;
 };
 
+class GeoCodeCallback : public IRemoteStub<IGeocodeCallback> {
+public:
+    int32_t OnRemoteRequest(uint32_t code,
+        MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+
+    void OnResults(std::list<std::shared_ptr<GeoAddress>> &results) override;
+    void OnErrorReport(const int errorCode) override;
+private:
+    sptr<IRemoteObject> cb_;
+    std::string locale_;
+    double latitude_;
+    double longitude_;
+    GeoCodeType requestType_;
+};
+
 class GeoConvertService : public SystemAbility, public GeoConvertServiceStub {
 DECLEAR_SYSTEM_ABILITY(GeoConvertService);
 
