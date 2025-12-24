@@ -95,6 +95,7 @@ const int64_t INVALID_TIME = 0;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int DEFAULT_FENCE_ID = -1;
 const int64_t MILL_TO_NANOS = 1000000;
+const int64_t SEC_TO_MILL = 1000;
 const std::string GEOFENCE_REQUEST_FILE_PATH = "/data/service/el2/public/location/geofenceRequest.conf";
 static const std::string SYSPARAM_GPS_SUPPORT = "const.location.gps.support";
 static const std::string SYSPARAM_GEOFENCE_SUPPORT = "const.location.support_geofence";
@@ -844,7 +845,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() + geofence.expiration);
+    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL + geofence.expiration);
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
     fenceInfo.latitude = geofence.latitude;
@@ -986,7 +987,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         return false;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() + geofence.expiration);
+    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL + geofence.expiration);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     request->SetTransitionCallbackDeathRecipient(death);
