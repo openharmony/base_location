@@ -684,7 +684,7 @@ void GnssAbility::RestoreGeofenceRequest()
     int32_t fenceId = 0;
     for (auto iter : requestList) {
         // 是否超期，超期不恢复
-        if (CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL > iter->GetRequestExpirationTimeStamp()) {
+        if (CommonUtils::GetCurrentTimeMilSec() > iter->GetRequestExpirationTimeStamp()) {
             LBSLOGI(GNSS, "geofence request is expiration, not need restore, %{public}s, %{public}d",
                 iter->GetBundleName().c_str(), iter->GetFenceId());
             continue;
@@ -845,7 +845,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL + geofence.expiration);
+    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeMilSec() + geofence.expiration);
     GeofenceInfo fenceInfo;
     fenceInfo.fenceIndex = fenceId;
     fenceInfo.latitude = geofence.latitude;
@@ -987,7 +987,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
         return false;
     }
     auto geofence = request->GetGeofence();
-    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL + geofence.expiration);
+    request->SetRequestExpirationTimeStamp(CommonUtils::GetCurrentTimeMilSec() + geofence.expiration);
     sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
     callback->AddDeathRecipient(death);
     request->SetTransitionCallbackDeathRecipient(death);
@@ -1271,7 +1271,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         LBSLOGE(GNSS, "request is nullptr");
         return;
     }
-    if (CommonUtils::GetCurrentTimeStamp() * SEC_TO_MILL > request->GetRequestExpirationTimeStamp()) {
+    if (CommonUtils::GetCurrentTimeMilSec() > request->GetRequestExpirationTimeStamp()) {
         LBSLOGE(GNSS, "request is expiration");
         if (gnssHandler_ != nullptr) {
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
