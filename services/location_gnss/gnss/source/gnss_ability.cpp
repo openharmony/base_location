@@ -95,7 +95,6 @@ const int64_t INVALID_TIME = 0;
 const int TIMEOUT_WATCHDOG = 60; // s
 const int DEFAULT_FENCE_ID = -1;
 const int64_t MILL_TO_NANOS = 1000000;
-const int64_t SEC_TO_MILL = 1000;
 const std::string GEOFENCE_REQUEST_FILE_PATH = "/data/service/el2/public/location/geofenceRequest.conf";
 static const std::string SYSPARAM_GPS_SUPPORT = "const.location.gps.support";
 static const std::string SYSPARAM_GEOFENCE_SUPPORT = "const.location.support_geofence";
