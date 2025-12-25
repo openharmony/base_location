@@ -34,6 +34,7 @@ GeoConvertRequest::GeoConvertRequest()
     transId_ = "";
     country_ = "";
     requestType_ = GeoCodeType::REQUEST_GEOCODE;
+    priority_ = 0;
 }
 
 GeoConvertRequest::~GeoConvertRequest() {}
@@ -176,6 +177,26 @@ GeoCodeType GeoConvertRequest::GetRequestType()
 void GeoConvertRequest::SetRequestType(GeoCodeType requestType)
 {
     requestType_ = requestType;
+}
+
+int32_t GetPriority()
+{
+    return priority_;
+}
+
+void SetPriority(int32_t priority)
+{
+    priority_ = priority;
+}
+
+int64_t GetTimeStamp()
+{
+    return timestamp_;
+}
+
+void SetTimeStamp(int64_t timeStamp)
+{
+    timestamp_ = timeStamp;
 }
 
 bool GeoConvertRequest::Marshalling(MessageParcel& parcel) const

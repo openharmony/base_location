@@ -73,12 +73,7 @@ public:
 
     void OnResults(std::list<std::shared_ptr<GeoAddress>> &results) override;
     void OnErrorReport(const int errorCode) override;
-private:
-    sptr<IRemoteObject> cb_;
-    std::string locale_;
-    double latitude_;
-    double longitude_;
-    GeoCodeType requestType_;
+    GeoConvertRequest request_;
 };
 
 class GeoConvertService : public SystemAbility, public GeoConvertServiceStub {
@@ -114,6 +109,9 @@ public:
     bool SendGeocodeRequest(int code, MessageParcel& dataParcel, MessageParcel& replyParcel, MessageOption& option);
     ServiceConnectState GetServiceConnectState();
     void SetServiceConnectState(ServiceConnectState connectState);
+    std::list<std::shared_ptr<GeoAddress>> GetCahedGeoAddress(
+        std::unique_ptr<GeoConvertRequest> geoConvertRequest);
+    bool AddCahedGeoAddress(GeoConvertRequest geoConvertRequest);
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -126,6 +124,9 @@ private:
     bool IsConnecting();
     void RegisterGeoServiceDeathRecipient();
     void UnRegisterGeoServiceDeathRecipient();
+    bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel &data);
+    bool DeleteAgedGeoAddress();
+    
 
     bool mockEnabled_ = false;
     bool registerToService_ = false;

@@ -46,6 +46,10 @@ public:
     void SetLongitude(double longitude);
     int32_t GetMaxItems();
     void SetMaxItems(int32_t maxItems);
+    int32_t GetPriority();
+    void SetPriority(int32_t priority);
+    int64_t GetTimeStamp();
+    void SetTimeStamp(int64_t timeStamp);
     std::string GetDescription();
     void SetDescription(std::string description);
     double GetMaxLatitude();
@@ -75,7 +79,7 @@ private:
     std::string locale_;
     double latitude_;
     double longitude_;
-    int64_t maxItems_;
+    int32_t maxItems_;
     std::string description_;
     double maxLatitude_;
     double maxLongitude_;
@@ -86,6 +90,8 @@ private:
     std::string transId_;
     std::string country_;
     GeoCodeType requestType_;
+    int32_t priority_;
+    int64_t timeStamp_;
 };
 } // namespace OHOS
 } // namespace Location
