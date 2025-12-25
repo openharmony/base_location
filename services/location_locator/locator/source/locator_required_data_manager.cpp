@@ -202,7 +202,7 @@ LocationErrCode LocatorRequiredDataManager::AddScanCallback(
             return ERRCODE_WIFI_SCAN_FAIL;
         }
         if (config->GetType() == LocatingRequiredDataType::CELLULAR) {
-            return ERRCODE_WIFI_CELL_FAIL;
+            return ERRCODE_CELL_SCAN_FAIL;
         }
         return ERRCODE_SCAN_FAIL;
     }
