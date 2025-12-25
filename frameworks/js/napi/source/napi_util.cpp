@@ -30,6 +30,7 @@ namespace Location {
 static constexpr int MAX_BUF_LEN = 100;
 static constexpr int MIN_WIFI_SCAN_TIME = 5000;
 const uint32_t MAX_ADDITION_SIZE = 100;
+const uint32_t MAX_ARRAY_LENGTH = 1000;
 
 napi_value UndefinedNapiValue(const napi_env& env)
 {
@@ -469,12 +470,13 @@ void JsObjToLocatingRequiredDataConfig(const napi_env& env, const napi_value& ob
     if (JsObjectToInt(env, object, "slotId", valueInt) == SUCCESS) {
         config->SetSlotId(valueInt);
     }
-    std::vector<int32_t> vector;
-    if (GetIntArrayFromJsObj(env, object, "arfcn", vector)) {
-        config->SetArfcnArray(vector);
+    std::vector<int32_t> vectorArfcn;
+    if (GetIntArrayFromJsObj(env, object, "arfcn", vectorArfcn)) {
+        config->SetArfcnArray(vectorArfcn);
     }
-    if (GetIntArrayFromJsObj(env, object, "plmnId", vector)) {
-        config->SetPlmnParamArray(vector);
+    std::vector<int32_t> vectorPlmnId;
+    if (GetIntArrayFromJsObj(env, object, "plmnId", vectorPlmnId)) {
+        config->SetPlmnParamArray(vectorPlmnId);
     }
 }
 
@@ -669,7 +671,7 @@ bool GetStringArrayFromJsObj(napi_env env, napi_value value, std::vector<std::st
         LBSLOGE(LOCATOR_STANDARD, "The array is empty.");
         return false;
     }
-    for (size_t i = 0; i < arrayLength; i++) {
+    for (size_t i = 0; i < arrayLength && i < MAX_ARRAY_LENGTH; i++) {
         napi_value napiElement = nullptr;
         NAPI_CALL_BASE(env, napi_get_element(env, value, i, &napiElement), false);
         napi_valuetype napiValueType = napi_undefined;
@@ -1122,7 +1124,8 @@ std::map<int, std::string> GetErrorCodeMap()
         {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
             "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."},
         {LocationErrCode::ERRCODE_SCAN_FAIL, "Failed to start WiFi or Bluetooth scanning."},
-        {LocationErrCode::ERRCODE_WIFI_SCAN_FAIL, "Failed to start WiFi scanning."}
+        {LocationErrCode::ERRCODE_WIFI_SCAN_FAIL, "Failed to start WiFi scanning."},
+        {LocationErrCode::ERRCODE_CELL_SCAN_FAIL, "Failed to start Cell scanning."}
     };
     GetErrorCodeMapExt(errorCodeMap);
     return errorCodeMap;
@@ -1151,7 +1154,8 @@ int ConvertErrorCode(int errorCode)
             errorCode, LocationErrCode::ERRCODE_LOCATING_FAIL);
         return LocationErrCode::ERRCODE_LOCATING_FAIL;
     }
-    if (errorCode == LocationErrCode::ERRCODE_WIFI_SCAN_FAIL) {
+    if (errorCode == LocationErrCode::ERRCODE_WIFI_SCAN_FAIL ||
+        errorCode == LocationErrCode::ERRCODE_CELL_SCAN_FAIL) {
         return LocationErrCode::ERRCODE_SCAN_FAIL;
     }
     return errorCode;

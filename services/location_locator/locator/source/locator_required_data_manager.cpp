@@ -201,6 +201,9 @@ LocationErrCode LocatorRequiredDataManager::AddScanCallback(
         if (config->GetIsWlanMatchCalled()) {
             return ERRCODE_WIFI_SCAN_FAIL;
         }
+        if (config->GetType() == LocatingRequiredDataType::CELLULAR) {
+            return ERRCODE_WIFI_CELL_FAIL;
+        }
         return ERRCODE_SCAN_FAIL;
     }
     LBSLOGD(LOCATOR, "after RegisterCallback, callback size:%{public}s",
@@ -625,17 +628,17 @@ void LocatorRequiredDataManager::SetBluetoothScanStatus(bool bluetoothScanStatus
     bluetoothScanStatus_ = bluetoothScanStatus;
 }
 
-#ifdef WIFI_ENABLE
 int LocatorRequiredDataManager::TriggerWifiScan()
 {
+#ifdef WIFI_ENABLE
     wifiScanStartTimeStamp_ = CommonUtils::GetSinceBootTime() / NANOS_PER_MICRO;
     auto wifiService = Wifi::WifiScan::GetInstance(WIFI_SCAN_ABILITY_ID);
     if (wifiService == nullptr) {
         return Wifi::WIFI_OPT_FAILED;
     }
     return wifiService->Scan();
-}
 #endif
+}
 
 bool LocatorRequiredDataManager::IsWifiConnecting()
 {
