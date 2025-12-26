@@ -21,7 +21,7 @@ const TAG: string = '[Location-Privacy]==>'
 
 export default class LocationPrivacyExtAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
-        if (want.parameters == undefined) {
+        if (want.parameters == null || want.parameters == undefined) {
             return;
         }
 
