@@ -430,26 +430,9 @@ void GeofenceRequest::ConvertWantAgentInfo(std::shared_ptr<GeofenceRequest>& req
     }
 }
 
-std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json &jsonObject)
+void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
 {
-    if (jsonObject.is_null() || !jsonObject.is_object()) {
-        LBSLOGE(LOCATOR, "Invalid JSON object");
-        return nullptr;
-    }
-    auto request = std::make_shared<GeofenceRequest>();
-    if (request == nullptr) {
-        LBSLOGE(LOCATOR, "Failed to create request instance");
-        return nullptr;
-    }
-    ConvertTransitionEventInfo(request, jsonObject);
-    ConvertNotificationInfo(request, jsonObject);
-    ConvertWantAgentInfo(request, jsonObject);
-    if (jsonObject.find("geofence") != jsonObject.cend()) {
-        auto geofenceObj = jsonObject.at("geofence");
-        if (!geofenceObj.is_null()) {
-            ConvertGeoFenceInfo(geofenceObj, request->geofence_);
-        }
-    }
     if (jsonObject.find("scenario") != jsonObject.cend() && jsonObject.at("scenario").is_number()) {
         request->scenario_ = jsonObject.at("scenario").get<int>();
     }
@@ -473,9 +456,32 @@ std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json 
         request->appAliveStatus_ = jsonObject.at("appAliveStatus").get<bool>();
     }
     if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() &&
-        jsonObject.at("requestExpirationTimeStamp").is_string()) {
+        jsonObject.at("requestExpirationTimeStamp").is_number()) {
         request->requestExpirationTimeStamp_ = jsonObject.at("requestExpirationTimeStamp").get<int64_t>();
     }
+}
+
+std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json &jsonObject)
+{
+    if (jsonObject.is_null() || !jsonObject.is_object()) {
+        LBSLOGE(LOCATOR, "Invalid JSON object");
+        return nullptr;
+    }
+    auto request = std::make_shared<GeofenceRequest>();
+    if (request == nullptr) {
+        LBSLOGE(LOCATOR, "Failed to create request instance");
+        return nullptr;
+    }
+    ConvertTransitionEventInfo(request, jsonObject);
+    ConvertNotificationInfo(request, jsonObject);
+    ConvertWantAgentInfo(request, jsonObject);
+    if (jsonObject.find("geofence") != jsonObject.cend()) {
+        auto geofenceObj = jsonObject.at("geofence");
+        if (!geofenceObj.is_null()) {
+            ConvertGeoFenceInfo(geofenceObj, request->geofence_);
+        }
+    }
+    ConvertGeofenceRequestInfo(request, jsonObject);
     return request;
 }
 } // namespace Location

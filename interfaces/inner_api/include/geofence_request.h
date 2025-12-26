@@ -115,6 +115,7 @@ public:
     static void ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
     static void ConvertWantAgentInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
     static void ConvertTransitionEventInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    static void ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
 
 private:
     static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);
