@@ -88,6 +88,10 @@ public:
 
     void SetBundleName(const std::string& bundleName);
 
+    const std::string& GetFenceExtensionAbilityName();
+
+    void SetFenceExtensionAbilityName(const std::string& fenceExtensionAbilityName);
+
     int32_t GetUid();
 
     void SetUid(int32_t uid);
@@ -128,6 +132,7 @@ private:
     bool appAliveStatus_;
     int64_t requestExpirationTimeStamp_ = 0;
     mutable std::mutex geofenceRequestMutex_;
+    std::string fenceExtensionAbilityName_;
 };
 } // namespace Location
 } // namespace OHOS
