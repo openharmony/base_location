@@ -1075,15 +1075,15 @@ bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<Geofen
         if (gnssGeofenceRequest == nullptr) {
             continue;
         }
-        if (gnssGeofenceRequest->GetBundleName().compare(bundleName) == 0 &&
-            gnssGeofenceRequest->GetFenceId() == fenceId) {
+        if (gnssGeofenceRequest->GetBundleName().compare(request->GetBundleName()) == 0 &&
+            gnssGeofenceRequest->GetFenceId() == request->GetFenceId()) {
             sptr<IRemoteObject> callback = request->GetGeofenceTransitionCallback();
             if (!gnssGeofenceRequest->GetAppAliveStatus() && callback != nullptr) {
                 gnssGeofenceRequest->SetAppAliveStatus(true);
                 gnssGeofenceRequest->SetGeofenceTransitionCallback(callback);
                 sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
                 callback->AddDeathRecipient(death);
-                gnssGeofenceRequest->SetTransitionCallbackRecipient(death);
+                gnssGeofenceRequest->SetTransitionCallbackDeathRecipient(death);
             }
             return true;
         }
