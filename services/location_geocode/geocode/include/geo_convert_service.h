@@ -36,6 +36,8 @@
 #include "geocoding_mock_info.h"
 #include "geo_convert_skeleton.h"
 #include "ability_connect_callback_interface.h"
+#include "i_geocode_callback.h"
+#include "geo_convert_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -111,7 +113,8 @@ public:
     void SetServiceConnectState(ServiceConnectState connectState);
     std::list<std::shared_ptr<GeoAddress>> GetCahedGeoAddress(
         std::unique_ptr<GeoConvertRequest> geoConvertRequest);
-    bool AddCahedGeoAddress(GeoConvertRequest geoConvertRequest);
+    void AddCahedGeoAddress(GeoConvertRequest geoConvertRequest, MessageParcel& dataParcel);
+    bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel& data);
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -124,9 +127,7 @@ private:
     bool IsConnecting();
     void RegisterGeoServiceDeathRecipient();
     void UnRegisterGeoServiceDeathRecipient();
-    bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel &data);
-    bool DeleteAgedGeoAddress();
-    
+    void DeleteAgedGeoAddress();
 
     bool mockEnabled_ = false;
     bool registerToService_ = false;
@@ -143,6 +144,7 @@ private:
         sptr<GeoServiceDeathRecipient>(new (std::nothrow) GeoServiceDeathRecipient());
     std::mutex connectStateMutex_;
     ServiceConnectState connectState_ = ServiceConnectState::STATE_DISCONNECT;
+    std::map<std::shared_ptr<GeoConvertRequest>, std::list<std::shared_ptr<GeoAddress>>> cachedGeoAddressMapList_;
 };
 } // namespace OHOS
 } // namespace Location

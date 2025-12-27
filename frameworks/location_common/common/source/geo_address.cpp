@@ -25,6 +25,30 @@ GeoAddress::GeoAddress()
     longitude_ = 0.0;
 }
 
+GeoAddress::GeoAddress(const GeoAddress& geoAddress)
+{
+    latitude_ = geoAddress.latitude_;
+    longitude_ = geoAddress.longitude_;
+    locale_ = geoAddress.locale_;
+    placeName_ = geoAddress.placeName_;
+    countryCode_ = geoAddress.countryCode_;
+    countryName_ = geoAddress.countryName_;
+    administrativeArea_ = geoAddress.administrativeArea_;
+    subAdministrativeArea_ = geoAddress.subAdministrativeArea_;
+    locality_ = geoAddress.locality_;
+    subLocality_ = geoAddress.subLocality_;
+    roadName_ = geoAddress.roadName_;
+    subRoadName_ = geoAddress.subRoadName_;
+    premises_ = geoAddress.premises_;
+    postalCode_ = geoAddress.postalCode_;
+    phoneNumber_ = geoAddress.phoneNumber_;
+    addressUrl_ = geoAddress.addressUrl_;
+    descriptions_ = geoAddress.descriptions_;
+    descriptionsSize_ = geoAddress.descriptionsSize_;
+    isFromMock_ = geoAddress.isFromMock_;
+    isSystemApp_ = geoAddress.isSystemApp_;
+}
+
 std::string GeoAddress::GetDescriptions(int index)
 {
     if (index < 0) {
