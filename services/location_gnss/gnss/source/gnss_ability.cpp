@@ -1007,7 +1007,7 @@ LocationErrCode GnssAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
         LBSLOGE(GNSS, "request is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (!CheckBundleNameInGnssGeofenceRequestMap(request->GetBundleName(), request->GetFenceId())) {
+    if (!CheckBundleNameInGnssGeofenceRequestMap(request)) {
         LBSLOGE(GNSS, "bundleName is not registered");
         return ERRCODE_GEOFENCE_INCORRECT_ID;
     }
@@ -1066,7 +1066,7 @@ void GnssAbility::ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &
         static_cast<int>(type), static_cast<int>(DealOperationResult(code)));
 }
 
-bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId)
+bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<GeofenceRequest>& request)
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     for (auto iter = gnssGeofenceRequestList_.begin();

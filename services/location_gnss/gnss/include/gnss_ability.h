@@ -276,7 +276,7 @@ private:
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
     bool IsGnssfenceRequestExist();
-    bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
+    bool CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<GeofenceRequest>& request);
     bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
     bool ConnectGnssHdi();
     bool IsSupportGps();

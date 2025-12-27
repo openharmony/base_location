@@ -185,7 +185,6 @@ void LocationGnssGeofenceCallbackNapi::OnTransitionStatusChange(
 
 void LocationGnssGeofenceCallbackNapi::OnReportOperationResult(int fenceId, int type, int result)
 {
-    int addValue = static_cast<int>(GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD);
     GnssGeofenceOperateResult optResult = static_cast<GnssGeofenceOperateResult>(result);
     GnssGeofenceOperateType optType = static_cast<GnssGeofenceOperateType>(type);
     if (result == GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS &&
