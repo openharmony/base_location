@@ -303,8 +303,9 @@ HWTEST_F(LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level
     GTEST_LOG_(INFO)
         << "LocatorAbilityTest, LocatorAbilityRemoveGnssGeofence001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence001 begin");
-    int32_t fenceId = 1;
-    locatorAbility->RemoveGnssGeofence(fenceId);
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetFenceId(1);
+    locatorAbility->RemoveGnssGeofence(*request);
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] LocatorAbilityRemoveGnssGeofence001 end");
 }
 #endif
@@ -986,7 +987,7 @@ HWTEST_F(LocatorAbilityTest, Add_RemoveGnssFence_Test_001, TestSize.Level1)
 
     // Act
     ErrCode result = locatorAbility->AddGnssGeofence(*request);
-    result = locatorAbility->RemoveGnssGeofence(fenceId);
+    result = locatorAbility->RemoveGnssGeofence(*request);
     
     // Assert
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] Add_RemoveGnssFence_Test_001 end");

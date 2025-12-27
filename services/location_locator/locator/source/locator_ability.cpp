@@ -1003,7 +1003,7 @@ ErrCode LocatorAbility::AddGnssGeofence(const GeofenceRequest& request)
 #endif
 }
 
-ErrCode LocatorAbility::RemoveGnssGeofence(int32_t fenceId)
+ErrCode LocatorAbility::RemoveGnssGeofence(const GeofenceRequest& request)
 {
 #ifdef FEATURE_GNSS_SUPPORT
     AppIdentity identity;
@@ -1017,13 +1017,16 @@ ErrCode LocatorAbility::RemoveGnssGeofence(int32_t fenceId)
     if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
+    std::shared_ptr<GeofenceRequest> geofenceRequest =
+    std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
+    geofenceRequest->SetBundleName(identity.GetBundleName());
+    geofenceRequest->SetUid(identity.GetUid());
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    dataToStub.WriteInt32(fenceId);
-    dataToStub.WriteString(identity.GetBundleName());
+    geofenceRequest->Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE), dataToStub, replyToStub);
 #else

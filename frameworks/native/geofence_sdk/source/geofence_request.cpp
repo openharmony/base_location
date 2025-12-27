@@ -208,6 +208,7 @@ sptr<IRemoteObject::DeathRecipient> GeofenceRequest::GetTransitionCallbackRecipi
 void GeofenceRequest::ReadFromParcel(Parcel& data)
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
+    fenceId_ = data.ReadInt32();
     scenario_ = data.ReadInt32();
     loiterTimeMs_ = data.ReadInt32();
     geofence_.latitude = data.ReadDouble();
@@ -257,6 +258,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
 bool GeofenceRequest::Marshalling(Parcel& parcel) const
 {
     std::unique_lock<std::mutex> lock(geofenceRequestMutex_);
+    parcel.WriteInt32(fenceId_);
     parcel.WriteInt32(scenario_);
     parcel.WriteInt32(loiterTimeMs_);
     parcel.WriteDouble(geofence_.latitude);

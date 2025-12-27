@@ -185,18 +185,14 @@ void LocationGnssGeofenceCallbackNapi::OnTransitionStatusChange(
 
 void LocationGnssGeofenceCallbackNapi::OnReportOperationResult(int fenceId, int type, int result)
 {
-    int addValue = static_cast<int>(GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD);
-    if ((type != addValue && fenceId == GetFenceId()) ||
-        (type == addValue)) {
-        GnssGeofenceOperateResult optResult = static_cast<GnssGeofenceOperateResult>(result);
-        GnssGeofenceOperateType optType = static_cast<GnssGeofenceOperateType>(type);
-        if (result == GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS &&
-            optType == GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD) {
-            SetFenceId(fenceId);
-        }
-        SetGeofenceOperationType(optType);
-        SetGeofenceOperationResult(optResult);
+    GnssGeofenceOperateResult optResult = static_cast<GnssGeofenceOperateResult>(result);
+    GnssGeofenceOperateType optType = static_cast<GnssGeofenceOperateType>(type);
+    if (result == GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS &&
+        optType == GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD) {
+        SetFenceId(fenceId);
     }
+    SetGeofenceOperationType(optType);
+    SetGeofenceOperationResult(optResult);
 }
 
 bool LocationGnssGeofenceCallbackNapi::IsRemoteDied()
