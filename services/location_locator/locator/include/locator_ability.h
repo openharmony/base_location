@@ -149,7 +149,7 @@ public:
     ErrCode AddFence(const GeofenceRequest& request) override;
     ErrCode RemoveFence(const GeofenceRequest& request) override;
     ErrCode AddGnssGeofence(const GeofenceRequest& request) override;
-    ErrCode RemoveGnssGeofence(int32_t fenceId) override;
+    ErrCode RemoveGnssGeofence(const GeofenceRequest& request) override;
     ErrCode StartLocating(const RequestConfig& requestConfig, const sptr<ILocatorCallback>& cb) override;
     ErrCode StopLocating(const sptr<ILocatorCallback>& cb) override;
     ErrCode GetCacheLocation(Location& location) override;

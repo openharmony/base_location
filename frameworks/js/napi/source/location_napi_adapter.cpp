@@ -1685,6 +1685,15 @@ void SetExecuteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncC
         auto context = static_cast<GnssGeofenceAsyncContext*>(data);
         std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
         request->SetFenceId(context->fenceId_);
+        if (context->callbackHost_ == nullptr) {
+            auto locationGnssGeofenceCallbackHost =
+                sptr<LocationGnssGeofenceCallbackNapi>(new LocationGnssGeofenceCallbackNapi());
+            napi_value object = nullptr;
+            JsObjToGeofenceTransitionCallback(context->env, object, locationGnssGeofenceCallbackHost);
+            auto callbackPtr = sptr<IGnssGeofenceCallback>(locationGnssGeofenceCallbackHost);
+            request->SetGeofenceTransitionCallback(callbackPtr->AsObject());
+            context->callbackHost_ = locationGnssGeofenceCallbackHost;
+        }
         context->errCode = g_geofenceClient->RemoveGnssGeofence(request);
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
@@ -1696,8 +1705,6 @@ void SetExecuteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncC
                 context->errCode = ERRCODE_SERVICE_UNAVAILABLE;
             }
             callbackHost->SetCount(1);
-        } else {
-            context->errCode = ERRCODE_GEOFENCE_INCORRECT_ID;
         }
     };
 }

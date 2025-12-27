@@ -1077,6 +1077,14 @@ bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(const std::string& bun
         }
         if (gnssGeofenceRequest->GetBundleName().compare(bundleName) == 0 &&
             gnssGeofenceRequest->GetFenceId() == fenceId) {
+            sptr<IRemoteObject> callback = request->GetGeofenceTransitionCallback();
+            if (!gnssGeofenceRequest->GetAppAliveStatus() && callback != nullptr) {
+                gnssGeofenceRequest->SetAppAliveStatus(true);
+                gnssGeofenceRequest->SetGeofenceTransitionCallback(callback);
+                sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssGeofenceCallbackDeathRecipient());
+                callback->AddDeathRecipient(death);
+                gnssGeofenceRequest->SetTransitionCallbackRecipient(death);
+            }
             return true;
         }
     }
@@ -2231,9 +2239,7 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             break;
         }
         case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE): {
-            std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-            request->SetFenceId(data.ReadInt32());
-            request->SetBundleName(data.ReadString());
+            auto request = GeofenceRequest::UnmarshallingShared(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
             SendEvent(event, reply);
             break;

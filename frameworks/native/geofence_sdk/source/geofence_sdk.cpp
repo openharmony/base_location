@@ -154,7 +154,7 @@ LocationErrCode GeofenceManager::RemoveGnssGeofence(std::shared_ptr<GeofenceRequ
     if (request == nullptr) {
         return ERRCODE_INVALID_PARAM;
     }
-    ErrCode errorCodeValue = proxy->RemoveGnssGeofence(request->GetFenceId());
+    ErrCode errorCodeValue = proxy->RemoveGnssGeofence(*request);
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }

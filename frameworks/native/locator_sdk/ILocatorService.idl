@@ -69,7 +69,7 @@ interface OHOS.Location.ILocatorService {
     [ipccode 43] void RegisterLocatingRequiredDataCallback([in] LocatingRequiredDataConfig dataConfig, [in] ILocatingRequiredDataCallback cb);
     [ipccode 44] void UnRegisterLocatingRequiredDataCallback([in] ILocatingRequiredDataCallback cb);
     [ipccode 45] void AddGnssGeofence([in] GeofenceRequest request);
-    [ipccode 46] void RemoveGnssGeofence([in] int fenceId);
+    [ipccode 46] void RemoveGnssGeofence([in] GeofenceRequest request);
     [ipccode 47] void QuerySupportCoordinateSystemType([out] List<CoordinateType> coordinateTypes);
     [ipccode 48] void SubscribeLocationError([in] ILocatorCallback cb);
     [ipccode 49] void UnSubscribeLocationError([in] ILocatorCallback cb);

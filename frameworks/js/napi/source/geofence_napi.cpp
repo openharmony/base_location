@@ -77,9 +77,13 @@ void JsObjToGeofenceTransitionCallback(const napi_env& env, const napi_value& ob
 {
     napi_ref handlerRef = nullptr;
     napi_value callbackNapiValue = nullptr;
-    NAPI_CALL_RETURN_VOID(env,
-        napi_get_named_property(env, object, "geofenceTransitionCallback", &callbackNapiValue));
-    NAPI_CALL_RETURN_VOID(env, napi_create_reference(env, callbackNapiValue, 1, &handlerRef));
+    if (object != nullptr) {
+        NAPI_CALL_RETURN_VOID(env,
+            napi_get_named_property(env, object, "geofenceTransitionCallback", &callbackNapiValue));
+    }
+    if (callbackNapiValue != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_create_reference(env, callbackNapiValue, 1, &handlerRef));
+    }
     callbackHost->SetEnv(env);
     callbackHost->SetHandleCb(handlerRef);
 }
