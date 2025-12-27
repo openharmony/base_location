@@ -115,6 +115,8 @@ public:
         std::unique_ptr<GeoConvertRequest> geoConvertRequest);
     void AddCahedGeoAddress(GeoConvertRequest geoConvertRequest, MessageParcel& dataParcel);
     bool WriteResultToParcel(const std::list<std::shared_ptr<GeoAddress>> result, MessageParcel& data);
+    void SendCacheAddressToRequest(
+        std::unique_ptr<GeoConvertRequest> geoConvertRequest, std::list<std::shared_ptr<GeoAddress>> result);
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -144,6 +146,7 @@ private:
         sptr<GeoServiceDeathRecipient>(new (std::nothrow) GeoServiceDeathRecipient());
     std::mutex connectStateMutex_;
     ServiceConnectState connectState_ = ServiceConnectState::STATE_DISCONNECT;
+    std::mutex cachedGeoAddressMapListMutex_;
     std::map<std::shared_ptr<GeoConvertRequest>, std::list<std::shared_ptr<GeoAddress>>> cachedGeoAddressMapList_;
 };
 } // namespace OHOS

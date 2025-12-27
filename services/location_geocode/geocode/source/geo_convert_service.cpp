@@ -40,6 +40,8 @@ const int GEOCONVERT_CONNECT_TIME_OUT = 5;
 const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const int UNLOAD_GEOCONVERT_DELAY_TIME = 10 * EVENT_INTERVAL_UNITE;
 const int TIMEOUT_WATCHDOG = 60; // s
+const int MAX_CACHED_VALID_DISTANCE = 100; // m
+const int MAX_CACHED_NUM = 10;
 static const int MAX_RESULT = 10;
 
 GeoConvertService* GeoConvertService::GetInstance()
@@ -491,6 +493,10 @@ bool GeoConvertService::IsConnecting()
 
 void GeoConvertService::AddCahedGeoAddress(GeoConvertRequest geoConvertRequest, MessageParcel& dataParcel)
 {
+    auto geoAddressList = GetCahedGeoAddress(std::make_unique<GeoConvertRequest>(geoConvertRequest));
+    if (geoAddressList.size() > 0) {
+        return;
+    }
     int errCode = dataParcel.ReadInt32();
     if (errCode != 0) {
         LBSLOGE(GEO_CONVERT, "something wrong, errCode = %{public}d", errCode);
@@ -508,16 +514,18 @@ void GeoConvertService::AddCahedGeoAddress(GeoConvertRequest geoConvertRequest, 
         }
         result.push_back(std::make_shared<GeoAddress>(*geoAddress));
     }
-
-    if (static_cast<int32_t>(cachedGeoAddressMapList_.size()) == 10) {
+    std::unique_lock<std::mutex> uniqueLock(cachedGeoAddressMapListMutex_);
+    if (static_cast<int32_t>(cachedGeoAddressMapList_.size()) >= MAX_CACHED_NUM) {
         DeleteAgedGeoAddress();
     }
+    geoConvertRequest.SetTimeStamp(CommonUtils::GetCurrentTimeStamp());
     cachedGeoAddressMapList_[std::make_shared<GeoConvertRequest>(geoConvertRequest)] = result;
 }
 
 std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
     std::unique_ptr<GeoConvertRequest> geoConvertRequest)
 {
+    std::unique_lock<std::mutex> uniqueLock(cachedGeoAddressMapListMutex_);
     std::list<std::shared_ptr<GeoAddress>> result;
     for (auto iter = cachedGeoAddressMapList_.begin(); iter != cachedGeoAddressMapList_.end(); ++iter) {
         auto request = iter->first;
@@ -525,10 +533,12 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
             continue;
         }
         if (Location::GetDistanceBetweenLocations(request->GetLatitude(), request->GetLongitude(),
-            geoConvertRequest->GetLatitude(), geoConvertRequest->GetLongitude()) > 100) {
+            geoConvertRequest->GetLatitude(), geoConvertRequest->GetLongitude()) > MAX_CACHED_VALID_DISTANCE) {
             continue;
         }
         result = iter->second;
+        request->SetTimeStamp(CommonUtils::GetCurrentTimeStamp());
+        request->SetPriority(request->GetPriority() + 1);
     }
     return result;
 }
@@ -548,6 +558,19 @@ void GeoConvertService::DeleteAgedGeoAddress()
         }
     }
     cachedGeoAddressMapList_.erase(iterDelete);
+}
+
+void GeoConvertService::SendCacheAddressToRequest(
+    std::unique_ptr<GeoConvertRequest> geoConvertRequest, std::list<std::shared_ptr<GeoAddress>> result)
+{
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    MessageOption option;
+    dataParcel.WriteInterfaceToken(geoConvertRequest->GetCallback()->GetInterfaceDescriptor());
+    WriteResultToParcel(result, dataParcel);
+    int32_t errCode = geoConvertRequest->GetCallback()->SendRequest(
+        GeoCodeCallback::RECEIVE_GEOCODE_INFO_EVENT, dataParcel, reply, option);
+    LBSLOGD(GEO_CONVERT, "SendRequest RECEIVE_GEOCODE_INFO_EVENT, errCode=%{public}d", errCode);
 }
 
 GeoServiceDeathRecipient::GeoServiceDeathRecipient()
@@ -620,16 +643,11 @@ void GeoConvertHandler::SendGeocodeRequest(const AppExecFwk::InnerEvent::Pointer
     }
     auto geoConvertService = GeoConvertService::GetInstance();
     if (geoConvertRequest->GetRequestType() == GeoCodeType::REQUEST_REVERSE_GEOCODE) {
-        auto result = geoConvertService->GetCahedGeoAddress(std::make_unique<GeoConvertRequest>(*geoConvertRequest));
+        auto result = geoConvertService->GetCahedGeoAddress(
+            std::make_unique<GeoConvertRequest>(*geoConvertRequest));
         if (result.size() > 0) {
-            MessageParcel dataParcel;
-            MessageParcel reply;
-            MessageOption option;
-            dataParcel.WriteInterfaceToken(geoConvertRequest->GetCallback()->GetInterfaceDescriptor());
-            geoConvertService->WriteResultToParcel(result, dataParcel);
-            int32_t errCode = geoConvertRequest->GetCallback()->SendRequest(
-                GeoCodeCallback::RECEIVE_GEOCODE_INFO_EVENT, dataParcel, reply, option);
-            LBSLOGD(GEO_CONVERT, "SendRequest RECEIVE_GEOCODE_INFO_EVENT, errCode=%{public}d", errCode);
+            geoConvertService->SendCacheAddressToRequest(
+                std::make_unique<GeoConvertRequest>(*geoConvertRequest), result);
             return;
         }
     }
@@ -670,13 +688,10 @@ int GeoCodeCallback::OnRemoteRequest(
         LBSLOGE(GEO_CONVERT, "invalid token.");
         return -1;
     }
-    MessageParcel dataParcel;
-    dataParcel.WriteInterfaceToken(request_.GetCallback()->GetInterfaceDescriptor());
-    dataParcel.Append(data);
     switch (code) {
         case RECEIVE_GEOCODE_INFO_EVENT: {
             int32_t errCode =
-                request_.GetCallback()->SendRequest(RECEIVE_GEOCODE_INFO_EVENT, dataParcel, reply, option);
+                request_.GetCallback()->SendRequest(RECEIVE_GEOCODE_INFO_EVENT, data, reply, option);
             LBSLOGD(GEO_CONVERT, "SendRequest RECEIVE_GEOCODE_INFO_EVENT, errCode=%{public}d", errCode);
             if (request_.GetRequestType() == GeoCodeType::REQUEST_REVERSE_GEOCODE) {
                 GeoConvertService::GetInstance()->AddCahedGeoAddress(request_, data);
@@ -684,12 +699,12 @@ int GeoCodeCallback::OnRemoteRequest(
             break;
         }
         case ERROR_INFO_EVENT: {
-            int32_t errCode = request_.GetCallback()->SendRequest(ERROR_INFO_EVENT, dataParcel, reply, option);
+            int32_t errCode = request_.GetCallback()->SendRequest(ERROR_INFO_EVENT, data, reply, option);
             LBSLOGD(GEO_CONVERT, "SendRequest ERROR_INFO_EVENT, errCode=%{public}d", errCode);
             break;
         }
         default: {
-            IPCObjectStub::OnRemoteRequest(code, dataParcel, reply, option);
+            IPCObjectStub::OnRemoteRequest(code, data, reply, option);
             break;
         }
     }
