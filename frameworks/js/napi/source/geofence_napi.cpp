@@ -29,6 +29,7 @@
 namespace OHOS {
 namespace Location {
 const int MAX_TRANSITION_ARRAY_SIZE = 3;
+static constexpr int MAX_BUF_LEN = 100;
 
 bool ParseGnssGeofenceRequest(
     const napi_env& env, const napi_value& value, std::shared_ptr<GeofenceRequest>& request)
@@ -68,6 +69,12 @@ bool GenGnssGeofenceRequest(
             return false;
         }
         geofenceRequest->SetLoiterTimeMs(loiterTimeMs);
+    }
+    std::string fenceExtensionAbilityName = "";
+    int fenceExtensionAbilityNameRes =
+        JsObjectToString(env, value, "fenceExtensionAbilityName", MAX_BUF_LEN, fenceExtensionAbilityName);
+    if (fenceExtensionAbilityNameRes == SUCCESS) {
+        geofenceRequest->SetFenceExtensionAbilityName(fenceExtensionAbilityName);
     }
     return true;
 }

@@ -88,6 +88,10 @@ public:
 
     void SetBundleName(const std::string& bundleName);
 
+    const std::string& GetFenceExtensionAbilityName();
+
+    void SetFenceExtensionAbilityName(const std::string& fenceExtensionAbilityName);
+
     int32_t GetUid();
 
     void SetUid(int32_t uid);
@@ -111,6 +115,7 @@ public:
     static void ConvertNotificationInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
     static void ConvertWantAgentInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
     static void ConvertTransitionEventInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    static void ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
 
 private:
     static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);
@@ -128,6 +133,7 @@ private:
     bool appAliveStatus_;
     int64_t requestExpirationTimeStamp_ = 0;
     mutable std::mutex geofenceRequestMutex_;
+    std::string fenceExtensionAbilityName_;
 };
 } // namespace Location
 } // namespace OHOS

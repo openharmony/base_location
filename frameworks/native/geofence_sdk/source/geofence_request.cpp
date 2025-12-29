@@ -48,6 +48,7 @@ GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
     this->SetFenceId(geofenceRequest.GetFenceId());
     this->SetBundleName(geofenceRequest.GetBundleName());
     this->SetLoiterTimeMs(geofenceRequest.GetLoiterTimeMs());
+    this->SetFenceExtensionAbilityName(geofenceRequest.GetFenceExtensionAbilityName());
 }
 
 GeofenceRequest::~GeofenceRequest() {}
@@ -165,6 +166,16 @@ void GeofenceRequest::SetBundleName(const std::string& bundleName)
     bundleName_ = bundleName;
 }
 
+const std::string& GeofenceRequest::GetFenceExtensionAbilityName()
+{
+    return fenceExtensionAbilityName_;
+}
+
+void GeofenceRequest::SetFenceExtensionAbilityName(const std::string& fenceExtensionAbilityName)
+{
+    fenceExtensionAbilityName_ = fenceExtensionAbilityName;
+}
+
 int32_t GeofenceRequest::GetUid()
 {
     return uid_;
@@ -240,6 +251,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
 #endif
     callback_ = data.ReadObject<IRemoteObject>();
     data.ReadString(bundleName_);
+    data.ReadString(fenceExtensionAbilityName_);
     uid_ = data.ReadInt32();
     AbilityRuntime::WantAgent::WantAgent* wantAgentData =
         AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data);
@@ -288,6 +300,7 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
 #endif
     parcel.WriteRemoteObject(callback_);
     parcel.WriteString(bundleName_);
+    parcel.WriteString(fenceExtensionAbilityName_);
     parcel.WriteInt32(uid_);
     if (wantAgent_ != nullptr) {
         wantAgent_->Marshalling(parcel);
@@ -332,10 +345,12 @@ bool GeofenceRequest::ToJson(nlohmann::json &jsonObject)
     jsonGeofenceObj["coordinateSystemType"] = geofence_.coordinateSystemType;
     jsonObject["geofence"] = jsonGeofenceObj;
     jsonObject["scenario"] = scenario_;
+    jsonObject["loiterTimeMs"] = loiterTimeMs_;
     jsonObject["fenceId"] = fenceId_;
     jsonObject["uid"] = uid_;
     jsonObject["wantAgent"] = wantAgent_ ? AbilityRuntime::WantAgent::WantAgentHelper::ToString(wantAgent_) : "";
     jsonObject["bundleName"] = bundleName_;
+    jsonObject["fenceExtensionAbilityName"] = fenceExtensionAbilityName_;
     jsonObject["appAliveStatus"] = appAliveStatus_;
     jsonObject["requestExpirationTimeStamp"] = requestExpirationTimeStamp_;
     return true;
@@ -417,6 +432,37 @@ void GeofenceRequest::ConvertWantAgentInfo(std::shared_ptr<GeofenceRequest>& req
     }
 }
 
+void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
+{
+    if (jsonObject.find("scenario") != jsonObject.cend() && jsonObject.at("scenario").is_number()) {
+        request->scenario_ = jsonObject.at("scenario").get<int>();
+    }
+    if (jsonObject.find("loiterTimeMs") != jsonObject.cend() && jsonObject.at("loiterTimeMs").is_number()) {
+        request->loiterTimeMs_ = jsonObject.at("loiterTimeMs").get<int>();
+    }
+    if (jsonObject.find("fenceId") != jsonObject.cend() && jsonObject.at("fenceId").is_number()) {
+        request->fenceId_ = jsonObject.at("fenceId").get<int>();
+    }
+    if (jsonObject.find("uid") != jsonObject.cend() && jsonObject.at("uid").is_number()) {
+        request->uid_ = jsonObject.at("uid").get<int>();
+    }
+    if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
+        request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
+    }
+    if (jsonObject.find("fenceExtensionAbilityName") != jsonObject.cend() &&
+        jsonObject.at("fenceExtensionAbilityName").is_string()) {
+        request->fenceExtensionAbilityName_ = jsonObject.at("fenceExtensionAbilityName").get<std::string>();
+    }
+    if (jsonObject.find("appAliveStatus") != jsonObject.cend() && jsonObject.at("appAliveStatus").is_boolean()) {
+        request->appAliveStatus_ = jsonObject.at("appAliveStatus").get<bool>();
+    }
+    if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() &&
+        jsonObject.at("requestExpirationTimeStamp").is_number()) {
+        request->requestExpirationTimeStamp_ = jsonObject.at("requestExpirationTimeStamp").get<int64_t>();
+    }
+}
+
 std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json &jsonObject)
 {
     if (jsonObject.is_null() || !jsonObject.is_object()) {
@@ -437,25 +483,7 @@ std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json 
             ConvertGeoFenceInfo(geofenceObj, request->geofence_);
         }
     }
-    if (jsonObject.find("scenario") != jsonObject.cend() && jsonObject.at("scenario").is_number()) {
-        request->scenario_ = jsonObject.at("scenario").get<int>();
-    }
-    if (jsonObject.find("fenceId") != jsonObject.cend() && jsonObject.at("fenceId").is_number()) {
-        request->fenceId_ = jsonObject.at("fenceId").get<int>();
-    }
-    if (jsonObject.find("uid") != jsonObject.cend() && jsonObject.at("uid").is_number()) {
-        request->uid_ = jsonObject.at("uid").get<int>();
-    }
-    if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
-        request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
-    }
-    if (jsonObject.find("appAliveStatus") != jsonObject.cend() && jsonObject.at("appAliveStatus").is_boolean()) {
-        request->appAliveStatus_ = jsonObject.at("appAliveStatus").get<bool>();
-    }
-    if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() &&
-        jsonObject.at("requestExpirationTimeStamp").is_string()) {
-        request->requestExpirationTimeStamp_ = jsonObject.at("requestExpirationTimeStamp").get<int64_t>();
-    }
+    ConvertGeofenceRequestInfo(request, jsonObject);
     return request;
 }
 } // namespace Location
