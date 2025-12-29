@@ -702,13 +702,15 @@ int GeoCodeCallback::OnRemoteRequest(
         LBSLOGE(GEO_CONVERT, "invalid token.");
         return -1;
     }
+    MessageParcel dataParcel;
+    dataParcel.Append(data);
     switch (code) {
         case RECEIVE_GEOCODE_INFO_EVENT: {
             if (request_.GetCallback() == nullptr) {
                 break;
             }
             int32_t errCode =
-                request_.GetCallback()->SendRequest(RECEIVE_GEOCODE_INFO_EVENT, data, reply, option);
+                request_.GetCallback()->SendRequest(RECEIVE_GEOCODE_INFO_EVENT, dataParcel, reply, option);
             LBSLOGD(GEO_CONVERT, "SendRequest RECEIVE_GEOCODE_INFO_EVENT, errCode=%{public}d", errCode);
             if (request_.GetRequestType() == GeoCodeType::REQUEST_REVERSE_GEOCODE) {
                 GeoConvertService::GetInstance()->AddCahedGeoAddress(request_, data);
@@ -719,12 +721,12 @@ int GeoCodeCallback::OnRemoteRequest(
             if (request_.GetCallback() == nullptr) {
                 break;
             }
-            int32_t errCode = request_.GetCallback()->SendRequest(ERROR_INFO_EVENT, data, reply, option);
+            int32_t errCode = request_.GetCallback()->SendRequest(ERROR_INFO_EVENT, dataParcel, reply, option);
             LBSLOGD(GEO_CONVERT, "SendRequest ERROR_INFO_EVENT, errCode=%{public}d", errCode);
             break;
         }
         default: {
-            IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+            IPCObjectStub::OnRemoteRequest(code, dataParcel, reply, option);
             break;
         }
     }
