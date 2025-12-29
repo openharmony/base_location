@@ -43,8 +43,11 @@ GeoAddress::GeoAddress(const GeoAddress& geoAddress)
     postalCode_ = geoAddress.postalCode_;
     phoneNumber_ = geoAddress.phoneNumber_;
     addressUrl_ = geoAddress.addressUrl_;
-    descriptions_ = geoAddress.descriptions_;
-    descriptionsSize_ = geoAddress.descriptionsSize_;
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        descriptions_ = geoAddress.descriptions_;
+        descriptionsSize_ = geoAddress.descriptionsSize_;
+    }
     isFromMock_ = geoAddress.isFromMock_;
     isSystemApp_ = geoAddress.isSystemApp_;
 }

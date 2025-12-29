@@ -539,6 +539,7 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
         result = iter->second;
         request->SetTimeStamp(CommonUtils::GetCurrentTimeStamp());
         request->SetPriority(request->GetPriority() + 1);
+        return result;
     }
     return result;
 }
