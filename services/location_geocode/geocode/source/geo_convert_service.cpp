@@ -509,6 +509,9 @@ void GeoConvertService::AddCahedGeoAddress(GeoConvertRequest geoConvertRequest, 
     std::list<std::shared_ptr<GeoAddress>> result;
     for (int i = 0; i < cnt; i++) {
         auto geoAddress = GeoAddress::Unmarshalling(dataParcel);
+        if (geoAddress == nullptr) {
+            continue;
+        }
         if (geoAddress->placeName_.empty()) {
             return;
         }
@@ -518,7 +521,7 @@ void GeoConvertService::AddCahedGeoAddress(GeoConvertRequest geoConvertRequest, 
     if (static_cast<int32_t>(cachedGeoAddressMapList_.size()) >= MAX_CACHED_NUM) {
         DeleteAgedGeoAddress();
     }
-    geoConvertRequest.SetTimeStamp(CommonUtils::GetCurrentTimeStamp());
+    geoConvertRequest.SetTimeStamp(CommonUtils::GetCurrentTimeStamp()); // utc time
     cachedGeoAddressMapList_[std::make_shared<GeoConvertRequest>(geoConvertRequest)] = result;
 }
 
@@ -527,6 +530,9 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
 {
     std::unique_lock<std::mutex> uniqueLock(cachedGeoAddressMapListMutex_);
     std::list<std::shared_ptr<GeoAddress>> result;
+    if (geoConvertRequest == nullptr) {
+        return result;
+    }
     for (auto iter = cachedGeoAddressMapList_.begin(); iter != cachedGeoAddressMapList_.end(); ++iter) {
         auto request = iter->first;
         if (request->GetLocale() != geoConvertRequest->GetLocale()) {
@@ -537,7 +543,7 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
             continue;
         }
         result = iter->second;
-        request->SetTimeStamp(CommonUtils::GetCurrentTimeStamp());
+        request->SetTimeStamp(CommonUtils::GetCurrentTimeStamp()); // utc time
         request->SetPriority(request->GetPriority() + 1);
         return result;
     }
@@ -551,6 +557,10 @@ void GeoConvertService::DeleteAgedGeoAddress()
     auto iterDelete = cachedGeoAddressMapList_.begin();
     for (auto iter = cachedGeoAddressMapList_.begin(); iter != cachedGeoAddressMapList_.end(); ++iter) {
         auto geoConvertRequest = iter->first;
+        if (geoConvertRequest == nullptr) {
+            iterDelete = iter;
+            break;
+        }
         if (geoConvertRequest->GetPriority() < minPriority ||
             (geoConvertRequest->GetPriority() == minPriority && geoConvertRequest->GetTimeStamp() < minTimeStamp)) {
             minPriority = geoConvertRequest->GetPriority();
@@ -564,6 +574,9 @@ void GeoConvertService::DeleteAgedGeoAddress()
 void GeoConvertService::SendCacheAddressToRequest(
     std::unique_ptr<GeoConvertRequest> geoConvertRequest, std::list<std::shared_ptr<GeoAddress>> result)
 {
+    if (geoConvertRequest == nullptr || geoConvertRequest->GetCallback() == nullptr) {
+        return;
+    }
     MessageParcel dataParcel;
     MessageParcel reply;
     MessageOption option;
@@ -691,6 +704,9 @@ int GeoCodeCallback::OnRemoteRequest(
     }
     switch (code) {
         case RECEIVE_GEOCODE_INFO_EVENT: {
+            if (request_.GetCallback() == nullptr) {
+                break;
+            }
             int32_t errCode =
                 request_.GetCallback()->SendRequest(RECEIVE_GEOCODE_INFO_EVENT, data, reply, option);
             LBSLOGD(GEO_CONVERT, "SendRequest RECEIVE_GEOCODE_INFO_EVENT, errCode=%{public}d", errCode);
@@ -700,6 +716,9 @@ int GeoCodeCallback::OnRemoteRequest(
             break;
         }
         case ERROR_INFO_EVENT: {
+            if (request_.GetCallback() == nullptr) {
+                break;
+            }
             int32_t errCode = request_.GetCallback()->SendRequest(ERROR_INFO_EVENT, data, reply, option);
             LBSLOGD(GEO_CONVERT, "SendRequest ERROR_INFO_EVENT, errCode=%{public}d", errCode);
             break;
