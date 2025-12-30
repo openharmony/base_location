@@ -40,7 +40,7 @@ static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 30.0; // Unit m
 static constexpr int CACHED_TIME = 25;
 static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
 static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
-
+const long MAX_INDOOR_LOCATION_COMPARISON_MS = 20 * MILLI_PER_SEC;
 ReportManager* ReportManager::GetInstance()
 {
     static ReportManager data;
@@ -399,7 +399,7 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
             UpdateCacheGnssLocation(*location);
             UpdateLastLocation(location);
         }
-    } else if (abilityName == NETWORK_ABILITY && location->GetLocationSourceType() != INDOOR_TYPE) {
+    } else if (abilityName == NETWORK_ABILITY) {
         UpdateCacheNlpLocation(*location);
         UpdateLastLocation(location);
     } else {
@@ -424,7 +424,20 @@ void ReportManager::UpdateCacheGnssLocation(Location& location)
 void ReportManager::UpdateCacheNlpLocation(Location& location)
 {
     std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
-    cacheNlpLocation_ = location;
+    if (location.GetLocationSourceType() == INDOOR_TYPE) {
+        std::vector<std::string> addition = [];
+        auto it = location.GetAdditionsMap().find("requestId");
+        if (it != location.GetAdditionsMap().end()) {
+            addition.push_back(it.first + it.second);
+        }
+        location.SetAdditions(addition, false);
+        location.SetAdditionSize(location.GetAdditions().size());
+        cacheNlpLocation_ = location;
+    } else if ((cacheNlpLocation_.GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) &&
+        ((location.GetTimeSinceBoot() / NANOS_PER_MILLI -
+        cacheNlpLocation_.GetTimeSinceBoot() / NANOS_PER_MILLI) > MAX_INDOOR_LOCATION_COMPARISON_MS)) {
+        cacheNlpLocation_ = location;
+    }
 }
 
 Location& ReportManager::GetCacheGnssLocation()
@@ -436,6 +449,11 @@ Location& ReportManager::GetCacheGnssLocation()
 Location& ReportManager::GetCacheNlpLocation()
 {
     std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
+    if (cacheNlpLocation_.GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
+        Location location = cacheNlpLocation_;
+        location.SetLocationSourceType(LocationSourceType::NETWORK_TYPE);
+        return location;
+    }
     return cacheNlpLocation_;
 }
 
