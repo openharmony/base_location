@@ -51,6 +51,8 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         };
         console.info(TAG, `WifiServiceAbility onRequest, want: ${JSON.stringify(logWant)}`);        
         let file: fs.File | undefined;
+        let imageSourceApi: image.ImageSource | undefined;
+        let pixelmap: image.PixelMap | undefined;
         let operateType : number = want.parameters?.['operateType'] as number;
         let notificationId : number = want.parameters?.['notificationId'] as number;
         if (operateType == 1) {
