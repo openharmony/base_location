@@ -74,6 +74,8 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 if (file) {
                     fs.closeSync(file);
                 }
+                imageSourceApi?.release();
+                pixelmap?.release();
             }
         } else {
             this.willPublish = false;

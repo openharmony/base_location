@@ -72,6 +72,8 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
             if (file) {
                 fs.closeSync(file);
             }
+            imageSourceApi?.release();
+            pixelmap?.release();
         }
     }
 
