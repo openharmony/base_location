@@ -535,6 +535,9 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
     }
     for (auto iter = cachedGeoAddressMapList_.begin(); iter != cachedGeoAddressMapList_.end(); ++iter) {
         auto request = iter->first;
+        if (request == nullptr) {
+            continue;
+        }
         if (request->GetLocale() != geoConvertRequest->GetLocale()) {
             continue;
         }
