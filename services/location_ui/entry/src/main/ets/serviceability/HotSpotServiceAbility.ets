@@ -55,6 +55,8 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
 
     public hotSpsotNotificationStart(id: number) {
         let file: fs.File | undefined;
+        let imageSourceApi: image.ImageSource | undefined;
+        let pixelmap: image.PixelMap | undefined;
         try {
             let file = fs.openSync('/system/etc/wifi/ic_connection_notify_hotspot_unusable.png', fs.OpenMode.READ_ONLY);
             const imageSourceApi: image.ImageSource = image.createImageSource(file.fd);
@@ -72,6 +74,8 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
             if (file) {
                 fs.closeSync(file);
             }
+            imageSourceApi?.release();
+            pixelmap?.release();
         }
     }
 
