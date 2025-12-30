@@ -78,8 +78,8 @@ private:
     bool NeedUpdateTimeStamp(std::unique_ptr<Location>& fuseLocation, const std::shared_ptr<Request>& request);
     void UpdateCacheGnssLocation(Location& location);
     void UpdateCacheNlpLocation(Location& location);
-    Location& GetCacheGnssLocation();
-    Location& GetCacheNlpLocation();
+    Location GetCacheGnssLocation();
+    Location GetCacheNlpLocation();
     bool CheckIfGnssAbnormal(const std::unique_ptr<Location>& location);
 };
 } // namespace OHOS

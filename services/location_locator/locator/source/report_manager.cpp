@@ -40,7 +40,7 @@ static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 30.0; // Unit m
 static constexpr int CACHED_TIME = 25;
 static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
 static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
-const long MAX_INDOOR_LOCATION_COMPARISON_MS = 20 * MILLI_PER_SEC;
+const long MAX_INDOOR_LOCATION_COMPARISON_MS = 20 * MILLI_PER_SEC; // BootTime ms
 ReportManager* ReportManager::GetInstance()
 {
     static ReportManager data;
@@ -401,7 +401,7 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
         }
     } else if (abilityName == NETWORK_ABILITY) {
         UpdateCacheNlpLocation(*location);
-        UpdateLastLocation(location);
+        UpdateLastLocation(std::make_unique<Location>(GetCacheNlpLocation()));
     } else {
         UpdateLastLocation(location);
     }
@@ -425,36 +425,39 @@ void ReportManager::UpdateCacheNlpLocation(Location& location)
 {
     std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
     if (location.GetLocationSourceType() == INDOOR_TYPE) {
-        std::vector<std::string> addition = [];
-        auto it = location.GetAdditionsMap().find("requestId");
-        if (it != location.GetAdditionsMap().end()) {
-            addition.push_back(it.first + it.second);
-        }
-        location.SetAdditions(addition, false);
-        location.SetAdditionSize(location.GetAdditions().size());
         cacheNlpLocation_ = location;
+        std::vector<std::string> addition;
+        auto additionsMap = cacheNlpLocation_.GetAdditionsMap();
+        auto it = additionsMap.find("requestId");
+        if (it != additionsMap.end()) {
+            addition.push_back(it->first + it->second);
+        }
+        cacheNlpLocation_.SetAdditions(addition, false);
+        cacheNlpLocation_.SetAdditionSize(1);
+        return;
     } else if ((cacheNlpLocation_.GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) &&
         ((location.GetTimeSinceBoot() / NANOS_PER_MILLI -
-        cacheNlpLocation_.GetTimeSinceBoot() / NANOS_PER_MILLI) > MAX_INDOOR_LOCATION_COMPARISON_MS)) {
-        cacheNlpLocation_ = location;
+        cacheNlpLocation_.GetTimeSinceBoot() / NANOS_PER_MILLI) < MAX_INDOOR_LOCATION_COMPARISON_MS)) {
+        return;
     }
+    cacheNlpLocation_ = location;
 }
 
-Location& ReportManager::GetCacheGnssLocation()
+Location ReportManager::GetCacheGnssLocation()
 {
     std::unique_lock<std::mutex> lock(cacheGnssLocationMutex_);
-    return cacheGnssLocation_;
+    return Location(cacheGnssLocation_);
 }
 
-Location& ReportManager::GetCacheNlpLocation()
+Location ReportManager::GetCacheNlpLocation()
 {
     std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
     if (cacheNlpLocation_.GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
-        Location location = cacheNlpLocation_;
+        Location location(cacheNlpLocation_);
         location.SetLocationSourceType(LocationSourceType::NETWORK_TYPE);
-        return location;
+        return Location(location);
     }
-    return cacheNlpLocation_;
+    return Location(cacheNlpLocation_);
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
