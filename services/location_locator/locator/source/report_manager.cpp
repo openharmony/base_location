@@ -131,7 +131,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     if (IsRequestFuse(request)) {
         if (request->GetBestLocation() == nullptr ||
             request->GetBestLocation()->GetLocationSourceType() == 0) {
-            request->SetBestLocation(std::make_unique<Location>(GetCacheGnssLocation()));
+            request->SetBestLocation(std::make_unique<Location>(*GetCacheGnssLocation()));
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
@@ -485,12 +485,12 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::string packageName = request->GetPackageName();
     int cachedTime = CACHED_TIME;
     cachedTime = HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, request->GetNlpRequestType());
-    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation().GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - GetCacheGnssLocation().GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
-        cacheLocation = std::make_unique<Location>(GetCacheGnssLocation());
-    } else if (!CommonUtils::DoubleEqual(GetCacheNlpLocation().GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - GetCacheNlpLocation().GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
-        cacheLocation = std::make_unique<Location>(GetCacheNlpLocation());
+    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - GetCacheGnssLocation()->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
+        cacheLocation = std::make_unique<Location>(*GetCacheGnssLocation());
+    } else if (!CommonUtils::DoubleEqual(GetCacheNlpLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - GetCacheNlpLocation()->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
+        cacheLocation = std::make_unique<Location>(*GetCacheNlpLocation());
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
@@ -626,8 +626,8 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
 bool ReportManager::IsCacheGnssLocationValid()
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
-    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation().GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - GetCacheGnssLocation().GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
+    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - GetCacheGnssLocation()->GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
         return true;
     }
     return false;
