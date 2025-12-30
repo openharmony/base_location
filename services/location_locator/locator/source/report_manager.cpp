@@ -129,8 +129,8 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> fuseLocation;
     std::unique_ptr<Location> finalLocation;
     if (IsRequestFuse(request)) {
-        if (request->GetBestLocation() == nullptr ||
-            request->GetBestLocation()->GetLocationSourceType() == 0) {
+        if (GetCacheGnssLocation() != nullptr && (request->GetBestLocation() == nullptr ||
+            request->GetBestLocation()->GetLocationSourceType() == 0)) {
             request->SetBestLocation(std::make_unique<Location>(*GetCacheGnssLocation()));
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
@@ -485,10 +485,12 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::string packageName = request->GetPackageName();
     int cachedTime = CACHED_TIME;
     cachedTime = HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, request->GetNlpRequestType());
-    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
+    if (GetCacheGnssLocation() != nullptr &&
+        !CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - GetCacheGnssLocation()->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(*GetCacheGnssLocation());
-    } else if (!CommonUtils::DoubleEqual(GetCacheNlpLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
+    } else if (GetCacheNlpLocation() != nullptr &&
+        !CommonUtils::DoubleEqual(GetCacheNlpLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - GetCacheNlpLocation()->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(*GetCacheNlpLocation());
     }
@@ -626,7 +628,8 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
 bool ReportManager::IsCacheGnssLocationValid()
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
-    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
+    if (GetCacheGnssLocation() != nullptr &&
+        !CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - GetCacheGnssLocation()->GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
         return true;
     }
