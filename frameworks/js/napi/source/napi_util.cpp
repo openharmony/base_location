@@ -356,7 +356,7 @@ bool LocatingRequiredDataToJsObj(const napi_env& env,
         napi_value neighboringCellInfoObj = nullptr;
         NAPI_CALL_BASE(env, napi_create_array_with_length(env, replyList[i]->GetNeighboringCellInfo().size(),
             &neighboringCellInfoObj), false);
-        for (size_t j = 0; j <  replyList[i]->GetNeighboringCellInfo().size(); j++) {
+        for (size_t j = 0; j < replyList[i]->GetNeighboringCellInfo().size() && j < MAX_ARRAY_LENGTH; j++) {
             napi_value cellularInfoObj;
             NAPI_CALL_BASE(env, napi_create_object(env, &cellularInfoObj), false);
             std::shared_ptr<CellularInfo> cellularInfo = replyList[i]->GetNeighboringCellInfo()[j];
