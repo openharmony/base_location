@@ -446,8 +446,7 @@ void ReportManager::UpdateCacheNlpLocation(Location& location)
 Location& ReportManager::GetCacheGnssLocation()
 {
     std::unique_lock<std::mutex> lock(cacheGnssLocationMutex_);
-    auto location = std::make_shared<Location>(cacheGnssLocation_);
-    return location;
+    return cacheGnssLocation_;
 }
 
 std::shared_ptr<Location> ReportManager::GetCacheNlpLocation()
