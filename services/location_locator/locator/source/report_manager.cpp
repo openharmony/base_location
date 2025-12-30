@@ -401,7 +401,7 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
         }
     } else if (abilityName == NETWORK_ABILITY) {
         UpdateCacheNlpLocation(*location);
-        UpdateLastLocation(std::make_unique<Location>(GetCacheNlpLocation()));
+        UpdateLastLocation(location);
     } else {
         UpdateLastLocation(location);
     }
