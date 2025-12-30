@@ -443,21 +443,21 @@ void ReportManager::UpdateCacheNlpLocation(Location& location)
     cacheNlpLocation_ = location;
 }
 
-Location ReportManager::GetCacheGnssLocation()
+std::shared_ptr<Location> ReportManager::GetCacheGnssLocation()
 {
     std::unique_lock<std::mutex> lock(cacheGnssLocationMutex_);
-    return Location(cacheGnssLocation_);
+    auto location = std::make_shared<Location>(cacheGnssLocation_);
+    return location;
 }
 
-Location ReportManager::GetCacheNlpLocation()
+std::shared_ptr<Location> ReportManager::GetCacheNlpLocation()
 {
     std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
-    if (cacheNlpLocation_.GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
-        Location location(cacheNlpLocation_);
-        location.SetLocationSourceType(LocationSourceType::NETWORK_TYPE);
-        return Location(location);
+    auto location = std::make_shared<Location>(cacheNlpLocation_);
+    if (location->GetLocationSourceType() == LocationSourceType::INDOOR_TYPE) {
+        location->SetLocationSourceType(LocationSourceType::NETWORK_TYPE);
     }
-    return Location(cacheNlpLocation_);
+    return location;
 }
 
 std::unique_ptr<Location> ReportManager::GetLastLocation()
