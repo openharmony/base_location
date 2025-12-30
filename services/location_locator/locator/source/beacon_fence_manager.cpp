@@ -298,7 +298,7 @@ void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceReque
 {
     // 判断开关状态
     int state = DEFAULT_SWITCH_STATE;
-    state = LocationDataRdbManager::QuerySwitchState();
+    state = LocationDataRdbManager::QuerySwitchStateWithUid(identity.GetUid());
     if (state == DISABLED) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s location switch is off", __func__);
         return;

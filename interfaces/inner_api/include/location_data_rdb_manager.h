@@ -32,7 +32,10 @@ public:
     static std::string GetLocationDataUriByCurrentUserId(std::string key);
     static std::string GetLocationDataUriForUser(std::string key, int32_t userId);
     static LocationErrCode GetSwitchStateFromDbForUser(int32_t& state, int32_t userId);
-    static int QuerySwitchState();
+    static int QuerySystemSwitchState();
+    static int QuerySwitchStateWithUid(int32_t uid);
+    static int QuerySwitchStateForUser(int32_t userId);
+    static int GetSwitchStateForUser(int32_t userId);
     static LocationErrCode SetSwitchStateToDb(int modeValue);
     static LocationErrCode SetSwitchStateToDbForUser(int modeValue, int32_t userId);
     static bool SetLocationWorkingState(int32_t state);
@@ -43,6 +46,7 @@ public:
     static bool SetLocationEnhanceStatus(int32_t state);
     static bool GetLocationEnhanceStatus(int32_t& state);
     static void SyncSwitchStatus();
+    static void QueryAndSyncSwitchStatusWithUserId(int userId);
     static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
     static bool SetGnssSessionState(int32_t state, std::string uri, std::string colName);
     static bool GetIntelligentStatus(

@@ -466,8 +466,8 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     AppIdentity identity;
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (!CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    std::vector<int> activeIds = LocatorBackgroundProxy::GetInstance()->getActiveUserIds();
+    if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
             request->GetUid());
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
@@ -512,7 +512,8 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     if (request == nullptr || !IsRequestAvailable(request)) {
         return false;
     }
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+    int userId = CommonUtils::GetUserIdByUid(request->GetUid());
+    if (LocationDataRdbManager::QuerySwitchStateForUser(userId) != ENABLED &&
         !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
         RequestManager::GetInstance()->ReportLocationError(LOCATING_FAILED_LOCATION_SWITCH_OFF, request);
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",

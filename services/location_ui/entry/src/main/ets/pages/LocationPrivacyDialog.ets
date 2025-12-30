@@ -19,6 +19,8 @@ import common from '@ohos.app.ability.common';
 import router from '@ohos.router';
 import resourceManager from '@ohos.resourceManager';
 import { BusinessError } from '@ohos.base';
+import osAccount from '@ohos.account.osAccount';
+import deviceInfo from '@ohos.deviceInfo'
 
 let TAG = '[Location-Privacy]==>';
 const LOCATION_PRIVACY_ACCEPT_EVENT: string = 'usual.event.LOCATION_PRIVACY_ACCEPT';
@@ -214,12 +216,29 @@ struct dialogPlusPage {
     }
   }
 
-  onCancel() {
-    console.info(TAG, 'Callback when the first button is clicked')
+  async getForegroundOsAccountLocalId(): Promise<number>
+  {
+    let localId = 100;
+    let accountManager = osAccount.getAccountManager();
+    try {
+      if (deviceInfo.sdkApiVersion >= 21) {
+        let displayId = AppStorage.get<number>('screenId') as number || 0;
+        localId = await accountManager.getForegroundOsAccountLocalId(displayId);
+      } else {
+        localId = await accountManager.getForegroundOsAccountLocalId();
+      }
+      return localId;
+    } catch (err) {
+      return localId;
+    }
+  }
 
+  async onCancel() {
+    console.info(TAG, 'Callback when the first button is clicked')
+    let userId = await this.getForegroundOsAccountLocalId();
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
-      data: 'message',
+      data: userId.toString(),
       isSticky: false,
       parameters: { 'message': 'reject' }
     }
@@ -238,12 +257,12 @@ struct dialogPlusPage {
     }
   }
 
-  onAccept() {
+  async onAccept() {
     console.info(TAG, 'Callback when the second button is clicked')
-
+    let userId = await this.getForegroundOsAccountLocalId();
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
-      data: 'message',
+      data: userId.toString(),
       isSticky: false,
       parameters: { 'message': 'accept' }
     }

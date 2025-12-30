@@ -25,6 +25,7 @@
 #include "common_hisysevent.h"
 #include "parameter.h"
 #include "permission_manager.h"
+#include "ipc_skeleton.h"
 namespace OHOS {
 namespace Location {
 const int MAX_SWITCH_CALLBACK_NUM = 1000;
@@ -153,7 +154,10 @@ void LocationDataManager::RegisterLocationSwitchObserver()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
         int32_t state = DEFAULT_SWITCH_STATE;
-        state = LocationDataRdbManager::QuerySwitchState();
+        int uid = IPCSkeleton::GetCallingUid();
+        int userId = CommonUtils::GetUserIdByUid(uid);
+        LBSLOGI(LOCATOR, "RegisterLocationSwitchObserver,userId = %{public}d", userId);
+        state = LocationDataRdbManager::QuerySwitchStateForUser(userId);
         auto manager = LocationDataManager::GetInstance();
         if (manager->IsFirstReport()) {
             LBSLOGI(LOCATOR, "first switch callback, no need to report");

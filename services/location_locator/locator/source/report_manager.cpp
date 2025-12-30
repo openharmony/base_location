@@ -140,7 +140,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         NeedUpdateTimeStamp(fuseLocation, request);
         request->SetBestLocation(fuseLocation);
     }
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+    if (LocationDataRdbManager::QuerySwitchStateWithUid(request->GetUid()) != ENABLED &&
         !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
         LBSLOGE(REPORT_MANAGER, "QuerySwitchState is DISABLED");
         return false;
@@ -297,8 +297,8 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
     identity.SetBundleName(bundleName);
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (!CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    std::vector<int> activeIds = LocatorBackgroundProxy::GetInstance()->getActiveUserIds();
+    if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
         auto locationErrorCallback = request->GetLocationErrorCallBack();
@@ -410,9 +410,11 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
 void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location)
 {
     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    int currentUserId = locatorBackgroundProxy->getCurrentUserId();
+    std::vector<int> activeIds = locatorBackgroundProxy->getActiveUserIds();
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
-    lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
+    for (int userId : activeIds) {
+        lastLocationsMap_[userId] = std::make_shared<Location>(*location);
+    }
 }
 
 void ReportManager::UpdateCacheGnssLocation(Location& location)
@@ -446,6 +448,22 @@ std::unique_ptr<Location> ReportManager::GetLastLocation()
     LBSLOGI(LOCATOR_STANDARD, "GetCacheLocation GetLastLocation currentUserId = %{public}d ", currentUserId);
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
     auto iter = lastLocationsMap_.find(currentUserId);
+    if (iter == lastLocationsMap_.end()) {
+        return nullptr;
+    }
+    std::unique_ptr<Location> lastLocation = std::make_unique<Location>(*(iter->second));
+    if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
+        return nullptr;
+    }
+    PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(lastLocation);
+    return lastLocation;
+}
+
+
+std::unique_ptr<Location> ReportManager::GetLastLocationByUserId(int userId)
+{
+    std::unique_lock<std::mutex> lock(lastLocationMutex_);
+    auto iter = lastLocationsMap_.find(userId);
     if (iter == lastLocationsMap_.end()) {
         return nullptr;
     }

@@ -61,14 +61,18 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
     return uri;
 }
 
-int LocationDataRdbManager::QuerySwitchState()
+
+int LocationDataRdbManager::QuerySwitchStateForUser(int32_t userId)
 {
-    int res = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    if (userId == 0) {
+        CommonUtils::GetCurrentUserId(userId);
+    }
+    int res = LocationDataRdbManager::GetSwitchStateFromSysparaForUser(userId);
     if (res == DISABLED || res == ENABLED) {
         return res;
     }
     int32_t state = DEFAULT_SWITCH_STATE;
-    Uri locationDataEnableUri(GetLocationDataUriByCurrentUserId("location_enable"));
+    Uri locationDataEnableUri(GetLocationDataUriForUser("location_enable", userId));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, state);
     if (errCode != ERRCODE_SUCCESS) {
@@ -76,9 +80,31 @@ int LocationDataRdbManager::QuerySwitchState()
         return DEFAULT_SWITCH_STATE;
     }
     if (res == DEFAULT_SWITCH_STATE && state != DEFAULT_SWITCH_STATE) {
-        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(state);
+        LocationDataRdbManager::SetSwitchStateToSysparaForUser(state, userId);
     }
     return state;
+}
+
+
+int LocationDataRdbManager::QuerySwitchStateWithUid(int32_t uid)
+{
+    int userId = CommonUtils::GetUserIdByUid(uid);
+    int res = LocationDataRdbManager::QuerySwitchStateForUser(userId);
+    return res;
+}
+
+
+int LocationDataRdbManager::QuerySystemSwitchState()
+{
+    std::vector<int> activeIds;
+    CommonUtils::GetActiveUserIds(activeIds);
+    for (int activeId : activeIds) {
+        int res = QuerySwitchStateForUser(activeId);
+        if (res == ENABLED) {
+            return ENABLED;
+        }
+    }
+    return DISABLED;
 }
 
 LocationErrCode LocationDataRdbManager::SetSwitchStateToDb(int modeValue)
@@ -139,6 +165,11 @@ bool LocationDataRdbManager::SetGnssSessionState(int32_t state, std::string uri,
         return false;
     }
     return true;
+}
+
+bool LocationDataRdbManager::GetSwitchStateFrrUser(int userId)
+{
+    return GetSwitchStateFromSysparaForUser(userId);
 }
 
 int LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser()
@@ -231,21 +262,35 @@ bool LocationDataRdbManager::SetSwitchStateToSysparaForUser(int value, int32_t u
     return true;
 }
 
-void LocationDataRdbManager::SyncSwitchStatus()
+int LocationDataRdbManager::QueryAndSyncSwitchStatusWithUserId(int userId)
 {
     int dbState = DEFAULT_SWITCH_STATE;
-    Uri locationDataEnableUri(GetLocationDataUriByCurrentUserId("location_enable"));
+    Uri locationDataEnableUri(GetLocationDataUriForUser("location_enable", userId));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
         GetValue(locationDataEnableUri, LOCATION_DATA_COLUMN_ENABLE, dbState);
     if (errCode != ERRCODE_SUCCESS) {
         // It needs to be updated when it is the default, and there is no need to return.
         LBSLOGE(COMMON_UTILS, "%{public}s: query state failed, errcode = %{public}d", __func__, errCode);
     }
-    int sysparaState = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    int sysparaState = LocationDataRdbManager::GetSwitchStateFromSysparaForUser(userId);
     if (sysparaState == DEFAULT_SWITCH_STATE && dbState != DEFAULT_SWITCH_STATE) {
-        LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(dbState);
+        LocationDataRdbManager::SetSwitchStateToSysparaForUser(dbState, userId);
     } else if (sysparaState != DEFAULT_SWITCH_STATE && dbState != sysparaState) {
         LocationDataRdbManager::SetSwitchStateToDb(sysparaState);
+    }
+    HookUtils::ExecuteHookWhenSyncSwitchStates(sysparaState);
+    return sysparaState;
+}  
+
+void LocationDataRdbManager::SyncSwitchStatus()
+{   
+    std::vector<int> activeIds;
+    CommonUtils::GetActiveUserIds(activeIds);
+    int sysparaState = DISABLED;
+    for (int activeId : activeIds) {
+        if (QueryAndSyncSwitchStatusWithUserId(activeId) == ENABLED) {
+            sysparaState = ENABLED;
+        }
     }
     HookUtils::ExecuteHookWhenSyncSwitchStates(sysparaState);
 }

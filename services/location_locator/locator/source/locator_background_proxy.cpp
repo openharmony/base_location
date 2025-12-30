@@ -66,7 +66,8 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     }
     requestsMap_ = std::make_shared<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>>();
     requestsList_ = std::make_shared<std::list<std::shared_ptr<Request>>>();
-    CommonUtils::GetCurrentUserId(curUserId_);
+    CommonUtils::getActiveUserIds(activeIds_);
+    currentUserId = activeIds_[0];
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
@@ -211,6 +212,10 @@ void LocatorBackgroundProxy::UpdateListOnUserSwitch(int32_t userId)
         requestsMap_->insert(make_pair(userId, mRequestsList));
         LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add requsetlist on user:%{public}d", userId);
     }
+    bool containsActiveId = std::find(activeIds_.begin(), activeIds_.end(), userId) != activeIds_.end();
+    if (!containsActiveId) {
+        activeIds_.push_back(userId);
+    }
     // if change to another user, proxy requestList should change
     requestsList_ = (*requestsMap_)[userId];
     curUserId_ = userId;
@@ -236,6 +241,11 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
         }
     }
     return false;
+}
+
+std::vector<int> LocatorBackgroundProxy::getActiveUserIds() 
+{
+    return activeIds_;
 }
 
 int32_t LocatorBackgroundProxy::getCurrentUserId()
@@ -268,6 +278,10 @@ void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
     if (iter != requestsMap_->end()) {
         requestsMap_->erase(iter);
         LBSLOGD(LOCATOR_BACKGROUND_PROXY, "erase requsetlist on user:%{public}d", userId);
+    }
+    auto it = std::find(activeIds_.begin(), activeIds_.end(), userId);
+    if (it != activeIds_.end()) {
+        activeIds_.erase(it);
     }
 }
 
