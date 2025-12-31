@@ -34,11 +34,32 @@ GeoConvertRequest::GeoConvertRequest()
     transId_ = "";
     country_ = "";
     requestType_ = GeoCodeType::REQUEST_GEOCODE;
+    priority_ = 0;
+}
+
+GeoConvertRequest::GeoConvertRequest(const GeoConvertRequest& geoConvertRequest)
+{
+    locale_ = geoConvertRequest.GetLocale();
+    latitude_ = geoConvertRequest.GetLatitude();
+    longitude_ = geoConvertRequest.GetLongitude();
+    maxItems_ = geoConvertRequest.GetMaxItems();
+    description_ = geoConvertRequest.GetDescription();
+    maxLatitude_ = geoConvertRequest.GetMaxLatitude();
+    maxLongitude_ = geoConvertRequest.GetMaxLongitude();
+    minLatitude_ = geoConvertRequest.GetMinLatitude();
+    minLongitude_ = geoConvertRequest.GetLongitude();
+    bundleName_ = geoConvertRequest.GetBundleName();
+    callback_ = geoConvertRequest.GetCallback();
+    transId_ = geoConvertRequest.GetTransId();
+    country_ = geoConvertRequest.GetCountry();
+    requestType_ = geoConvertRequest.GetRequestType();
+    priority_ = geoConvertRequest.GetPriority();
+    timeStamp_ = geoConvertRequest.GetTimeStamp();
 }
 
 GeoConvertRequest::~GeoConvertRequest() {}
 
-std::string GeoConvertRequest::GetLocale()
+std::string GeoConvertRequest::GetLocale() const
 {
     return locale_;
 }
@@ -48,7 +69,7 @@ void GeoConvertRequest::SetLocale(std::string locale)
     locale_ = locale;
 }
 
-double GeoConvertRequest::GetLatitude()
+double GeoConvertRequest::GetLatitude() const
 {
     return latitude_;
 }
@@ -58,7 +79,7 @@ void GeoConvertRequest::SetLatitude(double latitude)
     latitude_ = latitude;
 }
 
-double GeoConvertRequest::GetLongitude()
+double GeoConvertRequest::GetLongitude() const
 {
     return longitude_;
 }
@@ -68,7 +89,7 @@ void GeoConvertRequest::SetLongitude(double longitude)
     longitude_ = longitude;
 }
 
-int32_t GeoConvertRequest::GetMaxItems()
+int32_t GeoConvertRequest::GetMaxItems() const
 {
     return maxItems_;
 }
@@ -78,7 +99,7 @@ void GeoConvertRequest::SetMaxItems(int32_t maxItems)
     maxItems_ = maxItems;
 }
 
-std::string GeoConvertRequest::GetDescription()
+std::string GeoConvertRequest::GetDescription() const
 {
     return description_;
 }
@@ -88,7 +109,7 @@ void GeoConvertRequest::SetDescription(std::string description)
     description_ = description;
 }
 
-double GeoConvertRequest::GetMaxLatitude()
+double GeoConvertRequest::GetMaxLatitude() const
 {
     return maxLatitude_;
 }
@@ -98,7 +119,7 @@ void GeoConvertRequest::SetMaxLatitude(double maxLatitude)
     maxLatitude_ = maxLatitude;
 }
 
-double GeoConvertRequest::GetMaxLongitude()
+double GeoConvertRequest::GetMaxLongitude() const
 {
     return maxLongitude_;
 }
@@ -108,7 +129,7 @@ void GeoConvertRequest::SetMaxLongitude(double maxLongitude)
     maxLongitude_ = maxLongitude;
 }
 
-double GeoConvertRequest::GetMinLatitude()
+double GeoConvertRequest::GetMinLatitude() const
 {
     return minLatitude_;
 }
@@ -118,7 +139,7 @@ void GeoConvertRequest::SetMinLatitude(double minLatitude)
     minLatitude_ = minLatitude;
 }
 
-double GeoConvertRequest::GetMinLongitude()
+double GeoConvertRequest::GetMinLongitude() const
 {
     return minLongitude_;
 }
@@ -128,7 +149,7 @@ void GeoConvertRequest::SetMinLongitude(double minLongitude)
     minLongitude_ = minLongitude;
 }
 
-std::string GeoConvertRequest::GetBundleName()
+std::string GeoConvertRequest::GetBundleName() const
 {
     return bundleName_;
 }
@@ -138,7 +159,7 @@ void GeoConvertRequest::SetBundleName(std::string bundleName)
     bundleName_ = bundleName;
 }
 
-sptr<IRemoteObject> GeoConvertRequest::GetCallback()
+sptr<IRemoteObject> GeoConvertRequest::GetCallback() const
 {
     return callback_;
 }
@@ -148,7 +169,7 @@ void GeoConvertRequest::SetCallback(sptr<IRemoteObject> callback)
     callback_ = callback;
 }
 
-std::string GeoConvertRequest::GetTransId()
+std::string GeoConvertRequest::GetTransId() const
 {
     return transId_;
 }
@@ -158,7 +179,7 @@ void GeoConvertRequest::SetTransId(std::string transId)
     transId_ = transId;
 }
 
-std::string GeoConvertRequest::GetCountry()
+std::string GeoConvertRequest::GetCountry() const
 {
     return country_;
 }
@@ -168,7 +189,7 @@ void GeoConvertRequest::SetCountry(std::string country)
     country_ = country;
 }
 
-GeoCodeType GeoConvertRequest::GetRequestType()
+GeoCodeType GeoConvertRequest::GetRequestType() const
 {
     return requestType_;
 }
@@ -176,6 +197,26 @@ GeoCodeType GeoConvertRequest::GetRequestType()
 void GeoConvertRequest::SetRequestType(GeoCodeType requestType)
 {
     requestType_ = requestType;
+}
+
+int32_t GeoConvertRequest::GetPriority() const
+{
+    return priority_;
+}
+
+void GeoConvertRequest::SetPriority(int32_t priority)
+{
+    priority_ = priority;
+}
+
+int64_t GeoConvertRequest::GetTimeStamp() const
+{
+    return timeStamp_;
+}
+
+void GeoConvertRequest::SetTimeStamp(int64_t timeStamp)
+{
+    timeStamp_ = timeStamp;
 }
 
 bool GeoConvertRequest::Marshalling(MessageParcel& parcel) const
