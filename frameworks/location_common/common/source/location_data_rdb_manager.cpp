@@ -167,7 +167,7 @@ bool LocationDataRdbManager::SetGnssSessionState(int32_t state, std::string uri,
     return true;
 }
 
-bool LocationDataRdbManager::GetSwitchStateFrrUser(int userId)
+bool LocationDataRdbManager::GetSwitchStateForUser(int userId)
 {
     return GetSwitchStateFromSysparaForUser(userId);
 }
