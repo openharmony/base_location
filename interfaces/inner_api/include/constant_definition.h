@@ -159,6 +159,7 @@ enum LocationErrCode {
     ERRCODE_NO_RESPONSE = 3301700,            /* No response to the request */
     ERRCODE_SCAN_FAIL = 3301800,              /* Failed to start WiFi or Bluetooth scanning. */
     ERRCODE_WIFI_SCAN_FAIL = 3301801,              /* Failed to start WiFi scanning. */
+    ERRCODE_CELL_SCAN_FAIL = 3301802,              /* Failed to start Cell scanning. */
     /* Failed to obtain the hotpot MAC address because the Wi-Fi is not connected. */
     ERRCODE_WIFI_IS_NOT_CONNECTED = 3301900,
     ERRCODE_GEOFENCE_EXCEED_MAXIMUM = 3301601, /* The number of geofences exceeds the maximum. */
