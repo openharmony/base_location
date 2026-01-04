@@ -349,9 +349,12 @@ public:
     int32_t GetUserId();
     void SetModeValue(int32_t modeValue);
     int32_t GetModeValue();
+    void SetBundleName(const std::string& bundleName);
+    std::string GetBundleName();
 private:
     int32_t modeValue_;
     int32_t userId_;
+    std::string bundleName_;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

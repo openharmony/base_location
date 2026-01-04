@@ -46,9 +46,9 @@ void WriteAppLocatingStateEvent(const std::string& state, const pid_t pid, const
     WriteEvent("APP_LOCATING_STATE", "STATE", state, "PID", pid, "UID", uid);
 }
 
-void WriteLocationSwitchStateEvent(const std::string& state)
+void WriteLocationSwitchStateEvent(const std::string& state, const std::string& bundleName, const int32_t userId)
 {
-    WriteEvent("SWITCH_STATE", "STATE", state);
+    WriteEvent("SWITCH_STATE", "STATE", state, "CALLER_PACKAGE_NAME", bundleName, "USER_ACCOUNT", userId);
 }
 
 void WriteLocationInnerEvent(const int event, std::initializer_list<std::string> params)
