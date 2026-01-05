@@ -8,7 +8,7 @@
             "distributed": false,
             "dump_level": 1,
             "recycle-strategy": "low-memory",
-            "min_hdi_proxy_version": []
+            "min_hdi_proxy_version": ["liblbsservice_agnss_proxy_2.0.z.so", "liblbsservice_gnss_proxy_2.0.z.so", "liblbsservice_geofence_proxy_2.0.z.so"]
         }
     ]
 }
