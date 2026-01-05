@@ -253,7 +253,7 @@ private:
     bool SetLocationhubStateToSyspara(int value);
     void SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable);
     void GetAppIdentityInfo(AppIdentity& identity);
-    LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId);
+    LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName);
     bool CheckLocationSwitchState();
     bool CheckBluetoothSwitchState();
     bool CheckLocationPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid);
