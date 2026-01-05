@@ -23,6 +23,8 @@
 #include "i_switch_callback.h"
 #include "common_utils.h"
 #include "app_identity.h"
+#include "common_event_subscriber.h"
+#include "system_ability_status_change_stub.h"
 
 namespace OHOS {
 namespace Location {
@@ -51,6 +53,7 @@ private:
     std::mutex isSwitchObserverRegMutex_;
     bool isSwitchObserverReg_ = false;
     std::map<sptr<IRemoteObject>, AppSwitchState > switchCallbackMap_;
+
     std::mutex isFirstReportMutex_;
     bool isFirstReport_ = true;
 };

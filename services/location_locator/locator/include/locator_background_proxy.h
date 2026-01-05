@@ -54,8 +54,6 @@ public:
     bool UnregisterAppStateObserver();
     bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
     bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
-    int32_t getCurrentUserId();
-    std::vector<int> getActiveUserIds();
     bool IsAppBackground(int uid, std::string bundleName);
     void UpdateBackgroundAppStatues(int32_t uid, int32_t status);
 private:
@@ -108,8 +106,6 @@ private:
     bool isWating_ = false;
     bool isUserSwitchSubscribed_ = false;
     int timeInterval_;
-    int32_t curUserId_ = 0;
-    std::vector<int> activeIds_;
 
     sptr<ILocatorCallback> callback_;
     std::shared_ptr<Request> request_;

@@ -46,7 +46,7 @@ public:
     static bool SetLocationEnhanceStatus(int32_t state);
     static bool GetLocationEnhanceStatus(int32_t& state);
     static void SyncSwitchStatus();
-    static void QueryAndSyncSwitchStatusWithUserId(int userId);
+    static int QueryAndSyncSwitchStatusWithUserId(int userId);
     static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);
     static bool SetGnssSessionState(int32_t state, std::string uri, std::string colName);
     static bool GetIntelligentStatus(
