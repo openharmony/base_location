@@ -2502,7 +2502,7 @@ LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
     }
     std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
     AppIdentity identity;
-    GetAppIdentityInfo(identity);    
+    GetAppIdentityInfo(identity);
     locatorSwitchMessage->SetBundleName(identity.GetBundleName());
     locatorSwitchMessage->SetModeValue(modeValue);
     locatorSwitchMessage->SetUserId(userId);
