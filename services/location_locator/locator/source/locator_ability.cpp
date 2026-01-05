@@ -2493,8 +2493,8 @@ LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
         LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
         return ERRCODE_SUCCESS;
     }
+    int32_t userId = 0;
     if (LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(modeValue)) {
-        int userId = 0;
         if (!CommonUtils::GetCurrentUserId(userId)) {
             userId = DEFAULT_USERID;
         }
@@ -2502,12 +2502,10 @@ LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
     }
     std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
     AppIdentity identity;
-    GetAppIdentityInfo(identity);
-    int32_t currentUserId = 0;
-    CommonUtils::GetCurrentUserId(currentUserId);
+    GetAppIdentityInfo(identity);    
     locatorSwitchMessage->SetBundleName(identity.GetBundleName());
     locatorSwitchMessage->SetModeValue(modeValue);
-    locatorSwitchMessage->SetUserId(currentUserId);
+    locatorSwitchMessage->SetUserId(userId);
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
