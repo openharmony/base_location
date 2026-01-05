@@ -2508,7 +2508,8 @@ LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
     locatorSwitchMessage->SetBundleName(identity.GetBundleName());
     locatorSwitchMessage->SetModeValue(modeValue);
     locatorSwitchMessage->SetUserId(currentUserId);
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(EVENT_SET_SWITCH_STATE_TO_DB, locatorSwitchMessage);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID, locatorSwitchMessage);
     if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
         LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
     }
