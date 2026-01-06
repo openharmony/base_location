@@ -103,7 +103,6 @@ int LocatorCallbackTaihe::OnRemoteRequest(uint32_t code,
 void LocatorCallbackTaihe::OnLocationReport(const std::unique_ptr<Location>& location)
 {
     std::unique_ptr<Location> locationReport = std::make_unique<Location>(*location);
-    ::taihe::map<::taihe::string, ::taihe::string> ret;
     ::ohos::geoLocationManager::Location locationTaihe;
     Util::LocationToTaihe(locationTaihe, locationReport);
     if (callback_) {
