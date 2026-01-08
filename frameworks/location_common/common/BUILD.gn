@@ -42,6 +42,7 @@ local_base_sources = [
   "$LOCATION_ROOT_DIR/frameworks/base_module/source/location.cpp",
   "$LOCATION_ROOT_DIR/frameworks/base_module/source/request_config.cpp",
   "$LOCATION_ROOT_DIR/frameworks/base_module/source/satellite_status.cpp",
+  "$LOCATION_COMMON_DIR/source/location_account_manager.cpp",
 ]
 
 ohos_shared_library("lbsservice_common") {

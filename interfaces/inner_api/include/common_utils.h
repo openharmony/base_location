@@ -197,6 +197,7 @@ public:
     static LocationErrCode ErrCodeToLocationErrCode(ErrCode errorCode);
     static bool IsValidForStoull(const std::string input, size_t size);
     static bool IsStrValidForStoi(const std::string &str);
+    static bool ConvertStringToDigit(const std::string& str, int32_t &ret);
 };
 
 class CountDownLatch {

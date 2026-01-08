@@ -49,13 +49,8 @@ public:
     void OnSaStateChange(bool enable);
     void OnDeleteRequestRecord(const std::shared_ptr<Request>& request);
     bool IsCallbackInProxy(const sptr<ILocatorCallback>& callback) const;
-    bool IsAppBackground(std::string bundleName);
     bool RegisterAppStateObserver();
     bool UnregisterAppStateObserver();
-    bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
-    bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
-    bool IsAppBackground(int uid, std::string bundleName);
-    void UpdateBackgroundAppStatues(int32_t uid, int32_t status);
 private:
     void StartLocator();
     void StopLocator();

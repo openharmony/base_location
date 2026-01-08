@@ -30,6 +30,7 @@
 #include "hook_utils.h"
 #include "poi_info_manager.h"
 #include "parameter.h"
+#include "location_account_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -297,7 +298,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
     identity.SetBundleName(bundleName);
-    std::vector<int> activeIds = LocatorBackgroundProxy::GetInstance()->getActiveUserIds();
+    std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
     if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
@@ -409,8 +410,8 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
 
 void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location)
 {
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    std::vector<int> activeIds = locatorBackgroundProxy->getActiveUserIds();
+    auto locatorAccountManager = LocationAccountManager::GetInstance();
+    std::vector<int> activeIds = locatorAccountManager->getActiveUserIds();
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
     for (int userId : activeIds) {
         lastLocationsMap_[userId] = std::make_shared<Location>(*location);
@@ -440,25 +441,6 @@ Location& ReportManager::GetCacheNlpLocation()
     std::unique_lock<std::mutex> lock(cacheNlpLocationMutex_);
     return cacheNlpLocation_;
 }
-
-std::unique_ptr<Location> ReportManager::GetLastLocation()
-{
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    int currentUserId = locatorBackgroundProxy->getCurrentUserId();
-    LBSLOGI(LOCATOR_STANDARD, "GetCacheLocation GetLastLocation currentUserId = %{public}d ", currentUserId);
-    std::unique_lock<std::mutex> lock(lastLocationMutex_);
-    auto iter = lastLocationsMap_.find(currentUserId);
-    if (iter == lastLocationsMap_.end()) {
-        return nullptr;
-    }
-    std::unique_ptr<Location> lastLocation = std::make_unique<Location>(*(iter->second));
-    if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {
-        return nullptr;
-    }
-    PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(lastLocation);
-    return lastLocation;
-}
-
 
 std::unique_ptr<Location> ReportManager::GetLastLocationByUserId(int userId)
 {
@@ -604,17 +586,17 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    if (!locatorBackgroundProxy->IsAppBackground(uid, bundleName)) {
+    auto locatorAccountManager = LocationAccountManager::GetInstance();
+    if (!locatorAccountManager->IsAppBackground(uid, bundleName)) {
         return false;
     }
     if (!HookUtils::ExecuteHookWhenCheckIsAppBackground(bundleName)) {
         return false;
     }
-    if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
+    if (locatorAccountManager->IsAppHasFormVisible(tokenId, tokenIdEx)) {
         return false;
     }
-    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid, pid)) {
+    if (locatorAccountManager->IsAppInLocationContinuousTasks(uid, pid)) {
         return false;
     }
     return true;

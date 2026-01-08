@@ -22,6 +22,9 @@
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
+#include "locator_ability.h"
+#include "accesstoken_kit.h"
+#include "tokenid_kit.h"
 
 
 namespace OHOS {

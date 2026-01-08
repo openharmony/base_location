@@ -221,14 +221,20 @@ struct dialogPlusPage {
     let localId = 100;
     let accountManager = osAccount.getAccountManager();
     try {
-      if (deviceInfo.sdkApiVersion >= 21) {
-        let displayId = AppStorage.get<number>('screenId') as number || 0;
-        localId = await accountManager.getForegroundOsAccountLocalId(displayId);
+      if (deviceInfo.sdkApiVersion >= 23) {
+        let isMain = await accountManager.isMainOsAccount();
+        if (isMain) {
+          localId = await accountManager.getForegroundOsAccountLocalId();
+        } else {
+          let displayId = AppStorage.get<number>('screenId') as number || 0;
+          localId = await accountManager.getForegroundOsAccountLocalId(displayId);
+        }
       } else {
         localId = await accountManager.getForegroundOsAccountLocalId();
       }
       return localId;
     } catch (err) {
+        console.info(TAG, `getForegroundOsAccountLocalId exception: ${err.code} ${err.message}`)
       return localId;
     }
   }

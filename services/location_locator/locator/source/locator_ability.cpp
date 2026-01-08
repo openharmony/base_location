@@ -67,6 +67,7 @@
 #endif
 #include "common_event_helper.h"
 #include "poi_info_manager.h"
+#include "location_account_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -441,7 +442,7 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
         code == LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK) {
         return true;
     }
-    std::vector<int> activeIds = LocatorBackgroundProxy::GetInstance()->getActiveUserIds();
+    std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
     if (CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
         return true;
     }

@@ -37,6 +37,7 @@
 #include "os_account_info.h"
 #include "permission_manager.h"
 #include "file_ex.h"
+#include <charconv>
 
 namespace OHOS {
 namespace Location {
@@ -677,5 +678,18 @@ bool CommonUtils::CreateFile(const std::string& filename, const std::string& fil
     LBSLOGI(GNSS, "CreateFile success");
     return true;
 }
+
+bool common_utils::ConvertStringToDigit(const std::string& str, int32_t &ret)
+{
+    std::from_chars_result res =
+       std::from_chars(str.data(), str.data() + str.size(), ret);
+    if (res.ec != std::errc{} || res.ptr != str.data() + str.size ()) {
+        LBSLOGI(GNSS, "FromString failed, error string is %{public}s", str.c_str());
+        return false;
+    }
+    return true;
+}
+
+
 } // namespace Location
 } // namespace OHOS

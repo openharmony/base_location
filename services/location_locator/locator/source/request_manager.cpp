@@ -49,6 +49,7 @@
 #include "res_sched_client.h"
 #endif
 
+#include "location_account_manager.h"
 #include "location_data_rdb_manager.h"
 
 namespace OHOS {
@@ -466,7 +467,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     AppIdentity identity;
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
-    std::vector<int> activeIds = LocatorBackgroundProxy::GetInstance()->getActiveUserIds();
+    std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
     if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
             request->GetUid());
