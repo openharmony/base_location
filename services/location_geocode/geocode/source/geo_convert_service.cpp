@@ -545,9 +545,16 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
             geoConvertRequest->GetLatitude(), geoConvertRequest->GetLongitude()) > MAX_CACHED_VALID_DISTANCE) {
             continue;
         }
-        result = iter->second;
         request->SetTimeStamp(CommonUtils::GetCurrentTimeStamp()); // utc time
         request->SetPriority(request->GetPriority() + 1);
+        if (iter->second.size() > static_cast<uint32_t>(geoConvertRequest->GetMaxItems())) {
+            for (auto geoAddress = iter->second.begin();
+                geoAddress != iter->second.end() &&
+                result.size() < static_cast<uint32_t>(geoConvertRequest->GetMaxItems());
+                iter++) {
+                result.push_back(*geoAddress);
+            }
+        }
         return result;
     }
     return result;
