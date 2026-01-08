@@ -44,6 +44,8 @@
 #include "form_mgr.h"
 #endif
 #include "hook_utils.h"
+#include "location_account_manager.h"
+
 
 namespace OHOS {
 namespace Location {
@@ -51,6 +53,7 @@ const int BACKGROUNDAPP_STATUS = 4;
 const int FOREGROUPAPP_STATUS = 2;
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
+std::mutex LocatorBackgroundProxy::foregroundAppMutex_;
 LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 {
     static LocatorBackgroundProxy data;
@@ -88,11 +91,12 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     SubscribeSaStatusChangeListerner();
     isUserSwitchSubscribed_ = LocatorBackgroundProxy::UserSwitchSubscriber::Subscribe();
     proxySwtich_ = (LocationConfigManager::GetInstance()->GetLocationSwitchState() == ENABLED);
+    RegisterAppStateObserver();
 }
 
 LocatorBackgroundProxy::~LocatorBackgroundProxy()
 {
-
+    UnregisterAppStateObserver();
 }
 
 // modify the parameters, in order to make the test easier
@@ -241,7 +245,6 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
-
 void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
 {
     UpdateListOnUserSwitch(userId);
@@ -367,5 +370,64 @@ void LocatorBackgroundProxy::SystemAbilityStatusChangeListener::OnRemoveSystemAb
     LBSLOGE(LOCATOR_BACKGROUND_PROXY, "UnSubscribeCommonEvent subscriber_ result = %{public}d", result);
 }
 
+bool LocatorBackgroundProxy::RegisterAppStateObserver()
+{
+    if (appStateObserver_ != nullptr) {
+        LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
+        return true;
+    }
+    appStateObserver_ = sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    int32_t result = iAppMgr_->RegisterApplicationStateObserver(appStateObserver_);
+    if (result != 0) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to Register app state observer.");
+        iAppMgr_ = nullptr;
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool LocatorBackgroundProxy::UnregisterAppStateObserver()
+{
+    if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
+        iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
+    }
+    iAppMgr_ = nullptr;
+    appStateObserver_ = nullptr;
+    return true;
+}
+
+AppStateChangeCallback::AppStateChangeCallback()
+{
+}
+
+AppStateChangeCallback::~AppStateChangeCallback()
+{
+}
+
+void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
+{
+    auto requestManager = RequestManager::GetInstance();
+    int32_t pid = appStateData.pid;
+    int32_t uid = appStateData.uid;
+    int32_t state = appStateData.state;
+    LBSLOGD(REQUEST_MANAGER,
+        "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
+    requestManager->HandlePowerSuspendChanged(pid, uid, state);
+    auto instance = LocationAccountManager::GetInstance();
+    instance->UpdateBackgroundAppStatues(uid, state);
+}
 } // namespace OHOS
 } // namespace Location

@@ -37,12 +37,10 @@ LocationAccountManager::LocationAccountManager()
 {
     SubscribeSaStatusChangeListerner();
     isUserSwitchSubscribed_ = LocationAccountManager::UserSwitchSubscriber::Subscribe();
-    RegisterAppStateObserver();
 }
 
 LocationAccountManager::~LocationAccountManager()
 {
-    UnregisterAppStateObserver();
 }
 
 std::vector<int> LocationAccountManager::getActiveUserIds()
@@ -204,45 +202,6 @@ void LocationAccountManager::UpdateBackgroundAppStatues(int32_t uid, int32_t sta
     LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
 }
 
-bool LocationAccountManager::RegisterAppStateObserver()
-{
-    if (appStateObserver_ != nullptr) {
-        LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
-        return true;
-    }
-    appStateObserver_ = sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
-    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrClient == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
-        appStateObserver_ = nullptr;
-        return false;
-    }
-    iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
-    if (iAppMgr_ == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
-        appStateObserver_ = nullptr;
-        return false;
-    }
-    int32_t result = iAppMgr_->RegisterApplicationStateObserver(appStateObserver_);
-    if (result != 0) {
-        LBSLOGE(REQUEST_MANAGER, "Failed to Register app state observer.");
-        iAppMgr_ = nullptr;
-        appStateObserver_ = nullptr;
-        return false;
-    }
-    return true;
-}
-
-bool LocationAccountManager::UnregisterAppStateObserver()
-{
-    if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
-        iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
-    }
-    iAppMgr_ = nullptr;
-    appStateObserver_ = nullptr;
-    return true;
-}
-
 bool LocationAccountManager::IsAppInLocationContinuousTasks(pid_t uid, pid_t pid)
 {
 #ifdef BGTASKMGR_SUPPORT
@@ -281,27 +240,6 @@ bool LocationAccountManager::IsAppHasFormVisible(uint32_t tokenId, uint64_t toke
     ret = OHOS::AppExecFwk::FormMgr::GetInstance().HasFormVisible(tokenId);
 #endif
     return ret;
-}
-
-AppStateChangeCallback::AppStateChangeCallback()
-{
-}
-
-AppStateChangeCallback::~AppStateChangeCallback()
-{
-}
-
-void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
-{
-    auto requestManager = RequestManager::GetInstance();
-    int32_t pid = appStateData.pid;
-    int32_t uid = appStateData.uid;
-    int32_t state = appStateData.state;
-    LBSLOGD(REQUEST_MANAGER,
-        "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
-    requestManager->HandlePowerSuspendChanged(pid, uid, state);
-    auto instance = LocatorBackgroundProxy::GetInstance();
-    instance->UpdateBackgroundAppStatues(uid, state);
 }
 
 } // namespace Location

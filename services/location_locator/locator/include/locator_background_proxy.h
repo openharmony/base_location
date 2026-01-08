@@ -115,8 +115,6 @@ private:
     std::shared_ptr<std::list<std::shared_ptr<Request>>> requestsList_;
     static std::mutex requestListMutex_;
     static std::mutex locatorMutex_;
-    static std::mutex foregroundAppMutex_;
-    std::map<int32_t, int32_t> foregroundAppMap_;
     sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
     sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
 };
