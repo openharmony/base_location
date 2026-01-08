@@ -64,6 +64,7 @@ ohos_shared_library("lbsservice_common") {
   external_deps = [
     "ability_runtime:ability_connect_callback_stub",
     "cJSON:cjson",
+    "ability_runtime::app_manager"
   ]
 
   public_external_deps = [

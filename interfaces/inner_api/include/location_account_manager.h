@@ -27,15 +27,26 @@
 namespace OHOS {
 namespace Location {
 
+class AppStateChangeCallback : public AppExecFwk::ApplicationStateObserverStub {
+public:
+    AppStateChangeCallback();
+    ~AppStateChangeCallback() override;
+    void OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData) override;
+};
+
 class LocationAccountManager {
 public:
     LocationAccountManager();
     ~LocationAccountManager();
     std::vector<int> getActiveUserIds();
+    static LocationAccountManager* GetInstance();
     void OnUserSwitch(int32_t userId);
     void OnUserRemove(int32_t userId);
-    static LocationAccountManager* GetInstance();
-
+    bool IsAppBackground(std::string bundleName);
+    bool IsAppBackground(int uid, std::string bundleName);
+    bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
+    bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
+    void UpdateBackgroundAppStatues(int32_t uid, int32_t status);
 private:
     std::vector<int> activeIds_;
     void SubscribeSaStatusChangeListerner();
@@ -62,6 +73,10 @@ private:
     bool isUserSwitchSubscribed_ = false;
     std::shared_ptr<UserSwitchSubscriber> subscriber_ = nullptr;
     sptr<ISystemAbilityStatusChange> statusChangeListener_ = nullptr;
+    static std::mutex foregroundAppMutex_;
+    std::map<int32_t, int32_t> foregroundAppMap_;
+    sptr<AppExecFwk::IAppMgr> iAppMgr_ = nullptr;
+    sptr<AppStateChangeCallback> appStateObserver_ = nullptr;
 };
 }  // namespace Location
 }  // namespace OHOS

@@ -37,11 +37,12 @@ LocationAccountManager::LocationAccountManager()
 {
     SubscribeSaStatusChangeListerner();
     isUserSwitchSubscribed_ = LocationAccountManager::UserSwitchSubscriber::Subscribe();
+    RegisterAppStateObserver();
 }
 
 LocationAccountManager::~LocationAccountManager()
 {
-
+    UnregisterAppStateObserver();
 }
 
 std::vector<int> LocationAccountManager::getActiveUserIds()
@@ -154,6 +155,154 @@ void LocationAccountManager::SystemAbilityStatusChangeListener::OnRemoveSystemAb
     LBSLOGE(ACCOUNT_MANAGER, "UnSubscribeCommonEvent subscriber_ result = %{public}d", result);
 }
 
+bool LocationAccountManager::IsAppBackground(std::string bundleName)
+{
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Get system ability manager failed.");
+        return false;
+    }
+    sptr<AppExecFwk::IAppMgr> iAppManager =
+        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppManager == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Failed to get ability manager service.");
+        return false;
+    }
+    std::vector<AppExecFwk::AppStateData> foregroundAppList;
+    iAppManager->GetForegroundApplications(foregroundAppList);
+    auto it = std::find_if(foregroundAppList.begin(), foregroundAppList.end(), [bundleName] (auto foregroundApp) {
+        return bundleName.compare(foregroundApp.bundleName) == 0;
+    });
+    if (it != foregroundAppList.end()) {
+        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "app : %{public}s is foreground.", bundleName.c_str());
+        return false;
+    }
+    return true;
+}
+
+bool LocationAccountManager::IsAppBackground(int uid, std::string bundleName)
+{
+    std::unique_lock lock(foregroundAppMutex_);
+    auto iter = foregroundAppMap_.find(uid);
+    if (iter == foregroundAppMap_.end()) {
+        return IsAppBackground(bundleName);
+    }
+    return false;
+}
+
+void LocationAccountManager::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
+{
+    std::unique_lock lock(foregroundAppMutex_);
+    if (status == FOREGROUPAPP_STATUS) {
+        foregroundAppMap_[uid] = status;
+    } else {
+        auto iter = foregroundAppMap_.find(uid);
+        if (iter != foregroundAppMap_.end()) {
+            foregroundAppMap_.erase(iter);
+        }
+    }
+    LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
+}
+
+bool LocationAccountManager::RegisterAppStateObserver()
+{
+    if (appStateObserver_ != nullptr) {
+        LBSLOGI(REQUEST_MANAGER, "app state observer exist.");
+        return true;
+    }
+    appStateObserver_ = sptr<AppStateChangeCallback>(new (std::nothrow) AppStateChangeCallback());
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Get system ability manager failed.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    iAppMgr_ = iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppMgr_ == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to get ability manager service.");
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    int32_t result = iAppMgr_->RegisterApplicationStateObserver(appStateObserver_);
+    if (result != 0) {
+        LBSLOGE(REQUEST_MANAGER, "Failed to Register app state observer.");
+        iAppMgr_ = nullptr;
+        appStateObserver_ = nullptr;
+        return false;
+    }
+    return true;
+}
+
+bool LocationAccountManager::UnregisterAppStateObserver()
+{
+    if (iAppMgr_ != nullptr && appStateObserver_ != nullptr) {
+        iAppMgr_->UnregisterApplicationStateObserver(appStateObserver_);
+    }
+    iAppMgr_ = nullptr;
+    appStateObserver_ = nullptr;
+    return true;
+}
+
+bool LocationAccountManager::IsAppInLocationContinuousTasks(pid_t uid, pid_t pid)
+{
+#ifdef BGTASKMGR_SUPPORT
+    std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
+    ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
+    if (result != ERR_OK) {
+        return false;
+    }
+    for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
+        auto continuousTask = *iter;
+        if (continuousTask == nullptr) {
+            continue;
+        }
+        if (continuousTask->GetCreatorUid() != uid || continuousTask->GetCreatorPid() != pid) {
+            continue;
+        }
+        auto typeIds = continuousTask->GetTypeIds();
+        for (auto typeId : typeIds) {
+            if (typeId == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
+                return true;
+            }
+        }
+    }
+#endif
+    return false;
+}
+
+bool LocationAccountManager::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
+{
+    bool ret = false;
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
+        return ret;
+    }
+#ifdef FMSKIT_NATIVE_SUPPORT
+    ret = OHOS::AppExecFwk::FormMgr::GetInstance().HasFormVisible(tokenId);
+#endif
+    return ret;
+}
+
+AppStateChangeCallback::AppStateChangeCallback()
+{
+}
+
+AppStateChangeCallback::~AppStateChangeCallback()
+{
+}
+
+void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::AppStateData& appStateData)
+{
+    auto requestManager = RequestManager::GetInstance();
+    int32_t pid = appStateData.pid;
+    int32_t uid = appStateData.uid;
+    int32_t state = appStateData.state;
+    LBSLOGD(REQUEST_MANAGER,
+        "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
+    requestManager->HandlePowerSuspendChanged(pid, uid, state);
+    auto instance = LocatorBackgroundProxy::GetInstance();
+    instance->UpdateBackgroundAppStatues(uid, state);
+}
 
 } // namespace Location
 } // namespace OHOS
