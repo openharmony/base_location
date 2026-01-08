@@ -23,6 +23,7 @@
 #include "i_switch_callback.h"
 #include "common_utils.h"
 #include "app_identity.h"
+#include "app_state_data.h"
 #include "common_event_subscriber.h"
 #include "system_ability_status_change_stub.h"
 

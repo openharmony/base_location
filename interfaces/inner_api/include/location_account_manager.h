@@ -20,9 +20,12 @@
 #include <map>
 #include <singleton.h>
 #include <string>
+#include "app_mgr_interface.h"
+#include "app_state_data.h"
 #include "application_state_observer_stub.h"
 #include "common_event_subscriber.h"
 #include "system_ability_status_change_stub.h"
+
 
 namespace OHOS {
 namespace Location {
@@ -42,6 +45,8 @@ public:
     static LocationAccountManager* GetInstance();
     void OnUserSwitch(int32_t userId);
     void OnUserRemove(int32_t userId);
+    bool RegisterAppStateObserver();
+    bool UnregisterAppStateObserver();
     bool IsAppBackground(std::string bundleName);
     bool IsAppBackground(int uid, std::string bundleName);
     bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
