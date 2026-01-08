@@ -551,9 +551,11 @@ std::list<std::shared_ptr<GeoAddress>> GeoConvertService::GetCahedGeoAddress(
             for (auto geoAddress = iter->second.begin();
                 geoAddress != iter->second.end() &&
                 result.size() < static_cast<uint32_t>(geoConvertRequest->GetMaxItems());
-                iter++) {
+                geoAddress++) {
                 result.push_back(*geoAddress);
             }
+        } else {
+            result = iter->second;
         }
         return result;
     }
