@@ -29,7 +29,7 @@
 
 namespace OHOS {
 namespace Location {
-
+const int FOREGROUPAPP_STATUS = 2;
 LocationAccountManager* LocationAccountManager::GetInstance()
 {
     static LocationAccountManager manager;
