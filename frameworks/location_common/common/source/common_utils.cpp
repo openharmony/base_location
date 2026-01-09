@@ -484,10 +484,10 @@ std::string CommonUtils::GenerateUuid()
 bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
 {
     std::vector<int> activeIds;
-    if (!GetActiveUserIds(activeIds)) {
-        currentUserId = DEFAULT_USERID;
+    if (!CommonUtils::GetActiveUserIds(activeIds)) {
+        LBSLOGE(COMMON_UTILS, "Fail to GetActiveUserIds");
     }
-    return CommonUtils::CheckAppForUser(uid, currentUserId, bundleName);
+    return CommonUtils::CheckAppForUsers(uid, activeIds, bundleName);
 }
 
 bool CommonUtils::CheckAppForUsers(int32_t uid, std::vector<int> activeIds, std::string& bundleName)
@@ -496,33 +496,6 @@ bool CommonUtils::CheckAppForUsers(int32_t uid, std::vector<int> activeIds, std:
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
     bool containsActiveId = std::find(activeIds.begin(), activeIds.end(), userId) != activeIds.end();
     if (containsActiveId || userId == 0) {
-        return true;
-    }
-    if (bundleName.length() == 0) {
-        if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-            LBSLOGE(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
-        }
-    }
-    if (bundleName.length() > 0 && HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
-        return true;
-    }
-    return false;
-}
-
-bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
-{
-    int currentUserId = 0;
-    if (!GetCurrentUserId(currentUserId)) {
-        currentUserId = DEFAULT_USERID;
-    }
-    return CommonUtils::CheckAppForUser(uid, currentUserId, bundleName);
-}
-
-bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName)
-{
-    int userId = 0;
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
-    if (userId == currentUserId || userId == 0) {
         return true;
     }
     if (bundleName.length() == 0) {
