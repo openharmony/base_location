@@ -21,7 +21,6 @@
 #include <singleton.h>
 #include <string>
 #include "app_mgr_interface.h"
-#include "app_state_data.h"
 #include "application_state_observer_stub.h"
 #include "common_event_subscriber.h"
 #include "system_ability_status_change_stub.h"
