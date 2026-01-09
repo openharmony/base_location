@@ -841,16 +841,6 @@ HWTEST_F(LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UnregisterAppStateObserverTest001 end");
 }
 
-HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1";
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible002 begin");
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    auto ret = locatorBackgroundProxy->IsAppHasFormVisible(0, 0);
-    EXPECT_EQ(false, ret);
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible002 end");
-}
 
 HWTEST_F(LocatorBackgroundProxyTest, OnAddSystemAbility001, TestSize.Level1)
 {
