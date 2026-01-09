@@ -280,10 +280,10 @@ int LocationDataRdbManager::QueryAndSyncSwitchStatusWithUserId(int userId)
     }
     HookUtils::ExecuteHookWhenSyncSwitchStates(sysparaState);
     return sysparaState;
-}  
+}
 
 void LocationDataRdbManager::SyncSwitchStatus()
-{   
+{
     std::vector<int> activeIds;
     CommonUtils::GetActiveUserIds(activeIds);
     int sysparaState = DISABLED;

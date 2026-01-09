@@ -153,7 +153,7 @@ bool CommonUtils::GetActiveUserIds(std::vector<int>& activeIds)
     return true;
 }
 
-int CommonUtils::GetUserIdByUid(int uid) 
+int CommonUtils::GetUserIdByUid(int uid)
 {
     int userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
@@ -508,7 +508,6 @@ bool CommonUtils::CheckAppForUsers(int32_t uid, std::vector<int> activeIds, std:
         return true;
     }
     return false;
-
 }
 
 bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
@@ -519,8 +518,6 @@ bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
     }
     return CommonUtils::CheckAppForUser(uid, currentUserId, bundleName);
 }
-
-
 
 bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName)
 {

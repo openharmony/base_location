@@ -2557,7 +2557,8 @@ ErrCode LocatorAbility::StartLocatingProcess(const RequestConfig& requestConfig,
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return LOCATION_ERRCODE_NOT_SUPPORTED;
 #endif
-    if (LocationDataRdbManager::QuerySwitchStateWithUid(identity.GetUid()) != ENABLED && !GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
+    if (LocationDataRdbManager::QuerySwitchStateWithUid(identity.GetUid()) != ENABLED &&
+        !GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
         ReportErrorStatus(cb, ERROR_SWITCH_UNOPEN);
     }
     // update offset before add request
