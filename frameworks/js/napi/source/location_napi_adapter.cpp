@@ -1716,11 +1716,10 @@ void SetCompleteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* async
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr && context->errCode == ERRCODE_SUCCESS &&
             callbackHost->GetGeofenceOperationType() ==
-            GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE) {
+            GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE &&
+            napi_get_undefined(context->env, &context->result[PARAM1]) == napi_ok) {
             LocationErrCode errCode = callbackHost->DealGeofenceOperationResult();
             if (errCode == ERRCODE_SUCCESS) {
-                NAPI_CALL_RETURN_VOID(
-                    context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
                 RemoveCallbackToGnssGeofenceCallbackHostMap(context->fenceId_);
             } else {
                 context->errCode = errCode;
