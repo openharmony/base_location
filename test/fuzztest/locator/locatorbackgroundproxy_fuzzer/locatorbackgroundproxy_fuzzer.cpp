@@ -63,7 +63,6 @@ namespace OHOS {
         sptr<ILocatorCallback> callbackStub =
             new (std::nothrow) LocatorCallbackStub();
         backgroundProxy->IsCallbackInProxy(callbackStub);
-        backgroundProxy->IsAppBackground(bundleName);
         backgroundProxy->RegisterAppStateObserver();
         backgroundProxy->UnregisterAppStateObserver();
         return true;
