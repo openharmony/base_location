@@ -137,15 +137,14 @@ std::string CommonUtils::InitDeviceId()
 
 bool CommonUtils::GetActiveUserIds(std::vector<int>& activeIds)
 {
-    std::vector<int> activeIds;
     int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
     if (ret != 0) {
-        userId = DEFAULT_USERID;
+        activeIds.push_back(DEFAULT_USERID);
         LBSLOGI(COMMON_UTILS, "GetCurrentUserId failed ret:%{public}d", ret);
         return false;
     }
     if (activeIds.empty()) {
-        userId = DEFAULT_USERID;
+        activeIds.push_back(DEFAULT_USERID);
         LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
         return false;
     }

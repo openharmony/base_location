@@ -22,7 +22,6 @@
 #include "common_event_support.h"
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
-#include "system_ability.h"
 #include "iservice_registry.h"
 #include "accesstoken_kit.h"
 #include "tokenid_kit.h"
