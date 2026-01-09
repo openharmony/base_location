@@ -148,7 +148,6 @@ bool CommonUtils::GetActiveUserIds(std::vector<int>& activeIds)
         LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
         return false;
     }
-    userId = activeIds[0];
     return true;
 }
 
@@ -549,10 +548,10 @@ bool CommonUtils::GetConfigFromJson(const std::string &key, std::string &value)
     return true;
 }
 
-bool CommonUtils::IsAppBelongCurrentAccounts(AppIdentity &identity, std::vector<int> activeIds)
+bool CommonUtils::IsAppBelongActiveAccounts(AppIdentity &identity, std::vector<int> activeIds)
 {
     std::string bundleName = identity.GetBundleName();
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), activeIds, bundleName)) {
+    if (CommonUtils::CheckAppForUsers(identity.GetUid(), activeIds, bundleName)) {
         return true;
     }
     if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
@@ -648,7 +647,7 @@ bool CommonUtils::CreateFile(const std::string& filename, const std::string& fil
     return true;
 }
 
-bool common_utils::ConvertStringToDigit(const std::string& str, int32_t &ret)
+bool CommonUtils::ConvertStringToDigit(const std::string& str, int32_t &ret)
 {
     std::from_chars_result res =
        std::from_chars(str.data(), str.data() + str.size(), ret);

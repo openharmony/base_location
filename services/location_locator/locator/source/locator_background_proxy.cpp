@@ -53,7 +53,6 @@ const int BACKGROUNDAPP_STATUS = 4;
 const int FOREGROUPAPP_STATUS = 2;
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
-std::mutex LocatorBackgroundProxy::foregroundAppMutex_;
 LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 {
     static LocatorBackgroundProxy data;
@@ -69,7 +68,7 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     requestsMap_ = std::make_shared<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>>();
     requestsList_ = std::make_shared<std::list<std::shared_ptr<Request>>>();
     CommonUtils::getActiveUserIds(activeIds_);
-    currentUserId = activeIds_[0];
+    curUserId_ = activeIds_[0];
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();

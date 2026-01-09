@@ -443,7 +443,7 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
         return true;
     }
     std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
-    if (CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    if (CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         return true;
     }
     LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
@@ -1482,7 +1482,7 @@ ErrCode LocatorAbility::GetCacheLocation(Location& location)
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
-    auto lastLocation = reportManager_->GetLastLocationByUserId(UserId);
+    auto lastLocation = reportManager_->GetLastLocationByUserId(userId);
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
