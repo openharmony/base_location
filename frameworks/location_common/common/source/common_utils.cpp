@@ -566,7 +566,7 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
     if (!CommonUtils::GetActiveUserIds(activeIds)) {
         LBSLOGE(COMMON_UTILS, "Fail to GetCurrentUserId.");
     }
-    return CommonUtils::IsAppBelongCurrentAccounts(identity, activeIds);
+    return CommonUtils::IsAppBelongActiveAccounts(identity, activeIds);
 }
 
 bool CommonUtils::IsValidForStoull(const std::string input, size_t size)

@@ -67,7 +67,7 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     }
     requestsMap_ = std::make_shared<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>>();
     requestsList_ = std::make_shared<std::list<std::shared_ptr<Request>>>();
-    CommonUtils::getActiveUserIds(activeIds_);
+    CommonUtils::GetActiveUserIds(activeIds_);
     curUserId_ = activeIds_[0];
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
