@@ -62,7 +62,7 @@ void LocationAccountManager::OnUserSwitch(int32_t userId)
 void LocationAccountManager::OnUserRemove(int32_t userId)
 {
     auto iter = std::find(activeIds_.begin(), activeIds_.end(), userId);
-    if (iter != activeIds_.end) {
+    if (iter != activeIds_.end()) {
         activeIds_.erase(iter);
     }
 }

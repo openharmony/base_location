@@ -264,6 +264,9 @@ bool LocationDataRdbManager::SetSwitchStateToSysparaForUser(int value, int32_t u
 
 int LocationDataRdbManager::QueryAndSyncSwitchStatusWithUserId(int userId)
 {
+    if (userId == 0) {
+        CommonUtils::GetCurrentUserId(userId);
+    }
     int dbState = DEFAULT_SWITCH_STATE;
     Uri locationDataEnableUri(GetLocationDataUriForUser("location_enable", userId));
     LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
