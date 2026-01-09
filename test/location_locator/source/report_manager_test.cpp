@@ -204,7 +204,7 @@ HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "ReportManagerTest, SetLastLocationTest001, TestSize.Level1";
     LBSLOGI(REPORT_MANAGER, "[ReportManagerTest] SetLastLocationTest001 begin");
-    reportManager_->GetLastLocation();
+    reportManager_->GetLastLocationByUserId(100);
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
     MessageParcel parcel;
     parcel.WriteDouble(12.0); // latitude
@@ -227,7 +227,7 @@ HWTEST_F(ReportManagerTest, SetLastLocationTest001, TestSize.Level1)
     request->SetTokenId(tokenId_);
     request->SetFirstTokenId(0);
     request->SetPackageName("ReportManagerTest");
-    EXPECT_NE(nullptr, reportManager_->GetLastLocation());
+    EXPECT_NE(nullptr, reportManager_->GetLastLocationByUserId(100));
     reportManager_->GetCacheLocation(request);
     reportManager_->UpdateCacheLocation(location, NETWORK_ABILITY);
     reportManager_->GetCacheLocation(request);
