@@ -143,7 +143,10 @@ ohos_static_library("lbsservice_common_static") {
     "samgr:samgr_proxy",
   ]
 
-  external_deps = [ "cJSON:cjson","ability_runtime:app_manager"]
+  external_deps = [
+    "cJSON:cjson",
+    "ability_runtime:app_manager"
+    ]
 
   defines = []
 
