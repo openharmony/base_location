@@ -30,6 +30,7 @@
 namespace OHOS {
 namespace Location {
 const int FOREGROUPAPP_STATUS = 2;
+std::mutex LocationAccountManager::foregroundAppMutex_;
 LocationAccountManager* LocationAccountManager::GetInstance()
 {
     static LocationAccountManager manager;
