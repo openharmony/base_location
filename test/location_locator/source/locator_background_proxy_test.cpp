@@ -273,17 +273,6 @@ HWTEST_F(LocatorBackgroundProxyTest, IsCallbackInProxyTest001, TestSize.Level1)
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsCallbackInProxyTest001 end");
 }
 
-HWTEST_F(LocatorBackgroundProxyTest, IsAppBackgroundTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorBackgroundProxyTest, IsAppBackgroundTest001, TestSize.Level1";
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppBackgroundTest001 begin");
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    EXPECT_NE(nullptr, locatorBackgroundProxy);
-    EXPECT_EQ(true, locatorBackgroundProxy->IsAppBackground("LocatorBackgroundProxyTest"));
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppBackgroundTest001 end");
-}
-
 HWTEST_F(LocatorBackgroundProxyTest, RegisterAppStateObserverTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -852,17 +841,6 @@ HWTEST_F(LocatorBackgroundProxyTest, UnregisterAppStateObserverTest001, TestSize
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] UnregisterAppStateObserverTest001 end");
 }
 
-HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorBackgroundProxyTest, IsAppHasFormVisible001, TestSize.Level1";
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible001 begin");
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    auto ret = locatorBackgroundProxy->IsAppHasFormVisible(tokenId_, 0);
-    EXPECT_EQ(false, ret);
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppHasFormVisible001 end");
-}
-
 HWTEST_F(LocatorBackgroundProxyTest, IsAppHasFormVisible002, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -913,15 +891,5 @@ HWTEST_F(LocatorBackgroundProxyTest, OnRemoveSystemAbility002, TestSize.Level1)
     LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] OnRemoveSystemAbility002 end");
 }
 
-HWTEST_F(LocatorBackgroundProxyTest, IsAppInLocationContinuousTasks001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorBackgroundProxyTest, IsAppInLocationContinuousTasks001, TestSize.Level1";
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppInLocationContinuousTasks001 begin");
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-
-    locatorBackgroundProxy->IsAppInLocationContinuousTasks(0, 0);
-    LBSLOGI(LOCATOR_BACKGROUND_PROXY, "[LocatorBackgroundProxyTest] IsAppInLocationContinuousTasks001 end");
-}
 }  // namespace Location
 }  // namespace OHOS

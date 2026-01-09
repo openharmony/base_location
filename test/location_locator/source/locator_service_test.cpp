@@ -509,7 +509,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceEnableAndDisable002, TestSize.Level1)
         << "LocatorServiceTest, locatorServiceEnableAndDisable002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceEnableAndDisable002 begin");
     auto locatorAbility = LocatorAbility::GetInstance();
-    int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
+    int currentSwitchState = LocationDataRdbManager::QuerySystemSwitchState();
     bool isEnable = currentSwitchState == 0 ? true: false;
     LocationDataRdbManager::SetSwitchStateToDb(0);
     locatorAbility->EnableAbility(isEnable);

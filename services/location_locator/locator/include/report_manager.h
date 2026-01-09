@@ -38,6 +38,7 @@ public:
     bool ResultCheck(const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request);
     void UpdateCacheLocation(const std::unique_ptr<Location>& location, std::string abilityName);
     std::unique_ptr<Location> GetLastLocationByUserId(int userId);
+     std::unique_ptr<Location> GetLastLocation();
     std::unique_ptr<Location> GetCacheLocation(const std::shared_ptr<Request>& request);
     std::unique_ptr<Location> GetPermittedLocation(const std::shared_ptr<Request>& request,
         const std::unique_ptr<Location>& location);

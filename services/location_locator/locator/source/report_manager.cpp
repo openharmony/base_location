@@ -442,6 +442,25 @@ Location& ReportManager::GetCacheNlpLocation()
     return cacheNlpLocation_;
 }
 
+std::unique_ptr<Location> ReportManager::GetLastLocation()	 
+ {	 
+     auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance(); 
+     int currentUserId = locatorBackgroundProxy->getCurrentUserId(); 
+     LBSLOGI(LOCATOR_STANDARD, "GetCacheLocation GetLastLocation currentUserId = %{public}d ", currentUserId); 
+     std::unique_lock<std::mutex> lock(lastLocationMutex_);	 
+     auto iter = lastLocationsMap_.find(currentUserId);	 
+     if (iter == lastLocationsMap_.end()) {	 
+         return nullptr;	 
+     }	 
+     std::unique_ptr<Location> lastLocation = std::make_unique<Location>(*(iter->second));	 
+     if (CommonUtils::DoubleEqual(lastLocation->GetLatitude(), MIN_LATITUDE - 1)) {	 
+         return nullptr;	 
+     }	 
+     PoiInfoManager::GetInstance()->UpdateLocationPoiInfo(lastLocation);	 
+     return lastLocation;	 
+ }
+
+
 std::unique_ptr<Location> ReportManager::GetLastLocationByUserId(int userId)
 {
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
