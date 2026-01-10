@@ -174,7 +174,7 @@ ohos_shared_library("lbsservice_locator") {
     defines += [ "LOCATION_HICOLLIE_ENABLE" ]
   }
 
-  if (!location_sa_recycle_strategy_low_memory) {
+  if (!location_sa_recycle_strategy_low_memory && location_feature_with_quick_unload) {
     defines += [ "FEATURE_DYNAMIC_OFFLOAD" ]
   }
 
@@ -297,7 +297,7 @@ ohos_static_library("lbsservice_locator_static") {
     defines += [ "LOCATION_HICOLLIE_ENABLE" ]
   }
 
-  if (!location_sa_recycle_strategy_low_memory) {
+  if (!location_sa_recycle_strategy_low_memory && location_feature_with_quick_unload) {
     defines += [ "FEATURE_DYNAMIC_OFFLOAD" ]
   }
   defines += [ "TDD_CASES_ENABLED" ]

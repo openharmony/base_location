@@ -66,6 +66,7 @@ declare_args() {
   startup_init = true
   location_feature_with_opp_switch = true
   location_hiappevent_enable = true
+ location_feature_with_quick_unload = true
 
   if (defined(global_parts_info) && !defined(global_parts_info.global_i18n)) {
     i18n_enable = false
