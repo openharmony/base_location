@@ -244,12 +244,12 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
-int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const 
-{ 
-    int userId = 0; 
-    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId); 
-    return userId; 
-} 
+int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
+{
+    int userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    return userId;
+}
 
 void LocatorBackgroundProxy::OnUserSwitch(int32_t userId)
 {

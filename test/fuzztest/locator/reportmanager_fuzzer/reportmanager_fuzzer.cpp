@@ -48,7 +48,7 @@ namespace OHOS {
         reportManager->OnReportLocation(location, "gps");
         reportManager->ResultCheck(location, request);
         reportManager->UpdateCacheLocation(location, "gps");
-        reportManager->GetLastLocationByUserId(100);
+        reportManager->GetLastLocationByUserId(0);
         reportManager->GetCacheLocation(request);
         reportManager->GetPermittedLocation(request, location);
         reportManager->UpdateRandom();
