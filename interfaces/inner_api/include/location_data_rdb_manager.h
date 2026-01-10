@@ -35,7 +35,6 @@ public:
     static int QuerySystemSwitchState();
     static int QuerySwitchStateWithUid(int32_t uid);
     static int QuerySwitchStateForUser(int32_t userId);
-    static int GetSwitchStateForUser(int32_t userId);
     static LocationErrCode SetSwitchStateToDb(int modeValue);
     static LocationErrCode SetSwitchStateToDbForUser(int modeValue, int32_t userId);
     static bool SetLocationWorkingState(int32_t state);
