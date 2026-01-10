@@ -545,7 +545,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
         isEnabled, userId)) {
         return ERRCODE_SUCCESS;
     }
-    LocationErrCode errCode = SetSwitchState(isEnabled);
+    LocationErrCode errCode = SetSwitchStateForUser(isEnabled, userId, identity.GetBundleName());
     std::string bundleName;
     bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
     // settings first enable location, need to update privacy state
