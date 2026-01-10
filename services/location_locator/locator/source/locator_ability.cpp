@@ -3282,7 +3282,6 @@ void LocatorHandler::SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Point
         bool isEnabled = (modeValue == ENABLED);
         std::string state = isEnabled ? "enable" : "disable";
         locatorAbility->ReportDataToResSched(state);
-        WriteLocationSwitchStateEvent(state);
     }
 }
 
