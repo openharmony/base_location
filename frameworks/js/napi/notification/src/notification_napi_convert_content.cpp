@@ -149,7 +149,9 @@ napi_value NotificationNapi::GetNotificationBasicContentDetailed(
     const napi_env &env, const napi_value &contentResult, std::shared_ptr<NotificationBasicContent> basicContent)
 {
     ANS_LOGD("enter");
-
+    if (basicContent == nullptr) {
+        return nullptr;
+    }
     bool hasProperty = false;
     char str[STR_MAX_SIZE] = {0};
     size_t strLen = 0;
@@ -237,7 +239,9 @@ napi_value NotificationNapi::GetNotificationLongTextContentDetailed(
     std::shared_ptr<OHOS::Notification::NotificationLongTextContent> &longContent)
 {
     ANS_LOGD("enter");
-
+    if (longContent == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     napi_value longContentResult = nullptr;
     bool hasProperty = false;
@@ -348,7 +352,9 @@ napi_value NotificationNapi::GetNotificationPictureContentDetailed(const napi_en
     const napi_value &contentResult, std::shared_ptr<OHOS::Notification::NotificationPictureContent> &pictureContent)
 {
     ANS_LOGD("enter");
-
+    if (pictureContent == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     napi_value pictureContentResult = nullptr;
     bool hasProperty = false;
@@ -658,6 +664,9 @@ napi_value NotificationNapi::GetNotificationConversationalContentTitle(
     std::shared_ptr<OHOS::Notification::NotificationConversationalContent> &conversationalContent)
 {
     ANS_LOGD("enter");
+    if (conversationalContent == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     napi_value conversationalContentResult = nullptr;
     bool hasProperty = false;
@@ -688,6 +697,9 @@ napi_value NotificationNapi::GetNotificationConversationalContentGroup(
     std::shared_ptr<OHOS::Notification::NotificationConversationalContent> &conversationalContent)
 {
     ANS_LOGD("enter");
+    if (conversationalContent == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     napi_value conversationalContentResult = nullptr;
     bool hasProperty = false;
@@ -717,6 +729,9 @@ napi_value NotificationNapi::GetNotificationConversationalContentMessages(
     std::shared_ptr<OHOS::Notification::NotificationConversationalContent> &conversationalContent)
 {
     ANS_LOGD("enter");
+    if (conversationalContent == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     napi_value conversationalContentResult = nullptr;
     bool hasProperty = false;
@@ -987,7 +1002,9 @@ napi_value NotificationNapi::GetNotificationMultiLineContentLines(const napi_env
     std::shared_ptr<OHOS::Notification::NotificationMultiLineContent> &multiLineContent)
 {
     ANS_LOGD("enter");
-
+    if (multiLineContent == nullptr) {
+        return nullptr;
+    }
     bool isArray = false;
     napi_valuetype valuetype = napi_undefined;
     napi_value multilines = nullptr;
@@ -1026,6 +1043,9 @@ napi_value NotificationNapi::GetNotificationMultiLineContentLines(const napi_env
 napi_value NotificationNapi::GetLockScreenPicture(
     const napi_env &env, const napi_value &contentResult, std::shared_ptr<NotificationBasicContent> basicContent)
 {
+    if (basicContent == nullptr) {
+        return nullptr;
+    }
     bool hasProperty = false;
     NAPI_CALL(env, napi_has_named_property(env, contentResult, "lockscreenPicture", &hasProperty));
     if (hasProperty) {

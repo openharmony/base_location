@@ -689,7 +689,7 @@ napi_value NotificationNapi::GetNotificationRemovalWantAgent(
         }
         std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> removeWantAgent =
             std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
-        if ((uint32_t)removeWantAgent->GetPendingWant()->GetType(
+        if (removeWantAgent->GetPendingWant() != nullptr && (uint32_t)removeWantAgent->GetPendingWant()->GetType(
             removeWantAgent->GetPendingWant()->GetTarget()) >= OPERATION_MAX_TYPE) {
             request.SetRemovalWantAgent(removeWantAgent);
         }

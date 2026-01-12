@@ -100,6 +100,9 @@ napi_value NotificationNapi::GetNotificationUserInput(
     const napi_env &env, const napi_value &actionButton, std::shared_ptr<NotificationActionButton> &pActionButton)
 {
     LBSLOGD(NAPI_UTILS, "enter");
+    if (pActionButton == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     napi_value userInputResult = nullptr;
     bool hasProperty = false;
@@ -168,7 +171,7 @@ napi_value NotificationNapi::GetNotificationUserInputByTag(
     char str[STR_MAX_SIZE] = {0};
     size_t strLen = 0;
 
-    if (!userInput) {
+    if (userInput == nullptr) {
         LBSLOGE(NAPI_UTILS, "userInput is nullptr");
         return nullptr;
     }
@@ -203,7 +206,7 @@ napi_value NotificationNapi::GetNotificationUserInputByOptions(
     size_t strLen = 0;
     bool isArray = false;
 
-    if (!userInput) {
+    if (userInput == nullptr) {
         LBSLOGE(NAPI_UTILS, "userInput is nullptr");
         return nullptr;
     }
@@ -256,7 +259,7 @@ napi_value NotificationNapi::GetNotificationUserInputByPermitMimeTypes(
     uint32_t length = 0;
     bool isArray = false;
 
-    if (!userInput) {
+    if (userInput == nullptr) {
         LBSLOGE(NAPI_UTILS, "userInput is nullptr");
         return nullptr;
     }
@@ -300,7 +303,7 @@ napi_value NotificationNapi::GetNotificationUserInputByPermitFreeFormInput(
     napi_valuetype valuetype = napi_undefined;
     bool hasProperty = false;
 
-    if (!userInput) {
+    if (userInput == nullptr) {
         LBSLOGE(NAPI_UTILS, "userInput is nullptr");
         return nullptr;
     }
@@ -332,7 +335,7 @@ napi_value NotificationNapi::GetNotificationUserInputByEditType(
     bool hasProperty = false;
     int32_t editType = 0;
 
-    if (!userInput) {
+    if (userInput == nullptr) {
         LBSLOGE(NAPI_UTILS, "userInput is nullptr");
         return nullptr;
     }
@@ -361,7 +364,7 @@ napi_value NotificationNapi::GetNotificationUserInputByAdditionalData(
     napi_value result = nullptr;
     bool hasProperty = false;
 
-    if (!userInput) {
+    if (userInput == nullptr) {
         LBSLOGE(NAPI_UTILS, "userInput is nullptr");
         return nullptr;
     }
@@ -917,7 +920,9 @@ napi_value NotificationNapi::GetNotificationTemplateInfo(const napi_env &env, co
     std::shared_ptr<NotificationTemplate> &templ)
 {
     LBSLOGD(NAPI_UTILS, "enter");
-
+    if (templ == nullptr) {
+        return nullptr;
+    }
     napi_valuetype valuetype = napi_undefined;
     napi_value result = nullptr;
     bool hasProperty = false;
