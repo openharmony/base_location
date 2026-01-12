@@ -47,7 +47,6 @@ std::vector<OHOS::sptr<GnssStatusCallbackTaihe>> g_taiheGnssStatusCallbackMap;
 std::vector<OHOS::sptr<LocationSwitchCallbackTaihe>> g_taiheLocationSwitchCallbackMap;
 std::vector<OHOS::sptr<BluetoothScanResultCallbackTaihe>> g_taiheBluetoothScanResultCallbackMap;
 std::vector<OHOS::sptr<LocationErrorCallbackTaihe>> g_taiheLocationErrorCallbackMap;
-static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 
 int GetCurrentLocationType(std::unique_ptr<OHOS::Location::RequestConfig>& config)
 {
