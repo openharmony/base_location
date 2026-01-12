@@ -15,6 +15,8 @@
 #include "util.h"
 namespace OHOS {
 namespace Location {
+static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
+
 std::map<int, std::string> Util::GetErrorCodeMapTaihe()
 {
     std::map<int, std::string> errorCodeMap = {
