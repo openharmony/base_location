@@ -204,13 +204,8 @@ bool IsPoiServiceSupported()
     if (singleLocatorCallbackHost->GetCount() != 0 && singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
         std::unique_ptr<OHOS::Location::Location> location = nullptr;
         Locator::GetInstance()->GetCachedLocationV9(location);
-        int64_t curTime = OHOS::Location::CommonUtils::GetCurrentTimeStamp();
-        if (location != nullptr &&
-            (curTime - location->GetTimeStamp() / OHOS::Location::MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
-            singleLocatorCallbackHost->SetSingleLocation(location);
-        }
         if (Util::NeedReportLastLocation(requestConfig, location)) {
-            callbackHost->SetSingleLocation(location);
+            singleLocatorCallbackHost->SetSingleLocation(location);
         } else {
             errorCode = ERRCODE_LOCATING_FAIL;
         }
@@ -258,13 +253,8 @@ bool IsPoiServiceSupported()
     if (singleLocatorCallbackHost->GetCount() != 0 && singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
         std::unique_ptr<OHOS::Location::Location> location = nullptr;
         Locator::GetInstance()->GetCachedLocationV9(location);
-        int64_t curTime = OHOS::Location::CommonUtils::GetCurrentTimeStamp();
-        if (location != nullptr &&
-            (curTime - location->GetTimeStamp() / OHOS::Location::MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
-            singleLocatorCallbackHost->SetSingleLocation(location);
-        }
         if (Util::NeedReportLastLocation(requestConfig, location)) {
-            callbackHost->SetSingleLocation(location);
+            singleLocatorCallbackHost->SetSingleLocation(location);
         } else {
             errorCode = ERRCODE_LOCATING_FAIL;
         }

@@ -387,8 +387,8 @@ void Util::TaiheToRevGeocodeMock(::taihe::array_view<::ohos::geoLocationManager:
     // todo
 }
 
-bool Util::NeedReportLastLocation(const std::unique_ptr<<OHOS::Location::RequestConfig>& config,
-    const std::unique_ptr<<OHOS::Location::Location>& location)
+bool Util::NeedReportLastLocation(const std::unique_ptr<OHOS::Location::RequestConfig>& config,
+    const std::unique_ptr<OHOS::Location::Location>& location)
 {
     if (config->GetScenario() == SCENE_UNSET && config->GetPriority() == PRIORITY_UNSET) {
         return false;
