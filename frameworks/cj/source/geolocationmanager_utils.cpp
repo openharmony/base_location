@@ -68,10 +68,14 @@ CMapStringString MapToCMapStringString(const std::map<std::string, std::string>&
 
 CJLocation NativeLocationToCJLocation(const Location::Location& loc)
 {
+    auto additions = loc.GetAdditions();
+    uint32_t additionSize = static_cast<uint32_t>(loc.GetAdditionSize());
+    uint32_t additionsMapSize = static_cast<uint32_t>(loc.GetAdditionsMap().size());
+    uint32_t additionSizeMin = std::min({additionSize, static_cast<uint32_t>(additions.size()), additionsMapSize});
     return CJLocation{ .latitude = loc.GetLatitude(), .longitude = loc.GetLongitude(),
         .altitude = loc.GetAltitude(), .accuracy = loc.GetAccuracy(), .speed = loc.GetSpeed(),
         .direction = loc.GetDirection(), .timeStamp = loc.GetTimeStamp(), .timeSinceBoot = loc.GetTimeSinceBoot(),
-        .additions = StringVectorToCPointer(loc.GetAdditions()), .additionSize = loc.GetAdditionSize(),
+        .additions = StringVectorToCPointer(additions), .additionSize = additionSizeMin,
         .additionsMap = MapToCMapStringString(loc.GetAdditionsMap()), .altitudeAccuracy = loc.GetAltitudeAccuracy(),
         .speedAccuracy = loc.GetSpeedAccuracy(), .directionAccuracy = loc.GetDirectionAccuracy(),
         .uncertaintyOfTimeSinceBoot = loc.GetUncertaintyOfTimeSinceBoot(), .sourceType = loc.GetLocationSourceType()
