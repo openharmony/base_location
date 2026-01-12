@@ -386,5 +386,23 @@ void Util::TaiheToRevGeocodeMock(::taihe::array_view<::ohos::geoLocationManager:
 {
     // todo
 }
+
+bool Util::NeedReportLastLocation(const std::unique_ptr<<OHOS::Location::RequestConfig>& config,
+    const std::unique_ptr<<OHOS::Location::Location>& location)
+{
+    if (config->GetScenario() == SCENE_UNSET && config->GetPriority() == PRIORITY_UNSET) {
+        return false;
+    }
+    int64_t curTime = CommonUtils::GetCurrentTimeStamp();
+    float maxAcc = config->GetMaxAccuracy();
+    if (location != nullptr &&
+        (curTime - location->GetTimeStamp() / MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME &&
+        (location->GetAccuracy() == DEFAULT_APPROXIMATELY_ACCURACY ||
+        !(maxAcc > 0 && location->GetAccuracy() > maxAcc))) {
+        return true;
+    } else {
+        return false;
+    }
+}
 }
 }

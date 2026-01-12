@@ -62,7 +62,9 @@ public:
         ::taihe::array_view<::ohos::geoLocationManager::ReverseGeocodingMockInfo>& mockInfos,
         std::vector<std::shared_ptr<GeocodingMockInfo>>& mockInfo);
     static void TaiheToGeoAddress(::ohos::geoLocationManager::GeoAddress& geoAddressTaihe,
-    std::shared_ptr<GeoAddress>& geoAddress);
+        std::shared_ptr<GeoAddress>& geoAddress);
+    static bool NeedReportLastLocation(const std::unique_ptr<<OHOS::Location::RequestConfig>& config,
+        const std::unique_ptr<<OHOS::Location::Location>& location);
 };
 }
 }
