@@ -545,7 +545,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
         isEnabled, userId)) {
         return ERRCODE_SUCCESS;
     }
-    LocationErrCode errCode = SetSwitchState(isEnabled);
+    LocationErrCode errCode = SetSwitchStateForUser(isEnabled, userId, identity.GetBundleName());
     std::string bundleName;
     bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
     // settings first enable location, need to update privacy state
@@ -587,7 +587,7 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
         isEnabled, userId)) {
         return ERRCODE_SUCCESS;
     }
-    SetSwitchStateForUser(isEnabled, userId);
+    SetSwitchStateForUser(isEnabled, userId, identity.GetBundleName());
     std::string bundleName;
     bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
     // settings first enable location, need to update privacy state
@@ -2507,10 +2507,11 @@ LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::SetSwitchStateForUser(bool isEnabled, int32_t userId)
+LocationErrCode LocatorAbility::SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName)
 {
     int modeValue = isEnabled ? ENABLED : DISABLED;
     std::unique_ptr<LocatorSwitchMessage> locatorSwitchMessage = std::make_unique<LocatorSwitchMessage>();
+    locatorSwitchMessage->SetBundleName(bundleName);
     locatorSwitchMessage->SetModeValue(modeValue);
     locatorSwitchMessage->SetUserId(userId);
     if (LocationDataRdbManager::SetSwitchStateToSysparaForUser(modeValue, userId)) {
@@ -2796,6 +2797,16 @@ void LocatorSwitchMessage::SetModeValue(int32_t modeValue)
 int32_t LocatorSwitchMessage::GetModeValue()
 {
     return modeValue_;
+}
+
+void LocatorSwitchMessage::SetBundleName(const std::string& bundleName)
+{
+    bundleName_ = bundleName;
+}
+
+std::string LocatorSwitchMessage::GetBundleName()
+{
+    return bundleName_;
 }
 
 LocatorHandler::LocatorHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner) : EventHandler(runner)
@@ -3271,7 +3282,6 @@ void LocatorHandler::SetSwitchStateToDbEvent(const AppExecFwk::InnerEvent::Point
         bool isEnabled = (modeValue == ENABLED);
         std::string state = isEnabled ? "enable" : "disable";
         locatorAbility->ReportDataToResSched(state);
-        WriteLocationSwitchStateEvent(state);
     }
 }
 
@@ -3281,8 +3291,9 @@ void LocatorHandler::SetSwitchStateToDbForUserEvent(const AppExecFwk::InnerEvent
     if (locatorSwitchMessage == nullptr) {
         return;
     }
-    auto modeValue = locatorSwitchMessage->GetModeValue();
-    auto userId = locatorSwitchMessage->GetUserId();
+    int32_t modeValue = locatorSwitchMessage->GetModeValue();
+    int32_t userId = locatorSwitchMessage->GetUserId();
+    std::string bundleName = locatorSwitchMessage->GetBundleName();
     if (LocationDataRdbManager::SetSwitchStateToDbForUser(modeValue, userId) != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR, "%{public}s: can not set state to db", __func__);
         return;
@@ -3297,7 +3308,7 @@ void LocatorHandler::SetSwitchStateToDbForUserEvent(const AppExecFwk::InnerEvent
     std::string state = isEnabled ? "enable" : "disable";
     // background task only check the current user switch state
     LocatorAbility::GetInstance()->ReportDataToResSched(state);
-    WriteLocationSwitchStateEvent(state);
+    WriteLocationSwitchStateEvent(state, bundleName, userId);
 }
 
 LocatorCallbackDeathRecipient::LocatorCallbackDeathRecipient(int32_t tokenId)

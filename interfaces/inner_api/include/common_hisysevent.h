@@ -22,7 +22,7 @@ namespace OHOS {
 namespace Location {
 void WriteGnssStateEvent(const std::string& state, const pid_t pid, const pid_t uid);
 void WriteAppLocatingStateEvent(const std::string& state, const pid_t pid, const pid_t uid);
-void WriteLocationSwitchStateEvent(const std::string& state);
+void WriteLocationSwitchStateEvent(const std::string& state, const std::string& bundleName, const int32_t userId);
 void WriteLocationInnerEvent(const int event, std::vector<std::string> names, std::vector<std::string>& values);
 void WriteLocationInnerEvent(const int event, std::initializer_list<std::string> params);
 void WriteLocationRequestEvent(const std::string& packageName, const std::string& abilityName);

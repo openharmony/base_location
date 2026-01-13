@@ -253,7 +253,7 @@ private:
     bool SetLocationhubStateToSyspara(int value);
     void SetLocationSwitchIgnoredFlag(uint32_t tokenId, bool enable);
     void GetAppIdentityInfo(AppIdentity& identity);
-    LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId);
+    LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName);
     bool CheckLocationSwitchState();
     bool CheckBluetoothSwitchState();
     bool CheckLocationPermission(uint32_t callingTokenId, uint32_t callingFirstTokenid);
@@ -349,9 +349,12 @@ public:
     int32_t GetUserId();
     void SetModeValue(int32_t modeValue);
     int32_t GetModeValue();
+    void SetBundleName(const std::string& bundleName);
+    std::string GetBundleName();
 private:
     int32_t modeValue_;
     int32_t userId_;
+    std::string bundleName_;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
