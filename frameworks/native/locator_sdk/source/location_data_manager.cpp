@@ -25,7 +25,7 @@
 #include "common_hisysevent.h"
 #include "parameter.h"
 #include "permission_manager.h"
-#include "ipc_skeleton.h"
+
 namespace OHOS {
 namespace Location {
 const int MAX_SWITCH_CALLBACK_NUM = 1000;
@@ -46,7 +46,7 @@ LocationDataManager::~LocationDataManager()
 LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 {
     std::unique_lock<std::mutex> lock(mutex_);
-    LBSLOGI(LOCATOR, "ReportSwitchState switchCallbackMap size:%{public}ld", switchCallbackMap_.size());
+    LBSLOGI(LOCATOR, "ReportSwitchState switchCallbackMap size:%{public}u", switchCallbackMap_.size());
     for (auto item = switchCallbackMap_.begin(); item != switchCallbackMap_.end(); item++) {
         AppSwitchState *appInfo = &(item->second);
         if (appInfo == nullptr) {
