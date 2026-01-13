@@ -309,6 +309,9 @@ private:
     std::map<sptr<IRemoteObject>, AppIdentity> gnssStatusCallbackMap_;
     std::map<sptr<IRemoteObject>, AppIdentity> nmeaCallbackMap_;
     std::map<sptr<IRemoteObject>, std::unique_ptr<CachedGnssLocationsRequest>> batchingCallbackMap_;
+    std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> gnssStatusDeathMap_;
+    std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> nmeaDeathMap_;
+    std::map<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>> batchingDeathMap_;
     sptr<IGnssCallback> gnssCallback_;
     Location nlpLocation_;
 #ifdef TIME_SERVICE_ENABLE
