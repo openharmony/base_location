@@ -148,6 +148,15 @@ GnssAbility::~GnssAbility()
     }
 #endif
 #endif
+    for (const auto& pair : gnssStatusDeathMap_) {
+        pair.first->RemoveDeathRecipient(pair.second);
+    }
+    for (const auto& pair : nmeaDeathMap_) {
+        pair.first->RemoveDeathRecipient(pair.second);
+    }
+    for (const auto& pair : batchingDeathMap_) {
+        pair.first->RemoveDeathRecipient(pair.second);
+    }
 }
 
 bool GnssAbility::CheckIfHdiConnected()
@@ -296,10 +305,11 @@ LocationErrCode GnssAbility::RegisterGnssStatusCallback(const sptr<IRemoteObject
         LBSLOGE(GNSS, "register an invalid gnssStatus callback");
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
-    callback->AddDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
     if (gnssStatusCallbackMap_.size() < MAX_GNSS_STATUS_CALLBACK_NUM) {
+        sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) GnssStatusCallbackDeathRecipient());
+        callback->AddDeathRecipient(death);
+        gnssStatusDeathMap_[callback] = death;
         gnssStatusCallbackMap_[callback] = identity;
     } else {
         LBSLOGE(GNSS, "RegisterGnssStatusCallback num max");
@@ -317,6 +327,11 @@ LocationErrCode GnssAbility::UnregisterGnssStatusCallback(const sptr<IRemoteObje
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
     std::unique_lock<ffrt::mutex> lock(gnssMutex_);
+    auto deathIter = gnssStatusDeathMap_.find(callback);
+    if (iter != gnssStatusDeathMap_.end()) {
+        callback->RemoveDeathRecipient(deathIter->second)
+        gnssStatusDeathMap_.erase(iter);
+    }
     auto iter = gnssStatusCallbackMap_.find(callback);
     if (iter != gnssStatusCallbackMap_.end()) {
         gnssStatusCallbackMap_.erase(iter);
@@ -333,10 +348,11 @@ LocationErrCode GnssAbility::RegisterNmeaMessageCallback(const sptr<IRemoteObjec
         LBSLOGE(GNSS, "register an invalid nmea callback");
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
-    callback->AddDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     if (nmeaCallbackMap_.size() < MAX_NMEA_CALLBACK_NUM) {
+        sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) NmeaCallbackDeathRecipient());
+        callback->AddDeathRecipient(death);
+        nmeaDeathMap_[callback] = death;
         nmeaCallbackMap_[callback] = identity;
     } else {
         LBSLOGE(GNSS, "RegisterNmeaMessageCallback num max");
@@ -352,6 +368,11 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
     if (callback == nullptr) {
         LBSLOGE(GNSS, "unregister an invalid nmea callback");
         return LOCATION_ERRCODE_INVALID_PARAM;
+    }
+    auto deathIter = nmeaDeathMap_.find(callback);
+    if (iter != nmeaDeathMap_.end()) {
+        callback->RemoveDeathRecipient(deathIter->second)
+        nmeaDeathMap_.erase(iter);
     }
     std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto iter = nmeaCallbackMap_.find(callback);
@@ -379,11 +400,12 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
         LBSLOGE(GNSS, "Is Not Support Batching");
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
-    sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CachedLocationCallbackDeathRecipient());
-    callback->AddDeathRecipient(death);
     {
         std::unique_lock<ffrt::mutex> lock(batchingMutex_);
         if (batchingCallbackMap_.size() < MAX_CACHE_CALLBACK_NUM) {
+            sptr<IRemoteObject::DeathRecipient> death(new (std::nothrow) CachedLocationCallbackDeathRecipient());
+            callback->AddDeathRecipient(death);
+            batchingDeathMap_[callback] = death;
             batchingCallbackMap_[callback] = std::make_unique<CachedGnssLocationsRequest>(*request);
         } else {
             LBSLOGE(GNSS, "RegisterGnssStatusCallback num max");
@@ -415,6 +437,11 @@ LocationErrCode GnssAbility::UnregisterCachedCallback(const sptr<IRemoteObject>&
     }
     {
         std::unique_lock<ffrt::mutex> lock(batchingMutex_);
+        auto deathIter = batchingDeathMap_.find(callback);
+        if (iter != batchingDeathMap_.end()) {
+            callback->RemoveDeathRecipient(deathIter->second)
+            batchingDeathMap_.erase(iter);
+        }
         auto iter = batchingCallbackMap_.find(callback);
         if (iter != batchingCallbackMap_.end()) {
             batchingCallbackMap_.erase(iter);
