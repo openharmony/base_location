@@ -43,7 +43,7 @@ LocationDataManager::~LocationDataManager()
 {
 }
 
-LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
+LocationErrCode LocationDataManager::ReportSwitchState()
 {
     std::unique_lock<std::mutex> lock(mutex_);
     LBSLOGI(LOCATOR, "ReportSwitchState switchCallbackMap size:%{public}u", switchCallbackMap_.size());
@@ -158,20 +158,13 @@ void LocationDataManager::SetIsFirstReport(bool isFirstReport)
 void LocationDataManager::RegisterLocationSwitchObserver()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
-        state = LocationDataRdbManager::QuerySwitchStateForUser(userId);
         auto manager = LocationDataManager::GetInstance();
         if (manager->IsFirstReport()) {
             LBSLOGI(LOCATOR, "first switch callback, no need to report");
             manager->SetIsFirstReport(false);
             return;
         }
-        if (state == DEFAULT_SWITCH_STATE) {
-            LBSLOGE(LOCATOR, "LOCATION_SWITCH_MODE changed. state %{public}d. do not report", state);
-            return;
-        }
-        bool switchState = (state == ENABLED);
-        LBSLOGI(LOCATOR, "LOCATION_SWITCH_MODE changed. switchState %{public}d", switchState);
-        manager->ReportSwitchState(switchState);
+        manager->ReportSwitchState();
     };
 
     int ret = WatchParameter(LOCATION_SWITCH_MODE, eventCallback, nullptr);

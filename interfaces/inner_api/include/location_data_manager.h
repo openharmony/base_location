@@ -39,7 +39,7 @@ class LocationDataManager {
 public:
     LocationDataManager();
     ~LocationDataManager();
-    LocationErrCode ReportSwitchState(bool isEnabled);
+    LocationErrCode ReportSwitchState();
     LocationErrCode RegisterSwitchCallback(const sptr<IRemoteObject>& callback, AppIdentity& appIdentity);
     LocationErrCode UnregisterSwitchCallback(const sptr<IRemoteObject>& callback);
     bool IsSwitchObserverReg();
