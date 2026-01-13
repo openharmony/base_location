@@ -45,8 +45,8 @@ LocationDataManager::~LocationDataManager()
 
 LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
 {
-    int state = isEnabled ? ENABLED : DISABLED;
     std::unique_lock<std::mutex> lock(mutex_);
+    LBSLOGI(LOCATOR, "ReportSwitchState switchCallbackMap size:%{public}ld", switchCallbackMap_.size());
     for (auto item = switchCallbackMap_.begin(); item != switchCallbackMap_.end(); item++) {
         AppSwitchState *appInfo = &(item->second);
         if (appInfo == nullptr) {
@@ -55,6 +55,11 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         int uid = appInfo->appIdentity.GetUid();
         int tokenId = appInfo->appIdentity.GetTokenId();
         std::string bundleName = appInfo->appIdentity.GetBundleName();
+        int state = LocationDataRdbManager::QuerySwitchStateWithUid(uid);
+        if (state == DEFAULT_SWITCH_STATE) {
+            LBSLOGE(LOCATOR, "ReportSwitchState uid %{public}d. do not report", uid);
+            continue;
+        }
         int lastState = appInfo->lastState;
         if (!PermissionManager::CheckIsSystemSa(tokenId) &&
             !CommonUtils::CheckAppForUser(uid, bundleName)) {
@@ -153,10 +158,6 @@ void LocationDataManager::SetIsFirstReport(bool isFirstReport)
 void LocationDataManager::RegisterLocationSwitchObserver()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
-        int32_t state = DEFAULT_SWITCH_STATE;
-        int uid = IPCSkeleton::GetCallingUid();
-        int userId = CommonUtils::GetUserIdByUid(uid);
-        LBSLOGI(LOCATOR, "RegisterLocationSwitchObserver,userId = %{public}d", userId);
         state = LocationDataRdbManager::QuerySwitchStateForUser(userId);
         auto manager = LocationDataManager::GetInstance();
         if (manager->IsFirstReport()) {

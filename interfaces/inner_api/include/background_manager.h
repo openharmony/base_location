@@ -14,8 +14,8 @@
  */
  
   
-#ifndef LOCATION_ACCOUNT_MANAGER_H
-#define LOCATION_ACCOUNT_MANAGER_H
+#ifndef BACKGROUND_MANAGER_H
+#define BACKGROUND_MANAGER_H
 
 #include <map>
 #include <singleton.h>
@@ -29,16 +29,17 @@
 namespace OHOS {
 namespace Location {
 
-class LocationAccountManager {
+class BackgroundManager {
 public:
-    LocationAccountManager();
-    ~LocationAccountManager();
-    std::vector<int> getActiveUserIds();
-    static LocationAccountManager* GetInstance();
-    void OnUserSwitch(int32_t userId);
-    void OnUserRemove(int32_t userId);
+    BackgroundManager();
+    ~BackgroundManager();
+    static BackgroundManager* GetInstance();
+    bool IsAppBackground(std::string bundleName);
+    bool IsAppBackground(int uid, std::string bundleName);
+    bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
+    bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
+    void UpdateBackgroundAppStatues(int32_t uid, int32_t status);
 private:
-    std::vector<int> activeIds_;
     void SubscribeSaStatusChangeListerner();
 
     class UserSwitchSubscriber : public OHOS::EventFwk::CommonEventSubscriber {
@@ -56,12 +57,15 @@ private:
         ~SystemAbilityStatusChangeListener() = default;
         void OnAddSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
         void OnRemoveSystemAbility(int32_t systemAbilityId, const std::string& deviceId) override;
+
     private:
         std::shared_ptr<UserSwitchSubscriber> subscriber_ = nullptr;
     };
     bool isUserSwitchSubscribed_ = false;
     std::shared_ptr<UserSwitchSubscriber> subscriber_ = nullptr;
     sptr<ISystemAbilityStatusChange> statusChangeListener_ = nullptr;
+    static std::mutex foregroundAppMutex_;
+    std::map<int32_t, int32_t> foregroundAppMap_;
 };
 }  // namespace Location
 }  // namespace OHOS

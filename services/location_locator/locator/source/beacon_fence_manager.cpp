@@ -23,6 +23,7 @@
 #include "locator_background_proxy.h"
 #include "permission_manager.h"
 #include "location_account_manager.h"
+#include "background_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -323,7 +324,7 @@ void BeaconFenceManager::ReportByCallback(std::shared_ptr<BeaconFenceRequest> be
         return;
     }
     // 是否后台
-    if (LocationAccountManager::GetInstance()->IsAppBackground(identity.GetUid(), identity.GetBundleName())) {
+    if (BackgroundManager::GetInstance()->IsAppBackground(identity.GetUid(), identity.GetBundleName())) {
         if (!PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
             LBSLOGE(BEACON_FENCE_MANAGER, "CheckBackgroundPermission failed");
             return;
@@ -353,7 +354,7 @@ void BeaconFenceManager::ReportByFenceExtension(std::shared_ptr<BeaconFenceReque
         return;
     }
     // 是否后台
-    if (LocationAccountManager::GetInstance()->IsAppBackground(identity.GetUid(), identity.GetBundleName())) {
+    if (BackgroundManager::GetInstance()->IsAppBackground(identity.GetUid(), identity.GetBundleName())) {
         if (beaconFenceRequest->GetFenceExtensionAbilityName().empty()) {
             LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s app is background", __func__);
             return;

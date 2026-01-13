@@ -31,6 +31,7 @@
 #include "poi_info_manager.h"
 #include "parameter.h"
 #include "location_account_manager.h"
+#include "background_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -586,17 +587,17 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
-    auto locatorAccountManager = LocationAccountManager::GetInstance();
-    if (!locatorAccountManager->IsAppBackground(uid, bundleName)) {
+    auto backgroundManager = BackgroundManager::GetInstance();
+    if (!backgroundManager->IsAppBackground(uid, bundleName)) {
         return false;
     }
     if (!HookUtils::ExecuteHookWhenCheckIsAppBackground(bundleName)) {
         return false;
     }
-    if (locatorAccountManager->IsAppHasFormVisible(tokenId, tokenIdEx)) {
+    if (backgroundManager->IsAppHasFormVisible(tokenId, tokenIdEx)) {
         return false;
     }
-    if (locatorAccountManager->IsAppInLocationContinuousTasks(uid, pid)) {
+    if (backgroundManager->IsAppInLocationContinuousTasks(uid, pid)) {
         return false;
     }
     return true;

@@ -45,6 +45,7 @@
 #endif
 #include "hook_utils.h"
 #include "location_account_manager.h"
+#include "background_manager.h"
 
 
 namespace OHOS {
@@ -432,7 +433,7 @@ void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::Ap
     LBSLOGD(REQUEST_MANAGER,
         "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     requestManager->HandlePowerSuspendChanged(pid, uid, state);
-    auto instance = LocationAccountManager::GetInstance();
+    auto instance = BackgroundManager::GetInstance();
     instance->UpdateBackgroundAppStatues(uid, state);
 }
 } // namespace OHOS
