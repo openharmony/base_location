@@ -93,6 +93,10 @@ int LocationDataRdbManager::QuerySwitchStateWithUid(int32_t uid)
     return res;
 }
 
+int LocationDataRdbManager::QuerySwitchState()
+{
+    return LocationDataRdbManager::QuerySystemSwitchState();
+}
 
 int LocationDataRdbManager::QuerySystemSwitchState()
 {
