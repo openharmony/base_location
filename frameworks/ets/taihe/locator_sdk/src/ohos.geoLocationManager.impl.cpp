@@ -47,7 +47,6 @@ std::vector<OHOS::sptr<GnssStatusCallbackTaihe>> g_taiheGnssStatusCallbackMap;
 std::vector<OHOS::sptr<LocationSwitchCallbackTaihe>> g_taiheLocationSwitchCallbackMap;
 std::vector<OHOS::sptr<BluetoothScanResultCallbackTaihe>> g_taiheBluetoothScanResultCallbackMap;
 std::vector<OHOS::sptr<LocationErrorCallbackTaihe>> g_taiheLocationErrorCallbackMap;
-static constexpr int LASTLOCATION_CACHED_TIME = 10 * 60;
 
 int GetCurrentLocationType(std::unique_ptr<OHOS::Location::RequestConfig>& config)
 {
@@ -204,10 +203,10 @@ bool IsPoiServiceSupported()
     if (singleLocatorCallbackHost->GetCount() != 0 && singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
         std::unique_ptr<OHOS::Location::Location> location = nullptr;
         Locator::GetInstance()->GetCachedLocationV9(location);
-        int64_t curTime = OHOS::Location::CommonUtils::GetCurrentTimeStamp();
-        if (location != nullptr &&
-            (curTime - location->GetTimeStamp() / OHOS::Location::MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
+        if (Util::NeedReportLastLocation(requestConfig, location)) {
             singleLocatorCallbackHost->SetSingleLocation(location);
+        } else {
+            errorCode = ERRCODE_LOCATING_FAIL;
         }
     }
     if (singleLocatorCallbackHost != nullptr && singleLocatorCallbackHost->GetSingleLocation() != nullptr) {
@@ -253,10 +252,10 @@ bool IsPoiServiceSupported()
     if (singleLocatorCallbackHost->GetCount() != 0 && singleLocatorCallbackHost->GetSingleLocation() == nullptr) {
         std::unique_ptr<OHOS::Location::Location> location = nullptr;
         Locator::GetInstance()->GetCachedLocationV9(location);
-        int64_t curTime = OHOS::Location::CommonUtils::GetCurrentTimeStamp();
-        if (location != nullptr &&
-            (curTime - location->GetTimeStamp() / OHOS::Location::MILLI_PER_SEC) <= LASTLOCATION_CACHED_TIME) {
+        if (Util::NeedReportLastLocation(requestConfig, location)) {
             singleLocatorCallbackHost->SetSingleLocation(location);
+        } else {
+            errorCode = ERRCODE_LOCATING_FAIL;
         }
     }
     if (singleLocatorCallbackHost != nullptr && singleLocatorCallbackHost->GetSingleLocation() != nullptr) {
