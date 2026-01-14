@@ -47,10 +47,6 @@ bool GenBeaconFenceRequest(
         LBSLOGE(NAPI_UTILS, "genBeaconFenceRequest param is nullptr");
         return false;
     }
-    if (beaconFenceRequest == nullptr) {
-        LBSLOGE(NAPI_UTILS, "beaconFenceRequest == nullptr");
-        return false;
-    }
     napi_value beaconValue = GetNapiValueByKey(env, "beacon", value);
     if (beaconValue == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "parse beacon failed");
