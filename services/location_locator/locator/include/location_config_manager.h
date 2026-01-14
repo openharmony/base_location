@@ -57,7 +57,9 @@ public:
 
     std::string GetPrivacyTypeConfigPath(const int type);
     LocationErrCode GetPrivacyTypeState(const int type, bool& isConfirmed);
+    LocationErrCode GetPrivacyTypeStateForUser(const int type, bool& isConfirmed, int32_t userId);
     LocationErrCode SetPrivacyTypeState(const int type, bool isConfirmed);
+    LocationErrCode SetPrivacyTypeStateForUser(const int type, bool isConfirmed, int32_t userId);
     void OpenPrivacyDialog();
     void ConnectExtensionAbility(const AAFwk::Want &want, const std::string &commandStr);
     std::string GenerateStartCommand();

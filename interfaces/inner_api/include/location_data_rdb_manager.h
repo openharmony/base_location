@@ -43,8 +43,11 @@ public:
     static int GetSwitchStateFromSysparaForUser(int32_t userId);
     static bool SetSwitchStateToSysparaForUser(int value, int32_t userId);
     static std::string GetLocationDataSecureUri(std::string key);
+    static std::string GetLocationDataSecureUriForUser(std::string key, int32_t userId);
     static bool SetLocationEnhanceStatus(int32_t state);
+    static bool SetLocationEnhanceStatusForUser(int32_t state, int32_t userId);
     static bool GetLocationEnhanceStatus(int32_t& state);
+    static bool GetLocationEnhanceStatusForUser(int32_t& state, int32_t userId);
     static void SyncSwitchStatus();
     static int QueryAndSyncSwitchStatusWithUserId(int userId);
     static bool IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId);

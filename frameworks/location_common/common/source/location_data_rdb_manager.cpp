@@ -61,6 +61,13 @@ std::string LocationDataRdbManager::GetLocationDataSecureUri(std::string key)
     return uri;
 }
 
+std::string LocationDataRdbManager::GetLocationDataSecureUriForUser(std::string key, int32_t userId)
+{
+    std::string uri = "datashare:///com.ohos.settingsdata/entry/settingsdata/USER_SETTINGSDATA_SECURE_" +
+        std::to_string(userId) +
+        "?Proxy=true&key=" + key;
+    return uri;
+}
 
 int LocationDataRdbManager::QuerySwitchStateForUser(int32_t userId)
 {
@@ -310,6 +317,20 @@ bool LocationDataRdbManager::SetLocationEnhanceStatus(int32_t state)
     return true;
 }
 
+bool LocationDataRdbManager::SetLocationEnhanceStatusForUser(int32_t state, int userId)
+{
+    Uri locationWorkingStateUri(GetLocationDataSecureUriForUser(LOCATION_ENHANCE_STATUS, userId));
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        SetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not set value, key = %{public}s, errcode = %{public}d", LOCATION_ENHANCE_STATUS.c_str(), errCode);
+        return false;
+    }
+    return true;
+}
+
+
 bool LocationDataRdbManager::GetLocationEnhanceStatus(int32_t& state)
 {
     Uri locationWorkingStateUri(GetLocationDataSecureUri(LOCATION_ENHANCE_STATUS));
@@ -322,6 +343,20 @@ bool LocationDataRdbManager::GetLocationEnhanceStatus(int32_t& state)
     }
     return true;
 }
+
+bool LocationDataRdbManager::GetLocationEnhanceStatusForUser(int32_t& state, int userId)
+{
+    Uri locationWorkingStateUri(GetLocationDataSecureUriForUser(LOCATION_ENHANCE_STATUS, userId));
+    LocationErrCode errCode = LocationDataRdbHelper::GetInstance()->
+        GetValue(locationWorkingStateUri, LOCATION_ENHANCE_STATUS, state);
+    if (errCode != ERRCODE_SUCCESS) {
+        LBSLOGE(COMMON_UTILS,
+            "can not get value, key = %{public}s, errcode = %{public}d", LOCATION_ENHANCE_STATUS.c_str(), errCode);
+        return false;
+    }
+    return true;
+}
+
 
 bool LocationDataRdbManager::IsUserIdInActiveIds(std::vector<int> activeIds, std::string userId)
 {
