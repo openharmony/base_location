@@ -41,7 +41,10 @@ LocatorAgentManager::LocatorAgentManager()
 }
 
 LocatorAgentManager::~LocatorAgentManager()
-{}
+{
+    auto remote = CheckLocatorSystemAbilityLoaded();
+    ResetLocatorAgent(remote);
+}
 
 LocationErrCode LocatorAgentManager::StartGnssLocating(const LocationCallbackIfaces& callback)
 {
@@ -255,6 +258,7 @@ void LocatorAgentManager::ResetLocatorAgent(const wptr<IRemoteObject> &remote)
         remote.promote()->RemoveDeathRecipient(recipient_);
     }
     client_ = nullptr;
+    recipient_ = nullptr;
 }
 }
 }

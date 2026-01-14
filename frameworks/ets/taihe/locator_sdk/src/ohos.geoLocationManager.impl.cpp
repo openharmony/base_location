@@ -172,7 +172,6 @@ bool IsPoiServiceSupported()
 ::ohos::geoLocationManager::Location GetCurrentLocationSync(
     ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request)
 {
-    ::taihe::map<::taihe::string, ::taihe::string> ret;
     ::ohos::geoLocationManager::Location result;
     // request to capi request
     auto requestConfig = std::make_unique<OHOS::Location::RequestConfig>();
@@ -223,7 +222,6 @@ bool IsPoiServiceSupported()
 
 ::ohos::geoLocationManager::Location GetCurrentLocationSyncNoRequest()
 {
-    ::taihe::map<::taihe::string, ::taihe::string> ret;
     ::ohos::geoLocationManager::Location result;
     // request to capi request
     auto requestConfig = std::make_unique<OHOS::Location::RequestConfig>();
@@ -315,7 +313,6 @@ double GetDistanceBetweenLocations(::ohos::geoLocationManager::Location const& l
 
 ::ohos::geoLocationManager::Location GetLastLocation()
 {
-    ::taihe::map<::taihe::string, ::taihe::string> ret;
     ::ohos::geoLocationManager::Location location;
     std::unique_ptr<Location> loc;
     LocationErrCode errorCode = Locator::GetInstance()->GetCachedLocationV9(loc);

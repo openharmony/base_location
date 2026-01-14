@@ -71,7 +71,7 @@ int LocatingRequiredDataCallbackNapi::OnRemoteRequest(
                     res.push_back(LocatingRequiredData::Unmarshalling(data));
                 }
                 // update wifi info
-                if (res.size() > 0 && res[0]->GetType() == LocatingRequiredDataType::WIFI) {
+                if (res.size() > 0) {
                     SetSingleResult(res);
                 }
                 OnLocatingDataChange(res);

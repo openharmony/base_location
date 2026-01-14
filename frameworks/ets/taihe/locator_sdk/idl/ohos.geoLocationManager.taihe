@@ -138,7 +138,7 @@ struct Location {
     direction: f64;
     timeSinceBoot: i64;
     additions: Optional<Array<String>>;
-    additionsMap: Optional<@record Map<String, String>>;
+    additionsMap: Optional<@sts_type("Map<String, String>") Opaque>;
     additionSize: Optional<i32>;
     isFromMock: Optional<bool>;
     altitudeAccuracy: Optional<f64>;

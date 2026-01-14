@@ -1190,11 +1190,11 @@ HWTEST_F(LocatorAbilityTest, SetLocationWorkingStateEvent_Test_001, TestSize.Lev
     result = locatorAbility->SetSwitchStateForUser(true, 100);
     sleep(1);
 
-    result = locatorAbility->SetSwitchStateForUser(true, 100);
+    result = locatorAbility->SetSwitchStateForUser(true, 100, "location");
     sleep(1);
-    result = locatorAbility->SetSwitchStateForUser(false, 100);
+    result = locatorAbility->SetSwitchStateForUser(false, 100, "location");
     sleep(1);
-    result = locatorAbility->SetSwitchStateForUser(true, 100);
+    result = locatorAbility->SetSwitchStateForUser(true, 100, "location");
 
     // Assert
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] SetLocationWorkingStateEvent_Test_001 end");

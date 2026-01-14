@@ -72,6 +72,7 @@ taihe_shared_library("location_framework_taihe_native") {
     "i18n:intl_util",
     "ipc:ipc_single",
   ]
+  shlib_type = "ani"
 }
 generate_static_abc("location_framework_abc") {
   base_url = "$taihe_generated_file_path"

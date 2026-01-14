@@ -231,7 +231,7 @@ public:
     ErrCode IsPoiServiceSupported(bool& poiServiceSupportState) override;
     ErrCode GetPoiInfo(const sptr<IRemoteObject>& cb) override;
     ErrCode GetActiveGeoFences(std::map<int, Geofence>& fenceMap) override;
-    LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId);
+    LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName);
 
 private:
     bool Init();
@@ -348,9 +348,12 @@ public:
     int32_t GetUserId();
     void SetModeValue(int32_t modeValue);
     int32_t GetModeValue();
+    void SetBundleName(const std::string& bundleName);
+    std::string GetBundleName();
 private:
     int32_t modeValue_;
     int32_t userId_;
+    std::string bundleName_;
 };
 
 class LocatorCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

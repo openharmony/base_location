@@ -22,6 +22,8 @@
 
 namespace OHOS {
 namespace Location {
+const int CELL_INFO_LIST_MAX_SIZE = 1000;
+
 class LocatingRequiredData : public Parcelable {
 public:
     LocatingRequiredData()
@@ -103,7 +105,7 @@ public:
         slotId_ =  parcel.ReadInt32();
         campedCellInfo_ = CellularInfo::Unmarshalling(parcel);
         auto size = parcel.ReadInt32();
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size && i < CELL_INFO_LIST_MAX_SIZE; i++) {
             neighboringCellInfo_.push_back(CellularInfo::Unmarshalling(parcel));
         }
     }

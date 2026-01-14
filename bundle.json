@@ -29,7 +29,8 @@
             "location_feature_with_passive",
             "location_feature_with_jsstack",
             "location_sa_recycle_strategy_low_memory",
-            "location_feature_with_opp_switch"
+            "location_feature_with_opp_switch",
+            "location_feature_with_quick_unload"
         ],
         "adapted_system_type": [
             "standard"

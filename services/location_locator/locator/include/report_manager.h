@@ -79,7 +79,7 @@ private:
     void UpdateCacheGnssLocation(Location& location);
     void UpdateCacheNlpLocation(Location& location);
     Location& GetCacheGnssLocation();
-    Location& GetCacheNlpLocation();
+    std::shared_ptr<Location> GetCacheNlpLocation();
     bool CheckIfGnssAbnormal(const std::unique_ptr<Location>& location);
 };
 } // namespace OHOS
