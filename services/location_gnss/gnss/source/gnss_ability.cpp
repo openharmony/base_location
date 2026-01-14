@@ -149,13 +149,19 @@ GnssAbility::~GnssAbility()
 #endif
 #endif
     for (const auto& pair : gnssStatusDeathMap_) {
-        pair.first->RemoveDeathRecipient(pair.second);
+        if (pair.first != nullptr) {
+            pair.first->RemoveDeathRecipient(pair.second);
+        }
     }
     for (const auto& pair : nmeaDeathMap_) {
-        pair.first->RemoveDeathRecipient(pair.second);
+        if (pair.first != nullptr) {
+            pair.first->RemoveDeathRecipient(pair.second);
+        }
     }
     for (const auto& pair : batchingDeathMap_) {
-        pair.first->RemoveDeathRecipient(pair.second);
+        if (pair.first != nullptr) {
+            pair.first->RemoveDeathRecipient(pair.second);
+        }
     }
 }
 
