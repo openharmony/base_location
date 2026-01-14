@@ -216,8 +216,7 @@ struct dialogPlusPage {
     }
   }
 
-  async getForegroundOsAccountLocalId(): Promise<number>
-  {
+  async getForegroundOsAccountLocalId(): Promise<number> {
     let localId = 100;
     let accountManager = osAccount.getAccountManager();
     try {
