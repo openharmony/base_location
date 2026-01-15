@@ -211,6 +211,20 @@
             }
         },
         {
+            "name":"wifi_triband_network_pop_up_title",
+            "value":"发现星闪路由",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_notify_text",
+            "value":"点击通过星闪连接路由，优化网络体验",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"condition_netshare_hotspot_close",
             "value":"热点已关闭",
             "attr":{
