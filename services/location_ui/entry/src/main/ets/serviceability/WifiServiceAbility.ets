@@ -31,6 +31,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     private WIFI_PORTAL_TIMEOUT: number = 1;
     private WIFI_PORTAL_FOUND: number = 2;
     private WIFI_5G_AUTO_IDENTIFY_CONN_FOUND: number = 3;
+    private WIFI_TRIBAND_CONN_FOUND: number = 4;
     private willPublish: boolean = false;
 
     onCreate(want: Want): void {
@@ -129,6 +130,10 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
           case this.WIFI_5G_AUTO_IDENTIFY_CONN_FOUND:
             templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifipro_better_network_pop_up_title').id);
             templateText = this.getFormatString($r('app.string.wifipro_better_network_notify_text'), ssid);
+            break;
+          case this.WIFI_TRIBAND_CONN_FOUND:
+            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_pop_up_title').id);
+            templateText = this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_notify_text').id);
             break;
           default:
             break;
