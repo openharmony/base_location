@@ -78,6 +78,10 @@ napi_value NotificationNapi::GetNotificationLocalLiveViewCapsule(
 
     LBSLOGD(NAPI_UTILS, "enter");
 
+    if (content == nullptr) {
+        return nullptr;
+    }
+
     NAPI_CALL(env, napi_has_named_property(env, contentResult, "capsule", &hasProperty));
 
     napi_get_named_property(env, contentResult, "capsule", &capsuleResult);
@@ -150,7 +154,9 @@ napi_value NotificationNapi::GetNotificationLocalLiveViewButton(
     bool hasProperty = false;
     char str[STR_MAX_SIZE] = {0};
     size_t strLen = 0;
-
+    if (content == nullptr) {
+        return nullptr;
+    }
     LBSLOGD(NAPI_UTILS, "enter");
 
     napi_get_named_property(env, contentResult, "button", &buttonResult);
@@ -230,6 +236,9 @@ napi_value NotificationNapi::GetNotificationLocalLiveViewProgress(const napi_env
     napi_value progressResult = nullptr;
 
     LBSLOGD(NAPI_UTILS, "enter");
+    if (content == nullptr) {
+        return nullptr;
+    }
 
     napi_get_named_property(env, contentResult, "progress", &progressResult);
     NAPI_CALL(env, napi_typeof(env, progressResult, &valuetype));
@@ -296,6 +305,10 @@ napi_value NotificationNapi::GetNotificationLocalLiveViewTime(const napi_env &en
     napi_value timeResult = nullptr;
 
     LBSLOGD(NAPI_UTILS, "enter");
+
+    if (content == nullptr) {
+        return nullptr;
+    }
 
     napi_get_named_property(env, contentResult, "time", &timeResult);
     NAPI_CALL(env, napi_typeof(env, timeResult, &valuetype));
@@ -375,6 +388,9 @@ napi_value NotificationNapi::GetNotificationLocalLiveViewContentDetailed(
     napi_valuetype valuetype = napi_undefined;
 
     LBSLOGD(NAPI_UTILS, "enter");
+    if (content == nullptr) {
+        return nullptr;
+    }
 
     //title, text
     if (GetNotificationBasicContentDetailed(env, contentResult, content) == nullptr) {
@@ -451,6 +467,9 @@ napi_value NotificationNapi::GetNotificationLiveViewContentDetailed(
     std::shared_ptr<NotificationLiveViewContent> &liveViewContent)
 {
     LBSLOGD(NAPI_UTILS, "enter");
+    if (liveViewContent == nullptr) {
+        return nullptr;
+    }
 
     // lockScreenPicture?: pixelMap
     if (GetLockScreenPicture(env, contentResult, liveViewContent) == nullptr) {
