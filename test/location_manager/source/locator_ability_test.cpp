@@ -146,17 +146,17 @@ HWTEST_F(LocatorAbilityTest, locatorServiceGnssStatusCallback001, TestSize.Level
     if (!locatorAbility->CheckLocationSwitchState()) {
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(true);
+        locatorAbility->SetSwitchStateForUser(true, 100, "location");
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(false);
+        locatorAbility->SetSwitchStateForUser(false, 100, "location");
     } else {
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterGnssStatusCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(false);
+        locatorAbility->SetSwitchStateForUser(false, 100, "location");
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterGnssStatusCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterGnssStatusCallback(callback));
-        locatorAbility->SetSwitchState(true);
+        locatorAbility->SetSwitchStateForUser(true, 100, "location");
     }
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceGnssStatusCallback001 end");
 }
@@ -172,17 +172,17 @@ HWTEST_F(LocatorAbilityTest, locatorServiceNmeaMessageCallback001, TestSize.Leve
     if (!locatorAbility->CheckLocationSwitchState()) {
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(true);
+        locatorAbility->SetSwitchStateForUser(true, 100, "location");
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(false);
+        locatorAbility->SetSwitchStateForUser(false, 100, "location");
     } else {
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->RegisterNmeaMessageCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(false);
+        locatorAbility->SetSwitchStateForUser(false, 100, "location");
         EXPECT_EQ(ERRCODE_SWITCH_OFF, locatorAbility->RegisterNmeaMessageCallback(callback));
         EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, locatorAbility->UnregisterNmeaMessageCallback(callback));
-        locatorAbility->SetSwitchState(true);
+        locatorAbility->SetSwitchStateForUser(true, 100, "location");
     }
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] locatorServiceNmeaMessageCallback001 end");
 }
@@ -1183,11 +1183,11 @@ HWTEST_F(LocatorAbilityTest, SetLocationWorkingStateEvent_Test_001, TestSize.Lev
     ASSERT_TRUE(locatorAbility != nullptr);
     // Act
     ErrCode result = ERRCODE_SUCCESS;
-    result = locatorAbility->SetSwitchState(true);
+    result = locatorAbility->SetSwitchStateForUser(true, 100, "location");
     sleep(1);
-    result = locatorAbility->SetSwitchState(false);
+    result = locatorAbility->SetSwitchStateForUser(false, 100, "location");
     sleep(1);
-    result = locatorAbility->SetSwitchState(true);
+    result = locatorAbility->SetSwitchStateForUser(true, 100, "location");
     sleep(1);
 
     result = locatorAbility->SetSwitchStateForUser(true, 100, "location");

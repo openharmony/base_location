@@ -30,6 +30,8 @@
 #include "hook_utils.h"
 #include "poi_info_manager.h"
 #include "parameter.h"
+#include "location_account_manager.h"
+#include "background_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -140,7 +142,7 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
         NeedUpdateTimeStamp(fuseLocation, request);
         request->SetBestLocation(fuseLocation);
     }
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED &&
+    if (LocationDataRdbManager::QuerySwitchStateWithUid(request->GetUid()) != ENABLED &&
         !LocatorAbility::GetInstance()->GetLocationSwitchIgnoredFlag(request->GetTokenId())) {
         LBSLOGE(REPORT_MANAGER, "QuerySwitchState is DISABLED");
         return false;
@@ -297,8 +299,8 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
     identity.SetBundleName(bundleName);
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (!CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
+    if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
         auto locationErrorCallback = request->GetLocationErrorCallBack();
@@ -409,10 +411,12 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
 
 void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location)
 {
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    int currentUserId = locatorBackgroundProxy->getCurrentUserId();
+    auto locatorAccountManager = LocationAccountManager::GetInstance();
+    std::vector<int> activeIds = locatorAccountManager->getActiveUserIds();
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
-    lastLocationsMap_[currentUserId] = std::make_shared<Location>(*location);
+    for (int userId : activeIds) {
+        lastLocationsMap_[userId] = std::make_shared<Location>(*location);
+    }
 }
 
 void ReportManager::UpdateCacheGnssLocation(Location& location)
@@ -459,13 +463,10 @@ std::shared_ptr<Location> ReportManager::GetCacheNlpLocation()
     return location;
 }
 
-std::unique_ptr<Location> ReportManager::GetLastLocation()
+std::unique_ptr<Location> ReportManager::GetLastLocationByUserId(int userId)
 {
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    int currentUserId = locatorBackgroundProxy->getCurrentUserId();
-    LBSLOGI(LOCATOR_STANDARD, "GetCacheLocation GetLastLocation currentUserId = %{public}d ", currentUserId);
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
-    auto iter = lastLocationsMap_.find(currentUserId);
+    auto iter = lastLocationsMap_.find(userId);
     if (iter == lastLocationsMap_.end()) {
         return nullptr;
     }
@@ -607,17 +608,17 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
-    auto locatorBackgroundProxy = LocatorBackgroundProxy::GetInstance();
-    if (!locatorBackgroundProxy->IsAppBackground(uid, bundleName)) {
+    auto backgroundManager = BackgroundManager::GetInstance();
+    if (!backgroundManager->IsAppBackground(uid, bundleName)) {
         return false;
     }
     if (!HookUtils::ExecuteHookWhenCheckIsAppBackground(bundleName)) {
         return false;
     }
-    if (locatorBackgroundProxy->IsAppHasFormVisible(tokenId, tokenIdEx)) {
+    if (backgroundManager->IsAppHasFormVisible(tokenId, tokenIdEx)) {
         return false;
     }
-    if (locatorBackgroundProxy->IsAppInLocationContinuousTasks(uid, pid)) {
+    if (backgroundManager->IsAppInLocationContinuousTasks(uid, pid)) {
         return false;
     }
     return true;

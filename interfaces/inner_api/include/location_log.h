@@ -99,6 +99,7 @@ static constexpr OHOS::HiviewDFX::HiLogLabel COMMON_UTILS = {LOG_CORE, LOCATION_
 static constexpr OHOS::HiviewDFX::HiLogLabel LOCATOR_EVENT = {LOG_CORE, LOCATION_LOG_DOMAIN, "LocatorEvent"};
 static constexpr OHOS::HiviewDFX::HiLogLabel COUNTRY_CODE = {LOG_CORE, LOCATION_LOG_DOMAIN, "CountryCode"};
 static constexpr OHOS::HiviewDFX::HiLogLabel POI = {LOG_CORE, LOCATION_LOG_DOMAIN, "PoiInfoManager"};
+static constexpr OHOS::HiviewDFX::HiLogLabel ACCOUNT_MANAGER = {LOG_CORE, LOCATION_LOG_DOMAIN, "AccountManager"};
 static constexpr OHOS::HiviewDFX::HiLogLabel VISIBILITY_CONTROLLER = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "VisibilityController"
 };

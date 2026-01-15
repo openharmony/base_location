@@ -25,6 +25,7 @@
 #include "common_hisysevent.h"
 #include "parameter.h"
 #include "permission_manager.h"
+
 namespace OHOS {
 namespace Location {
 const int MAX_SWITCH_CALLBACK_NUM = 1000;
@@ -42,10 +43,10 @@ LocationDataManager::~LocationDataManager()
 {
 }
 
-LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
+LocationErrCode LocationDataManager::ReportSwitchState()
 {
-    int state = isEnabled ? ENABLED : DISABLED;
     std::unique_lock<std::mutex> lock(mutex_);
+    LBSLOGI(LOCATOR, "ReportSwitchState switchCallbackMap size:%{public}u", switchCallbackMap_.size());
     for (auto item = switchCallbackMap_.begin(); item != switchCallbackMap_.end(); item++) {
         AppSwitchState *appInfo = &(item->second);
         if (appInfo == nullptr) {
@@ -54,6 +55,11 @@ LocationErrCode LocationDataManager::ReportSwitchState(bool isEnabled)
         int uid = appInfo->appIdentity.GetUid();
         int tokenId = appInfo->appIdentity.GetTokenId();
         std::string bundleName = appInfo->appIdentity.GetBundleName();
+        int state = LocationDataRdbManager::QuerySwitchStateWithUid(uid);
+        if (state == DEFAULT_SWITCH_STATE) {
+            LBSLOGE(LOCATOR, "ReportSwitchState uid %{public}d. do not report", uid);
+            continue;
+        }
         int lastState = appInfo->lastState;
         if (!PermissionManager::CheckIsSystemSa(tokenId) &&
             !CommonUtils::CheckAppForUser(uid, bundleName)) {
@@ -152,21 +158,13 @@ void LocationDataManager::SetIsFirstReport(bool isFirstReport)
 void LocationDataManager::RegisterLocationSwitchObserver()
 {
     auto eventCallback = [](const char *key, const char *value, void *context) {
-        int32_t state = DEFAULT_SWITCH_STATE;
-        state = LocationDataRdbManager::QuerySwitchState();
         auto manager = LocationDataManager::GetInstance();
         if (manager->IsFirstReport()) {
             LBSLOGI(LOCATOR, "first switch callback, no need to report");
             manager->SetIsFirstReport(false);
             return;
         }
-        if (state == DEFAULT_SWITCH_STATE) {
-            LBSLOGE(LOCATOR, "LOCATION_SWITCH_MODE changed. state %{public}d. do not report", state);
-            return;
-        }
-        bool switchState = (state == ENABLED);
-        LBSLOGI(LOCATOR, "LOCATION_SWITCH_MODE changed. switchState %{public}d", switchState);
-        manager->ReportSwitchState(switchState);
+        manager->ReportSwitchState();
     };
 
     int ret = WatchParameter(LOCATION_SWITCH_MODE, eventCallback, nullptr);

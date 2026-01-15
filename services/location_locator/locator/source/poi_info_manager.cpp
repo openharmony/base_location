@@ -390,8 +390,7 @@ int PoiInfoCallback::OnRemoteRequest(
 
 bool PoiInfoCallback::ReportPoiPermissionCheck(AppIdentity identity)
 {
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (!CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
         LBSLOGE(POI, "app not belong to currentuser, uid: %{public}s, bundleName: %{public}s",
             std::to_string(identity.GetUid()).c_str(), identity.GetBundleName().c_str());
         return false;

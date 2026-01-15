@@ -500,7 +500,7 @@ void GnssAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             StopGnss();
         }
         // GNSS will disable if all requests have stopped and location switch is off
-        if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+        if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySystemSwitchState() != ENABLED) {
             DisableGnss();
         }
     }
@@ -1458,7 +1458,7 @@ bool GnssAbility::SetGeofenceCallback()
         LBSLOGI(GNSS, "Is Not Support Geofence");
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+    if (LocationDataRdbManager::QuerySystemSwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
@@ -1541,7 +1541,7 @@ bool GnssAbility::EnableGnss()
         return false;
     }
 
-    if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySwitchState() != ENABLED) {
+    if (GetRequestNum() == 0 && LocationDataRdbManager::QuerySystemSwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }

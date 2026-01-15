@@ -58,7 +58,9 @@ SelfRequestManager::~SelfRequestManager()
 
 void SelfRequestManager::ProcessStartSelfRequestEvent(const std::shared_ptr<Request>& request)
 {
-    if (isLocating_ || !(LocationDataRdbManager::QuerySwitchState() == ENABLED)
+    int uid = IPCSkeleton::GetCallingUid();
+    int userId = CommonUtils::GetUserIdByUid(uid);
+    if (isLocating_ || !(LocationDataRdbManager::QuerySwitchStateForUser(userId) == ENABLED)
         || request_ == nullptr || request == nullptr || request->GetRequestConfig() == nullptr) {
         LBSLOGD(LOCATOR, "cancel locating");
         return;

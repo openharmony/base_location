@@ -294,6 +294,17 @@ LocationErrCode LocationConfigManager::GetPrivacyTypeState(const int type, bool&
     return ERRCODE_SUCCESS;
 }
 
+LocationErrCode LocationConfigManager::GetPrivacyTypeStateForUser(const int type, bool& isConfirmed,
+    int32_t userId)
+{
+    int status = 0;
+    if (!LocationDataRdbManager::GetLocationEnhanceStatusForUser(status, userId)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    isConfirmed = (status == 1);
+    return ERRCODE_SUCCESS;
+}
+
 bool LocationConfigManager::SetCachePrivacyType(int value)
 {
     char valueArray[MAX_SIZE] = {0};
@@ -310,6 +321,15 @@ LocationErrCode LocationConfigManager::SetPrivacyTypeState(const int type, bool 
 {
     int status = isConfirmed ? 1 : 0;
     if (!LocationDataRdbManager::SetLocationEnhanceStatus(status)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    return ERRCODE_SUCCESS;
+}
+
+LocationErrCode LocationConfigManager::SetPrivacyTypeStateForUser(const int type, bool isConfirmed, int32_t userId)
+{
+    int status = isConfirmed ? 1 : 0;
+    if (!LocationDataRdbManager::SetLocationEnhanceStatusForUser(status, userId)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     return ERRCODE_SUCCESS;

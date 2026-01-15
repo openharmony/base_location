@@ -88,7 +88,8 @@
         "label": "$string:LocationPrivacyExtAbility_label",
         "exported": true,
         "type": "sysDialog/common",
-        "permissions": ["ohos.permission.LOCATION_IN_BACKGROUND"]
+        "permissions": ["ohos.permission.LOCATION_IN_BACKGROUND",
+          "ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS"]
       },
       {
         "name": "WifiUIExtAbility",
@@ -175,6 +176,9 @@
       },
       {
         "name": "ohos.permission.PUBLISH_LOCATION_EVENT"
+      },
+      {
+        "name":"ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS"
       },
       {
         "name": "ohos.permission.ACCESS_BLUETOOTH",

@@ -165,6 +165,8 @@ public:
     static sptr<IRemoteObject> GetRemoteObject(int abilityId, std::string deviceId);
     static std::string InitDeviceId();
     static bool GetCurrentUserId(int &userId);
+    static int GetUserIdByUid(int uid);
+    static bool GetActiveUserIds(std::vector<int>& activeIds);
     static std::string Str16ToStr8(std::u16string str);
     static bool DoubleEqual(double a, double b);
     static double CalDistance(const double lat1, const double lon1, const double lat2, const double lon2);
@@ -182,18 +184,20 @@ public:
     static bool GetStringParameter(const std::string& type, std::string& value);
     static bool GetEdmPolicy(std::string& name);
     static std::string GenerateUuid();
-    static bool CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName);
     static bool CheckAppForUser(int32_t uid, std::string& bundleName);
+    static bool CheckAppForUsers(int32_t uid, std::vector<int> activeIds, std::string& bundleName);
     static int64_t GetSinceBootTime();
     static bool GetConfigFromJson(const std::string &key, std::string &value);
     static bool GetAllUserId(std::vector<int>& activeIds);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId);
     static bool IsAppBelongCurrentAccount(AppIdentity &identity);
+    static bool IsAppBelongActiveAccounts(AppIdentity &identity, std::vector<int> activeIds);
     static bool IsExistFile(const std::string& filename);
     static bool CreateFile(const std::string& filename, const std::string& filedata);
     static LocationErrCode ErrCodeToLocationErrCode(ErrCode errorCode);
     static bool IsValidForStoull(const std::string input, size_t size);
     static bool IsStrValidForStoi(const std::string &str);
+    static bool ConvertStringToDigit(const std::string& str, int32_t &ret);
 };
 
 class CountDownLatch {

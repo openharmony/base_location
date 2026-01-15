@@ -73,7 +73,8 @@ bool LocatorImpl::IsLocationEnabled()
 {
     LBSLOGD(LOCATION_NAPI, "IsLocationEnabled");
     int32_t state = DEFAULT_SWITCH_STATE;
-    state = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    int32_t userId = CommonUtils::GetUserIdByUid(IPCSkeleton::GetCallingUid());
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForUser(userId);
     if (state == DISABLED || state == ENABLED) {
         return (state == ENABLED);
     }
@@ -638,7 +639,8 @@ LocationErrCode LocatorImpl::IsLocationEnabledV9(bool &isEnabled)
 {
     LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsLocationEnabledV9()");
     int32_t state = DEFAULT_SWITCH_STATE;
-    state = LocationDataRdbManager::GetSwitchStateFromSysparaForCurrentUser();
+    int userId = CommonUtils::GetUserIdByUid(IPCSkeleton::GetCallingUid());
+    state = LocationDataRdbManager::GetSwitchStateFromSysparaForUser(userId);
     if (state == DISABLED || state == ENABLED) {
         isEnabled = (state == ENABLED);
         return ERRCODE_SUCCESS;

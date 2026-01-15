@@ -44,6 +44,9 @@
 #include "form_mgr.h"
 #endif
 #include "hook_utils.h"
+#include "location_account_manager.h"
+#include "background_manager.h"
+
 
 namespace OHOS {
 namespace Location {
@@ -51,7 +54,6 @@ const int BACKGROUNDAPP_STATUS = 4;
 const int FOREGROUPAPP_STATUS = 2;
 std::mutex LocatorBackgroundProxy::requestListMutex_;
 std::mutex LocatorBackgroundProxy::locatorMutex_;
-std::mutex LocatorBackgroundProxy::foregroundAppMutex_;
 LocatorBackgroundProxy* LocatorBackgroundProxy::GetInstance()
 {
     static LocatorBackgroundProxy data;
@@ -66,7 +68,8 @@ LocatorBackgroundProxy::LocatorBackgroundProxy()
     }
     requestsMap_ = std::make_shared<std::map<int32_t, std::shared_ptr<std::list<std::shared_ptr<Request>>>>>();
     requestsList_ = std::make_shared<std::list<std::shared_ptr<Request>>>();
-    CommonUtils::GetCurrentUserId(curUserId_);
+    CommonUtils::GetActiveUserIds(activeIds_);
+    curUserId_ = activeIds_[0];
     requestsMap_->insert(make_pair(curUserId_, requestsList_));
 
     auto requestConfig = std::make_unique<RequestConfig>();
@@ -211,6 +214,10 @@ void LocatorBackgroundProxy::UpdateListOnUserSwitch(int32_t userId)
         requestsMap_->insert(make_pair(userId, mRequestsList));
         LBSLOGD(LOCATOR_BACKGROUND_PROXY, "add requsetlist on user:%{public}d", userId);
     }
+    bool containsActiveId = std::find(activeIds_.begin(), activeIds_.end(), userId) != activeIds_.end();
+    if (!containsActiveId) {
+        activeIds_.push_back(userId);
+    }
     // if change to another user, proxy requestList should change
     requestsList_ = (*requestsMap_)[userId];
     curUserId_ = userId;
@@ -238,11 +245,6 @@ bool LocatorBackgroundProxy::IsCallbackInProxy(const sptr<ILocatorCallback>& cal
     return false;
 }
 
-int32_t LocatorBackgroundProxy::getCurrentUserId()
-{
-    return curUserId_;
-}
-
 int32_t LocatorBackgroundProxy::GetUserId(int32_t uid) const
 {
     int userId = 0;
@@ -268,6 +270,10 @@ void LocatorBackgroundProxy::OnUserRemove(int32_t userId)
     if (iter != requestsMap_->end()) {
         requestsMap_->erase(iter);
         LBSLOGD(LOCATOR_BACKGROUND_PROXY, "erase requsetlist on user:%{public}d", userId);
+    }
+    auto it = std::find(activeIds_.begin(), activeIds_.end(), userId);
+    if (it != activeIds_.end()) {
+        activeIds_.erase(it);
     }
 }
 
@@ -371,55 +377,6 @@ void LocatorBackgroundProxy::SystemAbilityStatusChangeListener::OnRemoveSystemAb
     LBSLOGE(LOCATOR_BACKGROUND_PROXY, "UnSubscribeCommonEvent subscriber_ result = %{public}d", result);
 }
 
-bool LocatorBackgroundProxy::IsAppBackground(std::string bundleName)
-{
-    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrClient == nullptr) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Get system ability manager failed.");
-        return false;
-    }
-    sptr<AppExecFwk::IAppMgr> iAppManager =
-        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
-    if (iAppManager == nullptr) {
-        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Failed to get ability manager service.");
-        return false;
-    }
-    std::vector<AppExecFwk::AppStateData> foregroundAppList;
-    iAppManager->GetForegroundApplications(foregroundAppList);
-    auto it = std::find_if(foregroundAppList.begin(), foregroundAppList.end(), [bundleName] (auto foregroundApp) {
-        return bundleName.compare(foregroundApp.bundleName) == 0;
-    });
-    if (it != foregroundAppList.end()) {
-        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "app : %{public}s is foreground.", bundleName.c_str());
-        return false;
-    }
-    return true;
-}
-
-bool LocatorBackgroundProxy::IsAppBackground(int uid, std::string bundleName)
-{
-    std::unique_lock lock(foregroundAppMutex_);
-    auto iter = foregroundAppMap_.find(uid);
-    if (iter == foregroundAppMap_.end()) {
-        return IsAppBackground(bundleName);
-    }
-    return false;
-}
-
-void LocatorBackgroundProxy::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
-{
-    std::unique_lock lock(foregroundAppMutex_);
-    if (status == FOREGROUPAPP_STATUS) {
-        foregroundAppMap_[uid] = status;
-    } else {
-        auto iter = foregroundAppMap_.find(uid);
-        if (iter != foregroundAppMap_.end()) {
-            foregroundAppMap_.erase(iter);
-        }
-    }
-    LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
-}
-
 bool LocatorBackgroundProxy::RegisterAppStateObserver()
 {
     if (appStateObserver_ != nullptr) {
@@ -459,46 +416,6 @@ bool LocatorBackgroundProxy::UnregisterAppStateObserver()
     return true;
 }
 
-bool LocatorBackgroundProxy::IsAppInLocationContinuousTasks(pid_t uid, pid_t pid)
-{
-#ifdef BGTASKMGR_SUPPORT
-    std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
-    ErrCode result = BackgroundTaskMgr::BackgroundTaskMgrHelper::GetContinuousTaskApps(continuousTasks);
-    if (result != ERR_OK) {
-        return false;
-    }
-    for (auto iter = continuousTasks.begin(); iter != continuousTasks.end(); iter++) {
-        auto continuousTask = *iter;
-        if (continuousTask == nullptr) {
-            continue;
-        }
-        if (continuousTask->GetCreatorUid() != uid || continuousTask->GetCreatorPid() != pid) {
-            continue;
-        }
-        auto typeIds = continuousTask->GetTypeIds();
-        for (auto typeId : typeIds) {
-            if (typeId == BackgroundTaskMgr::BackgroundMode::Type::LOCATION) {
-                return true;
-            }
-        }
-    }
-#endif
-    return false;
-}
-
-bool LocatorBackgroundProxy::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
-{
-    bool ret = false;
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (tokenType != Security::AccessToken::ATokenTypeEnum::TOKEN_HAP) {
-        return ret;
-    }
-#ifdef FMSKIT_NATIVE_SUPPORT
-    ret = OHOS::AppExecFwk::FormMgr::GetInstance().HasFormVisible(tokenId);
-#endif
-    return ret;
-}
-
 AppStateChangeCallback::AppStateChangeCallback()
 {
 }
@@ -516,7 +433,7 @@ void AppStateChangeCallback::OnForegroundApplicationChanged(const AppExecFwk::Ap
     LBSLOGD(REQUEST_MANAGER,
         "The state of App changed, uid = %{public}d, pid = %{public}d, state = %{public}d", uid, pid, state);
     requestManager->HandlePowerSuspendChanged(pid, uid, state);
-    auto instance = LocatorBackgroundProxy::GetInstance();
+    auto instance = BackgroundManager::GetInstance();
     instance->UpdateBackgroundAppStatues(uid, state);
 }
 } // namespace OHOS

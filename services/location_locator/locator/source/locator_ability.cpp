@@ -67,6 +67,7 @@
 #endif
 #include "common_event_helper.h"
 #include "poi_info_manager.h"
+#include "location_account_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -375,7 +376,7 @@ LocationErrCode LocatorAbility::UpdateSaAbility()
 
 void LocatorAbility::UpdateSaAbilityHandler()
 {
-    int state = LocationDataRdbManager::QuerySwitchState();
+    int state = LocationDataRdbManager::QuerySystemSwitchState();
     LBSLOGI(LOCATOR, "update location subability enable state, switch state=%{public}d, action registered=%{public}d",
         state, isActionRegistered);
     if (state == DEFAULT_SWITCH_STATE) {
@@ -441,8 +442,8 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
         code == LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK) {
         return true;
     }
-    int currentUserId = LocatorBackgroundProxy::GetInstance()->getCurrentUserId();
-    if (CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId)) {
+    std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
+    if (CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         return true;
     }
     LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
@@ -536,10 +537,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int userId = 0;
-    if (!CommonUtils::GetCurrentUserId(userId)) {
-        userId = DEFAULT_USERID;
-    }
+    int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
     if (!HookUtils::ExecuteHookEnableAbility(
         identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
         isEnabled, userId)) {
@@ -602,7 +600,7 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
 ErrCode LocatorAbility::GetSwitchState(int32_t& state)
 {
     state = DEFAULT_SWITCH_STATE;
-    state = LocationDataRdbManager::QuerySwitchState();
+    state = LocationDataRdbManager::QuerySwitchStateWithUid(IPCSkeleton::GetCallingUid());
     return ERRCODE_SUCCESS;
 }
 
@@ -1483,7 +1481,8 @@ ErrCode LocatorAbility::GetCacheLocation(Location& location)
     if (locatorHandler_ == nullptr) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    auto lastLocation = reportManager_->GetLastLocation();
+    int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
+    auto lastLocation = reportManager_->GetLastLocationByUserId(userId);
     std::unique_ptr<RequestConfig> requestConfig = std::make_unique<RequestConfig>();
     sptr<ILocatorCallback> callback;
     std::shared_ptr<Request> request = std::make_shared<Request>(requestConfig, callback, identity);
@@ -2485,28 +2484,6 @@ ErrCode LocatorAbility::GetPoiInfo(const sptr<IRemoteObject>& cb)
     return ERRCODE_SUCCESS;
 }
 
-LocationErrCode LocatorAbility::SetSwitchState(bool isEnabled)
-{
-    int modeValue = isEnabled ? ENABLED : DISABLED;
-    int currentSwitchState = LocationDataRdbManager::QuerySwitchState();
-    if (modeValue == currentSwitchState) {
-        LBSLOGD(LOCATOR, "no need to set location ability, enable:%{public}d", modeValue);
-        return ERRCODE_SUCCESS;
-    }
-    if (LocationDataRdbManager::SetSwitchStateToSysparaForCurrentUser(modeValue)) {
-        int userId = 0;
-        if (!CommonUtils::GetCurrentUserId(userId)) {
-            userId = DEFAULT_USERID;
-        }
-        CommonEventHelper::PublishLocationModeChangeCommonEventAsUser(modeValue, userId);
-    }
-    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(EVENT_SET_SWITCH_STATE_TO_DB, modeValue);
-    if (locatorHandler_ != nullptr && locatorHandler_->SendEvent(event)) {
-        LBSLOGD(LOCATOR, "%{public}s: EVENT_SET_SWITCH_STATE_TO_DB Send Success", __func__);
-    }
-    return ERRCODE_SUCCESS;
-}
-
 LocationErrCode LocatorAbility::SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName)
 {
     int modeValue = isEnabled ? ENABLED : DISABLED;
@@ -2581,7 +2558,8 @@ ErrCode LocatorAbility::StartLocatingProcess(const RequestConfig& requestConfig,
     LBSLOGE(LOCATOR, "%{public}s: service unavailable", __func__);
     return LOCATION_ERRCODE_NOT_SUPPORTED;
 #endif
-    if (LocationDataRdbManager::QuerySwitchState() != ENABLED && !GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
+    if (LocationDataRdbManager::QuerySwitchStateWithUid(identity.GetUid()) != ENABLED &&
+        !GetLocationSwitchIgnoredFlag(identity.GetTokenId())) {
         ReportErrorStatus(cb, ERROR_SWITCH_UNOPEN);
     }
     // update offset before add request

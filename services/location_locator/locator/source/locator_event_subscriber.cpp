@@ -49,9 +49,17 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         locatorAbility->UpdateSaAbility();
     } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
         LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
-        locatorAbility->SetSwitchState(true);
+        std::string data = event.GetData();
+        int userId = 100;
+        CommonUtils::ConvertStringToDigit(data, userId);
+        LBSLOGI(LOCATOR_EVENT, "received location_accept userId = %{public}d", userId);
+        locatorAbility->SetSwitchStateForUser(true, userId, "location");
     } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {
-        locatorAbility->SetSwitchState(false);
+        std::string data = event.GetData();
+        int userId = 100;
+        CommonUtils::ConvertStringToDigit(data, userId);
+        LBSLOGI(LOCATOR_EVENT, "received location_reject userId = %{public}d", userId);
+        locatorAbility->SetSwitchStateForUser(false, userId, "location");
     } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED.compare(action) == 0) {
         int stateCode = event.GetCode();
         if (stateCode == static_cast<int>(SIM_STATE_READY)) {

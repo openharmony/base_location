@@ -37,6 +37,7 @@
 #include "os_account_info.h"
 #include "permission_manager.h"
 #include "file_ex.h"
+#include <charconv>
 
 namespace OHOS {
 namespace Location {
@@ -132,6 +133,33 @@ std::string CommonUtils::InitDeviceId()
 {
     std::string deviceId;
     return deviceId;
+}
+
+bool CommonUtils::GetActiveUserIds(std::vector<int>& activeIds)
+{
+    int ret = AccountSA::OsAccountManager::QueryActiveOsAccountIds(activeIds);
+    if (ret != 0) {
+        activeIds.push_back(DEFAULT_USERID);
+        LBSLOGI(COMMON_UTILS, "GetCurrentUserId failed ret:%{public}d", ret);
+        return false;
+    }
+    if (activeIds.empty()) {
+        activeIds.push_back(DEFAULT_USERID);
+        LBSLOGE(COMMON_UTILS, "QueryActiveOsAccountIds activeIds empty");
+        return false;
+    }
+    return true;
+}
+
+int CommonUtils::GetUserIdByUid(int uid)
+{
+    int userId = 0;
+    AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
+    if (userId == 0) {
+        GetCurrentUserId(userId);
+        LBSLOGE(COMMON_UTILS, "GetUserIdByUid userId = %{public}d", userId);
+    }
+    return userId;
 }
 
 bool CommonUtils::GetCurrentUserId(int &userId)
@@ -454,18 +482,19 @@ std::string CommonUtils::GenerateUuid()
 
 bool CommonUtils::CheckAppForUser(int32_t uid, std::string& bundleName)
 {
-    int currentUserId = 0;
-    if (!GetCurrentUserId(currentUserId)) {
-        currentUserId = DEFAULT_USERID;
+    std::vector<int> activeIds;
+    if (!CommonUtils::GetActiveUserIds(activeIds)) {
+        LBSLOGE(COMMON_UTILS, "Fail to GetActiveUserIds");
     }
-    return CommonUtils::CheckAppForUser(uid, currentUserId, bundleName);
+    return CommonUtils::CheckAppForUsers(uid, activeIds, bundleName);
 }
 
-bool CommonUtils::CheckAppForUser(int32_t uid, int32_t currentUserId, std::string& bundleName)
+bool CommonUtils::CheckAppForUsers(int32_t uid, std::vector<int> activeIds, std::string& bundleName)
 {
     int userId = 0;
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
-    if (userId == currentUserId || userId == 0) {
+    bool containsActiveId = std::find(activeIds.begin(), activeIds.end(), userId) != activeIds.end();
+    if (containsActiveId || userId == 0) {
         return true;
     }
     if (bundleName.length() == 0) {
@@ -519,10 +548,10 @@ bool CommonUtils::GetConfigFromJson(const std::string &key, std::string &value)
     return true;
 }
 
-bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity, int32_t currentUserId)
+bool CommonUtils::IsAppBelongActiveAccounts(AppIdentity &identity, std::vector<int> activeIds)
 {
     std::string bundleName = identity.GetBundleName();
-    if (CommonUtils::CheckAppForUser(identity.GetUid(), currentUserId, bundleName)) {
+    if (CommonUtils::CheckAppForUsers(identity.GetUid(), activeIds, bundleName)) {
         return true;
     }
     if (PermissionManager::CheckIsSystemSa(identity.GetTokenId())) {
@@ -533,11 +562,11 @@ bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity, int32_t curre
 
 bool CommonUtils::IsAppBelongCurrentAccount(AppIdentity &identity)
 {
-    int currentUserId = 100;
-    if (!CommonUtils::GetCurrentUserId(currentUserId)) {
+    std::vector<int> activeIds;
+    if (!CommonUtils::GetActiveUserIds(activeIds)) {
         LBSLOGE(COMMON_UTILS, "Fail to GetCurrentUserId.");
     }
-    return CommonUtils::IsAppBelongCurrentAccount(identity, currentUserId);
+    return CommonUtils::IsAppBelongActiveAccounts(identity, activeIds);
 }
 
 bool CommonUtils::IsValidForStoull(const std::string input, size_t size)
@@ -617,5 +646,18 @@ bool CommonUtils::CreateFile(const std::string& filename, const std::string& fil
     LBSLOGI(GNSS, "CreateFile success");
     return true;
 }
+
+bool CommonUtils::ConvertStringToDigit(const std::string& str, int32_t &ret)
+{
+    std::from_chars_result res =
+       std::from_chars(str.data(), str.data() + str.size(), ret);
+    if (res.ec != std::errc{} || res.ptr != str.data() + str.size ()) {
+        LBSLOGI(GNSS, "FromString failed, error string is %{public}s", str.c_str());
+        return false;
+    }
+    return true;
+}
+
+
 } // namespace Location
 } // namespace OHOS
