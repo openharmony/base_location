@@ -27,6 +27,10 @@ static constexpr int MAX_BUF_LEN = 100;
 bool ParseBeaconFenceRequest(
     const napi_env& env, const napi_value& value, std::shared_ptr<BeaconFenceRequest>& request)
 {
+    if (env == nullptr || value == nullptr || request == nullptr) {
+        LBSLOGE(NAPI_UTILS, "parseBeaconFenceRequest param is nullptr");
+        return false;
+    }
     napi_valuetype valueType;
     NAPI_CALL_BASE(env, napi_typeof(env, value, &valueType), false);
     if (valueType != napi_object) {
@@ -39,8 +43,8 @@ bool ParseBeaconFenceRequest(
 bool GenBeaconFenceRequest(
     const napi_env& env, const napi_value& value, std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
 {
-    if (beaconFenceRequest == nullptr) {
-        LBSLOGE(NAPI_UTILS, "beaconFenceRequest == nullptr");
+    if (env == nullptr || value == nullptr || beaconFenceRequest == nullptr) {
+        LBSLOGE(NAPI_UTILS, "genBeaconFenceRequest param is nullptr");
         return false;
     }
     napi_value beaconValue = GetNapiValueByKey(env, "beacon", value);
@@ -64,7 +68,9 @@ bool GenBeaconFenceRequest(
     NAPI_CALL_BASE(env,
         napi_get_named_property(env, value, "transitionCallback", &callbackNapiValue), false);
     napi_valuetype napiValueType = napi_undefined;
-    NAPI_CALL_BASE(env, napi_typeof(env, callbackNapiValue, &napiValueType), false);
+    if (callbackNapiValue != nullptr) {
+        NAPI_CALL_BASE(env, napi_typeof(env, callbackNapiValue, &napiValueType), false);
+    }
     if (napiValueType == napi_undefined && fenceExtensionAbilityNameRes != SUCCESS) {
         LBSLOGE(NAPI_UTILS, "%{public}s, parse transitionCallback and fenceExtensionAbilityName failed", __func__);
         return false;
@@ -75,14 +81,16 @@ bool GenBeaconFenceRequest(
 void JsObjToBeaconFenceTransitionCallback(const napi_env& env, const napi_value& object,
     sptr<LocationGnssGeofenceCallbackNapi> callbackHost)
 {
-    if (callbackHost == nullptr) {
+    if (env == nullptr || object == nullptr || callbackHost == nullptr) {
         return;
     }
     napi_ref handlerRef = nullptr;
     napi_value callbackNapiValue = nullptr;
     NAPI_CALL_RETURN_VOID(env,
         napi_get_named_property(env, object, "transitionCallback", &callbackNapiValue));
-    NAPI_CALL_RETURN_VOID(env, napi_create_reference(env, callbackNapiValue, 1, &handlerRef));
+    if (callbackNapiValue != nullptr) {
+        NAPI_CALL_RETURN_VOID(env, napi_create_reference(env, callbackNapiValue, 1, &handlerRef));
+    }
     callbackHost->SetEnv(env);
     callbackHost->SetHandleCb(handlerRef);
 }
@@ -90,6 +98,9 @@ void JsObjToBeaconFenceTransitionCallback(const napi_env& env, const napi_value&
 bool JsObjToBeaconFence(const napi_env& env, const napi_value& object,
     const std::shared_ptr<BeaconFence>& beaconFence)
 {
+    if (env == nullptr || object == nullptr || beaconFence == nullptr) {
+        return false;
+    }
     if (JsObjectToString(env, object, "identifier", MAX_BUF_LEN, beaconFence->identifier_) != SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "parse identifier failed");
         return false;
@@ -111,6 +122,9 @@ bool JsObjToBeaconFence(const napi_env& env, const napi_value& object,
 bool GenBeaconManufactureDataRequest(
     const napi_env& env, const napi_value& object, std::shared_ptr<BeaconFence> beaconFence)
 {
+    if (env == nullptr || object == nullptr || beaconFence == nullptr) {
+        return false;
+    }
     napi_value manufactureDataValue = GetNapiValueByKey(env, "manufactureData", object);
     if (manufactureDataValue == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "parse manufactureDataValue failed");
@@ -139,10 +153,13 @@ bool GenBeaconManufactureDataRequest(
 
 bool ParseArrayBufferParams(napi_env env, napi_value object, const char *name, std::vector<uint8_t> &outParam)
 {
+    if (env == nullptr || object == nullptr || name == nullptr) {
+        return false;
+    }
     bool hasProperty = false;
     napi_has_named_property(env, object, name, &hasProperty);
     if (hasProperty) {
-        napi_value property;
+        napi_value property = nullptr;
         napi_get_named_property(env, object, name, &property);
         bool isArrayBuffer = false;
         napi_is_arraybuffer(env, property, &isArrayBuffer);
@@ -164,6 +181,9 @@ bool ParseArrayBufferParams(napi_env env, napi_value object, const char *name, s
 
 bool ParseArrayBuffer(napi_env env, uint8_t** data, size_t &size, napi_value args)
 {
+    if (env == nullptr || args == nullptr) {
+        return false;
+    }
     napi_status status;
     napi_valuetype valuetype;
     napi_typeof(env, args, &valuetype);
