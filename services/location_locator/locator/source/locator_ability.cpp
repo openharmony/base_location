@@ -637,7 +637,7 @@ ErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(int32_t type, bool isCon
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
-    return LocationConfigManager::GetInstance()->SetPrivacyTypeState(type, isConfirmed, userId);
+    return LocationConfigManager::GetInstance()->SetPrivacyTypeStateF(type, isConfirmed, userId);
 }
 
 #ifdef FEATURE_GNSS_SUPPORT
