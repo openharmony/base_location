@@ -550,7 +550,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
     // settings first enable location, need to update privacy state
     if (code == ERRCODE_SUCCESS && errCode == ERRCODE_SUCCESS && isEnabled && !privacyState &&
         result && !bundleName.empty() && identity.GetBundleName() == bundleName) {
-        LocationConfigManager::GetInstance()->SetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, true, userId);
+        LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, true, userId);
     }
     return ERRCODE_SUCCESS;
 }
@@ -637,7 +637,7 @@ ErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(int32_t type, bool isCon
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
-    return LocationConfigManager::GetInstance()->SetPrivacyTypeStateF(type, isConfirmed, userId);
+    return LocationConfigManager::GetInstance()->SetPrivacyTypeStateForUser(type, isConfirmed, userId);
 }
 
 #ifdef FEATURE_GNSS_SUPPORT
