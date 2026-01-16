@@ -216,7 +216,7 @@ struct dialogPlusPage {
     }
   }
 
-  async getForegroundOsAccountLocalId(): Promise<number> {
+  static async getForegroundOsAccountLocalId(): Promise<number> {
     let localId = 100;
     let accountManager = osAccount.getAccountManager();
     try {
@@ -240,7 +240,7 @@ struct dialogPlusPage {
 
   async onCancel() {
     console.info(TAG, 'Callback when the first button is clicked')
-    let userId = await this.getForegroundOsAccountLocalId();
+    let userId = await dialogPlusPage.getForegroundOsAccountLocalId();
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
       data: userId.toString(),
@@ -264,7 +264,7 @@ struct dialogPlusPage {
 
   async onAccept() {
     console.info(TAG, 'Callback when the second button is clicked')
-    let userId = await this.getForegroundOsAccountLocalId();
+    let userId = await dialogPlusPage.getForegroundOsAccountLocalId();
     const options: commonEventManager.CommonEventPublishData = {
       code: 0,
       data: userId.toString(),
