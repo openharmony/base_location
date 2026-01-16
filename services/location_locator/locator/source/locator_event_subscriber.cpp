@@ -48,10 +48,10 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
     if (std::string(MODE_CHANGED_EVENT).compare(action) == 0) {
         locatorAbility->UpdateSaAbility();
     } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
-        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
         std::string data = event.GetData();
         int userId = 100;
         CommonUtils::ConvertStringToDigit(data, userId);
+        LocationConfigManager::GetInstance()->SetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, true, userId);
         LBSLOGI(LOCATOR_EVENT, "received location_accept userId = %{public}d", userId);
         locatorAbility->SetSwitchStateForUser(true, userId, "location");
     } else if (std::string(LOCATION_PRIVACY_REJECT_EVENT).compare(action) == 0) {

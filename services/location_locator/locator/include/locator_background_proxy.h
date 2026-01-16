@@ -101,7 +101,7 @@ private:
     bool isWating_ = false;
     bool isUserSwitchSubscribed_ = false;
     int timeInterval_;
-    int32_t curUserId_;
+    int32_t curUserId_ = 0;
     std::vector<int> activeIds_;
 
     sptr<ILocatorCallback> callback_;

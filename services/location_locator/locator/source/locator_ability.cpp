@@ -530,14 +530,15 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     bool privacyState = false;
+    int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
     LocationErrCode code =
-        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
+        LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
     if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
+
     if (!HookUtils::ExecuteHookEnableAbility(
         identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
         isEnabled, userId)) {
@@ -549,7 +550,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
     // settings first enable location, need to update privacy state
     if (code == ERRCODE_SUCCESS && errCode == ERRCODE_SUCCESS && isEnabled && !privacyState &&
         result && !bundleName.empty() && identity.GetBundleName() == bundleName) {
-        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
+        LocationConfigManager::GetInstance()->SetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, true, userId);
     }
     return ERRCODE_SUCCESS;
 }
@@ -573,7 +574,7 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
     bool privacyState = false;
     int currentUserId = 0;
     LocationErrCode code =
-        LocationConfigManager::GetInstance()->GetPrivacyTypeState(PRIVACY_TYPE_STARTUP, privacyState);
+        LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
     if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard" &&
         (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
@@ -592,7 +593,7 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
     if (code == ERRCODE_SUCCESS && isEnabled && !privacyState &&
         result && !bundleName.empty() && identity.GetBundleName() == bundleName &&
         (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
-        LocationConfigManager::GetInstance()->SetPrivacyTypeState(PRIVACY_TYPE_STARTUP, true);
+        LocationConfigManager::GetInstance()->SetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, true, userId);
     }
     return ERRCODE_SUCCESS;
 }
@@ -616,7 +617,8 @@ ErrCode LocatorAbility::IsLocationPrivacyConfirmed(int32_t type, bool& state)
         LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
     }
-    return LocationConfigManager::GetInstance()->GetPrivacyTypeState(type, state);
+    int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
+    return LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(type, state, userId);
 }
 
 ErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(int32_t type, bool isConfirmed)
@@ -634,7 +636,8 @@ ErrCode LocatorAbility::SetLocationPrivacyConfirmStatus(int32_t type, bool isCon
         LBSLOGE(LOCATOR, "CheckSecureSettings return false, [%{public}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    return LocationConfigManager::GetInstance()->SetPrivacyTypeState(type, isConfirmed);
+    int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
+    return LocationConfigManager::GetInstance()->SetPrivacyTypeStateForUser(type, isConfirmed, userId);
 }
 
 #ifdef FEATURE_GNSS_SUPPORT
