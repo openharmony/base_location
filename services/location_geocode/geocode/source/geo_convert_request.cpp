@@ -35,6 +35,7 @@ GeoConvertRequest::GeoConvertRequest()
     country_ = "";
     requestType_ = GeoCodeType::REQUEST_GEOCODE;
     priority_ = 0;
+    timeStamp_ = 0;
 }
 
 GeoConvertRequest::GeoConvertRequest(const GeoConvertRequest& geoConvertRequest)
