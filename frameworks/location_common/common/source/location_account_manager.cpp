@@ -38,6 +38,7 @@ LocationAccountManager* LocationAccountManager::GetInstance()
 LocationAccountManager::LocationAccountManager()
 {
     SubscribeSaStatusChangeListerner();
+    CommonUtils::GetActiveUserIds(activeIds_);
     isUserSwitchSubscribed_ = LocationAccountManager::UserSwitchSubscriber::Subscribe();
 }
 
