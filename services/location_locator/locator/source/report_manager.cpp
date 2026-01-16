@@ -195,11 +195,9 @@ bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
             return false;
         }
         LBSLOGW(REPORT_MANAGER, "report location to %{public}d, uuid : %{public}s, bundleName : %{public}s," \
-            "uid : %{public}d, TimeSinceBoot : %{public}s, Altitude : %{public}f, Speed : %{public}f," \
-            "Direction : %{public}f, SourceType : %{public}d",
+            "uid : %{public}d, TimeSinceBoot : %{public}s, SourceType : %{public}d",
             request->GetTokenId(), request->GetUuid().c_str(), request->GetPackageName().c_str(), request->GetUid(),
-            std::to_string(finalLocation->GetTimeSinceBoot()).c_str(), finalLocation->GetAltitude(),
-            finalLocation->GetSpeed(), finalLocation->GetDirection(), finalLocation->GetLocationSourceType());
+            std::to_string(finalLocation->GetTimeSinceBoot()).c_str(), finalLocation->GetLocationSourceType());
         auto poiInfo = finalLocation->GetPoiInfo();
         if (poiInfo.poiArray.size() >= 1) {
             LBSLOGI(REPORT_MANAGER, "report poiInfo,%{public}s,%{public}.4f",
