@@ -550,7 +550,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
     // settings first enable location, need to update privacy state
     if (code == ERRCODE_SUCCESS && errCode == ERRCODE_SUCCESS && isEnabled && !privacyState &&
         result && !bundleName.empty() && identity.GetBundleName() == bundleName) {
-        LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, true, userId);
+        LocationConfigManager::GetInstance()->SetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, true, userId);
     }
     return ERRCODE_SUCCESS;
 }
