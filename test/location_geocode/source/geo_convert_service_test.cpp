@@ -65,6 +65,7 @@ using namespace testing::ext;
 namespace OHOS {
 namespace Location {
 const int32_t LOCATION_PERM_NUM = 5;
+const int32_t LOOP_COUNT = 11;
 const std::string ARGS_HELP = "-h";
 void GeoConvertServiceTest::SetUp()
 {
@@ -669,6 +670,97 @@ HWTEST_F(GeoConvertServiceTest, OrderParcel001, TestSize.Level1)
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
 }
 
+HWTEST_F(GeoConvertServiceTest, AddCahedGeoAddress001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, AddCahedGeoAddress001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] AddCahedGeoAddress001 begin");
+    auto geoConvertRequest = std::make_unique<GeoConvertRequest>();
+    geoConvertRequest->SetLocale("test");
+    geoConvertRequest->SetLatitude(30);
+    geoConvertRequest->SetLongitude(40);
+    sptr<IRemoteObject> callback = nullptr;
+    geoConvertRequest->SetCallback(callback);
+    geoConvertRequest->SetCountry("Shanghai");
+    geoConvertRequest->SetMinLatitude(0);
+    geoConvertRequest->SetTransId("Shanghai");
+    std::list<std::shared_ptr<GeoAddress>> result;
+    std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
+    result.push_back(geoAddress);
+    MessageParcel dataParcel;
+    WriteResultToParcel(result, dataParcel);
+    service_->AddCahedGeoAddress(*geoConvertRequest, dataParcel);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, AddCahedGeoAddress002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, AddCahedGeoAddress002, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] AddCahedGeoAddress002 begin");
+    auto geoConvertRequest = std::make_unique<GeoConvertRequest>();
+    sptr<IRemoteObject> callback = nullptr;
+    geoConvertRequest->SetCallback(callback);
+    geoConvertRequest->SetCountry("Shanghai");
+    geoConvertRequest->SetMinLatitude(0);
+    geoConvertRequest->SetTransId("Shanghai");
+    std::list<std::shared_ptr<GeoAddress>> result;
+    for (int i = 0; i < LOOP_COUNT; i++) {
+        geoConvertRequest->SetLocale(std::to_string(i));
+        geoConvertRequest->SetLatitude(i);
+        geoConvertRequest->SetLongitude(i + 1);
+        std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
+        if (i != 0) {
+            geoAddress->placeName_ = std::to_string(i);
+        }
+        result.push_back(geoAddress);
+        MessageParcel dataParcel;
+        WriteResultToParcel(result, dataParcel);
+        service_->AddCahedGeoAddress(*geoConvertRequest, dataParcel);
+    }
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, GetCahedGeoAddress001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, GetCahedGeoAddress001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] GetCahedGeoAddress001 begin");
+    auto geoConvertRequest = std::make_unique<GeoConvertRequest>();
+    geoConvertRequest->SetLocale("1");
+    geoConvertRequest->SetLatitude(30);
+    geoConvertRequest->SetLongitude(40);
+    sptr<IRemoteObject> callback = nullptr;
+    geoConvertRequest->SetCallback(callback);
+    geoConvertRequest->SetCountry("Shanghai");
+    geoConvertRequest->SetMinLatitude(0);
+    geoConvertRequest->SetTransId("Shanghai");
+    service_->GetCahedGeoAddress(std::make_unique<GeoConvertRequest>(*geoConvertRequest));
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
+}
+
+HWTEST_F(GeoConvertServiceTest, SendCacheAddressToRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GeoConvertServiceTest, SendCacheAddressToRequest001, TestSize.Level1";
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] SendCacheAddressToRequest001 begin");
+    auto geoConvertRequest = std::make_unique<GeoConvertRequest>();
+    geoConvertRequest->SetLocale("1");
+    geoConvertRequest->SetLatitude(30);
+    geoConvertRequest->SetLongitude(40);
+    sptr<IRemoteObject> callback = nullptr;
+    geoConvertRequest->SetCallback(callback);
+    geoConvertRequest->SetCountry("Shanghai");
+    geoConvertRequest->SetMinLatitude(0);
+    geoConvertRequest->SetTransId("Shanghai");
+    std::list<std::shared_ptr<GeoAddress>> result;
+    std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
+    result.push_back(geoAddress);
+    MessageParcel dataParcel;
+    WriteResultToParcel(result, dataParcel);
+    service_->SendCacheAddressToRequest(std::make_unique<GeoConvertRequest>(*geoConvertRequest), result);
+    LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
+}
 }  // namespace Location
 } // namespace OHOS
 #endif // FEATURE_GEOCODE_SUPPORT
