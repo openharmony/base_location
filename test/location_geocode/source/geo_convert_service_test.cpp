@@ -688,7 +688,7 @@ HWTEST_F(GeoConvertServiceTest, AddCahedGeoAddress001, TestSize.Level1)
     std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
     result.push_back(geoAddress);
     MessageParcel dataParcel;
-    WriteResultToParcel(result, dataParcel);
+    service_->WriteResultToParcel(result, dataParcel);
     service_->AddCahedGeoAddress(*geoConvertRequest, dataParcel);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
 }
@@ -715,7 +715,7 @@ HWTEST_F(GeoConvertServiceTest, AddCahedGeoAddress002, TestSize.Level1)
         }
         result.push_back(geoAddress);
         MessageParcel dataParcel;
-        WriteResultToParcel(result, dataParcel);
+        service_->WriteResultToParcel(result, dataParcel);
         service_->AddCahedGeoAddress(*geoConvertRequest, dataParcel);
     }
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
@@ -757,7 +757,7 @@ HWTEST_F(GeoConvertServiceTest, SendCacheAddressToRequest001, TestSize.Level1)
     std::shared_ptr<GeoAddress> geoAddress = std::make_shared<GeoAddress>();
     result.push_back(geoAddress);
     MessageParcel dataParcel;
-    WriteResultToParcel(result, dataParcel);
+    service_->WriteResultToParcel(result, dataParcel);
     service_->SendCacheAddressToRequest(std::make_unique<GeoConvertRequest>(*geoConvertRequest), result);
     LBSLOGI(GEO_CONVERT, "[GeoConvertServiceTest] OrderParcel001 end");
 }
