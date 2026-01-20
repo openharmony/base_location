@@ -523,6 +523,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
         << "LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 begin");
     auto locatorAbility = LocatorAbility::GetInstance();
+    locatorAbility->EnableAbility(false);
     auto cachedLocationsCallbackHost =
         sptr<CachedLocationsCallbackNapi>(new (std::nothrow) CachedLocationsCallbackNapi());
     auto cachedCallback = sptr<ICachedLocationsCallback>(cachedLocationsCallbackHost);
@@ -536,6 +537,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceCallbackRegAndUnreg001, TestSize.Leve
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
         locatorAbility->UnregisterCachedLocationCallback(cachedCallback)); // uid pid not match locationhub process
     sleep(1);
+    locatorAbility->EnableAbility(true);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceCallbackRegAndUnreg001 end");
 }
 #endif

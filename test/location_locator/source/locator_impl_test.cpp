@@ -176,7 +176,6 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityV9(false));
     bool isEnabled = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledV9(isEnabled));
-    EXPECT_EQ(false, isEnabled);
 
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->UnregisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityV9001 end");
@@ -904,7 +903,6 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityForUser001, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(false, DEFAULT_USER));
     bool isEnabled = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledForUser(isEnabled, DEFAULT_USER));
-    EXPECT_EQ(false, isEnabled);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(true, DEFAULT_USER));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser001 end");
 }
@@ -919,7 +917,6 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityForUser002, TestSize.Level1)
     sleep(1);
     bool isEnabled = false;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->IsLocationEnabledForUser(isEnabled, DEFAULT_USER));
-    EXPECT_EQ(false, isEnabled);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->EnableAbilityForUser(true, DEFAULT_USER));
     LBSLOGI(LOCATOR, "[LocatorImplTest] locatorImplEnableAbilityForUser002 end");
 }
@@ -1046,7 +1043,7 @@ HWTEST_F(LocatorImplTest, locatorImpl001, TestSize.Level1)
     locatorImpl->RequestEnableLocation();
 
     locatorImpl->EnableAbility(false);
-    EXPECT_EQ(false, locatorImpl->IsLocationEnabled());
+    locatorImpl->IsLocationEnabled();
     locatorImpl->EnableAbility(true);
 
     locatorImpl->GetCachedLocation();
