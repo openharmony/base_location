@@ -1235,7 +1235,8 @@ std::vector<std::shared_ptr<GeofenceRequest>> GnssAbility::ReadGeoFenceRequestFr
     while (std::getline(fs, content)) {
         line += content;
     }
-    if (line.empty()) {
+    // 验证 JSON 字符串是否有效
+    if (line.empty() || !nlohmann::json::accept(line)) {
         fs.clear();
         fs.close();
         return requestList;
@@ -1257,7 +1258,15 @@ std::vector<std::shared_ptr<GeofenceRequest>> GnssAbility::ReadGeoFenceRequestFr
             return requestList;
         }
         std::string geofenceRequestStr = item->valuestring;
-        nlohmann::json jsonObj = nlohmann::json::parse(geofenceRequestStr);
+        // 第三个参数 false 表示不抛出异常
+        nlohmann::json jsonObj = nlohmann::json::parse(geofenceRequestStr, nullptr, false);
+        // 检查解析是否成功
+        if (jsonObj.is_discarded()) {
+            fs.clear();
+            fs.close();
+            cJSON_Delete(geofenceRequestRoot);
+            return requestList;
+        }
         std::shared_ptr<GeofenceRequest> request = GeofenceRequest::FromJson(jsonObj);
         if (request != nullptr) {
             requestList.push_back(request);
