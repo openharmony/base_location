@@ -219,6 +219,14 @@
             }
         },
         {
+            "name":"wifi_triband_network_pop_up_title",
+            "value":"Found a NearLink router"
+        },
+        {
+            "name":"wifi_triband_network_notify_text",
+            "value":"Tap to connect by NearLink, optimize network experience"
+        },
+        {
             "name":"condition_netshare_hotspot_close",
             "value":"Hotspot disabled",
             "attr":{
