@@ -16,6 +16,7 @@
 #define private public
 #include "locator_required_data_manager.h"
 #include "locating_required_data_callback_napi.h"
+#include "bluetooth_scan_result_callback_napi.h"
 #undef private
 #include "location_log.h"
 #ifdef WIFI_ENABLE
@@ -123,6 +124,56 @@ HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback003, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
     locatorDataManager->UnregisterCallback(callback->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback003 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, RegisterCallback004, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback004 begin");
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+
+    std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
+    dataConfig->SetType(LocatingRequiredDataType::CELLULAR);
+    dataConfig->SetNeedStartScan(true);
+    dataConfig->SetFixNumber(1);
+    dataConfig->SetScanIntervalMs(1);
+    dataConfig->SetScanTimeoutMs(1);
+    AppIdentity identity;
+    identity.SetPid(1);
+    auto callback =
+        sptr<LocatingRequiredDataCallbackNapi>(new LocatingRequiredDataCallbackNapi());
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
+    EXPECT_EQ(ERRCODE_SUCCESS, errorCode);
+    locatorDataManager->UnregisterCallback(callback->AsObject());
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback004 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, RegisterCallback005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, RegisterCallback005, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback005 begin");
+    auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    std::shared_ptr<LocatingRequiredDataConfig> dataConfig = std::make_shared<LocatingRequiredDataConfig>();
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
+    dataConfig->SetNeedStartScan(false);
+    dataConfig->SetScanIntervalMs(1);
+    dataConfig->SetScanTimeoutMs(1);
+    AppIdentity identity;
+    identity.SetPid(1);
+    auto callback =
+        sptr<LocatingRequiredDataCallbackNapi>(new (std::nothrow) LocatingRequiredDataCallbackNapi());
+    locatorDataManager->SetIsWifiCallbackRegistered(true);
+    LocationErrCode errorCode = locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, errorCode);
+    locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
+    EXPECT_EQ(LOCATION_ERRCODE_NOT_SUPPORTED, errorCode);
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
+    locatorDataManager->SetIsWifiCallbackRegistered(true);
+    locatorDataManager->RegisterCallback(identity, dataConfig, callback->AsObject());
+    locatorDataManager->UnregisterCallback(callback->AsObject());
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RegisterCallback005 end");
 }
 
 HWTEST_F(LocatorRequiredDataManagerTest, LocatorBluetoothHost001, TestSize.Level1)
@@ -302,6 +353,40 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper007, TestSize.L
     Bluetooth::BleScanResult result;
     callback->OnFoundOrLostCallback(result, 1);
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper007 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, StartScanBluetoothDevice001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, StartScanBluetoothDevice001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartScanBluetoothDevice001 begin");
+    auto cb = sptr<IBluetoothScanResultCallback>(new BluetoothScanResultCallbackNapi());
+    AppIdentity identity;
+    LocatorRequiredDataManager::GetInstance()->StartScanBluetoothDevice(
+        cb, identity);
+    LocatorRequiredDataManager::GetInstance()->StopScanBluetoothDevice(
+        cb->AsObject());
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartScanBluetoothDevice001 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, IsBluetoothConnecting001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, IsBluetoothConnecting001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] IsBluetoothConnecting001 begin");
+    LocatorRequiredDataManager::GetInstance()->IsBluetoothConnecting();
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] IsBluetoothConnecting001 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, RemoveBluetoothScanCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, RemoveBluetoothScanCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RemoveBluetoothScanCallback001 begin");
+    auto cb = sptr<BluetoothScanResultCallbackNapi>(new BluetoothScanResultCallbackNapi());
+    LocatorRequiredDataManager::GetInstance()->RemoveBluetoothScanCallback(cb->AsObject());
+    LocatorRequiredDataManager::GetInstance()->RemoveBluetoothScanCallbackDeathRecipientByCallback(cb->AsObject());
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RemoveBluetoothScanCallback001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
