@@ -666,7 +666,7 @@ LocationErrCode GnssAbility::SetCachePositionMode(int reportingPeriodSec, bool w
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     GnssConfigPara para;
-    para.gnssCaching.interval = reportingPeriodSec;
+    para.gnssCaching.interval = static_cast<uint32_t>(reportingPeriodSec);
     para.gnssCaching.fifoFullNotify = wakeUpCacheQueueFull;
     int ret = gnssInterface->SetGnssConfigPara(para);
     if (ret != ERRCODE_SUCCESS) {
