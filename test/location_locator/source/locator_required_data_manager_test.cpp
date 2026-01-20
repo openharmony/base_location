@@ -354,14 +354,38 @@ HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper007, TestSize.L
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper007 end");
 }
 
-HWTEST_F(LocatorRequiredDataManagerTest, LocatorBleCallbackWapper007, TestSize.Level1)
+HWTEST_F(LocatorRequiredDataManagerTest, StartScanBluetoothDevice001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "LocatorRequiredDataManagerTest, LocatorBleCallbackWapper007, TestSize.Level1";
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper007 begin");
+        << "LocatorRequiredDataManagerTest, StartScanBluetoothDevice001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartScanBluetoothDevice001 begin");
+    auto cb = sptr<IBluetoothScanResultCallback>();
+    AppIdentity identity;
     LocatorRequiredDataManager::GetInstance()->StartScanBluetoothDevice(
-        callbackMessage->GetCallback(), callbackMessage->GetAppIdentity());
-    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] LocatorBleCallbackWapper007 end");
+        cb, identity);
+    LocatorRequiredDataManager::GetInstance()->StopScanBluetoothDevice(
+        cb->AsObject());
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartScanBluetoothDevice001 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, IsBluetoothConnecting001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, IsBluetoothConnecting001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] IsBluetoothConnecting001 begin");
+    LocatorRequiredDataManager::GetInstance()->IsBluetoothConnecting();
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] IsBluetoothConnecting001 end");
+}
+
+HWTEST_F(LocatorRequiredDataManagerTest, RemoveBluetoothScanCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorRequiredDataManagerTest, RemoveBluetoothScanCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RemoveBluetoothScanCallback001 begin");
+    auto cb = sptr<IBluetoothScanResultCallback>();
+    LocatorRequiredDataManager::GetInstance()->RemoveBluetoothScanCallback(cb->AsObject());
+    LocatorRequiredDataManager::GetInstance()->RemoveBluetoothScanCallbackDeathRecipientByCallback(cb->AsObject());
+    LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RemoveBluetoothScanCallback001 end");
 }
 }  // namespace Location
 }  // namespace OHOS
