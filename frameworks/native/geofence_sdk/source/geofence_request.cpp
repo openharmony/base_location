@@ -466,7 +466,7 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
 std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json &jsonObject)
 {
     if (jsonObject.is_null() || !jsonObject.is_object()) {
-        LBSLOGE(LOCATOR, "Invalid JSON object");
+        LBSLOGE(LOCATOR, "Invalid JSON object.");
         return nullptr;
     }
     auto request = std::make_shared<GeofenceRequest>();
