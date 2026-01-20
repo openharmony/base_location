@@ -16,6 +16,7 @@
 #define private public
 #include "locator_required_data_manager.h"
 #include "locating_required_data_callback_napi.h"
+#include "bluetooth_scan_result_callback_napi.h"
 #undef private
 #include "location_log.h"
 #ifdef WIFI_ENABLE
@@ -359,7 +360,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, StartScanBluetoothDevice001, TestSize.L
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, StartScanBluetoothDevice001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] StartScanBluetoothDevice001 begin");
-    auto cb = sptr<IBluetoothScanResultCallback>();
+    auto cb = sptr<IBluetoothScanResultCallback>(new BluetoothScanResultCallbackNapi());
     AppIdentity identity;
     LocatorRequiredDataManager::GetInstance()->StartScanBluetoothDevice(
         cb, identity);
@@ -382,7 +383,7 @@ HWTEST_F(LocatorRequiredDataManagerTest, RemoveBluetoothScanCallback001, TestSiz
     GTEST_LOG_(INFO)
         << "LocatorRequiredDataManagerTest, RemoveBluetoothScanCallback001, TestSize.Level1";
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RemoveBluetoothScanCallback001 begin");
-    auto cb = sptr<IBluetoothScanResultCallback>();
+    auto cb = sptr<BluetoothScanResultCallbackNapi>(new BluetoothScanResultCallbackNapi());
     LocatorRequiredDataManager::GetInstance()->RemoveBluetoothScanCallback(cb->AsObject());
     LocatorRequiredDataManager::GetInstance()->RemoveBluetoothScanCallbackDeathRecipientByCallback(cb->AsObject());
     LBSLOGI(LOCATOR_CALLBACK, "[LocatorRequiredDataManagerTest] RemoveBluetoothScanCallback001 end");
