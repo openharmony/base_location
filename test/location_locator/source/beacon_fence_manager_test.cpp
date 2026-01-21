@@ -17,6 +17,7 @@
 
 #include "constant_definition.h"
 #include "location_log.h"
+#include "location_gnss_geofence_callback_napi.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -153,8 +154,6 @@ HWTEST_F(BeaconFenceManagerTest, RemoveBeaconFenceTest001, TestSize.Level0)
     beaconFence->SetIdentifier("RemoveBeaconFenceTest001");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
 
     EXPECT_EQ(ERRCODE_BEACONFENCE_INCORRECT_ID, beaconFenceManager_->RemoveBeaconFence(beaconFence));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RemoveBeaconFenceTest001 end");
@@ -183,7 +182,7 @@ HWTEST_F(BeaconFenceManagerTest, ConstructFilterTest001, TestSize.Level0)
     GTEST_LOG_(INFO)
         << "BeaconFenceManagerTest, ConstructFilterTest001, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ConstructFilterTest001 begin");
-    std::vector<Bluetooth::BleScanFilter> filters
+    std::vector<Bluetooth::BleScanFilter> filters;
     beaconFenceManager_->ConstructFilter(filters);
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ConstructFilterTest001 end");
 }
@@ -197,7 +196,7 @@ HWTEST_F(BeaconFenceManagerTest, OnReportOperationResultByCallbackTest001, TestS
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
+    beaconFence->SetIdentifier("OnReportOperationResultByCallbackTest001");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
     beaconFenceRequest->SetBeaconFence(beaconFence);
@@ -237,7 +236,7 @@ HWTEST_F(BeaconFenceManagerTest, MatchesDataTest001, TestSize.Level0)
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest001 begin");
     std::vector<uint8_t> fData;
     std::string scanData;
-    EXPECT_EQ(false, beaconFenceManager_->MatchesData(result, type));
+    EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, scanData));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest001 end");
 }
 
@@ -248,7 +247,7 @@ HWTEST_F(BeaconFenceManagerTest, MatchesDataTest002, TestSize.Level0)
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 begin");
     std::vector<uint8_t> fData;
     std::string scanData = "scanData";
-    EXPECT_EQ(false, beaconFenceManager_->MatchesData(result, type));
+    EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, scanData));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 end");
 }
 
@@ -273,7 +272,7 @@ HWTEST_F(BeaconFenceManagerTest, TransitionStatusChangeTest002, TestSize.Level0)
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
+    beaconFence->SetIdentifier("TransitionStatusChangeTest002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
     beaconFenceRequest->SetBeaconFence(beaconFence);
@@ -305,7 +304,7 @@ HWTEST_F(BeaconFenceManagerTest, ReportByCallbackTest002, TestSize.Level0)
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
+    beaconFence->SetIdentifier("ReportByCallbackTest002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
     beaconFenceRequest->SetBeaconFence(beaconFence);
@@ -337,7 +336,7 @@ HWTEST_F(BeaconFenceManagerTest, ReportByFenceExtensionTest002, TestSize.Level0)
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
+    beaconFence->SetIdentifier("ReportByFenceExtensionTest002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
     beaconFenceRequest->SetBeaconFence(beaconFence);
@@ -368,7 +367,7 @@ HWTEST_F(BeaconFenceManagerTest, IsStrValidForStoiTest002, TestSize.Level0)
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] IsStrValidForStoiTest002 end");
 }
 
-HWTEST_F(BeaconFenceManagerTest, GetAppIdentityByBeaconFenceRequestTest002, TestSize.Level0)
+HWTEST_F(BeaconFenceManagerTest, GetAppIdentityByBeaconFenceRequestTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "BeaconFenceManagerTest, GetAppIdentityByBeaconFenceRequestTest001, TestSize.Level0";
@@ -387,7 +386,7 @@ HWTEST_F(BeaconFenceManagerTest, GetAppIdentityByBeaconFenceRequestTest002, Test
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
+    beaconFence->SetIdentifier("GetAppIdentityByBeaconFenceRequestTest002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
     beaconFenceRequest->SetBeaconFence(beaconFence);
@@ -396,14 +395,14 @@ HWTEST_F(BeaconFenceManagerTest, GetAppIdentityByBeaconFenceRequestTest002, Test
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetAppIdentityByBeaconFenceRequestTest002 end");
 }
 
-HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByCallbackTest001, TestSize.Level0)
+HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByServiceUuidTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, GetBeaconFenceRequestByCallbackTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByCallbackTest001 begin");
+        << "BeaconFenceManagerTest, GetBeaconFenceRequestByServiceUuidTest001, TestSize.Level0";
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByServiceUuidTest001 begin");
     std::string serviceUuid = "";
     EXPECT_EQ(nullptr, beaconFenceManager_->GetBeaconFenceRequestByServiceUuid(serviceUuid));
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByCallbackTest001 end");
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByServiceUuidTest001 end");
 }
 
 HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByCallbackTest001, TestSize.Level0)
@@ -477,15 +476,15 @@ HWTEST_F(BeaconFenceManagerTest, CompareUUIDTest001, TestSize.Level0)
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] CompareUUIDTest001 end");
 }
 
-HWTEST_F(BeaconFenceManagerTest, CompareUUIDTest001, TestSize.Level0)
+HWTEST_F(BeaconFenceManagerTest, CompareUUIDTest002, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, CompareUUIDTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] CompareUUIDTest001 begin");
+        << "BeaconFenceManagerTest, CompareUUIDTest002, TestSize.Level0";
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] CompareUUIDTest002 begin");
     std::string uuid1 = "123";
     std::string uuid2 = "456";
     EXPECT_EQ(false, beaconFenceManager_->CompareUUID(uuid1, uuid2));
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] CompareUUIDTest001 end");
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] CompareUUIDTest002 end");
 }
 
 HWTEST_F(BeaconFenceManagerTest, CompareBeaconFenceTest001, TestSize.Level0)
