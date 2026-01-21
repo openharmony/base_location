@@ -53,6 +53,7 @@ ohos_fuzztest("PoiInfoManagerFuzzTest") {
     "libuv:uv",
     "napi:ace_napi",
     "samgr:samgr_proxy",
+    "safwk:system_ability_fwk",
   ]
 }
 
