@@ -432,7 +432,7 @@ void ReportManager::UpdateCacheNlpLocation(Location& location)
         auto additionsMap = cacheNlpLocation_.GetAdditionsMap();
         auto it = additionsMap.find("requestId");
         if (it != additionsMap.end()) {
-            addition.push_back(it->first + it->second);
+            addition.push_back(it->first + ":" + it->second);
         }
         cacheNlpLocation_.SetAdditions(addition, false);
         cacheNlpLocation_.SetAdditionSize(1);
