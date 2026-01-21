@@ -18,11 +18,7 @@
 
 #include <gtest/gtest.h>
 
-#define private public
-#define protected public
 #include "beacon_fence_manager.h"
-#undef protected
-#undef private
 
 namespace OHOS {
 namespace Location {
