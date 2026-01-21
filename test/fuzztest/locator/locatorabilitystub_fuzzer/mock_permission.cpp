@@ -21,6 +21,7 @@
 namespace OHOS {
 namespace Location {
 using namespace Security::AccessToken;
+static constexpr int32_t DEFAULT_API_VERSION = 12;
 namespace {
 std::mutex g_lockSetToken;
 uint64_t g_shellTokenId = 0;
@@ -148,7 +149,7 @@ MockHapToken::MockHapToken(
         .bundleName = bundle,
         .instIndex = 0,
         .appIDDesc = "AccessTokenTestAppID",
-        .apiVersion = PrivacyTestCommon::DEFAULT_API_VERSION,
+        .apiVersion = DEFAULT_API_VERSION,
         .isSystemApp = isSystemApp,
         .appDistributionType = "",
     };
@@ -176,9 +177,12 @@ MockHapToken::MockHapToken(
     AccessTokenIDEx tokenIdEx = PrivacyTestCommon::AllocTestHapToken(infoParams, policyParams);
     mockToken_= tokenIdEx.tokenIdExStruct.tokenID;
     SetSelfTokenID(tokenIdEx.tokenIDEx);
-    AccessTokenKit::GrantPermission(tokenIdEx.tokenIdExStruct.tokenID, ACCESS_LOCATION, PermissionFlag::PERMISSION_DEFAULT_FLAG);
-    AccessTokenKit::GrantPermission(tokenIdEx.tokenIdExStruct.tokenID, ACCESS_APPROXIMATELY_LOCATION, PermissionFlag::PERMISSION_DEFAULT_FLAG);
-    AccessTokenKit::GrantPermission(tokenIdEx.tokenIdExStruct.tokenID, ACCESS_APPROXIMATELY_LOCATION, PermissionFlag::PERMISSION_DEFAULT_FLAG);
+    AccessTokenKit::GrantPermission(tokenIdEx.tokenIdExStruct.tokenID,
+        ACCESS_LOCATION, PermissionFlag::PERMISSION_DEFAULT_FLAG);
+    AccessTokenKit::GrantPermission(tokenIdEx.tokenIdExStruct.tokenID,
+        ACCESS_APPROXIMATELY_LOCATION, PermissionFlag::PERMISSION_DEFAULT_FLAG);
+    AccessTokenKit::GrantPermission(tokenIdEx.tokenIdExStruct.tokenID,
+        ACCESS_APPROXIMATELY_LOCATION, PermissionFlag::PERMISSION_DEFAULT_FLAG);
 }
 
 MockHapToken::~MockHapToken()

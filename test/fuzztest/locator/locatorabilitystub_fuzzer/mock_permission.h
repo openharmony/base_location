@@ -42,7 +42,6 @@ private:
 };
 class PrivacyTestCommon {
 public:
-    static constexpr int32_t DEFAULT_API_VERSION = 12;
     static void SetTestEvironment(uint64_t shellTokenId);
     static void ResetTestEvironment();
     static uint64_t GetShellTokenId();
