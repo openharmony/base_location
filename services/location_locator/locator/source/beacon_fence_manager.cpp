@@ -391,7 +391,7 @@ AppIdentity BeaconFenceManager::GetAppIdentityByBeaconFenceRequest(
 {
     std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     AppIdentity appIdentity;
-    if (beaconFenceRequest = nullptr) {
+    if (beaconFenceRequest == nullptr) {
         return appIdentity;
     }
     for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
