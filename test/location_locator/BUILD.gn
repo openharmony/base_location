@@ -43,6 +43,7 @@ ohos_unittest("LocatorServiceAbilityTest") {
     "$LOCATION_ROOT_DIR/test/location_locator/source/poi_info_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/report_manager_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_locator/source/work_record_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_locator/source/beacon_fence_manager.cpp",
   ]
 
   include_dirs = [
