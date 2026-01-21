@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #ifndef POI_INFO_MANAGER_FUZZER_H
+#define POI_INFO_MANAGER_FUZZER_H
 
 #include "poi_info_manager.h"
 
