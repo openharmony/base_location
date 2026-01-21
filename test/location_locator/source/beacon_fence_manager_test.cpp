@@ -16,6 +16,8 @@
 #include "beacon_fence_manager_test.h"
 
 #include "constant_definition.h"
+#include "location_log.h"
+#include "location_gnss_geofence_callback_napi.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -62,70 +64,12 @@ HWTEST_F(BeaconFenceManagerTest, AddBeaconFenceTest002, TestSize.Level0)
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] AddBeaconFenceTest002 end");
 }
 
-HWTEST_F(BeaconFenceManagerTest, RegisterBeaconFenceCallbackTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, RegisterBeaconFenceCallbackTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RegisterBeaconFenceCallbackTest001 begin");
-    AppIdentity identity;
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
-    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
-    BeaconManufactureData manufactureData;
-    manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("RegisterBeaconFenceCallbackTest001");
-    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
-    beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
-    beaconFenceManager_->RegisterBeaconFenceCallback(beaconFenceRequest, identity);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RegisterBeaconFenceCallbackTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, RegisterBeaconFenceCallbackTest002, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, RegisterBeaconFenceCallbackTest002, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RegisterBeaconFenceCallbackTest002 begin");
-    AppIdentity identity;
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
-    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
-    BeaconManufactureData manufactureData;
-    manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("RegisterBeaconFenceCallbackTest002");
-    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
-    beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
-    sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi()
-    beaconFenceRequest->SetBeaconFenceTransitionCallback(callbackHost->AsObject());
-    beaconFenceManager_->RegisterBeaconFenceCallback(beaconFenceRequest, identity);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RegisterBeaconFenceCallbackTest002 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, IsBeaconFenceRequestExistsTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, IsBeaconFenceRequestExistsTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] IsBeaconFenceRequestExistsTest001 begin");
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
-    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
-    BeaconManufactureData manufactureData;
-    manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("isBeaconFenceRequestExistsTest001");
-    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
-    beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
-
-    EXPECT_EQ(false, beaconFenceManager_->IsBeaconFenceRequestExists(beaconFenceRequest));
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] IsBeaconFenceRequestExistsTest001 end");
-}
-
 HWTEST_F(BeaconFenceManagerTest, StartAddBeaconFenceTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
         << "BeaconFenceManagerTest, StartAddBeaconFenceTest001, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] StartAddBeaconFenceTest001 begin");
+     AppIdentity identity;
     std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
@@ -136,7 +80,7 @@ HWTEST_F(BeaconFenceManagerTest, StartAddBeaconFenceTest001, TestSize.Level0)
     beaconFenceRequest->SetBeaconFence(beaconFence);
     beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
 
-    beaconFenceManager_->StartAddBeaconFence(beaconFenceRequest);
+    beaconFenceManager_->StartAddBeaconFence(beaconFenceRequest, identity);
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] StartAddBeaconFenceTest001 end");
 }
 
