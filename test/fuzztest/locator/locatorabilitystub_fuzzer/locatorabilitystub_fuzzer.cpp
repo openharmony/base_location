@@ -1668,7 +1668,7 @@ bool LocatorAbilityStub056FuzzTest(const char* data, size_t size)
     MessageParcel reply;
     MessageOption option;
     auto ability = sptr<LocatorAbility>(new (std::nothrow) LocatorAbility());
-    ability->OnRemoteRequest(static_cast<int>(LocatorInterfaceCode::IS_POI_SERVICE_SUPPORTED),
+    ability->OnRemoteRequest(static_cast<int>(IS_POI_SERVICE_SUPPORTED),
         requestParcel, reply, option);
 
     return true;
