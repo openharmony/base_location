@@ -666,7 +666,7 @@ LocationErrCode GnssAbility::SetCachePositionMode(int reportingPeriodSec, bool w
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     GnssConfigPara para;
-    para.gnssCaching.interval = reportingPeriodSec;
+    para.gnssCaching.interval = reportingPeriodSec <= 0 ? 0 : static_cast<uint32_t>(reportingPeriodSec);
     para.gnssCaching.fifoFullNotify = wakeUpCacheQueueFull;
     int ret = gnssInterface->SetGnssConfigPara(para);
     if (ret != ERRCODE_SUCCESS) {
@@ -1221,29 +1221,14 @@ void GnssAbility::ReportGeofenceOperationResult(
 std::vector<std::shared_ptr<GeofenceRequest>> GnssAbility::ReadGeoFenceRequestFromFile()
 {
     std::vector<std::shared_ptr<GeofenceRequest>> requestList;
-    if (!CommonUtils::IsExistFile(GEOFENCE_REQUEST_FILE_PATH)) {
+    // 读取文件内容
+    std::string fileContent = ReadFileContent();
+    // 验证 JSON 字符串是否有效
+    if (fileContent.empty() || !nlohmann::json::accept(fileContent)) {
         return requestList;
     }
-    std::ifstream fs(GEOFENCE_REQUEST_FILE_PATH);
-    if (!fs.is_open()) {
-        LBSLOGE(GNSS, "fs.is_open false, return");
-        return requestList;
-    }
-    std::string line;
-    std::string content;
-    std::getline(fs, line);
-    while (std::getline(fs, content)) {
-        line += content;
-    }
-    if (line.empty()) {
-        fs.clear();
-        fs.close();
-        return requestList;
-    }
-    auto *geofenceRequestRoot = cJSON_Parse(line.c_str());
+    auto *geofenceRequestRoot = cJSON_Parse(fileContent.c_str());
     if (geofenceRequestRoot == nullptr) {
-        fs.clear();
-        fs.close();
         return requestList;
     }
     cJSON *item = NULL;
@@ -1251,22 +1236,45 @@ std::vector<std::shared_ptr<GeofenceRequest>> GnssAbility::ReadGeoFenceRequestFr
         const char *key = item->string;
         cJSON *value = cJSON_GetObjectItemCaseSensitive(geofenceRequestRoot, key);
         if (!cJSON_IsString(value)) {
-            fs.clear();
-            fs.close();
             cJSON_Delete(geofenceRequestRoot);
             return requestList;
         }
         std::string geofenceRequestStr = item->valuestring;
-        nlohmann::json jsonObj = nlohmann::json::parse(geofenceRequestStr);
+        // 第三个参数 false 表示不抛出异常
+        nlohmann::json jsonObj = nlohmann::json::parse(geofenceRequestStr, nullptr, false);
+        // 检查解析是否成功
+        if (jsonObj.is_discarded()) {
+            cJSON_Delete(geofenceRequestRoot);
+            return requestList;
+        }
         std::shared_ptr<GeofenceRequest> request = GeofenceRequest::FromJson(jsonObj);
         if (request != nullptr) {
             requestList.push_back(request);
         }
     }
     cJSON_Delete(geofenceRequestRoot);
+    return requestList;
+}
+
+std::string GnssAbility::ReadFileContent()
+{
+    if (!CommonUtils::IsExistFile(GEOFENCE_REQUEST_FILE_PATH)) {
+        return "";
+    }
+    std::ifstream fs(GEOFENCE_REQUEST_FILE_PATH);
+    if (!fs.is_open()) {
+        LBSLOGE(GNSS, "fs.is_open false, return");
+        return "";
+    }
+    std::string line;
+    std::string content;
+    std::getline(fs, line);
+    while (std::getline(fs, content)) {
+        line += content;
+    }
     fs.clear();
     fs.close();
-    return requestList;
+    return line;
 }
 
 void GnssAbility::SaveGeoFenceRequestToFile()
