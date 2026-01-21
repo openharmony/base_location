@@ -220,11 +220,19 @@
         },
         {
             "name":"wifi_triband_network_pop_up_title",
-            "value":"Found a NearLink router"
+            "value":"Connect to router by NearLink"
         },
         {
             "name":"wifi_triband_network_notify_text",
-            "value":"Tap to connect by NearLink, optimize network experience"
+            "value":"Optimize network experience"
+        },
+        {
+            "name":"wifi_triband_network_notify_ok_button",
+            "value":"Allow"
+        },
+        {
+            "name":"wifipro_auto_connect_notify_no_button",
+            "value":"Ignore"
         },
         {
             "name":"condition_netshare_hotspot_close",
