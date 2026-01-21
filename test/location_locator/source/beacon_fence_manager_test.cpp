@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "beacon_fence_manager.h"
+#include "beacon_fence_manager_test.h"
 
 #include "constant_definition.h"
 
