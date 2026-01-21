@@ -212,14 +212,28 @@
         },
         {
             "name":"wifi_triband_network_pop_up_title",
-            "value":"发现星闪路由",
+            "value":"通过星闪连接路由",
             "attr":{
                 "priority":"translate"
             }
         },
         {
             "name":"wifi_triband_network_notify_text",
-            "value":"点击通过星闪连接路由，优化网络体验",
+            "value":"优化网络体验",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_notify_ok_button",
+            "value":"立即连接",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_notify_no_button",
+            "value":"不再提醒",
             "attr":{
                 "priority":"translate"
             }
