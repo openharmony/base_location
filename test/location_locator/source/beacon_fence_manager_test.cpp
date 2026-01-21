@@ -98,7 +98,7 @@ HWTEST_F(BeaconFenceManagerTest, RegisterBeaconFenceCallbackTest002, TestSize.Le
     beaconFence->SetBeaconManufactureData(manufactureData);
     beaconFenceRequest->SetBeaconFence(beaconFence);
     beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
-    sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi()
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi();
     beaconFenceRequest->SetBeaconFenceTransitionCallback(callbackHost->AsObject());
     beaconFenceManager_->RegisterBeaconFenceCallback(beaconFenceRequest, identity);
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RegisterBeaconFenceCallbackTest002 end");
