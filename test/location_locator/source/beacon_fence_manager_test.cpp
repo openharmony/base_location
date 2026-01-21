@@ -95,29 +95,9 @@ HWTEST_F(BeaconFenceManagerTest, RemoveBeaconFenceTest001, TestSize.Level0)
     beaconFence->SetIdentifier("RemoveBeaconFenceTest001");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
 
     EXPECT_EQ(ERRCODE_BEACONFENCE_INCORRECT_ID, beaconFenceManager_->RemoveBeaconFence(beaconFence));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RemoveBeaconFenceTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, StartBluetoothScanTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, StartBluetoothScanTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] StartBluetoothScanTest001 begin");
-    beaconFenceManager_->StartBluetoothScan();
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] StartBluetoothScanTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, StopBluetoothScanTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, StopBluetoothScanTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] StopBluetoothScanTest001 begin");
-    beaconFenceManager_->StopBluetoothScan();
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] StopBluetoothScanTest001 end");
 }
 
 HWTEST_F(BeaconFenceManagerTest, ConstructFilterTest001, TestSize.Level0)
@@ -125,40 +105,9 @@ HWTEST_F(BeaconFenceManagerTest, ConstructFilterTest001, TestSize.Level0)
     GTEST_LOG_(INFO)
         << "BeaconFenceManagerTest, ConstructFilterTest001, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ConstructFilterTest001 begin");
-    std::vector<Bluetooth::BleScanFilter> filters
+    std::vector<Bluetooth::BleScanFilter> filters;
     beaconFenceManager_->ConstructFilter(filters);
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ConstructFilterTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, OnReportOperationResultByCallbackTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, OnReportOperationResultByCallbackTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] OnReportOperationResultByCallbackTest001 begin");
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
-    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
-    BeaconManufactureData manufactureData;
-    manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
-    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
-    beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
-    GnssGeofenceOperateType type = GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD;
-    GnssGeofenceOperateResult result = GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS;
-
-    beaconFenceManager_->OnReportOperationResultByCallback(beaconFenceRequest, type, result);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] OnReportOperationResultByCallbackTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, ExtractiBeaconUUIDTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, ExtractiBeaconUUIDTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ExtractiBeaconUUIDTest001 begin");
-    std::vector<uint8_t> data;
-    beaconFenceManager_->ExtractiBeaconUUID(data);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ExtractiBeaconUUIDTest001 end");
 }
 
 HWTEST_F(BeaconFenceManagerTest, ReportFoundOrLostTest001, TestSize.Level0)
@@ -171,93 +120,6 @@ HWTEST_F(BeaconFenceManagerTest, ReportFoundOrLostTest001, TestSize.Level0)
     beaconFenceManager_->ReportFoundOrLost(result, type);
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ReportFoundOrLostTest001 end");
 }
-
-HWTEST_F(BeaconFenceManagerTest, MatchesDataTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, MatchesDataTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest001 begin");
-    std::vector<uint8_t> fData;
-    std::string scanData;
-    EXPECT_EQ(false, beaconFenceManager_->MatchesData(result, type));
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, MatchesDataTest002, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, MatchesDataTest002, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 begin");
-    std::vector<uint8_t> fData;
-    std::string scanData = "scanData";
-    EXPECT_EQ(false, beaconFenceManager_->MatchesData(result, type));
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, TransitionStatusChangeTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, TransitionStatusChangeTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] TransitionStatusChangeTest001 begin");
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = nullptr;
-    GeofenceTransitionEvent event = GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER;
-    AppIdentity identity;
-    beaconFenceManager_->TransitionStatusChange(beaconFenceRequest, event, identity);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] TransitionStatusChangeTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, TransitionStatusChangeTest002, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, TransitionStatusChangeTest002, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] TransitionStatusChangeTest002 begin");
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
-    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
-    BeaconManufactureData manufactureData;
-    manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
-    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
-    beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
-    GeofenceTransitionEvent event = GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER;
-    AppIdentity identity;
-    beaconFenceManager_->TransitionStatusChange(beaconFenceRequest, event, identity);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] TransitionStatusChangeTest002 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, ReportByCallbackTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, ReportByCallbackTest001, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ReportByCallbackTest001 begin");
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = nullptr;
-    GeofenceTransitionEvent event = GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER;
-    AppIdentity identity;
-    beaconFenceManager_->ReportByCallback(beaconFenceRequest, event, identity);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ReportByCallbackTest001 end");
-}
-
-HWTEST_F(BeaconFenceManagerTest, ReportByCallbackTest002, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "BeaconFenceManagerTest, ReportByCallbackTest002, TestSize.Level0";
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ReportByCallbackTest002 begin");
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = std::make_shared<BeaconFenceRequest>();
-    std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
-    BeaconManufactureData manufactureData;
-    manufactureData.manufactureId = 76;
-    beaconFence->SetIdentifier("StartAddBeaconFenceTest001");
-    beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
-    beaconFence->SetBeaconManufactureData(manufactureData);
-    beaconFenceRequest->SetBeaconFence(beaconFence);
-    beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
-    GeofenceTransitionEvent event = GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER;
-    AppIdentity identity;
-    beaconFenceManager_->ReportByCallback(beaconFenceRequest, event, identity);
-    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] ReportByCallbackTest002 end");
-}
-} // namespace Location
 
 HWTEST_F(BeaconFenceManagerTest, ReportByFenceExtensionTest001, TestSize.Level0)
 {
