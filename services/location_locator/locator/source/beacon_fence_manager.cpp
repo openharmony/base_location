@@ -109,7 +109,7 @@ void BeaconFenceManager::RegisterBeaconFenceCallback(std::shared_ptr<BeaconFence
         beaconFenceRequestMap_.size());
 }
 
-bool BeaconFenceManager::isBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
+bool BeaconFenceManager::IsBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
 {
     for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
         auto request = iter->first;
