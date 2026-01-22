@@ -118,6 +118,7 @@ HWTEST_F(BeaconFenceManagerTest, IsBeaconFenceRequestExistsTest001, TestSize.Lev
     beaconFence->SetBeaconManufactureData(manufactureData);
     beaconFenceRequest->SetBeaconFence(beaconFence);
     beaconFenceRequest->SetFenceExtensionAbilityName("ExtensionAbility");
+    beaconFenceRequest->SetServiceUuid("121");
 
     EXPECT_EQ(false, beaconFenceManager_->IsBeaconFenceRequestExists(beaconFenceRequest));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] IsBeaconFenceRequestExistsTest001 end");
@@ -246,6 +247,7 @@ HWTEST_F(BeaconFenceManagerTest, MatchesDataTest002, TestSize.Level0)
         << "BeaconFenceManagerTest, MatchesDataTest002, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 begin");
     std::vector<uint8_t> fData;
+    fData.push_back(8);
     std::string scanData = "scanData";
     EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, scanData));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 end");
@@ -400,7 +402,7 @@ HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByServiceUuidTest001, Test
     GTEST_LOG_(INFO)
         << "BeaconFenceManagerTest, GetBeaconFenceRequestByServiceUuidTest001, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByServiceUuidTest001 begin");
-    std::string serviceUuid = "";
+    std::string serviceUuid = "405";
     EXPECT_EQ(nullptr, beaconFenceManager_->GetBeaconFenceRequestByServiceUuid(serviceUuid));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByServiceUuidTest001 end");
 }
@@ -410,8 +412,8 @@ HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByCallbackTest001, TestSiz
     GTEST_LOG_(INFO)
         << "BeaconFenceManagerTest, GetBeaconFenceRequestByCallbackTest001, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByCallbackTest001 begin");
-    sptr<IRemoteObject> callbackObj;
-    EXPECT_EQ(nullptr, beaconFenceManager_->GetBeaconFenceRequestByCallback(callbackObj));
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi();
+    EXPECT_EQ(nullptr, beaconFenceManager_->GetBeaconFenceRequestByCallback(callbackHost->AsObject()));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByCallbackTest001 end");
 }
 
@@ -420,7 +422,7 @@ HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByPackageNameTest001, Test
     GTEST_LOG_(INFO)
         << "BeaconFenceManagerTest, GetBeaconFenceRequestByPackageNameTest001, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByPackageNameTest001 begin");
-    std::string packageName;
+    std::string packageName = "GetBeaconFenceRequestByPackageNameTest001";
     EXPECT_EQ(nullptr, beaconFenceManager_->GetBeaconFenceRequestByPackageName(packageName));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByPackageNameTest001 end");
 }
