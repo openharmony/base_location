@@ -41,6 +41,7 @@ group("fuzztest") {
     "locator/nmeamessagecallbackhost_fuzzer:NmeaMessageCallbackHostFuzzTest",
     "locator/passiveability_fuzzer:PassiveAbilityFuzzTest",
     "locator/passiveabilityproxy_fuzzer:PassiveAbilityProxyFuzzTest",
+    "locator/poiinfomanager_fuzzer:PoiInfoManagerFuzzTest",
     "locator/reportmanager_fuzzer:ReportManagerFuzzTest",
     "locator/requestmanager_fuzzer:RequestManagerFuzzTest",
   ]
