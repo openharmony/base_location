@@ -283,8 +283,8 @@ private:
     bool IsSupportGps();
     bool IsSupportGeofence();
     bool IsSupportBatching();
-    int64_t getReportingPeriodSecParam();
-    bool getWakeUpCacheQueueFullParam();
+    int64_t GetReportingPeriodSecParam();
+    bool GetWakeUpCacheQueueFullParam();
 
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     bool ConnectAgnssHdi();
