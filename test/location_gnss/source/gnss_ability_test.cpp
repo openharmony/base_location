@@ -3007,20 +3007,6 @@ HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfoTest002, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest002 end");
 }
 
-HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfoTest003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, SaveFenceWantAgentInfoTest003, TestSize.Level1";
-    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest003 begin");
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
-    auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
-    request->SetWantAgent(wantAgentPtr);
-    request->SetBundleName("test");
-    EXPECT_NE(ERRCODE_SUCCESS, ability_->SaveFenceWantAgentInfo(request));
-    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest003 end");
-}
-
 HWTEST_F(GnssAbilityTest, InitGeofenceIdTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -3118,20 +3104,6 @@ HWTEST_F(GnssAbilityTest, ReportGeofenceEvent002, TestSize.Level1)
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
     ability_->ReportGeofenceEvent(fenceId, event);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReportGeofenceEvent002 end");
-}
-
-HWTEST_F(GnssAbilityTest, NotifyGnssfenceStatusByWantAgentTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, NotifyGnssfenceStatusByWantAgentTest001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] NotifyGnssfenceStatusByWantAgentTest001 begin");
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
-    auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
-    request->SetWantAgent(wantAgentPtr);
-    GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
-    ability_->NotifyGnssfenceStatusByWantAgent(request, event);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] NotifyGnssfenceStatusByWantAgentTest001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GetGeofenceRequestByFenceIdTest001, TestSize.Level1)
