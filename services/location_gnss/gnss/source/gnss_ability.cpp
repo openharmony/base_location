@@ -420,8 +420,8 @@ LocationErrCode GnssAbility::RegisterCachedCallback(const std::unique_ptr<Cached
     }
     StopGnssBatching();
     StopGnss();
-    int64_t batchIntervalMs = std::max(getReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
-    StartGnssBatching(batchIntervalMs, getWakeUpCacheQueueFullParam());
+    int64_t batchIntervalMs = std::max(GetReportingPeriodSecParam(), MIN_BATCH_LENGTH_MS);
+    StartGnssBatching(batchIntervalMs, GetWakeUpCacheQueueFullParam());
     LBSLOGD(GNSS, "request:%{public}d ,%{public}d",
         request->reportingPeriodSec, request->wakeUpCacheQueueFull ? 1 : 0);
     return ERRCODE_SUCCESS;
@@ -1692,7 +1692,7 @@ void GnssAbility::StopGnss()
     }
 }
 
-int64_t GnssAbility::getReportingPeriodSecParam()
+int64_t GnssAbility::GetReportingPeriodSecParam()
 {
     int reportingPeriodSec = 1000;
     std::unique_lock<ffrt::mutex> lock(batchingMutex_);
@@ -1704,7 +1704,7 @@ int64_t GnssAbility::getReportingPeriodSecParam()
     return reportingPeriodSec;
 }
 
-bool GnssAbility::getWakeUpCacheQueueFullParam()
+bool GnssAbility::GetWakeUpCacheQueueFullParam()
 {
     std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
