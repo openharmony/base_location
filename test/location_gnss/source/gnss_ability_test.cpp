@@ -3013,7 +3013,7 @@ HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfoTest003, TestSize.Level1)
         << "GnssAbilityTest, SaveFenceWantAgentInfoTest003, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest003 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    AbilityRuntime::WantAgent::WantAgent *wantAgent;
+    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
     auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
     request->SetWantAgent(wantAgentPtr);
     request->SetBundleName("test");
@@ -3126,7 +3126,7 @@ HWTEST_F(GnssAbilityTest, NotifyGnssfenceStatusByWantAgentTest001, TestSize.Leve
         << "GnssAbilityTest, NotifyGnssfenceStatusByWantAgentTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] NotifyGnssfenceStatusByWantAgentTest001 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    AbilityRuntime::WantAgent::WantAgent *wantAgent;
+    AbilityRuntime::WantAgent::WantAgent *wantAgent = nullptr;
     auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
     request->SetWantAgent(wantAgentPtr);
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
