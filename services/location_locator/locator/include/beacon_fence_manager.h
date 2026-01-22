@@ -87,7 +87,7 @@ private:
     std::vector<BeaconManufactureData> GetBeaconManufactureDataForFilter();
     void OnReportOperationResultByCallback(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
         GnssGeofenceOperateType type, GnssGeofenceOperateResult result);
-    bool isBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
+    bool IsBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
     void RegisterBeaconFenceCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
         const AppIdentity& appIdentity);
     AppIdentity GetAppIdentityByBeaconFenceRequest(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);

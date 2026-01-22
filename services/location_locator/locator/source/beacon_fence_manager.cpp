@@ -66,6 +66,9 @@ int32_t BeaconFenceManager::GenerateBeaconFenceId()
 ErrCode BeaconFenceManager::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
     const AppIdentity& identity)
 {
+    if (beaconFenceRequest == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
     int beaconFenceId = GenerateBeaconFenceId();
     beaconFenceRequest->SetFenceId(std::to_string(beaconFenceId));
 
@@ -83,7 +86,7 @@ ErrCode BeaconFenceManager::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& 
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, beaconfence request is exceed max number!", __func__);
         return ERRCODE_BEACONFENCE_EXCEED_MAXIMUM;
     }
-    if (isBeaconFenceRequestExists(beaconFenceRequest)) {
+    if (IsBeaconFenceRequestExists(beaconFenceRequest)) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, Request is exists!", __func__);
         return ERRCODE_BEACONFENCE_DUPLICATE_INFORMATION;
     }
@@ -106,7 +109,7 @@ void BeaconFenceManager::RegisterBeaconFenceCallback(std::shared_ptr<BeaconFence
         beaconFenceRequestMap_.size());
 }
 
-bool BeaconFenceManager::isBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
+bool BeaconFenceManager::IsBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
 {
     for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
         auto request = iter->first;
@@ -298,6 +301,9 @@ bool BeaconFenceManager::MatchesData(std::vector<uint8_t> fData, std::string sca
 void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceRequest> beaconFenceRequest,
     GeofenceTransitionEvent event, const AppIdentity &identity)
 {
+    if (beaconFenceRequest == nullptr) {
+        return;
+    }
     // 判断开关状态
     int state = DEFAULT_SWITCH_STATE;
     state = LocationDataRdbManager::QuerySwitchStateWithUid(identity.GetUid());
@@ -385,6 +391,9 @@ AppIdentity BeaconFenceManager::GetAppIdentityByBeaconFenceRequest(
 {
     std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     AppIdentity appIdentity;
+    if (beaconFenceRequest == nullptr) {
+        return appIdentity;
+    }
     for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
         auto request = iter->first;
         if (beaconFenceRequest->GetServiceUuid() == request->GetServiceUuid()) {
@@ -494,6 +503,9 @@ bool BeaconFenceManager::CompareUUID(const std::string& uuid1, const std::string
 bool BeaconFenceManager::CompareBeaconFence(
     std::shared_ptr<BeaconFence> beaconFence1, std::shared_ptr<BeaconFence> beaconFence2)
 {
+    if (beaconFence1 == nullptr || beaconFence2 == nullptr) {
+        return false;
+    }
     if (beaconFence1->GetIdentifier().compare(beaconFence2->GetIdentifier()) != 0) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, compare Identifier fail", __func__);
         return false;
