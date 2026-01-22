@@ -3013,6 +3013,7 @@ HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfoTest003, TestSize.Level1)
         << "GnssAbilityTest, SaveFenceWantAgentInfoTest003, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest003 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    AbilityRuntime::WantAgent::WantAgent *wantAgent;
     auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
     request->SetWantAgent(wantAgentPtr);
     request->SetBundleName("test");
@@ -3085,7 +3086,8 @@ HWTEST_F(GnssAbilityTest, CheckBundleNameInGnssGeofenceRequestMapTest002, TestSi
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, CheckBundleNameInGnssGeofenceRequestMapTest002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] CheckBundleNameInGnssGeofenceRequestMapTest002 begin");
-    ability_->ReportGeofenceOperationResult(333, GeofenceOperateType::TYPE_DELETE, GeofenceOperateResult::GEOFENCE_OPERATION_SUCCESS);
+    ability_->ReportGeofenceOperationResult(333, GeofenceOperateType::TYPE_DELETE,
+        GeofenceOperateResult::GEOFENCE_OPERATION_SUCCESS);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] CheckBundleNameInGnssGeofenceRequestMapTest002 end");
 }
 
