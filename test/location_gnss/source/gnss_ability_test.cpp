@@ -46,9 +46,6 @@
 
 #include "gnss_interface_test.h"
 #include "location_gnss_geofence_callback_napi.h"
-#include "notification_request.h"
-#include "notification.h"
-#include "notification_napi.h"
 
 using namespace testing;
 using namespace testing::ext;
@@ -3132,25 +3129,6 @@ HWTEST_F(GnssAbilityTest, NotifyGnssfenceStatusByWantAgentTest001, TestSize.Leve
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
     ability_->NotifyGnssfenceStatusByWantAgent(request, event);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] NotifyGnssfenceStatusByWantAgentTest001 end");
-}
-
-HWTEST_F(GnssAbilityTest, NotifyGnssfenceStatusByNotificationTest001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "GnssAbilityTest, NotifyGnssfenceStatusByNotificationTest001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] NotifyGnssfenceStatusByNotificationTest001 begin");
-    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    std::vector<GeofenceTransitionEvent> statusList;
-    statusList.push_back(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER);
-    request->SetGeofenceTransitionEventList(statusList);
-    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> requestList;
-    std::shared_ptr<OHOS::Notification::NotificationRequest> notificationRequest =
-            std::make_shared<OHOS::Notification::NotificationRequest>();
-    requestList.push_back(notificationRequest);
-    request->SetNotificationRequestList(requestList);
-    GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
-    ability_->NotifyGnssfenceStatusByNotification(request, event);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] NotifyGnssfenceStatusByNotificationTest001 end");
 }
 
 HWTEST_F(GnssAbilityTest, GetGeofenceRequestByFenceIdTest001, TestSize.Level1)
