@@ -2973,7 +2973,7 @@ HWTEST_F(GnssAbilityTest, SetCachePositionModeTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, SetCachePositionModeTest001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SetCachePositionModeTest001 begin");
-    EXPECT_NE(ERRCODE_SUCCESS, proxy_->SetCachePositionMode(1000, true));
+    EXPECT_NE(ERRCODE_SUCCESS, ability_->SetCachePositionMode(1000, true));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SetCachePositionModeTest001 end");
 }
 
@@ -2982,7 +2982,7 @@ HWTEST_F(GnssAbilityTest, RestoreGeofenceRequestTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, RestoreGeofenceRequestTest001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RestoreGeofenceRequestTest001 begin");
-    proxy_->RestoreGeofenceRequest();
+    ability_->RestoreGeofenceRequest();
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] RestoreGeofenceRequestTest001 end");
 }
 
@@ -2992,7 +2992,7 @@ HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfoTest001, TestSize.Level1)
         << "GnssAbilityTest, SaveFenceWantAgentInfoTest001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest001 begin");
     std::shared_ptr<GeofenceRequest> request = nullptr;
-    EXPECT_NE(ERRCODE_SUCCESS, proxy_->SaveFenceWantAgentInfo(request));
+    EXPECT_NE(ERRCODE_SUCCESS, ability_->SaveFenceWantAgentInfo(request));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest001 end");
 }
 
@@ -3003,7 +3003,7 @@ HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfoTest002, TestSize.Level1)
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest002 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     request->SetBundleName("test");
-    EXPECT_NE(ERRCODE_SUCCESS, proxy_->SaveFenceWantAgentInfo(request));
+    EXPECT_NE(ERRCODE_SUCCESS, ability_->SaveFenceWantAgentInfo(request));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest002 end");
 }
 
@@ -3016,7 +3016,7 @@ HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfoTest003, TestSize.Level1)
     auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
     request->SetWantAgent(wantAgentPtr);
     request->SetBundleName("test");
-    EXPECT_NE(ERRCODE_SUCCESS, proxy_->SaveFenceWantAgentInfo(request));
+    EXPECT_NE(ERRCODE_SUCCESS, ability_->SaveFenceWantAgentInfo(request));
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfoTest003 end");
 }
 
@@ -3025,22 +3025,22 @@ HWTEST_F(GnssAbilityTest, InitGeofenceIdTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, InitGeofenceIdTest001, TestSize.Level1";
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] InitGeofenceIdTest001 begin");
-    proxy_->InitGeofenceId(2);
+    ability_->InitGeofenceId(2);
     LBSLOGI(GNSS_TEST, "[GnssAbilityTest] InitGeofenceIdTest001 end");
 }
 
-HWTEST_F(GnssAbilityTest, RegisterGnssGeofenceCallback002, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, RegisterGnssGeofenceCallback003, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityTest, RegisterGnssGeofenceCallback002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] RegisterGnssGeofenceCallback002 begin");
+        << "GnssAbilityTest, RegisterGnssGeofenceCallback003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RegisterGnssGeofenceCallback003 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
-    request.SetFenceId(333);
-    request.SetBundleName("GnssAbilityTest");
+    request->SetFenceId(333);
+    request->SetBundleName("GnssAbilityTest");
     sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi();
     bool result = ability_->RegisterGnssGeofenceCallback(request, callbackHost->AsObject());
     EXPECT_EQ(true, result);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] RegisterGnssGeofenceCallback002 end");
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] RegisterGnssGeofenceCallback003 end");
 }
 
 HWTEST_F(GnssAbilityTest, UnregisterGnssGeofenceCallback002, TestSize.Level1)
@@ -3061,7 +3061,7 @@ HWTEST_F(GnssAbilityTest, ReportFailedOperationResultTest001, TestSize.Level1)
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     GnssGeofenceOperateType type = GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD;
     LocationErrCode code = LocationErrCode::ERRCODE_SUCCESS;
-    ability_->RegisterGnssGeofenceCallback(request, type, code);
+    ability_->ReportFailedOperationResult(request, type, code);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReportFailedOperationResultTest001 end");
 }
 
@@ -3074,7 +3074,7 @@ HWTEST_F(GnssAbilityTest, CheckBundleNameInGnssGeofenceRequestMapTest001, TestSi
     sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi();
     request->SetGeofenceTransitionCallback(callbackHost->AsObject());
     request->SetFenceId(333);
-    request.SetBundleName("GnssAbilityTest");
+    request->SetBundleName("GnssAbilityTest");
     bool result = ability_->CheckBundleNameInGnssGeofenceRequestMap(request);
     EXPECT_EQ(true, result);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] CheckBundleNameInGnssGeofenceRequestMapTest001 end");
@@ -3124,6 +3124,7 @@ HWTEST_F(GnssAbilityTest, NotifyGnssfenceStatusByWantAgentTest001, TestSize.Leve
         << "GnssAbilityTest, NotifyGnssfenceStatusByWantAgentTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] NotifyGnssfenceStatusByWantAgentTest001 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    AbilityRuntime::WantAgent::WantAgent *wantAgent;
     auto wantAgentPtr = std::make_shared<AbilityRuntime::WantAgent::WantAgent>(*wantAgent);
     request->SetWantAgent(wantAgentPtr);
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
@@ -3136,7 +3137,7 @@ HWTEST_F(GnssAbilityTest, GetGeofenceRequestByFenceIdTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, GetGeofenceRequestByFenceIdTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetGeofenceRequestByFenceIdTest001 begin");
-    EXPECT_NQ(nullptr, ability_->GetGeofenceRequestByFenceId(333));
+    EXPECT_NE(nullptr, ability_->GetGeofenceRequestByFenceId(333));
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetGeofenceRequestByFenceIdTest001 end");
 }
 
