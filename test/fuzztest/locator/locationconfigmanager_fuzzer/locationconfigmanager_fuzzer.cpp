@@ -18,7 +18,7 @@
 
 namespace OHOS {
     using namespace OHOS::Location;
-    const int MIN_DATA_LEN = 5;
+    const int MIN_DATA_LEN = 7;
     bool LocationConfigManagerFuzzerTest(const uint8_t* data, size_t size)
     {
         if (size < MIN_DATA_LEN) {
@@ -28,9 +28,11 @@ namespace OHOS {
         LocationConfigManager::GetInstance()->Init();
         LocationConfigManager::GetInstance()->GetLocationSwitchState();
         LocationConfigManager::GetInstance()->SetLocationSwitchState(data[index++]);
-        std::string fileName((const char*) data, size);
+        std::string fileName(reinterpret_cast<const char*>(data + index), size - index);
+        index++;
         LocationConfigManager::GetInstance()->IsExistFile(fileName);
-        std::string fileData((const char*) data, size);
+        std::string fileData(reinterpret_cast<const char*>(data + index), size - index);
+        index++;
         LocationConfigManager::GetInstance()->CreateFile(fileName, fileData);
         LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(data[index++]);
         bool isConfirmed = false;
