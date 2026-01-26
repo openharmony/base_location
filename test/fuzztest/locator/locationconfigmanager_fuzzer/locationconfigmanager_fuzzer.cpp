@@ -28,10 +28,10 @@ namespace OHOS {
         LocationConfigManager::GetInstance()->Init();
         LocationConfigManager::GetInstance()->GetLocationSwitchState();
         LocationConfigManager::GetInstance()->SetLocationSwitchState(data[index++]);
-        std::string fileName(reinterpret_cast<const char*>(data + index), size);
+        std::string fileName(reinterpret_cast<const char*>(data + index), size - index);
         index++;
         LocationConfigManager::GetInstance()->IsExistFile(fileName);
-        std::string fileData(reinterpret_cast<const char*>(data + index), size);
+        std::string fileData(reinterpret_cast<const char*>(data + index), size - index);
         index++;
         LocationConfigManager::GetInstance()->CreateFile(fileName, fileData);
         LocationConfigManager::GetInstance()->GetPrivacyTypeConfigPath(data[index++]);
