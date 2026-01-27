@@ -497,7 +497,7 @@ HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest001, TestSize.Level1)
         << "LocationCommonTest, LocatorEventSubscriberTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest001 begin");
     OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_LOCATION_MODE_STATE_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     auto locatorEventSubscriber = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
     Want want;
@@ -515,7 +515,7 @@ HWTEST_F(LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1)
         << "LocationCommonTest, LocatorEventSubscriberTest002, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocatorEventSubscriberTest002 begin");
     OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_LOCATION_MODE_STATE_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     auto locatorEventSubscriber = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
     Want want;
