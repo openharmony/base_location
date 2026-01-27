@@ -67,7 +67,7 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         }
     } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_CUSTOM_CONFIG_POLICY_UPDATED.compare(action) == 0) {
         HookUtils::ExecuteHookWhenCustConfigPolicyChange();
-    } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_PACkAGE_REMOVED.compare(action) == 0) {
+    } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED.compare(action) == 0) {
         std::string packageName = event.GetWant().GetStringParam(AppExecFwk::Constants::BUNDLE_NAME);
         BeaconFenceManager::GetInstance()->RemoveBeaconFenceByPackageName(packageName);
     }
