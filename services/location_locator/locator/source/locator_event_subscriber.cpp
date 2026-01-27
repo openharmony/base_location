@@ -65,7 +65,7 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         if (stateCode == static_cast<int>(SIM_STATE_READY)) {
             HookUtils::ExecuteHookWhenSimStateChange(action);
         }
-    } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_CUSTOM_CONFIG_POLICY_UPDATE.compare(action) == 0) {
+    } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_CUSTOM_CONFIG_POLICY_UPDATED.compare(action) == 0) {
         HookUtils::ExecuteHookWhenCustConfigPolicyChange();
     } else if (std::string(PACKAGE_REMOVED_EVENT).compare(action) == 0) {
         std::string packageName = event.GetWant().GetStringParam(AppExecFwk::Constants::BUNDLE_NAME);
