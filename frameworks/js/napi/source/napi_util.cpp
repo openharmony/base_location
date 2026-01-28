@@ -1234,6 +1234,7 @@ void MemoryReclamation(const napi_env& env, AsyncContext* context)
     }
     NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
     delete context;
+    context = nullptr;
 }
 
 static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContext)
