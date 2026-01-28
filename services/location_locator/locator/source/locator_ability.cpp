@@ -1588,11 +1588,11 @@ void LocatorAbility::RegisterAction()
         return;
     }
     OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_LOCATION_MODE_STATE_CHANGED);
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_DEVICE_IDLE_MODE_CHANGED);
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED);
-    matchingSkills.AddEvent(LOCATION_CUST_CONFIG_POLICY_CHANGE);
-    matchingSkills.AddEvent(PACKAGE_REMOVED_EVENT);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_CUSTOM_CONFIG_POLICY_UPDATED);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
 

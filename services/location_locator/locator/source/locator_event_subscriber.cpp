@@ -45,7 +45,7 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         return;
     }
     auto locatorAbility = LocatorAbility::GetInstance();
-    if (std::string(MODE_CHANGED_EVENT).compare(action) == 0) {
+    if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_LOCATION_MODE_STATE_CHANGED.compare(action) == 0) {
         locatorAbility->UpdateSaAbility();
     } else if (std::string(LOCATION_PRIVACY_ACCEPT_EVENT).compare(action) == 0) {
         std::string data = event.GetData();
@@ -65,9 +65,9 @@ void LocatorEventSubscriber::OnReceiveEvent(const OHOS::EventFwk::CommonEventDat
         if (stateCode == static_cast<int>(SIM_STATE_READY)) {
             HookUtils::ExecuteHookWhenSimStateChange(action);
         }
-    } else if (std::string(LOCATION_CUST_CONFIG_POLICY_CHANGE).compare(action) == 0) {
+    } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_CUSTOM_CONFIG_POLICY_UPDATED.compare(action) == 0) {
         HookUtils::ExecuteHookWhenCustConfigPolicyChange();
-    } else if (std::string(PACKAGE_REMOVED_EVENT).compare(action) == 0) {
+    } else if (OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_PACKAGE_REMOVED.compare(action) == 0) {
         std::string packageName = event.GetWant().GetStringParam(AppExecFwk::Constants::BUNDLE_NAME);
         BeaconFenceManager::GetInstance()->RemoveBeaconFenceByPackageName(packageName);
     }

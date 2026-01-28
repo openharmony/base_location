@@ -723,7 +723,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceOnRemoveSystemAbility001, TestSize.Le
     locatorAbility->OnRemoveSystemAbility(COMMON_EVENT_SERVICE_ID, "device-id");
 
     OHOS::EventFwk::MatchingSkills matchingSkills;
-    matchingSkills.AddEvent(MODE_CHANGED_EVENT);
+    matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_LOCATION_MODE_STATE_CHANGED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     locatorAbility->locatorEventSubscriber_ = std::make_shared<LocatorEventSubscriber>(subscriberInfo);
     locatorAbility->OnRemoveSystemAbility(COMMON_EVENT_SERVICE_ID, "device-id");
