@@ -36,6 +36,9 @@ void SwitchCallbackProxy::OnSwitchChange(const int state)
     }
     data.WriteInt32(state);
     MessageOption option = { MessageOption::TF_ASYNC };
+    if (Remote() == nullptr) {
+        return;
+    }
     int error = Remote()->SendRequest(RECEIVE_SWITCH_STATE_EVENT, data, reply, option);
     if (error != ERR_OK) {
         LBSLOGI(SWITCH_CALLBACK, "SwitchCallbackProxy::OnSwitchChange Transact ErrCode = %{public}d", error);
