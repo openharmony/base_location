@@ -150,6 +150,7 @@ int HookUtils::ExecuteHookReportManagerGetCacheLocation(std::string packageName,
     locatorRequestStruct.bundleName = packageName;
     locatorRequestStruct.nlpRequestType = nlpRequestType;
     locatorRequestStruct.result = false;
+    locatorRequestStruct.cacheTime = 0;
     ExecuteHook(
         LocationProcessStage::REPORT_MANAGER_GET_CACHE_LOCATION_PROCESS, (void *)&locatorRequestStruct, nullptr);
     return locatorRequestStruct.cacheTime;
