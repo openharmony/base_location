@@ -155,7 +155,8 @@ HWTEST_F(GeofenceRequestTest, ConvertGeoFenceInfoTest001, TestSize.Level0)
     jsonObject["radius "] = 1000;
     jsonObject["expiration "] = 1000;
     jsonObject["coordinateSystemType "] = 1;
-    gnssGeofenceRequest->ConvertGeoFenceInfo(jsonObject);
+    Geofence geofence;
+    gnssGeofenceRequest->ConvertGeoFenceInfo(jsonObject, geofence);
     LBSLOGI(GEOFENCE_REQUEST_TEST, "[GeofenceRequestTest] ConvertGeoFenceInfoTest001 end");
 }
 
