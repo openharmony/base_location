@@ -26,6 +26,7 @@
 #include "nativetoken_kit.h"
 #include "system_ability_definition.h"
 #include "token_setproc.h"
+#include "poi_info_callback_napi.h"
 
 #include "app_identity.h"
 #ifdef FEATURE_GNSS_SUPPORT
@@ -1020,6 +1021,28 @@ HWTEST_F(LocatorServiceTest, GetActiveGeoFences, TestSize.Level1)
     auto result = locatorAbility->GetActiveGeoFences(geofenceMap);
     EXPECT_EQ(0, geofenceMap.size());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetActiveGeoFences end");
+}
+
+HWTEST_F(LocatorServiceTest, IsPoiServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsPoiServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPoiServiceSupported begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    bool poiSupportState = false;
+    auto result = locatorAbility->IsPoiServiceSupported(poiSupportState);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPoiServiceSupported end");
+}
+
+HWTEST_F(LocatorServiceTest, GetPoiInfo, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetPoiInfo, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetPoiInfo begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    sptr<IPoiInfoCallback> callback = sptr<IPoiInfoCallback>(new PoiInfoCallbackNapi());
+    auto result = locatorAbility->GetPoiInfo(callback->AsObject());
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetPoiInfo end");
 }
 }  // namespace Location
 }  // namespace OHOS
