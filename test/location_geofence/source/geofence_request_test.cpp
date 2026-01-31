@@ -14,7 +14,6 @@
  */
 
 #include "geofence_request_test.h"
-#include "geofence_request.cpp"
 #include "location_log.h"
 
 using namespace testing::ext;
