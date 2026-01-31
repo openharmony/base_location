@@ -1234,7 +1234,6 @@ void MemoryReclamation(const napi_env& env, AsyncContext* context)
     if (context->callback[COMPLETE_CALLBACK] != nullptr) {
         napi_status status = napi_delete_reference(env, context->callback[COMPLETE_CALLBACK]);
         LBSLOGE(LOCATOR_STANDARD, "napi_delete_reference for fail complete status: %{public}d", status);
-
     }
     napi_status deleteWorkStatus = napi_delete_async_work(env, context->work);
     if (deleteWorkStatus != napi_ok) {
