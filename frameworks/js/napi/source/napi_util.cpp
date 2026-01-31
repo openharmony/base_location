@@ -1224,15 +1224,22 @@ void MemoryReclamation(const napi_env& env, AsyncContext* context)
     }
 
     if (context->callback[SUCCESS_CALLBACK] != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[SUCCESS_CALLBACK]));
+        napi_status status = napi_delete_reference(env, context->callback[SUCCESS_CALLBACK]);
+        LBSLOGE(LOCATOR_STANDARD, "napi_delete_reference for success callback status: %{public}d", status);
     }
     if (context->callback[FAIL_CALLBACK] != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[FAIL_CALLBACK]));
+        napi_status status = napi_delete_reference(env, context->callback[FAIL_CALLBACK]);
+        LBSLOGE(LOCATOR_STANDARD, "napi_delete_reference for fail callback status: %{public}d", status);
     }
     if (context->callback[COMPLETE_CALLBACK] != nullptr) {
-        NAPI_CALL_RETURN_VOID(env, napi_delete_reference(env, context->callback[COMPLETE_CALLBACK]));
+        napi_status status = napi_delete_reference(env, context->callback[COMPLETE_CALLBACK]);
+        LBSLOGE(LOCATOR_STANDARD, "napi_delete_reference for fail complete status: %{public}d", status);
+
     }
-    NAPI_CALL_RETURN_VOID(env, napi_delete_async_work(env, context->work));
+    napi_status deleteWorkStatus = napi_delete_async_work(env, context->work);
+    if (deleteWorkStatus != napi_ok) {
+        LBSLOGE(LOCATOR_STANDARD, "napi_delete_async_work fail status: %{public}d", deleteWorkStatus);
+    }
     delete context;
     context = nullptr;
 }
@@ -1242,7 +1249,7 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
     if (asyncContext == nullptr) {
         return UndefinedNapiValue(env);
     }
-    NAPI_CALL(env, napi_create_async_work(
+    napi_status createWorkStatus = napi_create_async_work(
         env, nullptr, asyncContext->resourceName,
         [](napi_env env, void* data) {
             if (data == nullptr) {
@@ -1262,8 +1269,14 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
             CreateResultObject(env, context);
             SendResultToJs(env, context);
             MemoryReclamation(env, context);
-        }, static_cast<void*>(asyncContext), &asyncContext->work));
-    NAPI_CALL(env, napi_queue_async_work(env, asyncContext->work));
+        }, static_cast<void*>(asyncContext), &asyncContext->work);
+    if (createWorkStatus != napi_ok) {
+        LBSLOGE(LOCATOR_STANDARD, "napi_create_async_work fail status: %{public}d", createWorkStatus);
+    }
+    napi_status queueWorkStatus = napi_queue_async_work(env, asyncContext->work);
+    if (queueWorkStatus != napi_ok) {
+        LBSLOGE(LOCATOR_STANDARD, "napi_queue_async_work fail status: %{public}d", queueWorkStatus);
+    }
     return UndefinedNapiValue(env);
 }
 
