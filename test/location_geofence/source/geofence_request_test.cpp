@@ -195,7 +195,7 @@ HWTEST_F(GeofenceSdkTest, ConvertNotificationInfoTest001, Test001, TestSize.Leve
     std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList;
     std::shared_ptr<OHOS::Notification::NotificationRequest> notificationRequest =
         std::make_shared<OHOS::Notification::NotificationRequest>();
-    nlohmann::json notificationArr = nlohmann::json::array(); 
+    nlohmann::json notificationArr = nlohmann::json::array();
     if (notificationRequest != nullptr) {
         nlohmann::json jsonObj;
         notificationRequest->ToJson(jsonObj);
