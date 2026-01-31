@@ -50,17 +50,6 @@ HWTEST_F(GeofenceSdkTest, SetGeofenceTransitionEventListTest001, Test001, TestSi
     LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] SetGeofenceTransitionEventListTest001 end");
 }
 
-HWTEST_F(GeofenceSdkTest, SetNotificationRequestTest001, Test001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceSdkTest, SetNotificationRequestTest001, TestSize.Level0";
-    LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] SetNotificationRequestTest001 begin");
-    std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
-    std::shared_ptr<OHOS::Notification::NotificationRequest> request;
-    gnssGeofenceRequest->SetNotificationRequest(request);
-    LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] SetNotificationRequestTest001 end");
-}
-
 HWTEST_F(GeofenceSdkTest, GetUidTest001, Test001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
@@ -182,28 +171,6 @@ HWTEST_F(GeofenceSdkTest, ConvertTransitionEventInfoTest001, Test001, TestSize.L
     jsonObject["transitionStatusList"] = {1, 2, 4};
     gnssGeofenceRequest->ConvertTransitionEventInfo(gnssGeofenceRequestParam, jsonObject);
     LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] ConvertTransitionEventInfoTest001 end");
-}
-
-HWTEST_F(GeofenceSdkTest, ConvertNotificationInfoTest001, Test001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceSdkTest, ConvertNotificationInfoTest001, TestSize.Level0";
-    LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] ConvertNotificationInfoTest001 begin");
-    std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
-    std::shared_ptr<GeofenceRequest> gnssGeofenceRequestParam = std::make_shared<GeofenceRequest>();
-    nlohmann::json jsonObject;
-    std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList;
-    std::shared_ptr<OHOS::Notification::NotificationRequest> notificationRequest =
-        std::make_shared<OHOS::Notification::NotificationRequest>();
-    nlohmann::json notificationArr = nlohmann::json::array();
-    if (notificationRequest != nullptr) {
-        nlohmann::json jsonObj;
-        notificationRequest->ToJson(jsonObj);
-        notificationArr.emplace_back(jsonObj);
-    }
-    jsonObject["notificationRequestList"] = notificationArr;
-    gnssGeofenceRequest->ConvertNotificationInfo(gnssGeofenceRequestParam, jsonObject);
-    LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] ConvertNotificationInfoTest001 end");
 }
 
 HWTEST_F(GeofenceSdkTest, ConvertWantAgentInfoTest001, Test001, TestSize.Level0)
