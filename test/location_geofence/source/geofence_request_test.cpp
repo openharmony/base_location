@@ -158,15 +158,22 @@ HWTEST_F(GeofenceRequestTest, ConvertTransitionEventInfoTest001, TestSize.Level0
 
 HWTEST_F(GeofenceRequestTest, ConvertWantAgentInfoTest001, TestSize.Level0)
 {
-    GTEST_LOG_(INFO)
-        << "GeofenceRequestTest, ConvertWantAgentInfoTest001, TestSize.Level0";
-    LBSLOGI(GEOFENCE_REQUEST_TEST, "[GeofenceRequestTest] ConvertWantAgentInfoTest001 begin");
-    std::shared_ptr<Location::GeofenceRequest> gnssGeofenceRequest = std::make_shared<Location::GeofenceRequest>();
-    std::shared_ptr<Location::GeofenceRequest> gnssGeofenceRequestParam = std::make_shared<Location::GeofenceRequest>();
+        GTEST_LOG_(INFO)
+        << "GeofenceSdkTest, ConvertWantAgentInfoTest001, TestSize.Level0";
+    LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] ConvertWantAgentInfoTest001 begin");
+    std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
+    std::shared_ptr<GeofenceRequest> gnssGeofenceRequestParam = std::make_shared<GeofenceRequest>();
+    nlohmann::json wantAgentObject;
+    wantObject["appIndex"] = 0;
+    nlohmann::json wantObject;
+    wantObject["abilityName"] = "MainAbility";
+    wantObject["bundleName"] = "bundleName";
+    wantObject["uri"] = "122";
+    wantAgentObject["wants"] = {wantObject};
     nlohmann::json jsonObject;
-    jsonObject["wantAgent"] = "wantAgent";
+    jsonObject["wantAgent"] = wantAgentObject;
     gnssGeofenceRequest->ConvertWantAgentInfo(gnssGeofenceRequestParam, jsonObject);
-    LBSLOGI(GEOFENCE_REQUEST_TEST, "[GeofenceRequestTest] ConvertWantAgentInfoTest001 end");
+    LBSLOGI(GEOFENCE_SDK_TEST, "[GeofenceRequestTest] ConvertWantAgentInfoTest001 end");
 }
 
 HWTEST_F(GeofenceRequestTest, ConvertGeofenceRequestInfoTest001, TestSize.Level0)
