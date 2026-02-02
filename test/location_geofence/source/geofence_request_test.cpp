@@ -143,23 +143,6 @@ HWTEST_F(GeofenceRequestTest, ToJsonTest001, TestSize.Level0)
     LBSLOGI(GEOFENCE_REQUEST_TEST, "[GeofenceRequestTest] UnmarshallingTest001 end");
 }
 
-HWTEST_F(GeofenceRequestTest, ConvertGeoFenceInfoTest001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceRequestTest, ConvertGeoFenceInfoTest001, TestSize.Level0";
-    LBSLOGI(GEOFENCE_REQUEST_TEST, "[GeofenceRequestTest] ConvertGeoFenceInfoTest001 begin");
-    std::shared_ptr<Location::GeofenceRequest> gnssGeofenceRequest = std::make_shared<Location::GeofenceRequest>();
-    nlohmann::json jsonObject;
-    jsonObject["latitude "] = 30;
-    jsonObject["longitude "] = 120;
-    jsonObject["radius "] = 1000;
-    jsonObject["expiration "] = 1000;
-    jsonObject["coordinateSystemType "] = 1;
-    GeoFence geofence;
-    gnssGeofenceRequest->ConvertGeoFenceInfo(jsonObject, geofence);
-    LBSLOGI(GEOFENCE_REQUEST_TEST, "[GeofenceRequestTest] ConvertGeoFenceInfoTest001 end");
-}
-
 HWTEST_F(GeofenceRequestTest, ConvertTransitionEventInfoTest001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
@@ -221,6 +204,14 @@ HWTEST_F(GeofenceRequestTest, FromJsonTest001, TestSize.Level0)
     jsonObject["fenceExtensionAbilityName"] = "fenceExtensionAbilityName";
     jsonObject["requestExpirationTimeStamp"] = 1000000;
     jsonObject["bundleName"] = "bundleName";
+    nlohmann::json fenceJsonObject;
+    fenceJsonObject["latitude "] = 30;
+    fenceJsonObject["longitude "] = 120;
+    fenceJsonObject["radius "] = 1000;
+    fenceJsonObject["expiration "] = 1000;
+    fenceJsonObject["coordinateSystemType "] = 1;
+    jsonObject["geofence"] = fenceJsonObject;
+
     gnssGeofenceRequest->FromJson(jsonObject);
     LBSLOGI(GEOFENCE_REQUEST_TEST, "[GeofenceRequestTest] FromJsonTest001 end");
 }
