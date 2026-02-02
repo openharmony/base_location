@@ -436,7 +436,6 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
             code, identity.ToString().c_str(), std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     if (code == LocatorInterfaceCode::UNREG_SWITCH_CALLBACK ||
         code == LocatorInterfaceCode::STOP_LOCATING ||
-        code == LocatorInterfaceCode::STOP_LOCATING ||
         code == LocatorInterfaceCode::DISABLE_LOCATION_MOCK ||
         code == LocatorInterfaceCode::UNREG_LOCATION_ERROR ||
         code == LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK) {

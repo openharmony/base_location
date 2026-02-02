@@ -102,6 +102,9 @@ std::unique_ptr<Location> FusionController::GetFuseLocation(const std::unique_pt
 {
     LBSLOGD(FUSION_CONTROLLER, " GetFuseLocation enter");
     auto bestLocation = chooseBestLocation(location, std::make_unique<Location>(*lastFuseLocation));
+    if (bestLocation == nullptr) {
+        return nullptr;
+    }
     return std::make_unique<Location>(*bestLocation);
 }
 } // namespace Location
