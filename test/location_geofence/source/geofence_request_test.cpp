@@ -164,7 +164,7 @@ HWTEST_F(GeofenceRequestTest, ConvertWantAgentInfoTest001, TestSize.Level0)
     std::shared_ptr<GeofenceRequest> gnssGeofenceRequest = std::make_shared<GeofenceRequest>();
     std::shared_ptr<GeofenceRequest> gnssGeofenceRequestParam = std::make_shared<GeofenceRequest>();
     nlohmann::json wantAgentObject;
-    wantObject["appIndex"] = 0;
+    wantAgentObject["appIndex"] = 0;
     nlohmann::json wantObject;
     wantObject["abilityName"] = "MainAbility";
     wantObject["bundleName"] = "bundleName";
