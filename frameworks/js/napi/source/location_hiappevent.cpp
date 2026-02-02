@@ -159,7 +159,7 @@ void LocationHiAppEvent::WriteCallStatusEvent()
     event.AddParam("error_code_types", errCodeType_);
     event.AddParam("error_code_num", errCodeNum_);
     OHOS::HiviewDFX::HiAppEvent::Write(event);
-    LBSLOGD(LOCATION_HIAPPEVENT, "WriteCallStatusEvent end, apiName:IsLocationEnabled, callTimes:%{public}zu", runTime_.size());
+    LBSLOGD(LOCATION_HIAPPEVENT, "WriteCallStatusEvent end, callTimes:%{public}zu", runTime_.size());
 #endif
 }
 }  // namespace Location
