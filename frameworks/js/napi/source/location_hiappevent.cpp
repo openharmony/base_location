@@ -111,14 +111,14 @@ void LocationHiAppEvent::CountEventTimeAndNum(const int64_t startTime, const int
 {
 #ifdef LOCATION_HIAPPEVENT_ENABLE
     int64_t currentTimeMilSec = CommonUtils::GetCurrentTimeMilSec();
-    // 单词接口耗时统计
+    // 单次接口耗时统计
     runTime_.push_back(currentTimeMilSec - startTime);
     // 多次调用总耗时
     sumTime_ += currentTimeMilSec - startTime;
     if (beginTime_ == 0) {
         beginTime_ = startTime;
     }
-    // 借口调用结果统计
+    // 接口调用结果统计
     if (errCode == 0) {
         succCount_++;
     } else {
@@ -147,19 +147,27 @@ void LocationHiAppEvent::WriteCallStatusEvent()
         errCodeType_.push_back(std::to_string(it->first));
         errCodeNum_.push_back(it->second);
     }
-    HiviewDFX::HiAppEvent::Event event("api_diagnostic", "api_exec_end", OHOS::HiviewDFX::HiAppEvent::BEHAVIOR);
-    event.AddParam("api_name", apiName);
+    HiviewDFX::HiAppEvent::Event event("api_diagnostic", "api_called_stat", OHOS::HiviewDFX::HiAppEvent::BEHAVIOR);
+    event.AddParam("api_name", std::to_string("IsLocationEnabled"));
     event.AddParam("sdk_name", std::string("LocationKit"));
     event.AddParam("begin_time", beginTime_);
     event.AddParam("call_times", static_cast<int32_t>(runTime_.size()));
     event.AddParam("success_times", succCount_);
-    event.AddParam("max_cost_times", *max_element(runTime_.begin(), runTime_.end()));
-    event.AddParam("min_cost_times", *min_element(runTime_.begin(), runTime_.end()));
+    event.AddParam("max_cost_time", *max_element(runTime_.begin(), runTime_.end()));
+    event.AddParam("min_cost_time", *min_element(runTime_.begin(), runTime_.end()));
     event.AddParam("total_cost_time", sumTime_);
     event.AddParam("error_code_types", errCodeType_);
     event.AddParam("error_code_num", errCodeNum_);
     OHOS::HiviewDFX::HiAppEvent::Write(event);
     LBSLOGD(LOCATION_HIAPPEVENT, "WriteCallStatusEvent end, callTimes:%{public}zu", runTime_.size());
+    // 重置数据
+    runTime_.clear();
+    sumTime_ = 0;
+    succCount_ = 0;
+    errCodeType_.clear();
+    errCodeNum_.clear();
+    errCodes_.clear();
+    beginTime_ = 0;
 #endif
 }
 }  // namespace Location

@@ -18,6 +18,7 @@
  
 #include <mutex>
 #include <string>
+#include <map>
  
 namespace OHOS {
 namespace Location {
