@@ -148,7 +148,7 @@ void LocationHiAppEvent::WriteCallStatusEvent()
         errCodeNum_.push_back(it->second);
     }
     HiviewDFX::HiAppEvent::Event event("api_diagnostic", "api_called_stat", OHOS::HiviewDFX::HiAppEvent::BEHAVIOR);
-    event.AddParam("api_name", std::to_string("IsLocationEnabled"));
+    event.AddParam("api_name", std::string("IsLocationEnabled"));
     event.AddParam("sdk_name", std::string("LocationKit"));
     event.AddParam("begin_time", beginTime_);
     event.AddParam("call_times", static_cast<int32_t>(runTime_.size()));
