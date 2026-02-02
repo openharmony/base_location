@@ -31,6 +31,7 @@ public:
     std::function<void(void*)> completeFunc;
     napi_value resourceName;
     napi_value result[RESULT_SIZE];
+    bool isAsyncWorkAddToQueue;
     int errCode;
     int64_t beginTime;
 
@@ -46,6 +47,7 @@ public:
         result[PARAM1] = nullptr;
         errCode = 0;
         beginTime = 0;
+        isAsyncWorkAddToQueue = false;
     }
 
     AsyncContext() = delete;

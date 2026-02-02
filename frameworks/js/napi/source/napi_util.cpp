@@ -1271,11 +1271,18 @@ static napi_value CreateAsyncWork(const napi_env& env, AsyncContext* asyncContex
         }, static_cast<void*>(asyncContext), &asyncContext->work);
     if (createWorkStatus != napi_ok) {
         LBSLOGE(LOCATOR_STANDARD, "napi_create_async_work fail status: %{public}d", createWorkStatus);
+        asyncContext->isAsyncWorkAddToQueue = false;
+        MemoryReclamation(env, asyncContext);
+        return UndefinedNapiValue(env);
     }
     napi_status queueWorkStatus = napi_queue_async_work(env, asyncContext->work);
     if (queueWorkStatus != napi_ok) {
         LBSLOGE(LOCATOR_STANDARD, "napi_queue_async_work fail status: %{public}d", queueWorkStatus);
+        asyncContext->isAsyncWorkAddToQueue = false;
+        MemoryReclamation(env, asyncContext);
+        return UndefinedNapiValue(env);
     }
+    asyncContext->isAsyncWorkAddToQueue = true;
     return UndefinedNapiValue(env);
 }
 
