@@ -123,7 +123,7 @@
             "name":"wifi_portal_connected_notify_text",
             "value":"Нажмите, чтобы войти.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {

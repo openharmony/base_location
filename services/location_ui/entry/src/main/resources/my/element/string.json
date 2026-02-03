@@ -11,7 +11,7 @@
             "name":"wifipro_better_network_notify_text",
             "value":"\"%s\" နှင့် ချိတ်ဆက်ရန် နှိပ်ပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -86,16 +86,16 @@
         },
         {
             "name":"cancel_button",
-            "value":"ပယ်ဖျက်မည်",
+            "value":"မလုပ်ပါ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_count_text",
             "value":"ဘလူးတုသ်- ပေးပို့နေဆဲ %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -151,14 +151,14 @@
             "name":"wifipro_better_network_pop_up_title",
             "value":"ပိုမိုကောင်းမွန်သော WLAN ကွန်ရက်ကို ရှာတွေ့ထားပါသည်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_finish_title",
-            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီးစီးပါပြီ",
+            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီးပါပြီ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -179,7 +179,7 @@
             "name":"wifipro_auto_connect_dialog_no_button",
             "value":"ပိတ်ပင်ရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -193,14 +193,14 @@
             "name":"bluetooth_receive_notification_button_accept",
             "value":"လက်ခံရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_title",
             "value":"ဘလူးတုသ် ဖိုင် လွှဲပြောင်းမှု",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -221,7 +221,7 @@
             "name":"share_name",
             "value":"ဘလူးတုသ်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -235,28 +235,28 @@
             "name":"bluetooth_receive_notification_button_reject",
             "value":"ငြင်းပယ်ရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"location_target_statement_title",
             "value":"တည်နေရာ ဝန်ဆောင်မှုများ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"ခွင့်ပြုရန်",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"thermal_stop_tether_notification_message",
-            "value":"စက်အပူချိန်သည် မြင့်နေပါသည်။ ဟော့စပေါ့ကို ပိတ်ထားပါသည်။",
+            "value":"စက်အပူချိန် မြင့်နေသည်။ ဟော့စပေါ့ကို ပိတ်လိုက်ပါသည်။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -284,14 +284,14 @@
             "name":"bluetooth_receive_finish_text",
             "value":"%1$s၊ %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_count_text",
             "value":"ဘလူးတုသ်- လက်ခံနေဆဲ %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -319,14 +319,14 @@
             "name":"wifipro_auto_connect_dialog_context",
             "value":"လက်ရှိ WLAN ကွန်ရက်အတွက် စကားဝှက်ကို သုံးကာ ပိုကောင်းသည့် ကွန်ရက် \"%s\" နှင့် ချိတ်ဆက်ခွင့်ပြုမည်လား။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"location_target_statement_content",
             "value":"တည်နေရာ ဝန်ဆောင်မှုများက သင့်အား တည်နေရာအခြေပြု ဝန်ဆောင်မှုများ ပံ့ပိုးပေးရန် အင်တာနက် ချိတ်ဆက်မှု လိုအပ်ပြီး GNSS သို့မဟုတ် ကွန်ရက် အချက်အလက် (WLAN ၊ ဆဲလ်လူလာ ကွန်ရက်၊ ဘလူးတုသ်၊ IP) ကို သုံးပါသည်။ ဤသည်ကို ဖွင့်ထားချိန်တွင် သင့်စက်၏ တည်နေရာ အချက်အလက်များကို တည်နေရာ ဝင်ရောက် သုံးစွဲခွင့်ရထားသော ဝန်ဆောင်မှုများနှင့် ဝေမျှသွားပါမည်။ သင့်ဒေသစံတော်ချိန်နှင့် အရေးပေါ် ခေါ်ဆိုမှုများကို အပ်ဒိတ်လုပ်ခြင်းကဲ့သို့သော ရည်ရွယ်ချက်များအတွက်လည်း သင့်တည်နေရာ အချက်အလက်များကို စနစ် ဝန်ဆောင်မှုများက သုံးသွားပါမည်။ တည်နေရာ ဝန်ဆောင်မှုများအကြောင်း နောက်ထပ် အချက်အလက်များအတွက် <a>တည်နေရာ ဝန်ဆောင်မှုများနှင့် ကိုယ်ရေးအချက်အလက် လုံခြုံရေးအကြောင်း ထုတ်ပြန်ချက်</a>ကို ကိုးကားပါ။",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]

@@ -11,7 +11,7 @@
             "name":"wifipro_better_network_notify_text",
             "value":"ແຕະເພື່ອເຊື່ອມຕໍ່ກັບ \"%s\".",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -65,9 +65,9 @@
         },
         {
             "name":"confirm_button",
-            "value":"ເຫັນດີນໍາ",
+            "value":"ເຫັນດີ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -88,14 +88,14 @@
             "name":"cancel_button",
             "value":"ຍົກເລີກ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_send_count_text",
             "value":"Bluetooth: ກຳລັງສົ່ງ %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -151,7 +151,7 @@
             "name":"wifipro_better_network_pop_up_title",
             "value":"ພົບເຄືອຂ່າຍ WLAN ທີ່ດີກວ່າ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -179,7 +179,7 @@
             "name":"wifipro_auto_connect_dialog_no_button",
             "value":"ປະຕິເສດ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -193,14 +193,14 @@
             "name":"bluetooth_receive_notification_button_accept",
             "value":"ຍອມຮັບ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"bluetooth_receive_notification_title",
             "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -221,7 +221,7 @@
             "name":"share_name",
             "value":"Bluetooth",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -235,21 +235,21 @@
             "name":"bluetooth_receive_notification_button_reject",
             "value":"ປະຕິເສດ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"location_target_statement_title",
             "value":"ການບໍລິການທີ່ຕັ້ງ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"ອະນຸຍາດ",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -291,7 +291,7 @@
             "name":"bluetooth_receive_count_text",
             "value":"Bluetooth: ກຳລັງຮັບ %1$d/%2$d",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -319,14 +319,14 @@
             "name":"wifipro_auto_connect_dialog_context",
             "value":"ອະນຸຍາດການເຊື່ອມຕໍ່ກັບເຄືອຂ່າຍທີ່ດີກວ່າ \"%s\" ໂດຍໃຊ້ລະຫັດຜ່ານສຳລັບເຄືອຂ່າຍ WLAN ປະຈຸບັນບໍ?",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"location_target_statement_content",
             "value":"ການບໍລິການທີ່ຕັ້ງ ຈຳເປັນຕ້ອງມີການເຊື່ອມຕໍ່ອິນເຕີເນັດ ແລະ ໃຊ້ GNSS ຫຼື ຂໍ້ມູນເຄືອຂ່າຍ (WLAN, ເຄືອຂ່າຍເຊລລູລາ, Bluetooth, IP) ເພື່ອໃຫ້ການບໍລິການຕາມທີ່ຕັ້ງແກ່ທ່ານ. ເມື່ອເປີດໃຊ້ງານສິ່ງນີ້ແລ້ວ, ຂໍ້ມູນທີ່ຕັ້ງຂອງອຸປະກອນຂອງທ່ານຈະຖືກແຊຣ໌ກັບການບໍລິການທີ່ໄດ້ໃຫ້ການເຂົ້າເຖິງທີ່ຕັ້ງ. ຂໍ້ມູນທີ່ຕັ້ງຂອງທ່ານຍັງຈະຖືກໃຊ້ໂດຍການບໍລິການລະບົບ, ສຳລັບຈຸດປະສົງ ເຊັ່ນ: ການອັບເດດເຂດເວລາ ແລະ ການໂທສຸກເສີນຂອງທ່ານ. ສຳລັບຂໍ້ມູນເພີ່ມເຕີມກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ, ເບິ່ງ <a>ຄຳຖະແຫຼງກ່ຽວກັບການບໍລິການທີ່ຕັ້ງ ແລະ ຄວາມເປັນສ່ວນຕົວ</a>.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         }
     ]
