@@ -148,7 +148,7 @@ struct dialogPlusPage {
         .lineHeight($r('app.float.value_vp_23'))
         .fontWeight(FontWeight.Medium)
         .textAlign(TextAlign.Center)
-        Text(this.text)
+      Text(this.text)
         .margin({ top: $r('app.float.value_vp_24') })
         .fontColor($r('app.color.tv_dialog_font_color'))
         .fontSize($r('app.float.value_fp_16'))
