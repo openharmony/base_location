@@ -111,7 +111,6 @@ ohos_shared_library("lbsservice_common") {
 ohos_static_library("lbsservice_common_static") {
   public_configs = [
     ":location_common_config",
-    "$LOCATION_NATIVE_DIR/locator_sdk:locator_interface_config",
   ]
 
   sanitize = {
