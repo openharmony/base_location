@@ -265,6 +265,10 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
             proxys->push_back(NETWORK_ABILITY);
             break;
         }
+        case LOCATION_SCENE_GNSS_ONLY: {
+            proxys->push_back(GNSS_ABILITY);
+            break;
+        }
         case LOCATION_SCENE_NO_POWER_CONSUMPTION:
         case SCENE_NO_POWER: {
             proxys->push_back(PASSIVE_ABILITY);
