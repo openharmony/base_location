@@ -21,6 +21,7 @@ ohos_unittest("GeofenceSdkTest") {
   sources = [
     "$LOCATION_ROOT_DIR/test/location_geofence/source/geofence_sdk_test.cpp",
     "$LOCATION_ROOT_DIR/test/location_geofence/source/location_gnss_geofence_callback_host_test.cpp",
+    "$LOCATION_ROOT_DIR/test/location_geofence/source/geofence_request_test.cpp",
   ]
 
   include_dirs = [ "$LOCATION_ROOT_DIR/test/location_geofence/include" ]
