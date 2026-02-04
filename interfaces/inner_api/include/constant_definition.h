@@ -17,6 +17,7 @@
 #define CONSTANT_DEFINITION_H
 
 #include <string>
+#include "app_identity.h"
 
 namespace OHOS {
 namespace Location {
@@ -244,6 +245,7 @@ enum SportsType {
 typedef struct {
     int reportingPeriodSec;
     bool wakeUpCacheQueueFull;
+    AppIdentity appIdentity;
 } CachedGnssLocationsRequest;
 
 typedef struct {

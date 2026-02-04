@@ -186,6 +186,26 @@ void GeofenceRequest::SetUid(int32_t uid)
     uid_ = uid;
 }
 
+uint32_t GeofenceRequest::GetTokenId()
+{
+    return tokenId_;
+}
+
+void GeofenceRequest::SetTokenId(uint32_t tokenId)
+{
+    tokenId_ = tokenId;
+}
+
+uint32_t GeofenceRequest::GetFirstTokenId()
+{
+    return firstTokenId_;
+}
+
+void GeofenceRequest::SetFirstTokenId(uint32_t firstTokenId)
+{
+    firstTokenId_ = firstTokenId;
+}
+
 bool GeofenceRequest::GetAppAliveStatus()
 {
     return appAliveStatus_;
@@ -253,6 +273,8 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     data.ReadString(bundleName_);
     data.ReadString(fenceExtensionAbilityName_);
     uid_ = data.ReadInt32();
+    tokenId_ = data.ReadUint32();
+    firstTokenId_ = data.ReadUint32();
     AbilityRuntime::WantAgent::WantAgent* wantAgentData =
         AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data);
     if (wantAgentData == nullptr) {
@@ -302,6 +324,8 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteString(bundleName_);
     parcel.WriteString(fenceExtensionAbilityName_);
     parcel.WriteInt32(uid_);
+    parcel.WriteUint32(tokenId_);
+    parcel.WriteUint32(firstTokenId_);
     if (wantAgent_ != nullptr) {
         wantAgent_->Marshalling(parcel);
     }
@@ -348,6 +372,8 @@ bool GeofenceRequest::ToJson(nlohmann::json &jsonObject)
     jsonObject["loiterTimeMs"] = loiterTimeMs_;
     jsonObject["fenceId"] = fenceId_;
     jsonObject["uid"] = uid_;
+    jsonObject["tokenId"] = tokenId_;
+    jsonObject["firstTokenId"] = firstTokenId_;
     jsonObject["wantAgent"] = wantAgent_ ? AbilityRuntime::WantAgent::WantAgentHelper::ToString(wantAgent_) : "";
     jsonObject["bundleName"] = bundleName_;
     jsonObject["fenceExtensionAbilityName"] = fenceExtensionAbilityName_;
@@ -446,6 +472,12 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
     }
     if (jsonObject.find("uid") != jsonObject.cend() && jsonObject.at("uid").is_number()) {
         request->uid_ = jsonObject.at("uid").get<int>();
+    }
+    if (jsonObject.find("tokenId") != jsonObject.cend() && jsonObject.at("tokenId").is_number()) {
+        request->tokenId_ = jsonObject.at("tokenId").get<int>();
+    }
+    if (jsonObject.find("firstTokenId") != jsonObject.cend() && jsonObject.at("firstTokenId").is_number()) {
+        request->firstTokenId_ = jsonObject.at("firstTokenId").get<int>();
     }
     if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
         request->bundleName_ = jsonObject.at("bundleName").get<std::string>();

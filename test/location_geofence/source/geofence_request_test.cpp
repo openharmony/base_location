@@ -188,6 +188,8 @@ HWTEST_F(GeofenceRequestTest, ConvertGeofenceRequestInfoTest001, TestSize.Level0
     jsonObject["loiterTimeMs"] = 1000;
     jsonObject["fenceId"] = 1;
     jsonObject["uid"] = 1001;
+    wantObject["tokenId"] = 12345;
+    wantObject["firstTokenId"] = 0;
     jsonObject["appAliveStatus"] = true;
     jsonObject["fenceExtensionAbilityName"] = "fenceExtensionAbilityName";
     jsonObject["requestExpirationTimeStamp"] = 1000000;
@@ -207,6 +209,8 @@ HWTEST_F(GeofenceRequestTest, FromJsonTest001, TestSize.Level0)
     jsonObject["loiterTimeMs"] = 1000;
     jsonObject["fenceId"] = 1;
     jsonObject["uid"] = 1001;
+    wantObject["tokenId"] = 12345;
+    wantObject["firstTokenId"] = 0;
     jsonObject["appAliveStatus"] = true;
     jsonObject["fenceExtensionAbilityName"] = "fenceExtensionAbilityName";
     jsonObject["requestExpirationTimeStamp"] = 1000000;

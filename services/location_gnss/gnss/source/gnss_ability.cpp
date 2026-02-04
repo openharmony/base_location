@@ -1328,6 +1328,10 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         }
         return;
     }
+    if (!PermissionManager::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId())) {
+        LBSLOGE(GNSS, "ReportGeofenceEvent CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+        return;
+    }
     if (NotifyGnssfenceStatusByWantAgent(request, event)) {
         return;
     }
@@ -1492,6 +1496,14 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
 {
     std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
+        if (iter.second == nullptr) {
+            continue;
+        }
+        AppIdentity appIdentity = iter.sencond->appIdentity;
+        if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportCachedLocation CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+            return;
+        }
         auto callback = iter.first;
         sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
         if (cachedCallback != nullptr) {
@@ -1507,6 +1519,10 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         auto callback = pair.first;
         sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
+        if (!PermissionManager::CheckLocationPermission(nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportNmea CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+            return;
+        }
         if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(nmeaIdentity.GetPid())) {
             nmeaCallback->OnMessageChange(timestamp, nmea);
@@ -1521,6 +1537,10 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         auto callback = pair.first;
         sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
         AppIdentity gnssStatusIdentity = pair.second;
+        if (!PermissionManager::CheckLocationPermission(gnssStatusIdentity.GetTokenId(), gnssStatusIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportSv CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+            return;
+        }
         if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(gnssStatusIdentity.GetPid())) {
             gnssStatusCallback->OnStatusChange(sv);
