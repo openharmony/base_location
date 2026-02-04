@@ -123,7 +123,7 @@
             "name":"wifi_portal_connected_notify_text",
             "value":"로그인하려면 탭합니다.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
