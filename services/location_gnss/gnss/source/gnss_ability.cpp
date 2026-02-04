@@ -1329,7 +1329,8 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         return;
     }
     if (!PermissionManager::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId())) {
-        LBSLOGE(GNSS, "ReportGeofenceEvent CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+        LBSLOGE(GNSS, "ReportGeofenceEvent CheckLocationPermission return false, tokenId = %{public}d",
+            request->GetTokenId());
         return;
     }
     if (NotifyGnssfenceStatusByWantAgent(request, event)) {
@@ -1501,7 +1502,8 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
         }
         AppIdentity appIdentity = iter.sencond->appIdentity;
         if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
-            LBSLOGE(GNSS, "ReportCachedLocation CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+            LBSLOGE(GNSS, "ReportCachedLocation CheckLocationPermission return false, tokenId = %{public}d",
+                request->GetTokenId());
             return;
         }
         auto callback = iter.first;
@@ -1520,7 +1522,8 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
         if (!PermissionManager::CheckLocationPermission(nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
-            LBSLOGE(GNSS, "ReportNmea CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+            LBSLOGE(GNSS, "ReportNmea CheckLocationPermission return false, tokenId = %{public}d",
+                request->GetTokenId());
             return;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity) &&
@@ -1537,8 +1540,10 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         auto callback = pair.first;
         sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
         AppIdentity gnssStatusIdentity = pair.second;
-        if (!PermissionManager::CheckLocationPermission(gnssStatusIdentity.GetTokenId(), gnssStatusIdentity.GetFirstTokenId())) {
-            LBSLOGE(GNSS, "ReportSv CheckLocationPermission return false, tokenId = %{public}d", request->GetTokenId());
+        if (!PermissionManager::CheckLocationPermission(
+            gnssStatusIdentity.GetTokenId(), gnssStatusIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportSv CheckLocationPermission return false, tokenId = %{public}d",
+                request->GetTokenId());
             return;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity) &&

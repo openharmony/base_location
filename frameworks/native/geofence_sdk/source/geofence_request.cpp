@@ -473,12 +473,6 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
     if (jsonObject.find("uid") != jsonObject.cend() && jsonObject.at("uid").is_number()) {
         request->uid_ = jsonObject.at("uid").get<int>();
     }
-    if (jsonObject.find("tokenId") != jsonObject.cend() && jsonObject.at("tokenId").is_number()) {
-        request->tokenId_ = jsonObject.at("tokenId").get<int>();
-    }
-    if (jsonObject.find("firstTokenId") != jsonObject.cend() && jsonObject.at("firstTokenId").is_number()) {
-        request->firstTokenId_ = jsonObject.at("firstTokenId").get<int>();
-    }
     if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
         request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
     }
@@ -492,6 +486,18 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
     if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() &&
         jsonObject.at("requestExpirationTimeStamp").is_number()) {
         request->requestExpirationTimeStamp_ = jsonObject.at("requestExpirationTimeStamp").get<int64_t>();
+    }
+    ConvertGeofenceRequestInfoExt(request, jsonObject);
+}
+
+void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
+{
+    if (jsonObject.find("tokenId") != jsonObject.cend() && jsonObject.at("tokenId").is_number()) {
+        request->tokenId_ = jsonObject.at("tokenId").get<int>();
+    }
+    if (jsonObject.find("firstTokenId") != jsonObject.cend() && jsonObject.at("firstTokenId").is_number()) {
+        request->firstTokenId_ = jsonObject.at("firstTokenId").get<int>();
     }
 }
 
