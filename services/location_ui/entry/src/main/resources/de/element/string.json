@@ -328,6 +328,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"p2p_wsc_keypad_enter_pin_message",
+            "value":"PIN eingeben:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_to_message",
+            "value":"An:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_show_pin_message",
+            "value":"PIN:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_invitation_sent_title",
+            "value":"Einladung gesendet",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_ok_button",
+            "value":"OK",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

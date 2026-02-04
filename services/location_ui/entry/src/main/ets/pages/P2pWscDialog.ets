@@ -119,7 +119,7 @@ struct dialogPlusPage {
         .fontWeight(FontWeight.Regular)
         .lineHeight($r('app.float.value_vp_19'))
         .textAlign(TextAlign.Center)
-      Button($r('app.string.p2p_wsc_pbc_dialog_ok_button'))
+      Button($r('app.string.p2p_wsc_display_ok_button'))
         .margin({ top: $r('app.float.value_vp_18') })
         .backgroundColor($r('app.color.tv_dialog_button_background_color'))
         .fontColor($r('app.color.tv_dialog_font_color'))
@@ -142,14 +142,13 @@ struct dialogPlusPage {
   @Builder
   buildKeypadDialog() {
     Column() {
-      Text($r('app.string.p2p_wsc_keypad_invitation_to_connect_title'))
+      Text($r('app.string.p2p_wsc_pbc_dialog_title'))
         .fontColor($r('app.color.tv_dialog_font_color'))
         .fontSize($r('app.float.value_vp_20'))
         .lineHeight($r('app.float.value_vp_23'))
         .fontWeight(FontWeight.Medium)
         .textAlign(TextAlign.Center)
-      Text(getContext().resourceManager.getStringSync($r('app.string.p2p_wsc_keypad_from_message')) +
-          this.deviceName)
+      Text(this.text)
         .margin({ top: $r('app.float.value_vp_24') })
         .fontColor($r('app.color.tv_dialog_font_color'))
         .fontSize($r('app.float.value_fp_16'))
@@ -170,7 +169,7 @@ struct dialogPlusPage {
           this.inputPinCode = value;
         })
       Row({ space: $r('app.float.value_vp_24') }) {
-        Button($r('app.string.p2p_wsc_keypad_no_button'))
+        Button($r('app.string.p2p_wsc_pbc_dialog_no_button'))
           .backgroundColor($r('app.color.tv_dialog_button_background_color'))
           .layoutWeight(1)
           .fontColor($r('app.color.tv_dialog_font_color'))
@@ -181,7 +180,7 @@ struct dialogPlusPage {
             console.info(TAG, 'user click cancel');
             this.setAcceptResult(this.dialogType, false);
           })
-        Button($r('app.string.p2p_wsc_keypad_ok_button'))
+        Button($r('app.string.p2p_wsc_pbc_dialog_ok_button'))
           .layoutWeight(1)
           .backgroundColor($r('app.color.tv_dialog_button_background_color'))
           .fontColor($r('app.color.tv_dialog_font_color'))
@@ -240,7 +239,7 @@ struct dialogPlusPage {
         .width('100%')
         .fontWeight(FontWeight.Bolder)
       Row() {
-        Button($r('app.string.p2p_wsc_pbc_dialog_ok_button'))
+        Button($r('app.string.p2p_wsc_display_ok_button'))
           .margin($r('app.float.value_vp_10'))
           .backgroundColor(Color.Transparent)
           .fontColor($r('app.color.not_tv_dialog_button_font_color'))
@@ -260,13 +259,12 @@ struct dialogPlusPage {
   @Builder
   buildNotTvKeypadDialog() {
     Column() {
-      Text($r('app.string.p2p_wsc_keypad_invitation_to_connect_title'))
+      Text($r('app.string.p2p_wsc_pbc_dialog_title'))
         .textAlign(TextAlign.Start)
         .fontSize($r('app.float.value_vp_20'))
         .lineHeight($r('app.float.value_vp_25'))
         .width('100%')
-      Text(getContext().resourceManager.getStringSync($r('app.string.p2p_wsc_keypad_from_message')) +
-          this.deviceName)
+      Text(this.text)
         .textAlign(TextAlign.Start)
         .fontSize($r('app.float.value_vp_15'))
         .lineHeight($r('app.float.value_vp_30'))
@@ -290,7 +288,7 @@ struct dialogPlusPage {
       .margin({ bottom: $r('app.float.value_vp_10') })
       .justifyContent(FlexAlign.Start)
       Row() {
-        Button($r('app.string.p2p_wsc_keypad_no_button'))
+        Button($r('app.string.p2p_wsc_pbc_dialog_no_button'))
           .layoutWeight(1)
           .backgroundColor(Color.Transparent)
           .fontColor($r('app.color.not_tv_dialog_button_font_color'))
@@ -298,7 +296,7 @@ struct dialogPlusPage {
             console.info(TAG, 'user click cancel');
             this.setAcceptResult(this.dialogType, false);
           })
-        Button($r('app.string.p2p_wsc_keypad_ok_button'))
+        Button($r('app.string.p2p_wsc_pbc_dialog_ok_button'))
           .layoutWeight(1)
           .backgroundColor(Color.Transparent)
           .fontColor($r('app.color.not_tv_dialog_button_font_color'))

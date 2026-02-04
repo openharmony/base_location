@@ -328,6 +328,41 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"p2p_wsc_keypad_enter_pin_message",
+            "value":"PIN 입력:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_to_message",
+            "value":"받는 사람:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_show_pin_message",
+            "value":"PIN:",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_invitation_sent_title",
+            "value":"초대 전송됨",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_wsc_display_ok_button",
+            "value":"확인",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
