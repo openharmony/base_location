@@ -15,6 +15,7 @@
  
 #include <cJSON.h>
 #include "poi_info_manager_test.h"
+#include "poi_info_callback_napi.h"
 #include "common_utils.h"
  
 using namespace testing::ext;
@@ -144,6 +145,120 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerTest002, TestSize.Level1)
     poiInfoManager_->UpdateLocationPoiInfo(location);
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerTest002 end");
 }
- 
+
+HWTEST_F(PoiInfoManagerTest, PreRequestPoiInfoTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PreRequestPoiInfoTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PreRequestPoiInfoTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    AppIdentity identity;
+    sptr<IPoiInfoCallback> callback = sptr<IPoiInfoCallback>(new PoiInfoCallbackNapi());
+    poiInfoManager_->PreRequestPoiInfo(callback->AsObject(), identity);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PreRequestPoiInfoTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, RequestPoiInfoTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, RequestPoiInfoTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] RequestPoiInfoTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    AppIdentity identity;
+    sptr<IPoiInfoCallback> callback = sptr<IPoiInfoCallback>(new PoiInfoCallbackNapi());
+    sptr<IRemoteObject> cb = callback->AsObject();
+    poiInfoManager_->RequestPoiInfo(cb, identity);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] RequestPoiInfoTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, ConnectPoiServiceTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, ConnectPoiServiceTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] ConnectPoiServiceTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->ConnectPoiService();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] ConnectPoiServiceTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PreDisconnectAbilityConnectTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PreDisconnectAbilityConnectTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PreDisconnectAbilityConnectTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->PreDisconnectAbilityConnect();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PreDisconnectAbilityConnectTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, DisconnectAbilityConnectTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, DisconnectAbilityConnectTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] DisconnectAbilityConnectTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->DisconnectAbilityConnect();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] DisconnectAbilityConnectTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, IsConnectTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, IsConnectTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] IsConnectTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->IsConnect();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] IsConnectTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, RegisterPoiServiceDeathRecipientTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, RegisterPoiServiceDeathRecipientTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] RegisterPoiServiceDeathRecipientTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->RegisterPoiServiceDeathRecipient();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] RegisterPoiServiceDeathRecipientTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, UnregisterPoiServiceDeathRecipientTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, UnregisterPoiServiceDeathRecipientTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] UnregisterPoiServiceDeathRecipientTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->UnregisterPoiServiceDeathRecipient();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] UnregisterPoiServiceDeathRecipientTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, NotifyDisConnectedTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, NotifyDisConnectedTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] NotifyDisConnectedTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->NotifyDisConnected();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] NotifyDisConnectedTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PreResetServiceProxyTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PreResetServiceProxyTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PreResetServiceProxyTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->PreResetServiceProxy();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PreResetServiceProxyTest001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, ResetServiceProxyTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, ResetServiceProxyTest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] ResetServiceProxyTest001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->ResetServiceProxy();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] ResetServiceProxyTest001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
