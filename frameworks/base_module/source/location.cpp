@@ -344,14 +344,14 @@ double Location::GetDistanceBetweenLocations(const double lat1, const double lon
         cosLambda = cos(lambda);
         sinSigma = sqrt(pow(cosReducedLat2 * sinLambda, POW_PARAMETER_TOW) +
             pow(cosReducedLat1 * sinReducedLat2 - sinReducedLat1 * cosReducedLat2 * cosLambda, POW_PARAMETER_TOW));
-        if (sinSigma == 0) {
+        if (sinSigma == 0.0) {
             return 0;
         }
         cosSigma = sinReducedLat1 * sinReducedLat2 + cosReducedLat1 * cosReducedLat2 * cosLambda;
         sigma = atan2(sinSigma, cosSigma);
         sinAlpha = cosReducedLat1 * cosReducedLat2 * sinLambda / sinSigma;
         cosSqAlpha = 1 - sinAlpha * sinAlpha;
-        cos2SigmaM = (cosSqAlpha != 0) ? (cosSigma - NUM_DOUBLE * sinReducedLat1 * sinReducedLat2 / cosSqAlpha) : 0;
+        cos2SigmaM = (cosSqAlpha != 0.0) ? (cosSigma - NUM_DOUBLE * sinReducedLat1 * sinReducedLat2 / cosSqAlpha) : 0;
         double correction = EARTH_SEMI_MINOR / 16 * cosSqAlpha * (4 + EARTH_SEMI_MINOR * (4 - 3 * cosSqAlpha));
 
         lambdaP = lambda;
