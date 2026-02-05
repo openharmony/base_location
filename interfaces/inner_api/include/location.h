@@ -145,7 +145,7 @@ public:
 
     inline int64_t GetAdditionSize() const
     {
-        return additionSize_;
+        return additions_.size();
     }
 
     inline void SetAdditionSize(int64_t size)
