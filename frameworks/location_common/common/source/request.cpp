@@ -246,6 +246,9 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
         case LocationSourceType::GNSS_TYPE:
             proxys->push_back(GNSS_ABILITY);
             break;
+        case LocationSourceType::NETWORK_TYPE:
+            proxys->push_back(NETWORK_ABILITY);
+            break;
         default:
             GetProxyNameByScenario(proxys);
             break;
