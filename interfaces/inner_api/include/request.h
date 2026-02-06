@@ -80,6 +80,7 @@ public:
     void ClearAllCategoryCounts();
 private:
     void GetProxyNameByPriority(std::shared_ptr<std::list<std::string>> proxys);
+    void GetProxyNameByScenario(std::shared_ptr<std::list<std::string>> proxys);
 
     pid_t uid_;
     pid_t pid_;

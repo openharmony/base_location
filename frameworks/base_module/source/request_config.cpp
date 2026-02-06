@@ -33,6 +33,7 @@ RequestConfig::RequestConfig()
     timestamp_ = 0;
     isNeedPoi_ = false;
     isNeedLocation_ = true;
+    locationSourceType_ = 0;
 }
 
 RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
@@ -60,10 +61,14 @@ void RequestConfig::Set(RequestConfig& requestConfig)
     timestamp_ = requestConfig.GetTimeStamp();
     isNeedPoi_ = requestConfig.GetIsNeedPoi();
     isNeedLocation_ = requestConfig.GetIsNeedLocation();
+    locationSourceType_ = requestConfig.GetLocationSourceType();
 }
 
 bool RequestConfig::IsSame(RequestConfig& requestConfig)
 {
+    if (locationSourceType_ != requestConfig.GetLocationSourceType()) {
+        return false;
+    }
     if (scenario_ != requestConfig.GetScenario()) {
         return false;
     }
@@ -84,6 +89,7 @@ void RequestConfig::ReadFromParcel(Parcel& parcel)
     timeOut_ = parcel.ReadInt32();
     isNeedPoi_ = parcel.ReadBool();
     isNeedLocation_ = parcel.ReadBool();
+    locationSourceType_ = parcel.ReadInt32();
 }
 
 RequestConfig* RequestConfig::Unmarshalling(Parcel& parcel)
@@ -103,7 +109,8 @@ bool RequestConfig::Marshalling(Parcel& parcel) const
            parcel.WriteInt32(fixNumber_) &&
            parcel.WriteInt32(timeOut_) &&
            parcel.WriteBool(isNeedPoi_) &&
-           parcel.WriteBool(isNeedLocation_);
+           parcel.WriteBool(isNeedLocation_) &&
+           parcel.WriteInt32(locationSourceType_);
 }
 
 bool RequestConfig::IsRequestForAccuracy()

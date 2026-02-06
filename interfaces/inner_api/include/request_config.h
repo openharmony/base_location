@@ -127,6 +127,16 @@ public:
         return isNeedLocation_;
     }
 
+    inline int32_t GetLocationSourceType() const
+    {
+        return locationSourceType_;
+    }
+
+    inline void SetLocationSourceType(int32_t locationSourceType)
+    {
+        locationSourceType_ = locationSourceType;
+    }
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     std::string ToString() const;
@@ -145,6 +155,7 @@ private:
     int64_t timestamp_;
     bool isNeedPoi_;
     bool isNeedLocation_;
+    int32_t locationSourceType_;
 };
 } // namespace Location
 } // namespace OHOS
