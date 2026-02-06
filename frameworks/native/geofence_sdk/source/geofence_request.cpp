@@ -486,7 +486,7 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
     ConvertGeofenceRequestInfoExt(request, jsonObject);
 }
 
-void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request,
+void GeofenceRequest::ConvertGeofenceRequestInfoExt(std::shared_ptr<GeofenceRequest>& request,
     const nlohmann::json &jsonObject)
 {
     if (jsonObject.find("tokenId") != jsonObject.cend() && jsonObject.at("tokenId").is_number()) {
