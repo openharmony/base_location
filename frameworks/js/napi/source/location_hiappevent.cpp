@@ -178,8 +178,8 @@ void LocationHiAppEvent::WriteCallStatusEvent(const std::string apiName, HaEvent
     event.AddParam("error_code_types", eventInfo.errCodeType);
     event.AddParam("error_code_num", eventInfo.errCodeNum);
     OHOS::HiviewDFX::HiAppEvent::Write(event);
-    LBSLOGD(LOCATION_HIAPPEVENT,
-        "WriteCallStatusEvent end, apiName:%{public}s, callTimes:%{public}zu", apiName.c_str(), eventInfo.runTime.size());
+    LBSLOGD(LOCATION_HIAPPEVENT, "WriteCallStatusEvent end, apiName:%{public}s, callTimes:%{public}zu",
+        apiName.c_str(), eventInfo.runTime.size());
 #endif
 }
 }  // namespace Location
