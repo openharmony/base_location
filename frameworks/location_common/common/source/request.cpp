@@ -242,6 +242,28 @@ void Request::GetProxyName(std::shared_ptr<std::list<std::string>> proxys)
 #ifdef EMULATOR_ENABLED
     proxys->push_back(GNSS_ABILITY);
 #else
+    switch (requestConfig_->GetLocationSourceType()) {
+        case LocationSourceType::GNSS_TYPE:
+            proxys->push_back(GNSS_ABILITY);
+            break;
+        case LocationSourceType::NETWORK_TYPE:
+            proxys->push_back(NETWORK_ABILITY);
+            break;
+        default:
+            GetProxyNameByScenario(proxys);
+            break;
+    }
+#endif
+}
+
+void Request::GetProxyNameByScenario(std::shared_ptr<std::list<std::string>> proxys)
+{
+    if (requestConfig_ == nullptr || proxys == nullptr) {
+        return;
+    }
+#ifdef EMULATOR_ENABLED
+    proxys->push_back(GNSS_ABILITY);
+#else
     switch (requestConfig_->GetScenario()) {
         case LOCATION_SCENE_NAVIGATION:
         case LOCATION_SCENE_SPORT:
