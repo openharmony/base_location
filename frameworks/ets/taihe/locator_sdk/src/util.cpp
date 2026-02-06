@@ -154,7 +154,9 @@ void Util::GeofenceDataToTaihe(
         geofence.longitude = fence.GetLongitude();
         geofence.radius = fence.GetRadius();
         geofence.expiration = fence.GetExpiration();
-        geofence.coordinateSystemType = fence.GetCoordinateSystemType();
+        geofence.coordinateSystemType =
+            ::taihe::optional<::ohos::geoLocationManager::CoordinateSystemType>(std::in_place_t{},
+            static_cast<::ohos::geoLocationManager::CoordinateSystemType::key_t>(fence->GetCoordinateSystemType()));
         res.emplace(p.first, geofence);
     }
 }
