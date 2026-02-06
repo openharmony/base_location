@@ -143,6 +143,22 @@ void Util::TaiheToLocation(const ::ohos::geoLocationManager::Location& location,
     }
 }
 
+void Util::GeofenceDataToTaihe(
+    ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence> res,
+    std::map<int, Geofence> geofencesMap)
+{
+    for (const auto& p : geofencesMap) {
+        auto fence = p.second;
+        ::ohos::geoLocationManager::Geofence geofence;
+        geofence.latitude = fence->GetLatitude();
+        geofence.longitude = fence->GetLongitude();
+        geofence.radius = fence->GetRadius();
+        geofence.expiration = fence->GetExpiration();
+        geofence.coordinateSystemType = fence->GetCoordinateSystemType();
+        res.emplace(p.first, geofence);
+    }
+}
+
 void Util::TaiheCurrentRequestObjToRequestConfig(
     ::taihe::optional_view<::ohos::geoLocationManager::CurrentRequest> request,
     std::unique_ptr<RequestConfig>& requestConfig)
