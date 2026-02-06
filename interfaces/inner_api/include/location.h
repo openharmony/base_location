@@ -140,11 +140,12 @@ public:
         for (auto it = additions.begin(); it != additions.end(); ++it) {
             additions_.push_back(*it);
         }
+        additionSize_ = additions_.size();
     }
 
     inline int64_t GetAdditionSize() const
     {
-        return additionSize_;
+        return additions_.size();
     }
 
     inline void SetAdditionSize(int64_t size)
