@@ -156,7 +156,7 @@ void Util::GeofenceDataToTaihe(
         geofence.expiration = fence.GetExpiration();
         geofence.coordinateSystemType =
             ::taihe::optional<::ohos::geoLocationManager::CoordinateSystemType>(std::in_place_t{},
-            static_cast<::ohos::geoLocationManager::CoordinateSystemType::key_t>(fence->GetCoordinateSystemType()));
+            static_cast<::ohos::geoLocationManager::CoordinateSystemType::key_t>(fence.GetCoordinateSystemType()));
         res.emplace(p.first, geofence);
     }
 }
