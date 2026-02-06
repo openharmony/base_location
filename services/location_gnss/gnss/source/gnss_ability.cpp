@@ -1500,7 +1500,7 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
         if (iter.second == nullptr) {
             continue;
         }
-        AppIdentity appIdentity = iter.sencond->appIdentity;
+        AppIdentity appIdentity = iter.second->appIdentity;
         if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportCachedLocation CheckLocationPermission return false, tokenId = %{public}d",
                 request->GetTokenId());
