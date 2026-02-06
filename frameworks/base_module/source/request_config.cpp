@@ -130,6 +130,7 @@ std::string RequestConfig::ToString() const
 {
     std::string str = "scenario : " + std::to_string(scenario_) +
         ", location priority : " + std::to_string(priority_) +
+        ", locationSourceType_ : " + std::to_string(locationSourceType_) +
         ", timeInterval : " + std::to_string(timeInterval_) +
         ", distanceInterval : " + std::to_string(distanceInterval_) +
         ", maxAccuracy : " + std::to_string(maxAccuracy_) +
