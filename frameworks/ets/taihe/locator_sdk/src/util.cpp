@@ -150,11 +150,11 @@ void Util::GeofenceDataToTaihe(
     for (const auto& p : geofencesMap) {
         auto fence = p.second;
         ::ohos::geoLocationManager::Geofence geofence;
-        geofence.latitude = fence->GetLatitude();
-        geofence.longitude = fence->GetLongitude();
-        geofence.radius = fence->GetRadius();
-        geofence.expiration = fence->GetExpiration();
-        geofence.coordinateSystemType = fence->GetCoordinateSystemType();
+        geofence.latitude = fence.GetLatitude();
+        geofence.longitude = fence.GetLongitude();
+        geofence.radius = fence.GetRadius();
+        geofence.expiration = fence.GetExpiration();
+        geofence.coordinateSystemType = fence.GetCoordinateSystemType();
         res.emplace(p.first, geofence);
     }
 }
