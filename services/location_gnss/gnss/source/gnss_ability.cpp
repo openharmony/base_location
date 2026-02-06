@@ -1503,7 +1503,7 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
         AppIdentity appIdentity = iter.second->appIdentity;
         if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportCachedLocation CheckLocationPermission return false, tokenId = %{public}d",
-                request->GetTokenId());
+                appIdentity->GetTokenId());
             return;
         }
         auto callback = iter.first;
@@ -1523,7 +1523,7 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         AppIdentity nmeaIdentity = pair.second;
         if (!PermissionManager::CheckLocationPermission(nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportNmea CheckLocationPermission return false, tokenId = %{public}d",
-                request->GetTokenId());
+                nmeaIdentity->GetTokenId());
             return;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity) &&
@@ -1543,7 +1543,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         if (!PermissionManager::CheckLocationPermission(
             gnssStatusIdentity.GetTokenId(), gnssStatusIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportSv CheckLocationPermission return false, tokenId = %{public}d",
-                request->GetTokenId());
+                gnssStatusIdentity->GetTokenId());
             return;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity) &&
