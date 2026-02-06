@@ -118,7 +118,7 @@ void LocationHiAppEvent::CountEventTimeAndNum(const std::string apiName, const i
     std::unique_lock<std::mutex> lock(haEventInfoMapMutex_);
     auto it = haEventInfoMap_.find(apiName);
     if (it != haEventInfoMap_.end()) {
-        eventInfo = it->secong;
+        eventInfo = it->second;
     }
     // 单次接口耗时统计
     eventInfo.runTime.push_back(currentTimeMilSec - startTime);
