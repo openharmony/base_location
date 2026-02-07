@@ -237,6 +237,8 @@ struct GnssGeofenceRequest {
     monitorTransitionEvents: Array<GeofenceTransitionEvent>;
     notifications: Optional<Array<@sts_type("NotificationRequest") Opaque>>;
     geofenceTransitionCallback: @sts_type("AsyncCallback<GeofenceTransition>") Opaque;
+    loiterTimeMs: Optional<i32>;
+    fenceExtensionAbilityName: Optional<String>;
 }
 
 function IsLocationEnabled(): bool;
@@ -318,6 +320,9 @@ function GetDistanceBetweenLocations(location1: Location, location2: Location): 
 
 @gen_promise("getLocatingRequiredData")
 function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
+
+@gen_promise("getActiveGeoFences")
+function GetActiveGeoFencesSync(): Map<i32, Geofence>;
 
 @on_off("cachedGnssLocationsChange")
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;

@@ -22,6 +22,7 @@
 #include "location.h"
 #include "common_utils.h"
 #include "geo_address.h"
+#include "geofence.h"
 #include "request_config.h"
 #include "ipc_skeleton.h"
 #include "common_utils.h"
@@ -65,6 +66,9 @@ public:
         std::shared_ptr<GeoAddress>& geoAddress);
     static bool NeedReportLastLocation(const std::unique_ptr<OHOS::Location::RequestConfig>& config,
         const std::unique_ptr<OHOS::Location::Location>& location);
+    static void GeofenceDataToTaihe(
+        ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence> res,
+        std::map<int, Geofence> geofencesMap);
 };
 }
 }

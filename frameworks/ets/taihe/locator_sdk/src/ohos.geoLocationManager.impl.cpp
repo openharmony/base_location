@@ -613,6 +613,18 @@ void RemoveGnssGeofenceSync(int32_t geofenceId)
             locatingRequiredDataList.data(), locatingRequiredDataList.size()};
 }
 
+::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence> GetActiveGeoFencesSync()
+{
+    std::map<int, Geofence> geofencesMap;
+    LocationErrCode errorCode = GeofenceManager::GetInstance()->GetActiveGeoFences(geofencesMap);
+    if (errorCode != OHOS::Location::SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence> res;
+    Util::GeofenceDataToTaihe(res, geofencesMap);
+    return ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence>{res};
+}
+
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,
     ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::Location>)> callback)
 {
@@ -955,6 +967,7 @@ TH_EXPORT_CPP_API_RemoveGnssGeofenceSync(RemoveGnssGeofenceSync);
 TH_EXPORT_CPP_API_GetGeofenceSupportedCoordTypes(GetGeofenceSupportedCoordTypes);
 TH_EXPORT_CPP_API_GetLocationIconStatus(GetLocationIconStatus);
 TH_EXPORT_CPP_API_GetLocatingRequiredDataSync(GetLocatingRequiredDataSync);
+TH_EXPORT_CPP_API_GetActiveGeoFencesSync(GetActiveGeoFencesSync);
 
 TH_EXPORT_CPP_API_OnCachedGnssLocationsChange(OnCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OffCachedGnssLocationsChange(OffCachedGnssLocationsChange);
