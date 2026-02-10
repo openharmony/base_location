@@ -1328,11 +1328,6 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         }
         return;
     }
-    if (!PermissionManager::CheckLocationPermission(request->GetTokenId(), request->GetFirstTokenId())) {
-        LBSLOGE(GNSS, "ReportGeofenceEvent CheckLocationPermission return false, tokenId = %{public}d",
-            request->GetTokenId());
-        return;
-    }
     if (NotifyGnssfenceStatusByWantAgent(request, event)) {
         return;
     }
