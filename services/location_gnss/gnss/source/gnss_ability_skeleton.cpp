@@ -226,6 +226,9 @@ int GnssAbilityStub::RegisterCachedCallbackInner(MessageParcel &data, MessagePar
     requestConfig->reportingPeriodSec = data.ReadInt32();
     requestConfig->wakeUpCacheQueueFull = data.ReadBool();
     sptr<IRemoteObject> callback = data.ReadObject<IRemoteObject>();
+    AppIdentity appIdentity;
+    appIdentity.ReadFromParcel(data);
+    requestConfig->appIdentity = appIdentity;
     reply.WriteInt32(RegisterCachedCallback(requestConfig, callback));
     return ERRCODE_SUCCESS;
 }
