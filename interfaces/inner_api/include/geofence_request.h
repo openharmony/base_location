@@ -96,14 +96,6 @@ public:
 
     void SetUid(int32_t uid);
 
-    uint32_t GetTokenId();
-
-    void SetTokenId(uint32_t tokenId);
-
-    uint32_t GetFirstTokenId();
-
-    void SetFirstTokenId(uint32_t firstTokenId);
-
     bool GetAppAliveStatus();
 
     void SetAppAliveStatus(bool appAliveStatus);
@@ -138,8 +130,6 @@ private:
     int loiterTimeMs_;
     int fenceId_;
     int32_t uid_;
-    uint32_t tokenId_;
-    uint32_t firstTokenId_;
     std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent_;
     std::string bundleName_;
     bool appAliveStatus_;
