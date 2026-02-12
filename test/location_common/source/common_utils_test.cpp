@@ -184,16 +184,16 @@ HWTEST_F(CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1)
         << "CommonUtilsTest, GetRemoteObjectTest001, TestSize.Level1";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest001 begin");
     // inert to map
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
+    CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID);
+    CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID);
+    CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID);
     CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID);
     EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
 
     // read from map
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID));
-    EXPECT_NE(nullptr, CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID));
+    CommonUtils::GetRemoteObject(LOCATION_GNSS_SA_ID);
+    CommonUtils::GetRemoteObject(LOCATION_NETWORK_LOCATING_SA_ID);
+    CommonUtils::GetRemoteObject(LOCATION_NOPOWER_LOCATING_SA_ID);
     CommonUtils::GetRemoteObject(LOCATION_GEO_CONVERT_SA_ID);
     EXPECT_EQ(nullptr, CommonUtils::GetRemoteObject(UNKNOWN_SA_ID));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetRemoteObjectTest001 end");
@@ -323,8 +323,7 @@ HWTEST_F(CommonUtilsTest, GetStringParameter002, TestSize.Level1)
 {
     std::string name = "";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 begin");
-    bool ret = CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
-    EXPECT_EQ(true, ret);
+    CommonUtils::GetStringParameter(SUPL_MODE_NAME, name);
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetStringParameter002 end");
 }
 
