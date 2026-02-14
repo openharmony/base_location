@@ -91,6 +91,16 @@ ohos_shared_library("lbsservice_common") {
     defines += [ "EMULATOR_ENABLED" ]
   }
 
+  if (resourceschedule_background_task_mgr_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+    defines += [ "BGTASKMGR_SUPPORT" ]
+  }
+
+  if (ability_form_fwk_enable) {
+    external_deps += [ "form_fwk:fmskit_native" ]
+    defines += [ "FMSKIT_NATIVE_SUPPORT" ]
+  }
+
   ldflags = [
     "-Wl,--as-needed",
     "-Wl,--gc-sections",
@@ -153,6 +163,16 @@ ohos_static_library("lbsservice_common_static") {
 
   if (is_emulator) {
     defines += [ "EMULATOR_ENABLED" ]
+  }
+
+  if (resourceschedule_background_task_mgr_enable) {
+    external_deps += [ "background_task_mgr:bgtaskmgr_innerkits" ]
+    defines += [ "BGTASKMGR_SUPPORT" ]
+  }
+
+  if (ability_form_fwk_enable) {
+    external_deps += [ "form_fwk:fmskit_native" ]
+    defines += [ "FMSKIT_NATIVE_SUPPORT" ]
   }
 
   part_name = "location"
