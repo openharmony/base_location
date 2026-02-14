@@ -26,6 +26,14 @@
 #include "accesstoken_kit.h"
 #include "tokenid_kit.h"
 
+#ifdef BGTASKMGR_SUPPORT
+#include "background_mode.h"
+#include "background_task_mgr_helper.h"
+#endif
+
+#ifdef FMSKIT_NATIVE_SUPPORT
+#include "form_mgr.h"
+#endif
 
 namespace OHOS {
 namespace Location {
