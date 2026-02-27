@@ -1165,7 +1165,8 @@ bool GnssAbility::RemoveGnssGeofenceByCallbackWhenAppDie(sptr<IRemoteObject> cal
                 gnssGeofenceRequest->SetAppAliveStatus(false);
 #ifdef NOTIFICATION_ENABLE
                 auto notificationRequestList = gnssGeofenceRequest->GetNotificationRequestList();
-                if (notificationRequestList.size() == 0) {
+                if (notificationRequestList.size() == 0 &&
+                    gnssGeofenceRequest->GetFenceExtensionAbilityName().empty()) {
                     requestList.push_back(gnssGeofenceRequest);
                 }
 #endif
@@ -1176,7 +1177,11 @@ bool GnssAbility::RemoveGnssGeofenceByCallbackWhenAppDie(sptr<IRemoteObject> cal
         }
     }
     for (auto& request : requestList) {
-        RemoveGnssGeofence(request);
+        if (gnssHandler_ != nullptr) {
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+                static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE), request);
+            gnssHandler_->SendEvent(event);
+        }
     }
     LBSLOGD(GNSS, "After RemoveGnssGeofenceByCallbackWhenAppDie size:%{public}s",
         std::to_string(gnssGeofenceRequestList_.size()).c_str());
