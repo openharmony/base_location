@@ -46,7 +46,7 @@ LocationDataManager::~LocationDataManager()
 LocationErrCode LocationDataManager::ReportSwitchState()
 {
     std::unique_lock<std::mutex> lock(mutex_);
-    LBSLOGI(LOCATOR, "ReportSwitchState switchCallbackMap size:%{public}u", switchCallbackMap_.size());
+    LBSLOGI(LOCATOR, "ReportSwitchState switchCallbackMap size:%{public}zu", switchCallbackMap_.size());
     for (auto item = switchCallbackMap_.begin(); item != switchCallbackMap_.end(); item++) {
         AppSwitchState *appInfo = &(item->second);
         if (appInfo == nullptr) {
