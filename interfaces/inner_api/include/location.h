@@ -140,7 +140,7 @@ public:
         for (auto it = additions.begin(); it != additions.end(); ++it) {
             additions_.push_back(*it);
         }
-        additionSize_ = additions_.size();
+        additionSize_ = static_cast<int64_t>(additions_.size());
     }
 
     inline int64_t GetAdditionSize() const
