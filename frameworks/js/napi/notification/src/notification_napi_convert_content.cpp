@@ -182,7 +182,6 @@ napi_value NotificationNapi::GetNotificationBasicContentDetailed(
         return nullptr;
     }
     basicContent->SetText(str);
-    ANS_LOGD("normal::text = %{public}s", str);
 
     // additionalText?: string
     NAPI_CALL(env, napi_has_named_property(env, contentResult, "additionalText", &hasProperty));
@@ -194,7 +193,6 @@ napi_value NotificationNapi::GetNotificationBasicContentDetailed(
         }
         NAPI_CALL(env, napi_get_value_string_utf8(env, value, str, STR_MAX_SIZE - 1, &strLen));
         basicContent->SetAdditionalText(str);
-        ANS_LOGD("normal::additionalText = %{public}s", str);
     }
 
     // lockScreenPicture?: pixelMap
@@ -544,7 +542,6 @@ napi_value NotificationNapi::GetMessageUserByString(
     }
     NAPI_CALL(env, napi_get_value_string_utf8(env, nameResult, str, STR_MAX_SIZE - 1, &strLen));
     messageUser.SetName(str);
-    ANS_LOGI("MessageUser::name = %{public}s", str);
 
     // key: string
     NAPI_CALL(env, napi_has_named_property(env, result, "key", &hasProperty));
@@ -687,7 +684,6 @@ napi_value NotificationNapi::GetNotificationConversationalContentTitle(
     }
     NAPI_CALL(env, napi_get_value_string_utf8(env, conversationalContentResult, str, STR_MAX_SIZE - 1, &strLen));
     conversationalContent->SetConversationTitle(str);
-    ANS_LOGD("conversationTitle = %{public}s", str);
 
     return NapiGetNull(env);
 }
@@ -816,7 +812,6 @@ napi_value NotificationNapi::GetConversationalMessageBasicInfo(
     }
     NAPI_CALL(env, napi_get_value_string_utf8(env, textResult, str, STR_MAX_SIZE - 1, &strLen));
     text = str;
-    ANS_LOGI("conversationalMessage::text = %{public}s", str);
 
     // timestamp: number
     NAPI_CALL(env, napi_has_named_property(env, conversationalMessage, "timestamp", &hasProperty));
