@@ -150,7 +150,6 @@ napi_value NotificationNapi::GetNotificationUserInputByInputKey(
         return nullptr;
     }
     NAPI_CALL(env, napi_get_value_string_utf8(env, value, str, STR_MAX_SIZE - 1, &strLen));
-    LBSLOGI(NAPI_UTILS, "NotificationUserInput::inputKey = %{public}s", str);
     userInput = NotificationUserInput::Create(str);
     if (!userInput) {
         LBSLOGI(NAPI_UTILS, "Failed to create NotificationUserInput by inputKey=%{public}s", str);
@@ -189,7 +188,6 @@ napi_value NotificationNapi::GetNotificationUserInputByTag(
     }
     NAPI_CALL(env, napi_get_value_string_utf8(env, value, str, STR_MAX_SIZE - 1, &strLen));
     userInput->SetTag(str);
-    LBSLOGI(NAPI_UTILS, "NotificationUserInput::tag = %{public}s", str);
 
     return NapiGetNull(env);
 }

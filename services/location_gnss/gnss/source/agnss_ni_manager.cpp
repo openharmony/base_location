@@ -298,7 +298,6 @@ std::string AGnssNiManager::BuildStartCommand(const GnssNiNotificationRequest &n
         DecodeNiString(notif.notificationText, notif.notificationTextEncoding);
     param["message"] = message;
     std::string cmdData = param.dump();
-    LBSLOGD(GNSS, "cmdData is: %{public}s.", cmdData.c_str());
     return cmdData;
 }
 
