@@ -200,7 +200,7 @@ int GnssAbilityStub::UnregisterGnssStatusCallbackInner(
 }
 
 int GnssAbilityStub::RegisterNmeaMessageCallbackInner(
-    MessageParcel &data, MessageParcel &reply, AppIdentity &identity,bool &isMessageRequest)
+    MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
