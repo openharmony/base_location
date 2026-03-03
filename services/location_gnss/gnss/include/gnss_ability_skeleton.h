@@ -59,7 +59,7 @@ public:
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
 public:
-    using GnssMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
+    using GnssMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &, bool &,)>;
     using GnssMsgHandleMap = std::map<int, GnssMsgHandle>;
     GnssAbilityStub();
     virtual ~GnssAbilityStub() = default;
@@ -71,30 +71,50 @@ public:
     virtual bool CancelIdleState() = 0;
     virtual void UnloadGnssSystemAbility() = 0;
 private:
-    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int RefreshRequirementsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int RegisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int UnregisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int RegisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int UnregisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int RegisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int UnregisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int GetCachedGnssLocationsSizeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int FlushCachedGnssLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SendCommandInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int AddFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int QuerySupportCoordinateSystemTypeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int GetActiveGeoFencesInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest);
+    int RefreshRequirementsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int RegisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int UnregisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int RegisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int UnregisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int RegisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int UnregisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int GetCachedGnssLocationsSizeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int FlushCachedGnssLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int SendCommandInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int AddFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest;
+    int QuerySupportCoordinateSystemTypeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int GetActiveGeoFencesInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
 private:
-    bool isMessageRequest_ = false;
     GnssMsgHandleMap GnssMsgHandleMap_;
 };
 
