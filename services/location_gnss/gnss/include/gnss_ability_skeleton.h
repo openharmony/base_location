@@ -107,7 +107,7 @@ private:
     int AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
         bool &isMessageRequest);
     int RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
-        bool &isMessageRequest;
+        bool &isMessageRequest);
     int QuerySupportCoordinateSystemTypeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
         bool &isMessageRequest);
     int SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
