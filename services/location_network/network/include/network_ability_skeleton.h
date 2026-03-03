@@ -33,7 +33,7 @@ public:
 
 class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
 public:
-    using NetworkMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &, bool &,)>;
+    using NetworkMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &, bool &)>;
     using NetworkMsgHandleMap = std::map<int, NetworkMsgHandle>;
     NetworkAbilityStub();
     virtual ~NetworkAbilityStub() = default;

@@ -59,7 +59,7 @@ public:
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
 public:
-    using GnssMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &, bool &,)>;
+    using GnssMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &, bool &)>;
     using GnssMsgHandleMap = std::map<int, GnssMsgHandle>;
     GnssAbilityStub();
     virtual ~GnssAbilityStub() = default;
