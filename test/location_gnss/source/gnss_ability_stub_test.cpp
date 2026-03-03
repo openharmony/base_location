@@ -478,11 +478,11 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest023, TestSize.Level1)
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest023 end");
 }
 
-HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest024, TestSize.Level1)
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest025, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityStubTest, GnssAbilityStubTest024, TestSize.Level1";
-    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest024 begin");
+        << "GnssAbilityStubTest, GnssAbilityStubTest025, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest025 begin");
     auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
     MessageParcel data;
     MessageParcel reply;
@@ -510,7 +510,7 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest024, TestSize.Level1)
         gnssAbilityStub->SendNetworkLocationInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
         gnssAbilityStub->GetActiveGeoFencesInner(data, reply, identity, isMessageRequest));
-    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest024 end");
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest025 end");
 }
 
 HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTestInit001, TestSize.Level1)
