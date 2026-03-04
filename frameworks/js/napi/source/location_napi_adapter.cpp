@@ -1702,6 +1702,8 @@ void SetExecuteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncC
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
             if (context->errCode != ERRCODE_SUCCESS) {
+                LBSLOGE(LOCATOR_STANDARD, "RemoveGnssGeofence faild errCode: %{public}d",
+                    static_cast<int>(context->errCode));
                 callbackHost->SetCount(0);
             }
             callbackHost->Wait(DEFAULT_CALLBACK_WAIT_TIME);
@@ -1987,6 +1989,9 @@ void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId)
     std::unique_lock<std::mutex> lock(g_gnssGeofenceCallbackHostMutex);
     auto iterForDelete = g_gnssGeofenceCallbackHostMap.find(fenceId);
     if (iterForDelete != g_gnssGeofenceCallbackHostMap.end()) {
+        if (iterForDelete->second != nullptr) {
+            iterForDelete->second->DeleteHandler();
+        }
         g_gnssGeofenceCallbackHostMap.erase(iterForDelete);
     }
 }
