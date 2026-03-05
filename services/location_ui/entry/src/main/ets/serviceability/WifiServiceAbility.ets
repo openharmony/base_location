@@ -114,6 +114,8 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     publishWantAgent = async (wantAgentObj: WantAgent, pixelmap: image.PixelMap, id: number, status: number, ssid: string) => {
         let templateTitle: string = '';
         let templateText: string = '';
+        let wantAgentConnect: WantAgent | undefined;
+        let wantAgentNoShow: WantAgent | undefined;
         switch (status) {
           case this.WIFI_PORTAL_CONNECTED:
             templateTitle = this.getFormatString($r('app.string.wifi_portal_connected_notify_title'), ssid);
@@ -138,6 +140,39 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
           default:
             break;
         }
+
+        if (status === this.WIFI_TRIBAND_CONN_FOUND) {
+            let wantAgentInfoConnect: wantAgent.WantAgentInfo = {
+                wants: [{
+                    action: 'ohos.event.notification.wifi.TAP_NOTIFICATION',
+                    parameters: { 'notificationId': id }
+                }],
+                actionType: wantAgent.OperationType.SEND_COMMON_EVENT,
+                requestCode: 0,
+                wantAgentFlags: [wantAgent.WantAgentFlags.CONSTANT_FLAG]
+            };
+            try {
+                wantAgentConnect = await wantAgent.getWantAgent(wantAgentInfoConnect);
+            } catch (err) {
+                console.error(TAG, 'getWantAgent for Connect now button failed: ' + JSON.stringify(err));
+            }
+ 
+            let wantAgentInfoNoShow: wantAgent.WantAgentInfo = {
+                wants: [{
+                    action: 'ohos.event.notification.wifi.TAP_DONT_SHOW_AGAIN',
+                    parameters: { 'notificationId': id }
+                }],
+                actionType: wantAgent.OperationType.SEND_COMMON_EVENT,
+                requestCode: 0,
+                wantAgentFlags: [wantAgent.WantAgentFlags.CONSTANT_FLAG]
+            };
+            try {
+                wantAgentNoShow = await wantAgent.getWantAgent(wantAgentInfoNoShow);
+            } catch (err) {
+                console.error(TAG, 'getWantAgent for Dont show again button failed: ' + JSON.stringify(err));
+            }
+        }
+
         let notificationRequest: NotificationManager.NotificationRequest = {
             id: id,
             content: {
@@ -157,6 +192,18 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
             smallIcon: pixelmap
         };
 
+        if (status === this.WIFI_TRIBAND_CONN_FOUND && wantAgentConnect && wantAgentNoShow) {
+            notificationRequest.actionButtons = [
+                {
+                    title: this.context.resourceManager.getStringSync($r('app.string.wifipro_auto_connect_notify_no_button').id),
+                    wantAgent: wantAgentNoShow
+                },
+                {
+                    title: this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_notify_ok_button').id),
+                    wantAgent: wantAgentConnect
+                }
+            ];
+        }
         if (this.willPublish) {
             NotificationManager.publish(notificationRequest).then(() => {
                 console.info(TAG, 'Publish wifi notification success');
