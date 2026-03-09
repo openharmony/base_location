@@ -36,7 +36,6 @@
     "*ExecuteHookWhenCustConfigPolicyChange*";
     "*ExecuteHookWhenCheckIsAppBackground*";
     "*BeaconFence*";
-    "*BackgroundManager*";
     "*ExecuteHookWhenOnUserSwitch*";
     "*ExecuteHookWhenStartCellScan*";
   local:

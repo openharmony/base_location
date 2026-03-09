@@ -14,8 +14,8 @@
  */
  
   
-#ifndef BACKGROUND_MANAGER_H
-#define BACKGROUND_MANAGER_H
+#ifndef APP_BACKGROUND_STATUS_MANAGER_H
+#define APP_BACKGROUND_STATUS_MANAGER_H
 
 #include <map>
 #include <singleton.h>
@@ -29,11 +29,11 @@
 namespace OHOS {
 namespace Location {
 
-class BackgroundManager {
+class AppBackgroundStatusManager {
 public:
-    BackgroundManager();
-    ~BackgroundManager();
-    static BackgroundManager* GetInstance();
+    AppBackgroundStatusManager();
+    ~AppBackgroundStatusManager();
+    static AppBackgroundStatusManager* GetInstance();
     bool IsAppBackground(std::string bundleName);
     bool IsAppBackground(int uid, std::string bundleName);
     bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
