@@ -174,7 +174,7 @@ public:
     static void UnregisterHook(LocationProcessStage stage, OhosHook hook);
     static LocationErrCode ExecuteHook(LocationProcessStage stage, void *executionContext,
         const HOOK_EXEC_OPTIONS *options);
-    static void ExecuteHookWhenStartLocation(std::shared_ptr<Request> request);
+    static void ExecuteHookWhenStartLocation(std::shared_ptr<Request>& request);
     static void ExecuteHookWhenStopLocation(std::shared_ptr<Request> request);
     static void ExecuteHookWhenGetAddressFromLocation(std::string packageName);
     static void ExecuteHookWhenGetAddressFromLocationName(std::string packageName);
