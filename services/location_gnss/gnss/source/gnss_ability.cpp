@@ -2512,6 +2512,7 @@ void GnssHandler::HandleSetEnable(const AppExecFwk::InnerEvent::Pointer& event)
 void GnssHandler::HandleInitHdi(const AppExecFwk::InnerEvent::Pointer& event)
 {
     auto gnssAbility = GnssAbility::GetInstance();
+    WriteGnssStateEvent("init", 0, 0);
 #ifndef TDD_CASES_ENABLED
     gnssAbility->ConnectHdi();
 #endif
