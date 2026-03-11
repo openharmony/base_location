@@ -191,8 +191,9 @@ void CachedLocationsCallbackNapi::UvQueueWork(uv_loop_s* loop, uv_work_t* work)
                 return;
             }
             napi_value jsEvent = nullptr;
-            NAPI_CALL_RETURN_VOID(context->env,
-                napi_create_array_with_length(context->env, context->locationList.size(), &jsEvent));
+            CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
+                napi_create_array_with_length(context->env, context->locationList.size(), &jsEvent),
+                scope, context, work);
             LocationsToJs(context->env, context->locationList, jsEvent);
             if (context->callback[0] != nullptr) {
                 napi_value undefine;
