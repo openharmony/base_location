@@ -23,7 +23,6 @@
 #include "datashare_predicates.h"
 #include "datashare_values_bucket.h"
 #include "common_utils.h"
-#include "ilocator_service.h"
 #include "location_log.h"
 #include "location_data_rdb_manager.h"
 
@@ -56,12 +55,7 @@ void LocationDataRdbHelper::Initialize()
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get locator sa failed", __func__);
         return;
     }
-    sptr<ILocatorService> client = iface_cast<ILocatorService>(objectLocator);
-    if (!client || !client->AsObject()) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: get locator service failed.", __func__);
-        return;
-    }
-    remoteObj_ = client->AsObject();
+    remoteObj_ = objectLocator;
 }
 
 std::shared_ptr<DataShare::DataShareHelper> LocationDataRdbHelper::CreateDataShareHelper()
