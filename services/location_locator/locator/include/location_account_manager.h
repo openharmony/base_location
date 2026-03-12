@@ -33,7 +33,7 @@ class LocationAccountManager {
 public:
     LocationAccountManager();
     ~LocationAccountManager();
-    std::vector<int> getActiveUserIds();
+    std::vector<int> GetActiveUserIds();
     static LocationAccountManager* GetInstance();
     void OnUserSwitch(int32_t userId);
     void OnUserRemove(int32_t userId);
@@ -62,6 +62,7 @@ private:
     bool isUserSwitchSubscribed_ = false;
     std::shared_ptr<UserSwitchSubscriber> subscriber_ = nullptr;
     sptr<ISystemAbilityStatusChange> statusChangeListener_ = nullptr;
+    static std::mutex accountMutex_;
 };
 }  // namespace Location
 }  // namespace OHOS

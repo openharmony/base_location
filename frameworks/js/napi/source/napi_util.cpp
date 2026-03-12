@@ -1200,19 +1200,29 @@ void SendResultToJs(const napi_env& env, AsyncContext* context)
     bool isPromise = context->deferred != nullptr;
     if (isPromise) {
         if (context->errCode != SUCCESS) {
-            NAPI_CALL_RETURN_VOID(env,
-                napi_reject_deferred(env, context->deferred, context->result[PARAM0]));
+            napi_status status = napi_reject_deferred(env, context->deferred, context->result[PARAM0]);
+            if (status != napi_ok) {
+                LBSLOGE(LOCATOR_STANDARD, "SendResultToJs napi_reject_deferred fail status: %{public}d", status);
+            }
         } else {
-            NAPI_CALL_RETURN_VOID(env,
-                napi_resolve_deferred(env, context->deferred, context->result[PARAM1]));
+            napi_status status = napi_resolve_deferred(env, context->deferred, context->result[PARAM1]);
+            if (status != napi_ok) {
+                LBSLOGE(LOCATOR_STANDARD, "SendResultToJs napi_reject_deferred fail status: %{public}d", status);
+            }
         }
     } else {
         napi_value undefine;
-        NAPI_CALL_RETURN_VOID(env, napi_get_undefined(env, &undefine));
+        napi_get_undefined(env, &undefine);
         napi_value callback;
-        NAPI_CALL_RETURN_VOID(env, napi_get_reference_value(env, context->callback[0], &callback));
-        NAPI_CALL_RETURN_VOID(env,
-            napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine));
+        napi_status getCallbackStatus = napi_get_reference_value(env, context->callback[0], &callback);
+        if (getCallbackStatus != napi_ok) {
+            LBSLOGE(LOCATOR_STANDARD, "SendResultToJs getCallbackStatus fail status: %{public}d", getCallbackStatus);
+            return;
+        }
+        napi_status callFunStatus = napi_call_function(env, nullptr, callback, RESULT_SIZE, context->result, &undefine);
+        if (callFunStatus != napi_ok) {
+            LBSLOGE(LOCATOR_STANDARD, "SendResultToJs getCallFun fail status: %{public}d", callFunStatus);
+        }
     }
 }
 

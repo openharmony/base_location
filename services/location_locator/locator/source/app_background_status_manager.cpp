@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "background_manager.h"
+#include "app_background_status_manager.h"
 #include <vector>
 #include <algorithm>
 #include <mutex>
@@ -38,22 +38,22 @@
 namespace OHOS {
 namespace Location {
 const int FOREGROUPAPP_STATUS = 2;
-std::mutex BackgroundManager::foregroundAppMutex_;
-BackgroundManager* BackgroundManager::GetInstance()
+std::mutex AppBackgroundStatusManager::foregroundAppMutex_;
+AppBackgroundStatusManager* AppBackgroundStatusManager::GetInstance()
 {
-    static BackgroundManager manager;
+    static AppBackgroundStatusManager manager;
     return &manager;
 }
 
-BackgroundManager::BackgroundManager()
+AppBackgroundStatusManager::AppBackgroundStatusManager()
 {
 }
 
-BackgroundManager::~BackgroundManager()
+AppBackgroundStatusManager::~AppBackgroundStatusManager()
 {
 }
 
-bool BackgroundManager::IsAppBackground(std::string bundleName)
+bool AppBackgroundStatusManager::IsAppBackground(std::string bundleName)
 {
     sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (samgrClient == nullptr) {
@@ -78,7 +78,7 @@ bool BackgroundManager::IsAppBackground(std::string bundleName)
     return true;
 }
 
-bool BackgroundManager::IsAppBackground(int uid, std::string bundleName)
+bool AppBackgroundStatusManager::IsAppBackground(int uid, std::string bundleName)
 {
     std::unique_lock lock(foregroundAppMutex_);
     auto iter = foregroundAppMap_.find(uid);
@@ -88,7 +88,7 @@ bool BackgroundManager::IsAppBackground(int uid, std::string bundleName)
     return false;
 }
 
-void BackgroundManager::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
+void AppBackgroundStatusManager::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
 {
     std::unique_lock lock(foregroundAppMutex_);
     if (status == FOREGROUPAPP_STATUS) {
@@ -102,7 +102,7 @@ void BackgroundManager::UpdateBackgroundAppStatues(int32_t uid, int32_t status)
     LBSLOGD(REQUEST_MANAGER, "UpdateBackgroundApp uid = %{public}d, state = %{public}d", uid, status);
 }
 
-bool BackgroundManager::IsAppInLocationContinuousTasks(pid_t uid, pid_t pid)
+bool AppBackgroundStatusManager::IsAppInLocationContinuousTasks(pid_t uid, pid_t pid)
 {
 #ifdef BGTASKMGR_SUPPORT
     std::vector<std::shared_ptr<BackgroundTaskMgr::ContinuousTaskCallbackInfo>> continuousTasks;
@@ -129,7 +129,7 @@ bool BackgroundManager::IsAppInLocationContinuousTasks(pid_t uid, pid_t pid)
     return false;
 }
 
-bool BackgroundManager::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
+bool AppBackgroundStatusManager::IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx)
 {
     bool ret = false;
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);

@@ -29,6 +29,7 @@
 
 namespace OHOS {
 namespace Location {
+std::mutex LocationAccountManager::accountMutex_;
 LocationAccountManager* LocationAccountManager::GetInstance()
 {
     static LocationAccountManager manager;
@@ -37,8 +38,11 @@ LocationAccountManager* LocationAccountManager::GetInstance()
 
 LocationAccountManager::LocationAccountManager()
 {
+    {
+        std::unique_lock lock(accountMutex_);
+        CommonUtils::GetActiveUserIds(activeIds_);
+    }
     SubscribeSaStatusChangeListerner();
-    CommonUtils::GetActiveUserIds(activeIds_);
     isUserSwitchSubscribed_ = LocationAccountManager::UserSwitchSubscriber::Subscribe();
 }
 
@@ -46,13 +50,17 @@ LocationAccountManager::~LocationAccountManager()
 {
 }
 
-std::vector<int> LocationAccountManager::getActiveUserIds()
+std::vector<int> LocationAccountManager::GetActiveUserIds()
 {
+    std::unique_lock<std::mutex> lock(accountMutex_);
     return activeIds_;
 }
 
 void LocationAccountManager::OnUserSwitch(int32_t userId)
 {
+    std::unique_lock<std::mutex> lock(accountMutex_);
+    activeIds_.clear();
+    CommonUtils::GetActiveUserIds(activeIds_);
     bool containsActiveId = std::find(activeIds_.begin(), activeIds_.end(), userId) != activeIds_.end();
     if (!containsActiveId) {
         activeIds_.push_back(userId);
@@ -61,6 +69,9 @@ void LocationAccountManager::OnUserSwitch(int32_t userId)
 
 void LocationAccountManager::OnUserRemove(int32_t userId)
 {
+    std::unique_lock<std::mutex> lock(accountMutex_);
+    activeIds_.clear();
+    CommonUtils::GetActiveUserIds(activeIds_);
     auto iter = std::find(activeIds_.begin(), activeIds_.end(), userId);
     if (iter != activeIds_.end()) {
         activeIds_.erase(iter);
@@ -69,6 +80,7 @@ void LocationAccountManager::OnUserRemove(int32_t userId)
 
 void LocationAccountManager::SubscribeSaStatusChangeListerner()
 {
+    std::unique_lock lock(accountMutex_);
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
@@ -110,6 +122,7 @@ void LocationAccountManager::UserSwitchSubscriber::OnReceiveEvent(const OHOS::Ev
 bool LocationAccountManager::UserSwitchSubscriber::Subscribe()
 {
     LBSLOGD(ACCOUNT_MANAGER, "subscribe common event");
+    std::unique_lock lock(accountMutex_);
     OHOS::EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(OHOS::EventFwk::CommonEventSupport::COMMON_EVENT_USER_SWITCHED);
     OHOS::EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
@@ -129,6 +142,7 @@ LocationAccountManager::SystemAbilityStatusChangeListener::SystemAbilityStatusCh
 void LocationAccountManager::SystemAbilityStatusChangeListener::OnAddSystemAbility(
     int32_t systemAbilityId, const std::string& deviceId)
 {
+    std::unique_lock lock(accountMutex_);
     if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
         LBSLOGE(ACCOUNT_MANAGER, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
         return;
@@ -144,6 +158,7 @@ void LocationAccountManager::SystemAbilityStatusChangeListener::OnAddSystemAbili
 void LocationAccountManager::SystemAbilityStatusChangeListener::OnRemoveSystemAbility(
     int32_t systemAbilityId, const std::string& deviceId)
 {
+    std::unique_lock lock(accountMutex_);
     if (systemAbilityId != COMMON_EVENT_SERVICE_ID) {
         LBSLOGE(ACCOUNT_MANAGER, "systemAbilityId is not COMMON_EVENT_SERVICE_ID");
         return;

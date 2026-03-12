@@ -64,7 +64,7 @@ void SetExecuteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncC
 void SetCompleteFuncForRemoveGnssGeofenceContext(GnssGeofenceAsyncContext* asyncContext);
 napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info);
 void AddCallbackToGnssGeofenceCallbackHostMap(int fenceId, sptr<LocationGnssGeofenceCallbackNapi> callbackHost);
-void RemoveCallbackToGnssGeofenceCallbackHostMap(int fenceId);
+void RemoveCallbackToGnssGeofenceCallbackHostMap(napi_env env, int fenceId);
 sptr<LocationGnssGeofenceCallbackNapi> FindCallbackInGnssGeofenceCallbackHostMap(int fenceId);
 napi_value GetCurrentWifiBssidForLocating(napi_env env, napi_callback_info info);
 napi_value IsLocationEnabledByUserId(napi_env env, napi_callback_info info);

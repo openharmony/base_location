@@ -31,7 +31,7 @@
 #include "poi_info_manager.h"
 #include "parameter.h"
 #include "location_account_manager.h"
-#include "background_manager.h"
+#include "app_background_status_manager.h"
 
 namespace OHOS {
 namespace Location {
@@ -292,7 +292,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     identity.SetUid(request->GetUid());
     identity.SetTokenId(request->GetTokenId());
     identity.SetBundleName(bundleName);
-    std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
+    std::vector<int> activeIds = LocationAccountManager::GetInstance()->GetActiveUserIds();
     if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         //app is not in current user, not need to report
         LBSLOGI(REPORT_MANAGER, "GetPermittedLocation uid: %{public}d CheckAppForUser fail", tokenId);
@@ -405,7 +405,7 @@ void ReportManager::UpdateCacheLocation(const std::unique_ptr<Location>& locatio
 void ReportManager::UpdateLastLocation(const std::unique_ptr<Location>& location)
 {
     auto locatorAccountManager = LocationAccountManager::GetInstance();
-    std::vector<int> activeIds = locatorAccountManager->getActiveUserIds();
+    std::vector<int> activeIds = locatorAccountManager->GetActiveUserIds();
     std::unique_lock<std::mutex> lock(lastLocationMutex_);
     for (int userId : activeIds) {
         lastLocationsMap_[userId] = std::make_shared<Location>(*location);
@@ -601,7 +601,7 @@ void ReportManager::WriteNetWorkReportEvent(std::string abilityName, const std::
 
 bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
-    auto backgroundManager = BackgroundManager::GetInstance();
+    auto backgroundManager = AppBackgroundStatusManager::GetInstance();
     if (!backgroundManager->IsAppBackground(uid, bundleName)) {
         return false;
     }
