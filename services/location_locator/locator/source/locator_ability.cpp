@@ -441,7 +441,7 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
         code == LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK) {
         return true;
     }
-    std::vector<int> activeIds = LocationAccountManager::GetInstance()->getActiveUserIds();
+    std::vector<int> activeIds = LocationAccountManager::GetInstance()->GetActiveUserIds();
     if (CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         return true;
     }
