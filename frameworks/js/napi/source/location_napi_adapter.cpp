@@ -119,8 +119,7 @@ napi_value IsLocationEnabled(napi_env env, napi_callback_info info)
     bool isEnabled = false;
     int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     LocationErrCode errorCode = g_locatorClient->IsLocationEnabledV9(isEnabled);
-    g_hiAppEventClient->WriteEndEvent(
-        beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "isLocationEnabled");
+    g_hiAppEventClient->CountEventTimeAndNum("isLocationEnabled", beginTime, errorCode);
     if (errorCode != ERRCODE_SUCCESS) {
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
