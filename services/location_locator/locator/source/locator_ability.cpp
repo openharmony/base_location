@@ -441,7 +441,8 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
         code == LocatorInterfaceCode::UNREG_LOCATING_REQUIRED_DATA_CALLBACK) {
         return true;
     }
-    std::vector<int> activeIds = LocationAccountManager::GetInstance()->GetActiveUserIds();
+    std::vector<int> activeIds;
+    CommonUtils::GetActiveUserIds(activeIds);
     if (CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         return true;
     }
@@ -1274,7 +1275,8 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
-    if (!CheckRequestAvailable(LocatorInterfaceCode::START_LOCATING, identity)) {
+    bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
+    if (res && !CheckRequestAvailable(LocatorInterfaceCode::START_LOCATING, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!GetLocationSwitchIgnoredFlag(identity.GetTokenId()) && !CheckLocationSwitchState()) {
@@ -1285,7 +1287,6 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
             "NETWORK_FAIL_CODE", std::to_string(ERRCODE_PERMISSION_DENIED)});
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
     auto reportManager = ReportManager::GetInstance();
     if (reportManager != nullptr && res) {
         if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
