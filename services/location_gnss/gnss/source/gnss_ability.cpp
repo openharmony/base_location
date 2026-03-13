@@ -1614,7 +1614,6 @@ bool GnssAbility::IsGnssEnabled()
 
 void GnssAbility::RestGnssWorkStatus()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
 }
 
@@ -1626,7 +1625,6 @@ bool GnssAbility::IsGnssBatchingEnabled()
 
 void GnssAbility::ResetGnssBatchingWorkStatus()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
     gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_NONE;
 }
  
