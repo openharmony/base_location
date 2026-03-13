@@ -66,12 +66,13 @@ LocationErrCode HookUtils::ExecuteHook(
     return ERRCODE_SERVICE_UNAVAILABLE;
 }
 
-void HookUtils::ExecuteHookWhenStartLocation(std::shared_ptr<Request> request)
+void HookUtils::ExecuteHookWhenStartLocation(std::shared_ptr<Request>& request)
 {
     LocationSupplicantInfo reportStruct;
     reportStruct.request = *request;
     reportStruct.retCode = true;
     ExecuteHook(LocationProcessStage::LOCATOR_SA_START_LOCATING, (void *)&reportStruct, nullptr);
+    request = std::make_shared<Request>(reportStruct.request);
 }
 
 void HookUtils::ExecuteHookWhenStopLocation(std::shared_ptr<Request> request)
