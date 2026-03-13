@@ -1276,7 +1276,7 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
-    if (!CheckRequestAvailable(LocatorInterfaceCode::START_LOCATING, identity) && res) {
+    if (res && !CheckRequestAvailable(LocatorInterfaceCode::START_LOCATING, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!GetLocationSwitchIgnoredFlag(identity.GetTokenId()) && !CheckLocationSwitchState()) {
