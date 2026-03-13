@@ -818,12 +818,13 @@ HWTEST_F(NetworkAbilityTest, CheckCallingPermission001, TestSize.Level1)
     MessageParcel data;
     MessageParcel reply;
     AppIdentity identity;
+    bool isMessageRequest = false;
     ASSERT_TRUE(ability_ != nullptr);
-    ability_->SendLocationRequestInner(data, reply, identity);
-    ability_->SetMockLocationsInner(data, reply, identity);
-    ability_->SetEnableInner(data, reply, identity);
-    ability_->EnableMockInner(data, reply, identity);
-    ability_->DisableMockInner(data, reply, identity);
+    ability_->SendLocationRequestInner(data, reply, identity, isMessageRequest);
+    ability_->SetMockLocationsInner(data, reply, identity, isMessageRequest);
+    ability_->SetEnableInner(data, reply, identity, isMessageRequest);
+    ability_->EnableMockInner(data, reply, identity, isMessageRequest);
+    ability_->DisableMockInner(data, reply, identity, isMessageRequest);
     LBSLOGI(NETWORK, "[NetworkAbilityTest] CheckCallingPermission001 end");
 }
  

@@ -34,7 +34,7 @@ public:
 
 class PassiveAbilityStub : public IRemoteStub<IPassiveAbility> {
 public:
-    using PassiveMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
+    using PassiveMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &, bool &)>;
     using PassiveMsgHandleMap = std::map<int, PassiveMsgHandle>;
     PassiveAbilityStub();
     virtual ~PassiveAbilityStub() = default;
@@ -45,13 +45,14 @@ public:
     virtual bool CancelIdleState() = 0;
     virtual void UnloadPassiveSystemAbility() = 0;
 private:
-    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SetMockedLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest);
+    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest);
+    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest);
+    int SetMockedLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
 private:
-    bool isMessageRequest_ = false;
     PassiveMsgHandleMap PassiveMsgHandleMap_;
 };
 } // namespace Location

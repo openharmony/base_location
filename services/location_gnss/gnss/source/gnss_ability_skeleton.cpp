@@ -33,96 +33,96 @@ void GnssAbilityStub::InitGnssMsgHandleMap()
         return;
     }
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SendLocationRequestInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SendLocationRequestInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SetEnableInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SetEnableInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REFRESH_REQUESTS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return RefreshRequirementsInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return RefreshRequirementsInner(data, reply, identity, isMessageRequest);
     };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REG_GNSS_STATUS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return RegisterGnssStatusCallbackInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return RegisterGnssStatusCallbackInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::UNREG_GNSS_STATUS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return UnregisterGnssStatusCallbackInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return UnregisterGnssStatusCallbackInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REG_NMEA)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return RegisterNmeaMessageCallbackInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return RegisterNmeaMessageCallbackInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::UNREG_NMEA)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return UnregisterNmeaMessageCallbackInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return UnregisterNmeaMessageCallbackInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REG_CACHED)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return RegisterCachedCallbackInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return RegisterCachedCallbackInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::UNREG_CACHED)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return UnregisterCachedCallbackInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return UnregisterCachedCallbackInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_CACHED_SIZE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return GetCachedGnssLocationsSizeInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return GetCachedGnssLocationsSizeInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::FLUSH_CACHED)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return FlushCachedGnssLocationsInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return FlushCachedGnssLocationsInner(data, reply, identity, isMessageRequest);
         };
 }
 
 void GnssAbilityStub::InitGnssEnhanceMsgHandleMap()
 {
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SendCommandInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SendCommandInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SetMockLocationsInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SetMockLocationsInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ENABLE_LOCATION_MOCK)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return EnableMockInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return EnableMockInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return DisableMockInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return DisableMockInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return AddFenceInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return AddFenceInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return RemoveFenceInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return RemoveFenceInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ADD_GNSS_GEOFENCE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return AddGnssGeofenceInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return AddGnssGeofenceInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return RemoveGnssGeofenceInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return RemoveGnssGeofenceInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return QuerySupportCoordinateSystemTypeInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return QuerySupportCoordinateSystemTypeInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SendNetworkLocationInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SendNetworkLocationInner(data, reply, identity, isMessageRequest);
         };
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_ACTIVE_FENCES)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return GetActiveGeoFencesInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return GetActiveGeoFencesInner(data, reply, identity, isMessageRequest);
         };
 }
 
@@ -132,37 +132,41 @@ GnssAbilityStub::GnssAbilityStub()
     InitGnssEnhanceMsgHandleMap();
 }
 
-int GnssAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_LOCATION_REQUEST), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SET_ENABLE), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::RefreshRequirementsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::RefreshRequirementsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -171,7 +175,8 @@ int GnssAbilityStub::RefreshRequirementsInner(MessageParcel &data, MessageParcel
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::RegisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::RegisterGnssStatusCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -184,7 +189,7 @@ int GnssAbilityStub::RegisterGnssStatusCallbackInner(MessageParcel &data, Messag
 }
 
 int GnssAbilityStub::UnregisterGnssStatusCallbackInner(
-    MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+    MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -194,7 +199,8 @@ int GnssAbilityStub::UnregisterGnssStatusCallbackInner(
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::RegisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::RegisterNmeaMessageCallbackInner(
+    MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -207,7 +213,7 @@ int GnssAbilityStub::RegisterNmeaMessageCallbackInner(MessageParcel &data, Messa
 }
 
 int GnssAbilityStub::UnregisterNmeaMessageCallbackInner(MessageParcel &data, MessageParcel &reply,
-    AppIdentity &identity)
+    AppIdentity &identity, bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -217,7 +223,8 @@ int GnssAbilityStub::UnregisterNmeaMessageCallbackInner(MessageParcel &data, Mes
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::RegisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::RegisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -230,7 +237,8 @@ int GnssAbilityStub::RegisterCachedCallbackInner(MessageParcel &data, MessagePar
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::UnregisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::UnregisterCachedCallbackInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -240,7 +248,8 @@ int GnssAbilityStub::UnregisterCachedCallbackInner(MessageParcel &data, MessageP
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::GetCachedGnssLocationsSizeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::GetCachedGnssLocationsSizeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -251,7 +260,8 @@ int GnssAbilityStub::GetCachedGnssLocationsSizeInner(MessageParcel &data, Messag
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::FlushCachedGnssLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::FlushCachedGnssLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -260,17 +270,19 @@ int GnssAbilityStub::FlushCachedGnssLocationsInner(MessageParcel &data, MessageP
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::SendCommandInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::SendCommandInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -279,7 +291,8 @@ int GnssAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, 
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -288,48 +301,52 @@ int GnssAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply,
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::AddFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::RemoveFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::AddGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
 int GnssAbilityStub::QuerySupportCoordinateSystemTypeInner(
-    MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+    MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -349,18 +366,20 @@ int GnssAbilityStub::QuerySupportCoordinateSystemTypeInner(
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     LBSLOGI(GNSS, "SendNetworkLocationInner");
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
-int GnssAbilityStub::GetActiveGeoFencesInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int GnssAbilityStub::GetActiveGeoFencesInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -401,16 +420,16 @@ int GnssAbilityStub::OnRemoteRequest(uint32_t code,
     }
     CancelIdleState();
     int ret = ERRCODE_SUCCESS;
-    isMessageRequest_ = false;
+    bool isMessageRequest = false;
     auto handleFunc = GnssMsgHandleMap_.find(code);
     if (handleFunc != GnssMsgHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        ret = memberFunc(data, reply, identity);
+        ret = memberFunc(data, reply, identity, isMessageRequest);
     } else {
         LBSLOGE(GNSS, "OnReceived cmd = %{public}u, unsupport service.", code);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    if (!isMessageRequest_) {
+    if (!isMessageRequest) {
         UnloadGnssSystemAbility();
     }
     return ret;

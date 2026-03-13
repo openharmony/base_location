@@ -450,37 +450,67 @@ HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest023, TestSize.Level1)
     AppIdentity identity;
     identity.SetUid(UID);
     identity.SetPid(PID);
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendLocationRequestInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SetMockLocationsInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SetEnableInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RefreshRequirementsInner(data, reply, identity));
+    bool isMessageRequest = false;
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->RegisterGnssStatusCallbackInner(data, reply, identity));
+        gnssAbilityStub->SendLocationRequestInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->UnregisterGnssStatusCallbackInner(data, reply, identity));
+        gnssAbilityStub->SetMockLocationsInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->RegisterNmeaMessageCallbackInner(data, reply, identity));
+        gnssAbilityStub->SetEnableInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->UnregisterNmeaMessageCallbackInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RegisterCachedCallbackInner(data, reply, identity));
+        gnssAbilityStub->RefreshRequirementsInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->UnregisterCachedCallbackInner(data, reply, identity));
+        gnssAbilityStub->RegisterGnssStatusCallbackInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->GetCachedGnssLocationsSizeInner(data, reply, identity));
+        gnssAbilityStub->UnregisterGnssStatusCallbackInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->FlushCachedGnssLocationsInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendCommandInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->EnableMockInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->DisableMockInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->AddFenceInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RemoveFenceInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->AddGnssGeofenceInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->RemoveGnssGeofenceInner(data, reply, identity));
+        gnssAbilityStub->RegisterNmeaMessageCallbackInner(data, reply, identity, isMessageRequest));
     EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
-        gnssAbilityStub->QuerySupportCoordinateSystemTypeInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->SendNetworkLocationInner(data, reply, identity));
-    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED, gnssAbilityStub->GetActiveGeoFencesInner(data, reply, identity));
+        gnssAbilityStub->UnregisterNmeaMessageCallbackInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->RegisterCachedCallbackInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->UnregisterCachedCallbackInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->GetCachedGnssLocationsSizeInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->FlushCachedGnssLocationsInner(data, reply, identity, isMessageRequest));
     LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest023 end");
+}
+
+HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTest025, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityStubTest, GnssAbilityStubTest025, TestSize.Level1";
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest025 begin");
+    auto gnssAbilityStub = sptr<MockGnssAbilityStub>(new (std::nothrow) MockGnssAbilityStub());
+    MessageParcel data;
+    MessageParcel reply;
+    AppIdentity identity;
+    identity.SetUid(UID);
+    identity.SetPid(PID);
+    bool isMessageRequest = false;
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->SendCommandInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->EnableMockInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->DisableMockInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->AddFenceInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->RemoveFenceInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->AddGnssGeofenceInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->RemoveGnssGeofenceInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->QuerySupportCoordinateSystemTypeInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->SendNetworkLocationInner(data, reply, identity, isMessageRequest));
+    EXPECT_EQ(LOCATION_ERRCODE_PERMISSION_DENIED,
+        gnssAbilityStub->GetActiveGeoFencesInner(data, reply, identity, isMessageRequest));
+    LBSLOGI(GNSS, "[GnssAbilityStubTest] GnssAbilityStubTest025 end");
 }
 
 HWTEST_F(GnssAbilityStubTest, GnssAbilityStubTestInit001, TestSize.Level1)

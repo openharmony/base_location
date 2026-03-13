@@ -33,7 +33,7 @@ public:
 
 class NetworkAbilityStub : public IRemoteStub<INetworkAbility> {
 public:
-    using NetworkMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &)>;
+    using NetworkMsgHandle = std::function<int(MessageParcel &, MessageParcel &, AppIdentity &, bool &)>;
     using NetworkMsgHandleMap = std::map<int, NetworkMsgHandle>;
     NetworkAbilityStub();
     virtual ~NetworkAbilityStub() = default;
@@ -44,14 +44,15 @@ public:
     virtual bool CancelIdleState() = 0;
     virtual void UnloadNetworkSystemAbility() = 0;
 private:
-    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
-    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity);
+    int SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int SetMockLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest);
+    int EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest);
+    int DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest);
     bool CheckLocationSwitchState(MessageParcel &reply);
 private:
-    bool isMessageRequest_ = false;
     NetworkMsgHandleMap NetworkMsgHandleMap_;
 };
 } // namespace Location

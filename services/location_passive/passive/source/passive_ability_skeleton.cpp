@@ -36,24 +36,24 @@ void PassiveAbilityStub::InitPassiveMsgHandleMap()
         return;
     }
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SEND_LOCATION_REQUEST)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SendLocationRequestInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SendLocationRequestInner(data, reply, identity, isMessageRequest);
         };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SET_ENABLE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SetEnableInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SetEnableInner(data, reply, identity, isMessageRequest);
         };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::ENABLE_LOCATION_MOCK)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return EnableMockInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return EnableMockInner(data, reply, identity, isMessageRequest);
         };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::DISABLE_LOCATION_MOCK)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return DisableMockInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return DisableMockInner(data, reply, identity, isMessageRequest);
         };
     PassiveMsgHandleMap_[static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity) {
-        return SetMockedLocationsInner(data, reply, identity);
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+        return SetMockedLocationsInner(data, reply, identity, isMessageRequest);
         };
 }
 
@@ -62,7 +62,8 @@ PassiveAbilityStub::PassiveAbilityStub()
     InitPassiveMsgHandleMap();
 }
 
-int PassiveAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int PassiveAbilityStub::SendLocationRequestInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -72,7 +73,8 @@ int PassiveAbilityStub::SendLocationRequestInner(MessageParcel &data, MessagePar
     return ERRCODE_SUCCESS;
 }
 
-int PassiveAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int PassiveAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -81,7 +83,8 @@ int PassiveAbilityStub::SetEnableInner(MessageParcel &data, MessageParcel &reply
     return ERRCODE_SUCCESS;
 }
 
-int PassiveAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int PassiveAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -90,7 +93,8 @@ int PassiveAbilityStub::EnableMockInner(MessageParcel &data, MessageParcel &repl
     return ERRCODE_SUCCESS;
 }
 
-int PassiveAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int PassiveAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -99,13 +103,14 @@ int PassiveAbilityStub::DisableMockInner(MessageParcel &data, MessageParcel &rep
     return ERRCODE_SUCCESS;
 }
 
-int PassiveAbilityStub::SetMockedLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity)
+int PassiveAbilityStub::SetMockedLocationsInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
 {
     if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(PassiveInterfaceCode::SET_MOCKED_LOCATIONS), data, reply);
-    isMessageRequest_ = true;
+    isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }
 
@@ -126,16 +131,16 @@ int PassiveAbilityStub::OnRemoteRequest(uint32_t code,
     }
     CancelIdleState();
     int ret = ERRCODE_SUCCESS;
-    isMessageRequest_ = false;
+    bool isMessageRequest = false;
     auto handleFunc = PassiveMsgHandleMap_.find(code);
     if (handleFunc != PassiveMsgHandleMap_.end() && handleFunc->second != nullptr) {
         auto memberFunc = handleFunc->second;
-        ret = memberFunc(data, reply, identity);
+        ret = memberFunc(data, reply, identity, isMessageRequest);
     } else {
         LBSLOGE(PASSIVE, "OnReceived cmd = %{public}u, unsupport service.", code);
         ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     }
-    if (!isMessageRequest_) {
+    if (!isMessageRequest) {
         UnloadPassiveSystemAbility();
     }
     return ret;
