@@ -375,12 +375,12 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         LBSLOGE(GNSS, "unregister an invalid nmea callback");
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto deathIter = nmeaDeathMap_.find(callback);
     if (deathIter != nmeaDeathMap_.end()) {
         callback->RemoveDeathRecipient(deathIter->second);
         nmeaDeathMap_.erase(deathIter);
     }
-    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto iter = nmeaCallbackMap_.find(callback);
     if (iter != nmeaCallbackMap_.end()) {
         nmeaCallbackMap_.erase(iter);
@@ -1619,7 +1619,6 @@ bool GnssAbility::IsGnssEnabled()
 
 void GnssAbility::RestGnssWorkStatus()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
     gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
 }
 
@@ -1631,7 +1630,6 @@ bool GnssAbility::IsGnssBatchingEnabled()
 
 void GnssAbility::ResetGnssBatchingWorkStatus()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
     gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_NONE;
 }
  
