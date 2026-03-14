@@ -5,9 +5,9 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":"%d မအောင်မြင်ပါ",
+                    "value":"%d ဖိုင် မအောင်မြင်ပါ",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -17,9 +17,9 @@
             "value":[
                 {
                     "quantity":"other",
-                    "value":"%d မအောင်မြင်ပါ",
+                    "value":"%d ဖိုင် မအောင်မြင်ပါ",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -31,7 +31,7 @@
                     "quantity":"other",
                     "value":"ဖိုင် %d ဖိုင် လက်ခံရရှိထားပါသည်",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]
@@ -43,7 +43,7 @@
                     "quantity":"other",
                     "value":"ဖိုင် %d ဖိုင် ပေးပို့ပြီး",
                     "attr":{
-                        "priority":"translate"
+                        "priority":"LT"
                     }
                 }
             ]

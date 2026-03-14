@@ -88,7 +88,7 @@
             "name":"bluetooth_send_finish_title",
             "value":"การถ่ายโอนบลูทูธเสร็จสิ้นแล้ว",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -282,7 +282,7 @@
         },
         {
             "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
+            "value":"%1$s %2$s",
             "attr":{
                 "priority":"LT"
             }
@@ -296,9 +296,9 @@
         },
         {
             "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
+            "value":"%1$s %2$s",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
