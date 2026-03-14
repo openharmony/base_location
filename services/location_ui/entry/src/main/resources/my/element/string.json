@@ -72,9 +72,9 @@
         },
         {
             "name":"bluetooth_send_finish_title",
-            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီးစီးပါပြီ",
+            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီး",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
