@@ -28,7 +28,6 @@
 #include "location_log.h"
 #include "location.h"
 #include "app_identity.h"
-#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -199,9 +198,6 @@ public:
     static bool IsValidForStoull(const std::string input, size_t size);
     static bool IsStrValidForStoi(const std::string &str);
     static bool ConvertStringToDigit(const std::string& str, int32_t &ret);
-    static std::unique_ptr<Location> ApproximatelyLocation(const std::unique_ptr<Location>& location,
-        std::string bundleName);
-    void GetApproximateConfig(ApproximatelyLocationStruct &approximateConfig);
 };
 
 class CountDownLatch {

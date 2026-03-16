@@ -1507,27 +1507,7 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
                 appIdentity.GetTokenId());
             return;
         }
-        std::vector<std::unique_ptr<Location>> approximatelyLocations;
-        approximatelyLocations.reserve(cacheLocations.size());
-        // 有精确位置权限直接上报，没有精确位置权限，位置模糊化
-        if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
-            ApproximatelyLocations(cacheLocations, approximatelyLocations);
-            const_cast<std::vector<std::unique_ptr<Location>>&>(cacheLocations) = std::move(approximatelyLocations);
-        }
         cachedCallback->OnCacheLocationsReport(cacheLocations);
-    }
-}
-
-void GnssAbility::ApproximatelyLocations(std::vector<std::unique_ptr<Location>> &cacheLocations,
-    std::vector<std::unique_ptr<Location>> approximatelyLocations)
-{
-    for (const auto& locationPtr : cacheLocations) {
-        if (locationPtr != nullptr) {
-            auto approximatelyLocation = std::make_unique<Location>(*locationPtr);
-            approximatelyLocation = CommonUtils::ApproximatelyLocation(
-                approximatelyLocation, appIdentity.GetBundleName());
-            approximatelyLocations.push_back(std::move(approximatelyLocation));
-        }
     }
 }
 

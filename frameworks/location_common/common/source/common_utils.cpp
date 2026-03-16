@@ -31,6 +31,7 @@
 #include "constant_definition.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
+#include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
 #include "os_account_info.h"
@@ -52,10 +53,6 @@ const int32_t MAX_INT_LENGTH = 9;
 const size_t MAX_ULL_SIZE = 19;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 const int DEFAULT_USERID = 100;
-const double POWER_BASE = 10.0; // 幂的基数
-const int POWER_EXPONENT = 8; // 幂的指数
-static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
-static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 
 int CommonUtils::AbilityConvertToId(const std::string ability)
 {
@@ -661,63 +658,6 @@ bool CommonUtils::ConvertStringToDigit(const std::string& str, int32_t &ret)
     return true;
 }
 
-std::unique_ptr<Location> CommonUtils::ApproximatelyLocation(
-    const std::unique_ptr<Location>& location, std::string bundleName)
-{
-    ApproximatelyLocationStruct approximateConfig;
-    approximateConfig.bundleName = bundleName;
-    GetApproximateConfig(approximateConfig);
-    std::unique_ptr<Location> coarseLocation = std::make_unique<Location>(*location);
-    double startLat = coarseLocation->GetLatitude();
-    double startLon = coarseLocation->GetLongitude();
-    double brg = offsetRandom_ * DIS_FROMLL_PARAMETER * M_PI; // 2PI
-    double dist = offsetRandom_ * (approximateConfig.maximumFuzzy -
-        approximateConfig.minimumFuzzy) + approximateConfig.minimumFuzzy;
-    double perlat = (DIS_FROMLL_PARAMETER * M_PI * EARTH_RADIUS) / DEGREE_DOUBLE_PI; // the radian value of per degree
 
-    double lat = startLat + (dist * sin(brg)) / perlat;
-    double lon;
-    if (cos(brg) < 0) {
-        lon = startLon - (dist * DEGREE_DOUBLE_PI) / (DIS_FROMLL_PARAMETER * M_PI * EARTH_RADIUS);
-    } else {
-        lon = startLon + (dist * DEGREE_DOUBLE_PI) / (DIS_FROMLL_PARAMETER * M_PI * EARTH_RADIUS);
-    }
-    if (lat < -MAX_LATITUDE) {
-        lat = -MAX_LATITUDE;
-    } else if (lat > MAX_LATITUDE) {
-        lat = MAX_LATITUDE;
-    } else {
-        lat = std::round(lat * std::pow(POWER_BASE, POWER_EXPONENT)) /
-            std::pow(POWER_BASE, POWER_EXPONENT); // 8 decimal
-    }
-    if (lon < -MAX_LONGITUDE) {
-        lon = -MAX_LONGITUDE;
-    } else if (lon > MAX_LONGITUDE) {
-        lon = MAX_LONGITUDE;
-    } else {
-        lon = std::round(lon * std::pow(POWER_BASE, POWER_EXPONENT)) /
-            std::pow(POWER_BASE, POWER_EXPONENT); // 8 decimal
-    }
-    if (approximateConfig.needApproximate) {
-        coarseLocation->SetLatitude(lat);
-        coarseLocation->SetLongitude(lon);
-        coarseLocation->SetAccuracy(approximateConfig.fuzzyAcc); // approximately location acc
-        std::vector<std::string> emptyAdds;
-        coarseLocation->SetAdditions(emptyAdds, false);
-        PoiInfo emptyPoiInfo;
-        coarseLocation->SetPoiInfo(emptyPoiInfo);
-        coarseLocation->SetAdditionSize(0);
-    }
-    return coarseLocation;
-}
-
-void CommonUtils::GetApproximateConfig(ApproximatelyLocationStruct &approximateConfig)
-{
-    approximateConfig.needApproximate = true;
-    approximateConfig.fuzzyAcc = DEFAULT_APPROXIMATELY_ACCURACY;
-    approximateConfig.maximumFuzzy = MAXIMUM_FUZZY_LOCATION_DISTANCE;
-    approximateConfig.minimumFuzzy = MINIMUM_FUZZY_LOCATION_DISTANCE;
-    HookUtils::ExecuteHookWhenApproximatelyLocation(approximateConfig);
-}
 } // namespace Location
 } // namespace OHOS

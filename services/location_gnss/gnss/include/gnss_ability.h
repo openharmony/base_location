@@ -192,8 +192,6 @@ public:
     void ReportNmea(int64_t timestamp, const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
     void ReportCachedLocation(const std::vector<std::unique_ptr<Location>> &cacheLocations);
-    void ApproximatelyLocations(std::vector<std::unique_ptr<Location>> &cacheLocations,
-        std::vector<std::unique_ptr<Location>> approximatelyLocations);
     LocationErrCode EnableMock() override;
     LocationErrCode DisableMock() override;
     LocationErrCode SetMocked(const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) override;
