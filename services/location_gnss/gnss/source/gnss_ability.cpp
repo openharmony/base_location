@@ -1505,7 +1505,6 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
         auto callback = iter.first;
         sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
         if (cachedCallback != nullptr) {
-            return;
             cachedCallback->OnCacheLocationsReport(cacheLocations);
         }
     }
