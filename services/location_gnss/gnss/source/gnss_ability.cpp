@@ -1495,19 +1495,19 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
         if (iter.second == nullptr) {
             continue;
         }
-        auto callback = iter.first;
-        sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
-        if (cachedCallback == nullptr) {
-            return;
-        }
         AppIdentity appIdentity = iter.second->appIdentity;
         if (!PermissionManager::CheckApproximatelyPermission(
             appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportCachedLocation CheckApproximatelyPermission return false, tokenId = %{public}d",
                 appIdentity.GetTokenId());
-            return;
+            continue;
         }
-        cachedCallback->OnCacheLocationsReport(cacheLocations);
+        auto callback = iter.first;
+        sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
+        if (cachedCallback != nullptr) {
+            return;
+            cachedCallback->OnCacheLocationsReport(cacheLocations);
+        }
     }
 }
 
