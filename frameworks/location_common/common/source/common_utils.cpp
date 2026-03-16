@@ -31,7 +31,6 @@
 #include "constant_definition.h"
 #include "parameter.h"
 #include "location_sa_load_manager.h"
-#include "hook_utils.h"
 #include "accesstoken_kit.h"
 #include "os_account_manager.h"
 #include "os_account_info.h"

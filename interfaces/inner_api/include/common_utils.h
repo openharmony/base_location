@@ -28,6 +28,7 @@
 #include "location_log.h"
 #include "location.h"
 #include "app_identity.h"
+#include "hook_utils.h"
 
 namespace OHOS {
 namespace Location {
