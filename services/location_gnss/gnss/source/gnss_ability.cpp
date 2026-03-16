@@ -1521,7 +1521,7 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
             nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportNmea CheckApproximatelyPermission return false, tokenId = %{public}d",
                 nmeaIdentity.GetTokenId());
-            return;
+            continue;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(nmeaIdentity.GetPid())) {
@@ -1541,7 +1541,7 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
             gnssStatusIdentity.GetTokenId(), gnssStatusIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportSv CheckApproximatelyPermission return false, tokenId = %{public}d",
                 gnssStatusIdentity.GetTokenId());
-            return;
+            continue;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(gnssStatusIdentity.GetPid())) {
