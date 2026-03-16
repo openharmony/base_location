@@ -53,6 +53,8 @@ const int32_t MAX_INT_LENGTH = 9;
 const size_t MAX_ULL_SIZE = 19;
 const int64_t SEC_TO_NANO = 1000 * 1000 * 1000;
 const int DEFAULT_USERID = 100;
+const double POWER_BASE = 10.0; // 幂的基数
+const int POWER_EXPONENT = 8; // 幂的指数
 static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 4000.0; // Unit m
 static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 3000.0; // Unit m
 
@@ -686,14 +688,16 @@ std::unique_ptr<Location> CommonUtils::ApproximatelyLocation(
     } else if (lat > MAX_LATITUDE) {
         lat = MAX_LATITUDE;
     } else {
-        lat = std::round(lat * std::pow(10, 8)) / std::pow(10, 8); // 8 decimal
+        lat = std::round(lat * std::pow(POWER_BASE, POWER_EXPONENT)) /
+            std::pow(POWER_BASE, POWER_EXPONENT); // 8 decimal
     }
     if (lon < -MAX_LONGITUDE) {
         lon = -MAX_LONGITUDE;
     } else if (lon > MAX_LONGITUDE) {
         lon = MAX_LONGITUDE;
     } else {
-        lon = std::round(lon * std::pow(10, 8)) / std::pow(10, 8); // 8 decimal
+        lon = std::round(lon * std::pow(POWER_BASE, POWER_EXPONENT)) /
+            std::pow(POWER_BASE, POWER_EXPONENT); // 8 decimal
     }
     if (approximateConfig.needApproximate) {
         coarseLocation->SetLatitude(lat);

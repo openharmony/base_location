@@ -1501,26 +1501,28 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
             return;
         }
         AppIdentity appIdentity = iter.second->appIdentity;
-        if (!PermissionManager::CheckApproximatelyPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
+        if (!PermissionManager::CheckApproximatelyPermission(
+            appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportCachedLocation CheckApproximatelyPermission return false, tokenId = %{public}d",
                 appIdentity.GetTokenId());
             return;
         }
         std::vector<std::unique_ptr<Location>> approximatelyLocations;
         approximatelyLocations.reserve(cacheLocations.size());
-        if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
-            // 没有精确位置权限，位置模糊化
+        // 有精确位置权限直接上报，没有精确位置权限，位置模糊化
+        if (PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
+            cachedCallback->OnCacheLocationsReport(cacheLocations);
+        } else {
             for (const auto& locationPtr : cacheLocations) {
                 if (locationPtr != nullptr) {
                     auto approximatelyLocation = std::make_unique<Location>(*locationPtr);
-                    approximatelyLocation = CommonUtils::ApproximatelyLocation(approximatelyLocation, appIdentity.GetBundleName());
+                    approximatelyLocation = CommonUtils::ApproximatelyLocation(
+                        approximatelyLocation, appIdentity.GetBundleName());
                     approximatelyLocations.push_back(std::move(approximatelyLocation));
                 }
-
             }
             const_cast<std::vector<std::unique_ptr<Location>>&>(cacheLocations) = std::move(approximatelyLocations);
         }
-        cachedCallback->OnCacheLocationsReport(cacheLocations);
     }
 }
 
@@ -1531,7 +1533,8 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         auto callback = pair.first;
         sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
-        if (!PermissionManager::CheckApproximatelyPermission(nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
+        if (!PermissionManager::CheckApproximatelyPermission(
+            nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
             LBSLOGE(GNSS, "ReportNmea CheckApproximatelyPermission return false, tokenId = %{public}d",
                 nmeaIdentity.GetTokenId());
             return;
