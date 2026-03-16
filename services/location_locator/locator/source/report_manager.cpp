@@ -37,8 +37,6 @@ namespace OHOS {
 namespace Location {
 const long NANOS_PER_MILLI = 1000000L;
 const int MAX_SA_SCHEDULING_JITTER_MS = 200;
-static constexpr double MAXIMUM_FUZZY_LOCATION_DISTANCE = 40.0; // Unit m
-static constexpr double MINIMUM_FUZZY_LOCATION_DISTANCE = 30.0; // Unit m
 static constexpr int CACHED_TIME = 25;
 static constexpr int MAX_LOCATION_REPORT_DELAY_TIME = 30000; // Unit ms
 static constexpr int MIN_RESET_TIME_THRESHOLD = 1 * 60 * 60 * 1000; // Unit ms
@@ -314,7 +312,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     }
     if (PermissionManager::CheckApproximatelyPermission(tokenId, firstTokenId)) {
         LBSLOGI(REPORT_MANAGER, "%{public}d has ApproximatelyLocation permission", tokenId);
-        finalLocation = ApproximatelyLocation(location, request);
+        finalLocation = CommonUtils::ApproximatelyLocation(location, bundleName);
         return finalLocation;
     }
     LBSLOGE(REPORT_MANAGER, "%{public}d has no location permission failed", tokenId);
@@ -513,60 +511,6 @@ void ReportManager::UpdateRandom()
     if (abs(now.tv_sec - lastUpdateTime_.tv_sec) > LONG_TIME_INTERVAL) {
         offsetRandom_ = CommonUtils::DoubleRandom(0, 1);
     }
-}
-
-std::unique_ptr<Location> ReportManager::ApproximatelyLocation(
-    const std::unique_ptr<Location>& location, const std::shared_ptr<Request>& request)
-{
-    std::string bundleName = request->GetPackageName();
-    bool isNeedLocation = request->GetRequestConfig()->GetIsNeedLocation();
-    bool isNeedPoi = request->GetRequestConfig()->GetIsNeedPoi();
-    std::unique_ptr<Location> coarseLocation = std::make_unique<Location>(*location);
-    double startLat = coarseLocation->GetLatitude();
-    double startLon = coarseLocation->GetLongitude();
-    double brg = offsetRandom_ * DIS_FROMLL_PARAMETER * M_PI; // 2PI
-    double dist = offsetRandom_ * (MAXIMUM_FUZZY_LOCATION_DISTANCE -
-        MINIMUM_FUZZY_LOCATION_DISTANCE) + MINIMUM_FUZZY_LOCATION_DISTANCE;
-    double perlat = (DIS_FROMLL_PARAMETER * M_PI * EARTH_RADIUS) / DEGREE_DOUBLE_PI; // the radian value of per degree
-
-    double lat = startLat + (dist * sin(brg)) / perlat;
-    double lon;
-    if (cos(brg) < 0) {
-        lon = startLon - (dist * DEGREE_DOUBLE_PI) / (DIS_FROMLL_PARAMETER * M_PI * EARTH_RADIUS);
-    } else {
-        lon = startLon + (dist * DEGREE_DOUBLE_PI) / (DIS_FROMLL_PARAMETER * M_PI * EARTH_RADIUS);
-    }
-    if (lat < -MAX_LATITUDE) {
-        lat = -MAX_LATITUDE;
-    } else if (lat > MAX_LATITUDE) {
-        lat = MAX_LATITUDE;
-    } else {
-        lat = std::round(lat * std::pow(10, 8)) / std::pow(10, 8); // 8 decimal
-    }
-    if (lon < -MAX_LONGITUDE) {
-        lon = -MAX_LONGITUDE;
-    } else if (lon > MAX_LONGITUDE) {
-        lon = MAX_LONGITUDE;
-    } else {
-        lon = std::round(lon * std::pow(10, 8)) / std::pow(10, 8); // 8 decimal
-    }
-    coarseLocation->SetLatitude(lat);
-    coarseLocation->SetLongitude(lon);
-    coarseLocation->SetAccuracy(DEFAULT_APPROXIMATELY_ACCURACY); // approximately location acc
-    std::vector<std::string> emptyAdds;
-    coarseLocation->SetAdditions(emptyAdds, false);
-    PoiInfo emptyPoiInfo;
-    coarseLocation->SetPoiInfo(emptyPoiInfo);
-    coarseLocation->SetAdditionSize(0);
-    if (!isNeedLocation && isNeedPoi) {
-        auto locatorCallback = request->GetLocatorCallBack();
-        if (locatorCallback != nullptr) {
-            locatorCallback->OnErrorReport(LocationErrCode::ERRCODE_PERMISSION_DENIED);
-        } else {
-            LBSLOGI(REPORT_MANAGER, "null locatorCallback");
-        }
-    }
-    return coarseLocation;
 }
 
 bool ReportManager::IsRequestFuse(const std::shared_ptr<Request>& request)

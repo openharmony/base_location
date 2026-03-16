@@ -216,6 +216,12 @@ bool HookUtils::ExecuteHookWhenSimStateChange(const std::string& data)
     return locatorRequestStruct.result;
 }
 
+void HookUtils::ExecuteHookWhenApproximatelyLocation(ApproximatelyLocationStruct &approximateConfig)
+{
+    ExecuteHook(
+        LocationProcessStage::APPROXIMATELY_LOCATION_PROCESS, (void *)&approximateConfig, nullptr);
+}
+
 bool HookUtils::ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type)
 {
     ScanStruct scanStruct;

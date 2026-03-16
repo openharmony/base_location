@@ -145,6 +145,14 @@ typedef struct {
 } AgnssStruct;
 
 typedef struct {
+    std::string bundleName;
+    bool needApproximate;
+    double maximumFuzzy;
+    double minimumFuzzy;
+    double fuzzyAcc;
+} ApproximatelyLocationStruct;
+
+typedef struct {
     std::string packageName;
     std::string type;
     bool result;
@@ -191,6 +199,7 @@ public:
     static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
     static bool ExecuteHookWhenSimStateChange(const std::string& data);
+    static void ExecuteHookWhenApproximatelyLocation(ApproximatelyLocationStruct &approximateConfig);
     static bool ExecuteHookWhenReportBluetoothScanResult(const std::string& packageName, const std::string& type);
     static bool ExecuteHookWhenStartScanBluetoothDevice(const std::string& packageName, const std::string& type);
     static void ExecuteHookWhenWifiScanStateChanged(

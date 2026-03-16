@@ -1495,17 +1495,32 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
         if (iter.second == nullptr) {
             continue;
         }
+        auto callback = iter.first;
+        sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
+        if (cachedCallback == nullptr) {
+            return;
+        }
         AppIdentity appIdentity = iter.second->appIdentity;
-        if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
-            LBSLOGE(GNSS, "ReportCachedLocation CheckLocationPermission return false, tokenId = %{public}d",
+        if (!PermissionManager::CheckApproximatelyPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportCachedLocation CheckApproximatelyPermission return false, tokenId = %{public}d",
                 appIdentity.GetTokenId());
             return;
         }
-        auto callback = iter.first;
-        sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
-        if (cachedCallback != nullptr) {
-            cachedCallback->OnCacheLocationsReport(cacheLocations);
+        std::vector<std::unique_ptr<Location>> approximatelyLocations;
+        approximatelyLocations.reserve(cacheLocations.size());
+        if (!PermissionManager::CheckLocationPermission(appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
+            // 没有精确位置权限，位置模糊化
+            for (const auto& locationPtr : cacheLocations) {
+                if (locationPtr != nullptr) {
+                    auto approximatelyLocation = std::make_unique<Location>(*locationPtr);
+                    approximatelyLocation = CommonUtils::ApproximatelyLocation(approximatelyLocation, appIdentity.GetBundleName());
+                    approximatelyLocations.push_back(std::move(approximatelyLocation));
+                }
+
+            }
+            const_cast<std::vector<std::unique_ptr<Location>>&>(cacheLocations) = std::move(approximatelyLocations);
         }
+        cachedCallback->OnCacheLocationsReport(cacheLocations);
     }
 }
 
@@ -1516,8 +1531,8 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         auto callback = pair.first;
         sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
-        if (!PermissionManager::CheckLocationPermission(nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
-            LBSLOGE(GNSS, "ReportNmea CheckLocationPermission return false, tokenId = %{public}d",
+        if (!PermissionManager::CheckApproximatelyPermission(nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportNmea CheckApproximatelyPermission return false, tokenId = %{public}d",
                 nmeaIdentity.GetTokenId());
             return;
         }
@@ -1535,9 +1550,9 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         auto callback = pair.first;
         sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
         AppIdentity gnssStatusIdentity = pair.second;
-        if (!PermissionManager::CheckLocationPermission(
+        if (!PermissionManager::CheckApproximatelyPermission(
             gnssStatusIdentity.GetTokenId(), gnssStatusIdentity.GetFirstTokenId())) {
-            LBSLOGE(GNSS, "ReportSv CheckLocationPermission return false, tokenId = %{public}d",
+            LBSLOGE(GNSS, "ReportSv CheckApproximatelyPermission return false, tokenId = %{public}d",
                 gnssStatusIdentity.GetTokenId());
             return;
         }
@@ -1722,7 +1737,7 @@ void GnssAbility::StopGnss()
 
 int64_t GnssAbility::GetReportingPeriodSecParam()
 {
-    int reportingPeriodSec = 1000;
+    int reportingPeriodSec = MAX_BATCH_LENGTH_MS;
     std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
         if (iter.second != nullptr) {

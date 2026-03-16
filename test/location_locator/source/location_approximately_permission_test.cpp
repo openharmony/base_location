@@ -81,7 +81,7 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    auto newLocation = reportManager_->GetPermittedLocation(request, location);
+    auto newLocation = CommonUtils::GetPermittedLocation(location, "ReportManagerApproximatelyLocationTest001");
     if (newLocation != nullptr) {
         EXPECT_EQ(MAX_LATITUDE, newLocation->GetLatitude());
         EXPECT_EQ(MAX_LONGITUDE, newLocation->GetLongitude());
@@ -108,7 +108,7 @@ HWTEST_F(LocationApproximatelyPermissionTest, ReportManagerApproximatelyLocation
     parcel.WriteInt32(0);          // isFromMock
     std::unique_ptr<Location> location = std::make_unique<Location>();
     location->ReadFromParcel(parcel);
-    auto newLocation = reportManager_->GetPermittedLocation(request, location);
+    auto newLocation = CommonUtils::GetPermittedLocation(location, "ReportManagerApproximatelyLocationTest002");
     if (newLocation != nullptr) {
         EXPECT_EQ(-MAX_LATITUDE, newLocation->GetLatitude());
         EXPECT_EQ(-MAX_LONGITUDE, newLocation->GetLongitude());
