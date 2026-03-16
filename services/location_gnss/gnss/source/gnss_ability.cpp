@@ -2161,7 +2161,7 @@ LocationErrCode GnssAbility::GetActiveGeoFences(std::string bundleName,
             fenceMap.insert(std::make_pair(request->GetFenceId(), geofence));
         }
     }
-    LBSLOGI(GNSS, "map size = %{public}u", fenceMap.size());
+    LBSLOGI(GNSS, "map size = %{public}zu", fenceMap.size());
     return ERRCODE_SUCCESS;
 }
 
