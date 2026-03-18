@@ -297,10 +297,6 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     data.ReadString(bundleName_);
     data.ReadString(fenceExtensionAbilityName_);
     uid_ = data.ReadInt32();
-    pid_ = data.ReadInt32();
-    tokenId_ = data.ReadUint32();
-    tokenIdExt_ = data.ReadUint32();
-    firstTokenId_ = data.ReadUint32();
     AbilityRuntime::WantAgent::WantAgent* wantAgentData =
         AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data);
     if (wantAgentData == nullptr) {
@@ -350,10 +346,6 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteString(bundleName_);
     parcel.WriteString(fenceExtensionAbilityName_);
     parcel.WriteInt32(uid_);
-    parcel.WriteInt32(pid_);
-    parcel.WriteUint32(tokenId_);
-    parcel.WriteUint32(tokenIdExt_);
-    parcel.WriteUint32(firstTokenId_);
     if (wantAgent_ != nullptr) {
         wantAgent_->Marshalling(parcel);
     }
