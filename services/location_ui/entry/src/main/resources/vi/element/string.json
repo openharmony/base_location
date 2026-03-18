@@ -330,6 +330,34 @@
             }
         },
         {
+            "name":"wifi_triband_network_notify_text",
+            "value":"Trải nghiệm kết nối mạng mượt mà hơn.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_notify_ok_button",
+            "value":"Kết nối ngay",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_pop_up_title",
+            "value":"Kết nối với bộ định tuyến qua NearLink",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_notify_no_button",
+            "value":"Không hiện lại",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"p2p_wsc_keypad_enter_pin_message",
             "value":"Nhập mã PIN:",
             "attr":{

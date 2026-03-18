@@ -243,6 +243,22 @@
         {
             "name":"p2p_wsc_display_ok_button",
             "value":"[TS_1156447]_OK"
+        },
+        {
+            "name":"wifi_triband_network_notify_text",
+            "value":"[TS_1175140]_Experience a smoother network connection."
+        },
+        {
+            "name":"wifi_triband_network_notify_ok_button",
+            "value":"[TS_1175453]_Connect now"
+        },
+        {
+            "name":"wifi_triband_network_pop_up_title",
+            "value":"[TS_1175139]_Connect to router via NearLink"
+        },
+        {
+            "name":"wifipro_auto_connect_notify_no_button",
+            "value":"[TS_1175454]_Don't show again"
         }
     ]
 }

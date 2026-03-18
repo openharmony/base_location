@@ -51,10 +51,7 @@
         },
         {
             "name":"ni_notify_message",
-            "value":"請求人",
-            "attr":{
-                "priority":"LT"
-            }
+            "value":"請求人"
         },
         {
             "name":"location_target_statement_content",
@@ -325,6 +322,34 @@
         {
             "name":"thermal_stop_tether_notification_message",
             "value":"目前裝置溫度過高，已為您自動停用熱點",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_notify_text",
+            "value":"可優化網絡體驗",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_notify_ok_button",
+            "value":"立即連接",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_pop_up_title",
+            "value":"透過星閃連線路由器",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_notify_no_button",
+            "value":"不再提醒",
             "attr":{
                 "priority":"translate"
             }

@@ -330,6 +330,34 @@
             }
         },
         {
+            "name":"wifi_triband_network_notify_text",
+            "value":"더 원활한 네트워크 연결을 경험해 보십시오.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_notify_ok_button",
+            "value":"지금 연결",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_pop_up_title",
+            "value":"NearLink를 통해 공유기에 연결",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_notify_no_button",
+            "value":"다시 표시 안 함",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"p2p_wsc_keypad_enter_pin_message",
             "value":"PIN 입력:",
             "attr":{
