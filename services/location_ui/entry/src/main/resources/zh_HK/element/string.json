@@ -51,7 +51,10 @@
         },
         {
             "name":"ni_notify_message",
-            "value":"請求人"
+            "value":"請求人",
+            "attr":{
+                "priority":"LT"
+            }
         },
         {
             "name":"location_target_statement_content",
