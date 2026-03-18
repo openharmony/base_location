@@ -44,6 +44,7 @@
 #include "location_data_rdb_manager.h"
 #include "permission_manager.h"
 #include "proxy_freeze_manager.h"
+#include "app_background_status_manager.h"
 
 #ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
@@ -1337,6 +1338,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         return;
     }
     NotifyGnssfenceStatusByNotification(request, event);
+    NotifyGnssfenceStatusByFenceExtence(request, event);
     auto callback = request->GetGeofenceTransitionCallback();
     if (callback == nullptr) {
         LBSLOGE(GNSS, "callback is nullptr");
@@ -1409,8 +1411,49 @@ void GnssAbility::NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRe
                 LBSLOGE(GNSS, "PublishNotification faild ret :%{public}d", ret);
             }
         }
-#endif
     }
+#endif
+}
+
+void GnssAbility::NotifyGnssfenceStatusByFenceExtence(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
+{
+    if (request == nullptr) {
+        LBSLOGE(GNSS, "NotifyGnssfenceStatusByFenceExtence request is nullptr");
+        return;
+    }
+    if (request->GetFenceExtensionAbilityName().empty()) {
+        return;
+    }
+    uint32_t tokenId = request->GetTokenId();
+    if (IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
+        request->GetPid()) && !PermissionManager::CheckBackgroundPermission(tokenId, request->GetFirstTokenId())) {
+        LBSLOGE(GNSS,
+            "NotifyGnssfenceStatusByFenceExtence CheckBackgroundPermission false, tokenId = %{public}d", tokenId);
+            return;
+    }
+    FenceStruct fenceStruct;
+    fenceStruct.request = request;
+    fenceStruct.transitionEvent = static_cast<int>(event);
+    HookUtils::ExecuteHook(
+        LocationProcessStage::NOTIFY_GEOFENCE_STATUS_BY_FENCEEXTENCE_PROCESS, (void *)&fenceStruct, nullptr);
+}
+ 
+bool GnssAbility::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
+{
+    auto backgroundManager = AppBackgroundStatusManager::GetInstance();
+    if (!backgroundManager->IsAppBackground(uid, bundleName)) {
+        return false;
+    }
+    if (!HookUtils::ExecuteHookWhenCheckIsAppBackground(bundleName)) {
+        return false;
+    }
+    if (backgroundManager->IsAppHasFormVisible(tokenId, tokenIdEx)) {
+        return false;
+    }
+    if (backgroundManager->IsAppInLocationContinuousTasks(uid, pid)) {
+        return false;
+    }
+    return true;
 }
 #endif
 

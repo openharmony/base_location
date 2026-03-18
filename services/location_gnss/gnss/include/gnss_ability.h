@@ -118,6 +118,7 @@ typedef struct {
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     sptr<IGeofenceCallback> callback;
 #endif
+    int transitionEvent;
     int requestCode;
     int retCode;
     std::vector<CoordinateSystemType> coordinateSystemTypes;
@@ -232,6 +233,8 @@ public:
     void ReportGeofenceEvent(int fenceId, GeofenceEvent event);
     bool NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
     void NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
+    void NotifyGnssfenceStatusByFenceExtence(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
+    bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid);
     void SaveGeoFenceRequestToFile();
     std::vector<std::shared_ptr<GeofenceRequest>> ReadGeoFenceRequestFromFile();
     std::string ReadFileContent();

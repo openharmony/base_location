@@ -96,6 +96,22 @@ public:
 
     void SetUid(int32_t uid);
 
+    int32_t GetPid();
+ 
+    void SetPid(int32_t pid);
+ 
+    uint32_t GetTokenId();
+ 
+    void SetTokenId(uint32_t tokenId);
+ 
+    uint32_t GetTokenIdEx();
+ 
+    void SetTokenIdEx(uint32_t tokenIdEx);
+ 
+    uint32_t GetFirstTokenId();
+ 
+    void SetFirstTokenId(uint32_t firstTokenId);
+
     bool GetAppAliveStatus();
 
     void SetAppAliveStatus(bool appAliveStatus);
@@ -116,6 +132,8 @@ public:
     static void ConvertWantAgentInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
     static void ConvertTransitionEventInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
     static void ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    static void ConvertGeofenceRequestInfoExt(
+        std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
 
 private:
     static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);
@@ -128,6 +146,10 @@ private:
     int loiterTimeMs_;
     int fenceId_;
     int32_t uid_;
+    int32_t pid_;
+    uint32_t tokenId_;
+    uint32_t tokenIdEx_;
+    uint32_t firstTokenId_;
     std::shared_ptr<AbilityRuntime::WantAgent::WantAgent> wantAgent_;
     std::string bundleName_;
     bool appAliveStatus_;

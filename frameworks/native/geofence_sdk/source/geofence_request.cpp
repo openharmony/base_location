@@ -33,6 +33,10 @@ GeofenceRequest::GeofenceRequest()
     appAliveStatus_ = true;
     loiterTimeMs_ = 0;
     wantAgent_ = nullptr;
+    pid_ = 0;
+    tokenId_ = 0;
+    tokenIdEx_ = 0;
+    firstTokenId_ = 0;
 }
 
 GeofenceRequest::GeofenceRequest(GeofenceRequest& geofenceRequest)
@@ -186,6 +190,46 @@ void GeofenceRequest::SetUid(int32_t uid)
     uid_ = uid;
 }
 
+int32_t GeofenceRequest::GetPid()
+{
+    return pid_;
+}
+ 
+void GeofenceRequest::SetPid(int32_t pid)
+{
+    pid_ = pid;
+}
+ 
+uint32_t GeofenceRequest::GetTokenId()
+{
+    return tokenId_;
+}
+ 
+void GeofenceRequest::SetTokenId(uint32_t tokenId)
+{
+    tokenId_ = tokenId;
+}
+ 
+uint32_t GeofenceRequest::GetTokenIdEx()
+{
+    return tokenIdEx_;
+}
+ 
+void GeofenceRequest::SetTokenIdEx(uint32_t tokenIdEx)
+{
+    tokenIdEx_ = tokenIdEx;
+}
+ 
+uint32_t GeofenceRequest::GetFirstTokenId()
+{
+    return firstTokenId_;
+}
+ 
+void GeofenceRequest::SetFirstTokenId(uint32_t firstTokenId)
+{
+    firstTokenId_ = firstTokenId;
+}
+
 bool GeofenceRequest::GetAppAliveStatus()
 {
     return appAliveStatus_;
@@ -253,6 +297,10 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     data.ReadString(bundleName_);
     data.ReadString(fenceExtensionAbilityName_);
     uid_ = data.ReadInt32();
+    pid_ = data.ReadInt32();
+    tokenId_ = data.ReadUint32();
+    tokenIdExt_ = data.ReadUint32();
+    firstTokenId_ = data.ReadUint32();
     AbilityRuntime::WantAgent::WantAgent* wantAgentData =
         AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data);
     if (wantAgentData == nullptr) {
@@ -302,6 +350,10 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     parcel.WriteString(bundleName_);
     parcel.WriteString(fenceExtensionAbilityName_);
     parcel.WriteInt32(uid_);
+    parcel.WriteInt32(pid_);
+    parcel.WriteUint32(tokenId_);
+    parcel.WriteUint32(tokenIdExt_);
+    parcel.WriteUint32(firstTokenId_);
     if (wantAgent_ != nullptr) {
         wantAgent_->Marshalling(parcel);
     }
@@ -348,6 +400,10 @@ bool GeofenceRequest::ToJson(nlohmann::json &jsonObject)
     jsonObject["loiterTimeMs"] = loiterTimeMs_;
     jsonObject["fenceId"] = fenceId_;
     jsonObject["uid"] = uid_;
+    jsonObject["pid"] = pid_;
+    jsonObject["tokenId"] = tokenId_;
+    jsonObject["tokenIdEx"] = tokenIdEx_;
+    jsonObject["firstTokenId"] = firstTokenId_;
     jsonObject["wantAgent"] = wantAgent_ ? AbilityRuntime::WantAgent::WantAgentHelper::ToString(wantAgent_) : "";
     jsonObject["bundleName"] = bundleName_;
     jsonObject["fenceExtensionAbilityName"] = fenceExtensionAbilityName_;
@@ -460,6 +516,24 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
     if (jsonObject.find("requestExpirationTimeStamp") != jsonObject.cend() &&
         jsonObject.at("requestExpirationTimeStamp").is_number()) {
         request->requestExpirationTimeStamp_ = jsonObject.at("requestExpirationTimeStamp").get<int64_t>();
+    }
+    ConvertGeofenceRequestInfoExt(request, jsonObject);
+}
+
+void GeofenceRequest::ConvertGeofenceRequestInfoExt(std::shared_ptr<GeofenceRequest>& request,
+    const nlohmann::json &jsonObject)
+{
+    if (jsonObject.find("pid") != jsonObject.cend() && jsonObject.at("pid").is_number()) {
+        request->pid_ = jsonObject.at("pid").get<int>();
+    }
+    if (jsonObject.find("tokenId") != jsonObject.cend() && jsonObject.at("tokenId").is_number()) {
+        request->tokenId_ = jsonObject.at("tokenId").get<int>();
+    }
+    if (jsonObject.find("tokenIdEx") != jsonObject.cend() && jsonObject.at("tokenIdEx").is_number()) {
+        request->tokenIdEx_ = jsonObject.at("tokenIdEx").get<int>();
+    }
+    if (jsonObject.find("firstTokenId") != jsonObject.cend() && jsonObject.at("firstTokenId").is_number()) {
+        request->firstTokenId_ = jsonObject.at("firstTokenId").get<int>();
     }
 }
 
