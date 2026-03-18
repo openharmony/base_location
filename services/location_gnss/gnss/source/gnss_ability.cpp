@@ -1497,6 +1497,16 @@ void GnssAbility::ReportCachedLocation(const std::vector<std::unique_ptr<Locatio
 {
     std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
+        if (iter.second == nullptr) {
+            continue;
+        }
+        AppIdentity appIdentity = iter.second->appIdentity;
+        if (!PermissionManager::CheckApproximatelyPermission(
+            appIdentity.GetTokenId(), appIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportCachedLocation CheckApproximatelyPermission return false, tokenId = %{public}d",
+                appIdentity.GetTokenId());
+            continue;
+        }
         auto callback = iter.first;
         sptr<ICachedLocationsCallback> cachedCallback = iface_cast<ICachedLocationsCallback>(callback);
         if (cachedCallback != nullptr) {
@@ -1512,6 +1522,12 @@ void GnssAbility::ReportNmea(int64_t timestamp, const std::string &nmea)
         auto callback = pair.first;
         sptr<INmeaMessageCallback> nmeaCallback = iface_cast<INmeaMessageCallback>(callback);
         AppIdentity nmeaIdentity = pair.second;
+        if (!PermissionManager::CheckApproximatelyPermission(
+            nmeaIdentity.GetTokenId(), nmeaIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportNmea CheckApproximatelyPermission return false, tokenId = %{public}d",
+                nmeaIdentity.GetTokenId());
+            continue;
+        }
         if (CommonUtils::IsAppBelongCurrentAccount(nmeaIdentity) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(nmeaIdentity.GetPid())) {
             nmeaCallback->OnMessageChange(timestamp, nmea);
@@ -1526,6 +1542,12 @@ void GnssAbility::ReportSv(const std::unique_ptr<SatelliteStatus> &sv)
         auto callback = pair.first;
         sptr<IGnssStatusCallback> gnssStatusCallback = iface_cast<IGnssStatusCallback>(callback);
         AppIdentity gnssStatusIdentity = pair.second;
+        if (!PermissionManager::CheckApproximatelyPermission(
+            gnssStatusIdentity.GetTokenId(), gnssStatusIdentity.GetFirstTokenId())) {
+            LBSLOGE(GNSS, "ReportSv CheckApproximatelyPermission return false, tokenId = %{public}d",
+                gnssStatusIdentity.GetTokenId());
+            continue;
+        }
         if (CommonUtils::IsAppBelongCurrentAccount(gnssStatusIdentity) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(gnssStatusIdentity.GetPid())) {
             gnssStatusCallback->OnStatusChange(sv);
@@ -1707,7 +1729,7 @@ void GnssAbility::StopGnss()
 
 int64_t GnssAbility::GetReportingPeriodSecParam()
 {
-    int reportingPeriodSec = 1000;
+    int reportingPeriodSec = MAX_BATCH_LENGTH_MS;
     std::unique_lock<ffrt::mutex> lock(batchingMutex_);
     for (const auto& iter : batchingCallbackMap_) {
         if (iter.second != nullptr) {

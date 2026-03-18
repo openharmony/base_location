@@ -790,6 +790,7 @@ ErrCode LocatorAbility::RegisterCachedLocationCallback(int32_t reportingPeriodSe
     dataToStub.WriteInt32(reportingPeriodSec);
     dataToStub.WriteBool(wakeUpCacheQueueFull);
     dataToStub.WriteRemoteObject(cb->AsObject());
+    identity.Marshalling(dataToStub);
     dataToStub.WriteString16(Str8ToStr16(bundleName));
     return SendGnssRequest(static_cast<int>(GnssInterfaceCode::REG_CACHED), dataToStub, replyToStub);
 #else
