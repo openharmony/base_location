@@ -47,6 +47,7 @@ RequestConfig::RequestConfig(const int scenario) : scenario_(scenario)
     timestamp_ = 0;
     isNeedPoi_ = false;
     isNeedLocation_ = true;
+    locationSourceType_ = 0;
 }
 
 void RequestConfig::Set(RequestConfig& requestConfig)
