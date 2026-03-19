@@ -296,6 +296,7 @@ public:
     static PoiInfo ReadPoiInfoFromParcel(Parcel& parcel);
     void AddNlpStatusFromParcel(Parcel& parcel);
     void RemoveNlpStatus();
+    bool DoubleEqual(double a, double b);
 private:
     double latitude_;
     double longitude_;
