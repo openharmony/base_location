@@ -123,6 +123,7 @@ public:
     sptr<IRemoteObject::DeathRecipient> GetTransitionCallbackRecipient();
 
     void ReadFromParcel(Parcel& parcel);
+    void ReadAppInfo(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> UnmarshallingShared(Parcel& parcel);
     static GeofenceRequest* Unmarshalling(Parcel& parcel);

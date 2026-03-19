@@ -294,9 +294,8 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     }
 #endif
     callback_ = data.ReadObject<IRemoteObject>();
-    data.ReadString(bundleName_);
     data.ReadString(fenceExtensionAbilityName_);
-    uid_ = data.ReadInt32();
+    ReadAppInfo(data);
     AbilityRuntime::WantAgent::WantAgent* wantAgentData =
         AbilityRuntime::WantAgent::WantAgent::Unmarshalling(data);
     if (wantAgentData == nullptr) {
@@ -309,6 +308,15 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     }
     delete wantAgentData;
     wantAgentData = nullptr;
+}
+void GeofenceRequest::ReadAppInfo(Parcel& data)
+{
+    data.ReadString(bundleName_);
+    uid_ = data.ReadInt32();
+    pid_ = data.ReadInt32();
+    tokenId_ = data.ReadUint32();
+    tokenIdEx_ = data.ReadUint32();
+    firstTokenId_ = data.ReadUint32();
 }
 
 bool GeofenceRequest::Marshalling(Parcel& parcel) const
@@ -343,9 +351,13 @@ bool GeofenceRequest::Marshalling(Parcel& parcel) const
     }
 #endif
     parcel.WriteRemoteObject(callback_);
-    parcel.WriteString(bundleName_);
     parcel.WriteString(fenceExtensionAbilityName_);
+    parcel.WriteString(bundleName_);
     parcel.WriteInt32(uid_);
+    parcel.WriteInt32(pid_);
+    parcel.WriteUint32(tokenId_);
+    parcel.WriteUint32(tokenIdEx_);
+    parcel.WriteUint32(firstTokenId_);
     if (wantAgent_ != nullptr) {
         wantAgent_->Marshalling(parcel);
     }
