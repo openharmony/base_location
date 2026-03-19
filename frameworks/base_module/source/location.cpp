@@ -267,16 +267,15 @@ bool Location::LocationEqual(const std::unique_ptr<Location>& location)
     if (location == nullptr) {
         return false;
     }
-    if (this->GetLatitude() == location->GetLatitude() &&
-        this->GetLongitude() == location->GetLongitude() &&
-        this->GetAltitude() == location->GetAltitude() &&
-        this->GetAccuracy() == location->GetAccuracy() &&
-        this->GetSpeed() == location->GetSpeed() &&
-        this->GetDirection() == location->GetDirection() &&
+    
+    if (CommonUtils::DoubleEqual(this->GetLatitude(), location->GetLatitude()) &&
+        CommonUtils::DoubleEqual(this->GetLongitude(), location->GetLongitude()) &&
+        CommonUtils::DoubleEqual(this->GetAltitude(), location->GetAltitude()) &&
+        CommonUtils::DoubleEqual(this->GetAccuracy(), location->GetAccuracy()) &&
+        CommonUtils::DoubleEqual(this->GetSpeed(), location->GetSpeed()) &&
+        CommonUtils::DoubleEqual(this->GetDirection(), location->GetDirection()) &&
         this->GetTimeStamp() == location->GetTimeStamp() &&
         this->GetTimeSinceBoot() == location->GetTimeSinceBoot() &&
-        this->AdditionEqual(location) &&
-        this->GetAdditionSize() == location->GetAdditionSize() &&
         this->GetIsFromMock() == location->GetIsFromMock()) {
         return true;
     }
