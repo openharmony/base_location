@@ -330,6 +330,34 @@
             }
         },
         {
+            "name":"wifi_triband_network_notify_text",
+            "value":"Sie profitieren dann von einer reibungs\u200bloseren Netzwerkverbindung.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_notify_ok_button",
+            "value":"Jetzt verbinden",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifi_triband_network_pop_up_title",
+            "value":"Verbindungsherstellung zum Router über NearLink",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"wifipro_auto_connect_notify_no_button",
+            "value":"Nicht erneut anzeigen",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"p2p_wsc_keypad_enter_pin_message",
             "value":"PIN eingeben:",
             "attr":{
