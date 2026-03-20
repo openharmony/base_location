@@ -446,7 +446,11 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
     if (CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
         return true;
     }
-    LBSLOGD(LOCATOR, "CheckRequestAvailable fail uid:%{public}d", identity.GetUid());
+    std::string activeIdsStr;
+    for (auto &activeId : activeIds) {
+        activeIdsStr += std::to_string(activeId) + " ";
+    }
+    LBSLOGI(LOCATOR, "CheckRequestAvailable fail uid:%{public}d, activeUser %{public}s", identity.GetUid(), activeIdsStr.c_str());
     return false;
 }
 
@@ -1299,6 +1303,7 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
             !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
             WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
                 "NETWORK_FAIL_CODE", std::to_string(LOCATION_ERRCODE_BACKGROUND_PERMISSION_DENIED)});
+            LBSLOGE(LOCATOR, "CheckBackgroundPermission return false, [%{public}s]", identity.ToString().c_str());
             return LOCATION_ERRCODE_PERMISSION_DENIED;
         }
     }
