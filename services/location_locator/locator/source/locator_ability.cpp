@@ -450,7 +450,8 @@ bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentit
     for (auto &activeId : activeIds) {
         activeIdsStr += std::to_string(activeId) + " ";
     }
-    LBSLOGI(LOCATOR, "CheckRequestAvailable fail uid:%{public}d, activeUser %{public}s", identity.GetUid(), activeIdsStr.c_str());
+    LBSLOGI(LOCATOR, "CheckRequestAvailable fail uid:%{public}d, activeUser %{public}s",
+        identity.GetUid(), activeIdsStr.c_str());
     return false;
 }
 
