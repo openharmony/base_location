@@ -111,6 +111,9 @@ public:
         const int timeInterval, const std::vector<std::shared_ptr<Location>> &location) = 0;
     virtual LocationErrCode ProxyForFreeze(std::set<int> pidList, bool isProxy) = 0;
     virtual LocationErrCode ResetAllProxy() = 0;
+    virtual LocationErrCode IsGnssServiceSupported(bool &isSupported) = 0;
+    virtual LocationErrCode IsGnssFenceServiceSupported(bool &isSupported) = 0;
+    virtual LocationErrCode IsCachedGnssServiceSupported(bool &isSupported) = 0;
 private:
     static std::shared_ptr<LocatorImpl> instance_;
     static std::mutex mutex_;

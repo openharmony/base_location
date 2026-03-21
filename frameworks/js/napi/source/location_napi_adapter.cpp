@@ -299,6 +299,54 @@ napi_value IsPoiServiceSupported(napi_env env, napi_callback_info info)
     g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isPoiServiceSupported");
     return res;
 }
+
+napi_value IsGnssServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool isGnssSupported = g_locatorClient->IsGnssServiceSupported();
+    NAPI_CALL(env, napi_get_boolean(env, isGnssSupported, &res));
+    g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isGnssServiceSupported");
+    return res;
+}
+
+napi_value IsGnssFenceServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool isGnssFenceSupported = g_locatorClient->IsGnssFenceServiceSupported();
+    NAPI_CALL(env, napi_get_boolean(env, isGnssFenceSupported, &res));
+    g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isGnssFenceServiceSupported");
+    return res;
+}
+
+napi_value IsCachedGnssServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool isCachedGnssSupported = g_locatorClient->IsCachedGnssServiceSupported();
+    NAPI_CALL(env, napi_get_boolean(env, isCachedGnssSupported, &res));
+    g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isCachedGnssServiceSupported");
+    return res;
+}
 #endif
 
 #ifdef ENABLE_NAPI_MANAGER

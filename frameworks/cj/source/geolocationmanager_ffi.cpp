@@ -81,6 +81,21 @@ CJGeoAddressArr FfiOHOSGeoLocationManagerGetAddressesFromLocationName(CJGeoCodeR
     return GetAddressesFromLocationName(request, *errCode);
 }
 
+bool FfiOHOSGeoLocationManagerIsGnssServiceSupported(int32_t* errCode)
+{
+    return IsGnssServiceSupported(*errCode);
+}
+
+bool FfiOHOSGeoLocationManagerIsGnssFenceServiceSupported(int32_t* errCode)
+{
+    return IsGnssFenceServiceSupported(*errCode);
+}
+
+bool FfiOHOSGeoLocationManagerIsCachedGnssServiceSupported(int32_t* errCode)
+{
+    return IsCachedGnssServiceSupported(*errCode);
+}
+
 int32_t FfiGeoLocationManagerOnLocationChange(CJLocationRequest request, int64_t callbackId)
 {
     return OnLocationRequest(request, callbackId);

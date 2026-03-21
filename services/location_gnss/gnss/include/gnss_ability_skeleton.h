@@ -55,6 +55,9 @@ public:
     virtual LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location) = 0;
     virtual LocationErrCode GetActiveGeoFences(std::string bundleName,
         std::map<int, std::shared_ptr<Geofence>>& fenceMap) = 0;
+    virtual LocationErrCode IsSupportGps(bool& isSupported) = 0;
+    virtual LocationErrCode IsSupportGeofence(bool& isSupported) = 0;
+    virtual LocationErrCode IsSupportBatching(bool& isSupported) = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {

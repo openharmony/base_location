@@ -671,7 +671,31 @@ public:
     bool IsPoiServiceSupported();
 
     /**
-     * Get Current POI Info.
+      * Check whether GNSS service is supported.
+      *
+      * @param isSupported - Indicates if GNSS service is supported.
+      * @returns { LocationErrCode } Returns ERRCODE_SUCCESS if query succeed.
+      */
+    LocationErrCode IsGnssServiceSupported(bool &isSupported);
+
+    /**
+      * Check whether GNSS fence service is supported.
+      *
+      * @param isSupported - Indicates if GNSS fence service is supported.
+      * @returns { LocationErrCode } Returns ERRCODE_SUCCESS if query succeed.
+      */
+    LocationErrCode IsGnssFenceServiceSupported(bool &isSupported);
+
+    /**
+      * Check whether cached GNSS service is supported.
+      *
+      * @param isSupported - Indicates if cached GNSS service is supported.
+      * @returns { LocationErrCode } Returns ERRCODE_SUCCESS if query succeed.
+      */
+    LocationErrCode IsCachedGnssServiceSupported(bool &isSupported);
+
+    /**
+      * Get Current POI Info.
      *
      * @param poiInfoCallback - Indicates the callback for reporting poi info.
      * @returns Returns ERRCODE_SUCCESS if get current poi info succeed.
