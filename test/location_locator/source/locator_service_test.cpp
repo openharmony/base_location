@@ -1044,5 +1044,41 @@ HWTEST_F(LocatorServiceTest, GetPoiInfo, TestSize.Level1)
     auto result = locatorAbility->GetPoiInfo(callback->AsObject());
     LBSLOGI(LOCATOR, "[LocatorServiceTest] GetPoiInfo end");
 }
+
+HWTEST_F(LocatorServiceTest, IsGnssServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsGnssServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsGnssServiceSupported begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    bool isGnssSupported = false;
+    auto result = locatorAbility->IsGnssServiceSupported(isGnssSupported);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsGnssServiceSupported end");
+}
+
+HWTEST_F(LocatorServiceTest, IsGnssFenceServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsGnssFenceServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsGnssFenceServiceSupported begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    bool isGnssFenceSupported = false;
+    auto result = locatorAbility->IsGnssFenceServiceSupported(isGnssFenceSupported);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsGnssFenceServiceSupported end");
+}
+
+HWTEST_F(LocatorServiceTest, IsCachedGnssServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, IsCachedGnssServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCachedGnssServiceSupported begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    bool isCachedGnssSupported = false;
+    auto result = locatorAbility->IsCachedGnssServiceSupported(isCachedGnssSupported);
+    EXPECT_EQ(ERRCODE_SUCCESS, result);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCachedGnssServiceSupported end");
+}
 }  // namespace Location
 }  // namespace OHOS

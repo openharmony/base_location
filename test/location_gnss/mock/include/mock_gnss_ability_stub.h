@@ -70,6 +70,9 @@ public:
     MOCK_METHOD(LocationErrCode, SendNetworkLocation, (const std::unique_ptr<Location>& location));
     MOCK_METHOD(LocationErrCode, GetActiveGeoFences, (std::string bundleName,
         (std::map<int, std::shared_ptr<Geofence>>& fenceMap)));
+    MOCK_METHOD(bool, IsSupportGps, ());
+    MOCK_METHOD(bool, IsSupportGeofence, ());
+    MOCK_METHOD(bool, IsSupportBatching, ());
 };
 } // namespace Location
 } // namespace OHOS
