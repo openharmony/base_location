@@ -28,6 +28,7 @@
 namespace OHOS {
 namespace Location {
 const int32_t MAX_REQUEST_MAP_NUM = 16;
+const int32_t MAX_REQUEST_MAP_NUM_FOR_ONE_APP = 10;
 constexpr int32_t FENCE_MAX_ID = 1000000;
 const int32_t STOI_BYTE_LIMIT = 7;
 const int BEACON_FENCE_OPERATE_RESULT_ENTER = 1;
@@ -86,6 +87,10 @@ ErrCode BeaconFenceManager::AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& 
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, beaconfence request is exceed max number!", __func__);
         return ERRCODE_BEACONFENCE_EXCEED_MAXIMUM;
     }
+    if (CheckIfExceedsLimitForOneApp(beaconFenceRequest->GetBundleName())) {
+        LBSLOGE(BEACON_FENCE_MANAGER, "Exceeded the limit of the fence request for one app");
+        return ERRCODE_BEACONFENCE_EXCEED_MAXIMUM;
+    }
     if (IsBeaconFenceRequestExists(beaconFenceRequest)) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s, Request is exists!", __func__);
         return ERRCODE_BEACONFENCE_DUPLICATE_INFORMATION;
@@ -107,6 +112,21 @@ void BeaconFenceManager::RegisterBeaconFenceCallback(std::shared_ptr<BeaconFence
     beaconFenceRequestMap_.insert(std::make_pair(beaconFenceRequest, std::make_pair(callback, appIdentity)));
     LBSLOGI(BEACON_FENCE_MANAGER, "after AddBeaconFence, request size:%{public}zu",
         beaconFenceRequestMap_.size());
+}
+
+bool BeaconFenceManager::CheckIfExceedsLimitForOneApp(std::string bundleName)
+{
+    int count = 0;
+    for (const auto& requestPair : beaconFenceRequestMap_) {
+        std::shared_ptr<BeaconFenceRequest> request = requestPair.first;
+        if (request != nullptr && request->GetBundleName() == bundleName) {
+            count++;
+            if (count >= MAX_REQUEST_MAP_NUM_FOR_ONE_APP) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 bool BeaconFenceManager::IsBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest)
@@ -131,7 +151,8 @@ void BeaconFenceManager::StartAddBeaconFence(std::shared_ptr<BeaconFenceRequest>
         GnssGeofenceOperateResult::GNSS_GEOFENCE_OPERATION_SUCCESS);
 }
 
-ErrCode BeaconFenceManager::RemoveBeaconFence(const std::shared_ptr<BeaconFence>& beaconFence)
+ErrCode BeaconFenceManager::RemoveBeaconFence(
+    const std::shared_ptr<BeaconFence>& beaconFence, std::string bundleName)
 {
     // 解析请求数据
     BeaconManufactureData beaconManufactureData = beaconFence->GetBeaconManufactureData();
@@ -142,6 +163,11 @@ ErrCode BeaconFenceManager::RemoveBeaconFence(const std::shared_ptr<BeaconFence>
     std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByServiceUuid(uuid);
     if (beaconFenceRequest == nullptr) {
         LBSLOGE(BEACON_FENCE_MANAGER, "beaconFence is not registered");
+        return ERRCODE_BEACONFENCE_INCORRECT_ID;
+    }
+    // 校验包名，防止删除其他应用的请求
+    if (beaconFenceRequest->GetBundleName() != bundleName) {
+        LBSLOGE(BEACON_FENCE_MANAGER, "can not get request by packageName.");
         return ERRCODE_BEACONFENCE_INCORRECT_ID;
     }
     if (!CompareBeaconFence(beaconFence, beaconFenceRequest->GetBeaconFence())) {
@@ -315,7 +341,7 @@ void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceReque
     std::shared_ptr<BeaconFence> beacon = beaconFenceRequest->GetBeaconFence();
     if (!CommonUtils::CheckAppInstalled(beaconFenceRequest->GetBundleName())) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s service is not available", __func__);
-        RemoveBeaconFence(beacon);
+        RemoveBeaconFence(beacon, beaconFenceRequest->GetBundleName());
         return;
     }
     ReportByCallback(beaconFenceRequest, event, identity);
@@ -478,7 +504,7 @@ void BeaconFenceManager::RemoveBeaconFenceRequestByCallback(sptr<IRemoteObject> 
     if (fenceExtensionAbilityName.empty() ||
         !HookUtils::ExecuteHookWhenRemoveBeaconFenceByCallback(beaconFenceRequest->GetBundleName())) {
         std::shared_ptr<BeaconFence> beacon = beaconFenceRequest->GetBeaconFence();
-        RemoveBeaconFence(beacon);
+        RemoveBeaconFence(beacon, beaconFenceRequest->GetBundleName());
     }
 }
 
@@ -487,7 +513,7 @@ void BeaconFenceManager::RemoveBeaconFenceByPackageName(std::string& packageName
     std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByPackageName(packageName);
     if (beaconFenceRequest != nullptr) {
         std::shared_ptr<BeaconFence> beaconFence = beaconFenceRequest->GetBeaconFence();
-        RemoveBeaconFence(beaconFence);
+        RemoveBeaconFence(beaconFence, packageName);
     }
 }
 

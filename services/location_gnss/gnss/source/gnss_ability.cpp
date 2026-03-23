@@ -75,6 +75,7 @@ const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const int MAX_GNSS_STATUS_CALLBACK_NUM = 1000;
 const int MAX_NMEA_CALLBACK_NUM = 1000;
 const int MAX_GNSS_GEOFENCE_REQUEST_NUM = 1000;
+const int MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP = 20;
 const int64_t MAX_BATCH_LENGTH_MS = 24 * 60 * 60 * 1000;
 const int64_t MIN_BATCH_LENGTH_MS = 1000;
 const int WANT_CODE_ELEVEN = 11;
@@ -863,6 +864,10 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         LBSLOGE(GNSS, "Exceeded the limit of the fence request");
         return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
     }
+    if (CheckIfExceedsLimitForOneApp(request->GetBundleName())) {
+        LBSLOGE(GNSS, "Exceeded the limit of the fence request for one app");
+        return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
+    }
     int fenceId = 0;
     if (request->GetFenceId() > 0) {
         fenceId = request->GetFenceId();
@@ -969,6 +974,10 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     }
     if (GetGnssGeofenceRequestMapSize() >= MAX_GNSS_GEOFENCE_REQUEST_NUM) {
         LBSLOGE(GNSS, "Exceeded the limit of the fence request");
+        return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
+    }
+    if (CheckIfExceedsLimitForOneApp(request->GetBundleName())) {
+        LBSLOGE(GNSS, "Exceeded the limit of the fence request for one app");
         return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
     }
     int fenceId = 0;
@@ -1192,6 +1201,21 @@ size_t GnssAbility::GetGnssGeofenceRequestMapSize()
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     return gnssGeofenceRequestList_.size();
+}
+
+bool GnssAbility::CheckIfExceedsLimitForOneApp(std::string bundleName)
+{
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
+    int count = 0;
+    for (const auto& request : gnssGeofenceRequestList_) {
+        if (request != nullptr && request->GetBundleName() == bundleName) {
+            count++;
+            if (count >= MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE

@@ -250,6 +250,7 @@ public:
     void PreRestoreGeofenceRequest();
     void RestoreGeofenceRequest();
     size_t GetGnssGeofenceRequestMapSize();
+    bool CheckIfExceedsLimitForOneApp(std::string bundleName);
     bool SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &request);
     void MonitorNetwork();
     void ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &request, GnssGeofenceOperateType type,
