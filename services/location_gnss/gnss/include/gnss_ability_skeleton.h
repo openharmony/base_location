@@ -55,9 +55,9 @@ public:
     virtual LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location) = 0;
     virtual LocationErrCode GetActiveGeoFences(std::string bundleName,
         std::map<int, std::shared_ptr<Geofence>>& fenceMap) = 0;
-    virtual LocationErrCode IsSupportGps(bool& isSupported) = 0;
-    virtual LocationErrCode IsSupportGeofence(bool& isSupported) = 0;
-    virtual LocationErrCode IsSupportBatching(bool& isSupported) = 0;
+    virtual bool IsSupportGps() = 0;
+    virtual bool IsSupportGeofence() = 0;
+    virtual bool IsSupportBatching() = 0;
 };
 
 class GnssAbilityStub : public IRemoteStub<IGnssAbility> {
@@ -67,6 +67,7 @@ public:
     GnssAbilityStub();
     virtual ~GnssAbilityStub() = default;
     void InitGnssMsgHandleMap();
+    void InitGnssSupportMsgHandleMap();
     void InitGnssEnhanceMsgHandleMap();
     int32_t OnRemoteRequest(uint32_t code,
         MessageParcel &data, MessageParcel &reply, MessageOption &option) override;

@@ -864,7 +864,7 @@ CArrI32 GetGeofenceSupportedCoordTypes(int32_t& errCode)
 bool IsGnssServiceSupported(int32_t& errCode)
 {
     if (g_locatorProxy == nullptr) {
-        errCode = ERRCODE_SERVICE_UNAVAILABLE;
+        errCode = ERRCODE_MEMORY_ERROR;
         return false;
     }
     bool isSupported = false;
@@ -875,7 +875,7 @@ bool IsGnssServiceSupported(int32_t& errCode)
 bool IsGnssFenceServiceSupported(int32_t& errCode)
 {
     if (g_locatorProxy == nullptr) {
-        errCode = ERRCODE_SERVICE_UNAVAILABLE;
+        errCode = ERRCODE_MEMORY_ERROR;
         return false;
     }
     bool isSupported = false;
@@ -886,7 +886,7 @@ bool IsGnssFenceServiceSupported(int32_t& errCode)
 bool IsCachedGnssServiceSupported(int32_t& errCode)
 {
     if (g_locatorProxy == nullptr) {
-        errCode = ERRCODE_SERVICE_UNAVAILABLE;
+        errCode = ERRCODE_MEMORY_ERROR;
         return false;
     }
     bool isSupported = false;

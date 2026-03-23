@@ -188,6 +188,9 @@ public:
     LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
+    bool IsSupportGps() override;
+    bool IsSupportGeofence() override;
+    bool IsSupportBatching() override;
     void ReportGnssSessionStatus(int status);
     void ReportNmea(int64_t timestamp, const std::string &nmea);
     void ReportSv(const std::unique_ptr<SatelliteStatus> &sv);
@@ -280,9 +283,6 @@ private:
     bool CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<GeofenceRequest>& request);
     bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
     bool ConnectGnssHdi();
-    bool IsSupportGps();
-    bool IsSupportGeofence();
-    bool IsSupportBatching();
     int64_t GetReportingPeriodSecParam();
     bool GetWakeUpCacheQueueFullParam();
 

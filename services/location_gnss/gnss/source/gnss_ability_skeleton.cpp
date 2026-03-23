@@ -124,6 +124,10 @@ void GnssAbilityStub::InitGnssEnhanceMsgHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
         return GetActiveGeoFencesInner(data, reply, identity, isMessageRequest);
         };
+}
+
+void GnssAbilityStub::InitGnssSupportMsgHandleMap()
+{
     GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::IS_SUPPORT_GPS)] =
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
             reply.WriteInt32(ERRCODE_SUCCESS);
@@ -147,6 +151,7 @@ void GnssAbilityStub::InitGnssEnhanceMsgHandleMap()
 GnssAbilityStub::GnssAbilityStub()
 {
     InitGnssMsgHandleMap();
+    InitGnssSupportMsgHandleMap();
     InitGnssEnhanceMsgHandleMap();
 }
 

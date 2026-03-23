@@ -481,7 +481,7 @@ LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::string bundleName,
     dataToStub.WriteString(bundleName);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
-        LBSLOGE(GNSS, "SendNetworkLocation remote is null");
+        LBSLOGE(GNSS, "GetActiveGeoFences remote is null");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     int error = remote->SendRequest(
@@ -500,79 +500,80 @@ LocationErrCode GnssAbilityProxy::GetActiveGeoFences(std::string bundleName,
     return LocationErrCode(errCode);
 }
 
-LocationErrCode GnssAbilityProxy::IsSupportGps(bool& isSupported)
+bool GnssAbilityProxy::IsSupportGps()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return false;
     }
     int error = Remote()->SendRequest(
         static_cast<uint32_t>(GnssInterfaceCode::IS_SUPPORT_GPS), data, reply, option);
     if (error != ERR_OK) {
-        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
-        isSupported = false;
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        LBSLOGE(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+        return false;
     }
+    bool isSupported;
     LocationErrCode errCode = LocationErrCode(reply.ReadInt32());
     if (errCode == ERRCODE_SUCCESS) {
         isSupported = reply.ReadBool();
     } else {
         isSupported = false;
     }
-    return errCode;
+    return isSupported;
 }
 
-LocationErrCode GnssAbilityProxy::IsSupportGeofence(bool& isSupported)
+bool GnssAbilityProxy::IsSupportGeofence()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return false;
     }
     int error = Remote()->SendRequest(
         static_cast<uint32_t>(GnssInterfaceCode::IS_SUPPORT_GEOFENCE), data, reply, option);
     if (error != ERR_OK) {
-        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
-        isSupported = false;
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        LBSLOGE(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+        return false;
     }
+    bool isSupported;
     LocationErrCode errCode = LocationErrCode(reply.ReadInt32());
     if (errCode == ERRCODE_SUCCESS) {
         isSupported = reply.ReadBool();
     } else {
         isSupported = false;
     }
-    return errCode;
+    return isSupported;
 }
 
-LocationErrCode GnssAbilityProxy::IsSupportBatching(bool& isSupported)
+bool GnssAbilityProxy::IsSupportBatching()
 {
     MessageParcel data;
     MessageParcel reply;
     MessageOption option;
     if (!data.WriteInterfaceToken(GetDescriptor())) {
         LBSLOGE(GNSS, "write interfaceToken fail!");
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        return false;
     }
     int error = Remote()->SendRequest(
         static_cast<uint32_t>(GnssInterfaceCode::IS_SUPPORT_BATCHING), data, reply, option);
     if (error != ERR_OK) {
-        LBSLOGI(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
-        isSupported = false;
-        return ERRCODE_SERVICE_UNAVAILABLE;
+        LBSLOGE(GNSS, "%{public}s Transact Error = %{public}d", __func__, error);
+        return false;
     }
+    bool isSupported;
     LocationErrCode errCode = LocationErrCode(reply.ReadInt32());
     if (errCode == ERRCODE_SUCCESS) {
         isSupported = reply.ReadBool();
     } else {
         isSupported = false;
     }
-    return errCode;
+    return isSupported;
+}
 } // namespace Location
 } // namespace OHOS
 #endif

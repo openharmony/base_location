@@ -3401,5 +3401,6 @@ ErrCode LocatorAbility::IsCachedGnssServiceSupported(bool& isCachedGnssSupported
     isCachedGnssSupported = false;
     return ERRCODE_SUCCESS;
 #endif
+}
 } // namespace Location
 } // namespace OHOS
