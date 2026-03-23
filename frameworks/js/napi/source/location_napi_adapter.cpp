@@ -353,7 +353,7 @@ napi_value IsCachedGnssServiceSupported(napi_env env, napi_callback_info info)
     napi_value res;
     int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
     bool isCachedGnssSupported;
-    LocationErrCode errorCode = g_locatorClient->IsCachedGnssServiceSupported();
+    LocationErrCode errorCode = g_locatorClient->IsCachedGnssServiceSupported(isCachedGnssSupported);
     if (errorCode != ERRCODE_SUCCESS) {
         ThrowBusinessError(env, errorCode);
         return UndefinedNapiValue(env);
