@@ -117,12 +117,14 @@ struct dialogPlusPage {
 
   setNoActionTimer(): void {
     console.info(TAG, 'start no action timer.')
+    let timeout = (AppStorage.get('dialogTimeout') as number) ?? TIMEOUT_NO_ACTION;
+    console.info(TAG, 'setNoActionTimer timeout:' + timeout)
     this.noActionTimer = setTimeout(() => {
       let session = AppStorage.get<UIExtensionContentSession>('ConfirmSession');
       if (session) {
         session.terminateSelf();
       }
-    }, TIMEOUT_NO_ACTION);
+    }, timeout);
   }
 
   clearNoActionTimer(): void {
