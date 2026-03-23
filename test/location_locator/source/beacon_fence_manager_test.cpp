@@ -156,7 +156,8 @@ HWTEST_F(BeaconFenceManagerTest, RemoveBeaconFenceTest001, TestSize.Level0)
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
 
-    EXPECT_EQ(ERRCODE_BEACONFENCE_INCORRECT_ID, beaconFenceManager_->RemoveBeaconFence(beaconFence));
+    EXPECT_EQ(ERRCODE_BEACONFENCE_INCORRECT_ID, beaconFenceManager_->RemoveBeaconFence(
+        beaconFence, "RemoveBeaconFenceTest001"));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] RemoveBeaconFenceTest001 end");
 }
 
