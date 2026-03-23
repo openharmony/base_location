@@ -2112,7 +2112,7 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     }
     std::shared_ptr<BeaconFence> beacon =
         std::make_shared<BeaconFence>(const_cast<BeaconFence&>(beaconFence));
-    ErrCode locationErrCode = BeaconFenceManager::GetInstance()->RemoveBeaconFence(beacon);
+    ErrCode locationErrCode = BeaconFenceManager::GetInstance()->RemoveBeaconFence(beacon, identity.GetBundleName());
     return locationErrCode;
 }
 
