@@ -65,7 +65,7 @@ napi_value AttachFenceExtensionContext(napi_env env, void *value, void *)
         AbilityRuntime::JsRuntime::LoadSystemModuleByEngine(env, CONTEXT_MODULE_PATH, &object, LOAD_SYSTEM_MODULE_ARGC);
     if (contextRef == nullptr) {
         LBSLOGE(FENCE_EXTENSION, "null systemModule");
-        return;
+        return nullptr;
     }
     auto napiContextObj = contextRef->GetNapiValue();
 
