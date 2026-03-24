@@ -404,6 +404,9 @@ void SetLocationPrivacyConfirmStatus(::ohos::geoLocationManager::LocationPrivacy
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }
+    if (country == nullptr) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_INVALID_PARAM);
+    }
     ::ohos::geoLocationManager::CountryCode countryTaihe = {
         country->GetCountryCodeStr(),
         static_cast<::ohos::geoLocationManager::CountryCodeType::key_t>(country->GetCountryCodeType())};

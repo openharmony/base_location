@@ -61,9 +61,13 @@ napi_value AttachFenceExtensionContext(napi_env env, void *value, void *)
     }
 
     napi_value object = JsFenceExtensionContext::CreateJsFenceExtensionContext(env, ptr);
-    auto napiContextObj =
-        AbilityRuntime::JsRuntime::LoadSystemModuleByEngine(env, CONTEXT_MODULE_PATH, &object, LOAD_SYSTEM_MODULE_ARGC)
-            ->GetNapiValue();
+    auto contextRef =
+        AbilityRuntime::JsRuntime::LoadSystemModuleByEngine(env, CONTEXT_MODULE_PATH, &object, LOAD_SYSTEM_MODULE_ARGC);
+    if (contextRef == nullptr) {
+        LBSLOGE(FENCE_EXTENSION, "null systemModule");
+        return;
+    }
+    auto napiContextObj = contextRef->GetNapiValue();
 
     napi_coerce_to_native_binding_object(
         env, napiContextObj, AbilityRuntime::DetachCallbackFunc, AttachFenceExtensionContext, value, nullptr);
