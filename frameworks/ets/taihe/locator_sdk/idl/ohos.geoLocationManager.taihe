@@ -103,6 +103,7 @@ struct CurrentLocationRequest {
 struct SingleLocationRequest  {
     locatingPriority: LocatingPriority;
     locatingTimeoutMs: i32;
+    needPoi: Optional<bool>;
 }
 
 union CurrentRequest {
@@ -128,6 +129,25 @@ struct LocationMockConfig {
     locations: Array<Location>;
 }
 
+struct Poi {
+    id: String;
+    confidence: f64;
+    name: String;
+    latitude: f64;
+    longitude: f64;
+    administrativeArea: String;
+    subAdministrativeArea: String;
+    locality: String;
+    subLocality: String;
+    address: String;
+    additionalInfo: Optional<String>;
+}
+
+struct PoiInfo {
+    poiArray: Array<Poi>;
+    timeStamp: i64;
+}
+
 struct Location {
     latitude: f64;
     longitude: f64;
@@ -146,6 +166,7 @@ struct Location {
     directionAccuracy: Optional<f64>;
     uncertaintyOfTimeSinceBoot: Optional<i64>;
     sourceType: Optional<LocationSourceType>;
+    poi: Optional<PoiInfo>;
 }
 
 struct Geofence {
