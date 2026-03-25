@@ -625,7 +625,8 @@ void RemoveGnssGeofenceSync(int32_t geofenceId)
     return ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence>{res};
 }
 
-bool IsWlanBssidMatchedSync(::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
+bool IsWlanBssidMatchedSync(
+    ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
     std::vector<std::string> wlanBssidVec;
     for (auto &bssid : wlanBssidArray) {
