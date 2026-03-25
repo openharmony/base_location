@@ -41,7 +41,7 @@ public:
     static int ConvertErrorCodeTaihe(int errorCode);
     static std::string GetErrorMsgByCodeTaihe(int& code);
     static void ThrowBussinessError(int code);
-    static void PoiInfoToTaihe(::ohos::geoLocationManager::PoiInfo& taihePoiInfo, PoiInfo& poiInfo);
+    static void PoiInfoToTaihe(::ohos::geoLocationManager::PoiInfo& taihePoiInfo, PoiInfo poiInfo);
     static void LocationToTaihe(::ohos::geoLocationManager::Location& location,
         std::unique_ptr<Location>& lastlocation);
     static void TaiheToLocation(const ::ohos::geoLocationManager::Location& location,

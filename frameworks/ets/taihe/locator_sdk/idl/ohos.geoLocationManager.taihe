@@ -145,7 +145,7 @@ struct Poi {
 
 struct PoiInfo {
     poiArray: Array<Poi>;
-    timeStamp: i64;
+    timestamp: i64;
 }
 
 struct Location {
@@ -344,6 +344,9 @@ function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<
 
 @gen_promise("getActiveGeoFences")
 function GetActiveGeoFencesSync(): Map<i32, Geofence>;
+
+@gen_promise("isWlanBssidMatched")
+function IsWlanBssidMatchedSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): bool;
 
 @on_off("cachedGnssLocationsChange")
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
