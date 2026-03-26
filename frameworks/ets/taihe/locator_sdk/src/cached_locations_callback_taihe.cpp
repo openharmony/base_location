@@ -23,14 +23,14 @@ namespace Location {
 int CachedLocationsCallbackTaihe::OnRemoteRequest(
     uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
-    LBSLOGD(GNSS_STATUS_CALLBACK, "CachedLocationsCallbackTaihe::OnRemoteRequest!");
+    LBSLOGD(CACHED_LOCATIONS_CALLBACK, "CachedLocationsCallbackTaihe::OnRemoteRequest!");
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        LBSLOGE(GNSS_STATUS_CALLBACK, "invalid token.");
+        LBSLOGE(CACHED_LOCATIONS_CALLBACK, "invalid token.");
         return -1;
     }
 
     switch (code) {
-        case RECEIVE_STATUS_INFO_EVENT: {
+        case RECEIVE_CACHED_LOCATIONS_EVENT: {
             int size = data.ReadInt32();
             if (size > 0 && size < MAXIMUM_CACHE_LOCATIONS) {
                 std::vector<std::unique_ptr<Location>> locations;
@@ -51,11 +51,12 @@ int CachedLocationsCallbackTaihe::OnRemoteRequest(
 
 void CachedLocationsCallbackTaihe::OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations)
 {
-    LBSLOGI(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackTaihe::OnLocatingDataChange");
+    LBSLOGI(CACHED_LOCATIONS_CALLBACK, "LocatingRequiredDataCallbackTaihe::OnLocatingDataChange");
     std::vector<::ohos::geoLocationManager::Location> locationList;
-    for (auto location : locations) {
+    for (auto &location : locations) {
+        std::unique_ptr<Location> locationReport = std::make_unique<Location>(*location);
         ::ohos::geoLocationManager::Location locationTaihe;
-        Util::LocationToTaihe(locationTaihe, location);
+        Util::LocationToTaihe(locationTaihe, locationReport);
         locationList.push_back(locationTaihe);
     }
     if (callback_) {

@@ -33,7 +33,6 @@
 #include "location_error_callback_taihe.h"
 #include "bluetooth_scan_result_callback_taihe.h"
 #include "cached_locations_callback_taihe.h"
-#include "cached_gnss_locations_request.h"
 #include "geofence_sdk.h"
 #include "geofence_definition.h"
 #include "util.h"
@@ -685,7 +684,7 @@ void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocations
     auto cachedLocationsCallback =
         OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
     cachedLocationsCallbackTaihe->callback_ =
-        ::taihe::optional<taihe::callback<void(::ohos::geoLocationManager::Location)>>{std::in_place_t{},
+        ::taihe::optional<taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>{std::in_place_t{},
         callback};
     std::unique_ptr<CachedGnssLocationsRequest> cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
     cachedRequest->reportingPeriodSec = request.reportingPeriodSec;
@@ -707,7 +706,7 @@ void OffCachedGnssLocationsChange(
         if (cachedLocationsCallbackTaihe->callback_ == callback) {
             auto cachedLocationsCallback =
                 OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
-            LocationErrCode errorCode = Locator::GetInstance()->UnRegisterCachedLocationCallbackV9(locatorCallback);
+            LocationErrCode errorCode = Locator::GetInstance()->UnregisterCachedLocationCallbackV9(cachedLocationsCallback);
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }

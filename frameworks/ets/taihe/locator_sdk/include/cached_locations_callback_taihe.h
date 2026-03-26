@@ -26,7 +26,7 @@
 
 namespace OHOS {
 namespace Location {
-class CachedLocationsCallbackTaihe : public IRemoteStub<IGnssStatusCallback> {
+class CachedLocationsCallbackTaihe : public IRemoteStub<ICachedLocationsCallback> {
 public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
