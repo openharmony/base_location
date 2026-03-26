@@ -37,6 +37,7 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         AppStorage.setOrCreate('p2pDeviceName', want.parameters?.['p2pDeviceName']);
         AppStorage.setOrCreate('p2pPinCode', want.parameters?.['p2pPinCode']);
         AppStorage.setOrCreate('targetSsid', want.parameters?.['targetSsid']);
+        AppStorage.setOrCreate('dialogTimeout', want.parameters?.['dialogTimeout']);
 
         let param: Record<string, UIExtensionContentSession> = {
             'session': session
