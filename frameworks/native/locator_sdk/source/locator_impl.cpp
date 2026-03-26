@@ -1544,7 +1544,7 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         UpdateCallbackResumingState(true);
         // wait for remote died finished
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
-        if (!GetIsCallbackResumed() && 
+        if (!GetIsCallbackResumed() &&
             HasGnssNetworkRequest() &&
             SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
             g_callbackResumer->ResumeCallback();
