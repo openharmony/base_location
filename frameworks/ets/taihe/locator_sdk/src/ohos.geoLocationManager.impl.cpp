@@ -422,13 +422,26 @@ void SendCommandSync(::ohos::geoLocationManager::LocationCommand const& command)
 
 void FlushCachedGnssLocationsSync()
 {
-    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+    }
+    LocationErrCode errorCode = Locator::GetInstance()->FlushCachedGnssLocationsV9();
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
 }
 
 int32_t GetCachedGnssLocationsSizeSync()
 {
-    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
-    return 0;
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+    }
+    int32_t size = 0;
+    LocationErrCode errorCode = Locator::GetInstance()->GetCachedGnssLocationSizeV9(size);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return size;
 }
 
 bool isGeocoderAvailable()
@@ -683,8 +696,8 @@ void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocations
         OHOS::sptr<CachedLocationsCallbackTaihe>(new CachedLocationsCallbackTaihe());
     auto cachedLocationsCallback =
         OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
-    cachedLocationsCallbackTaihe->callback_ =
-        ::taihe::optional<taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>{std::in_place_t{},
+    cachedLocationsCallbackTaihe->callback_ = ::taihe::optional<
+        taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>{std::in_place_t{},
         callback};
     std::unique_ptr<CachedGnssLocationsRequest> cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
     cachedRequest->reportingPeriodSec = request.reportingPeriodSec;
@@ -706,7 +719,8 @@ void OffCachedGnssLocationsChange(
         if (cachedLocationsCallbackTaihe->callback_ == callback) {
             auto cachedLocationsCallback =
                 OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
-            LocationErrCode errorCode = Locator::GetInstance()->UnregisterCachedLocationCallbackV9(cachedLocationsCallback);
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnregisterCachedLocationCallbackV9(cachedLocationsCallback);
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
