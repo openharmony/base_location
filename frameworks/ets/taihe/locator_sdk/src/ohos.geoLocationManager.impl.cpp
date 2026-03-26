@@ -437,7 +437,7 @@ int32_t GetCachedGnssLocationsSizeSync()
         Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
     }
     int32_t size = 0;
-    LocationErrCode errorCode = Locator::GetInstance()->GetCachedGnssLocationSizeV9(size);
+    LocationErrCode errorCode = Locator::GetInstance()->GetCachedGnssLocationsSizeV9(size);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }
