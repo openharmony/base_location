@@ -391,6 +391,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"Autoriser la connexion à de meilleurs réseaux comme \"%s\" en utilisant le mot de passe du réseau Wi-Fi actuel ?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

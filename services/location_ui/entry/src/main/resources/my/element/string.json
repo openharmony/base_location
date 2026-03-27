@@ -363,6 +363,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"လက်ရှိ Wi-Fi ကွန်ရက်အတွက် စကားဝှက်ကို အသုံးပြု၍ \"%s\" ကဲ့သို့ ပိုကောင်းသော ကွန်ရက်များနှင့် ချိတ်ဆက်မှုကို ခွင့်ပြုမည်လား။",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

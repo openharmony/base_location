@@ -391,6 +391,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"授權使用目前 Wi-Fi 密鑰連線更佳的網絡「%s」等。",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

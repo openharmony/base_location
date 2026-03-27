@@ -363,6 +363,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"Permitir a ligação a redes melhores, como %s, com a palavra-passe da rede Wi-Fi atual?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

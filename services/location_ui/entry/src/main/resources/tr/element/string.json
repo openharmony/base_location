@@ -363,6 +363,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"Mevcut Wi-Fi ağının şifresini kullanarak \"%s\" gibi daha iyi ağlara bağlanmaya izin verilsin mi?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

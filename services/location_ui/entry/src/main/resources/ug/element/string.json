@@ -391,6 +391,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"نۆۋەتتىكى Wi-Fi ئاچقۇچ ئارقىلىق تېخىمۇ ياخشى بولغان %s غا ئۇلامسىز؟",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

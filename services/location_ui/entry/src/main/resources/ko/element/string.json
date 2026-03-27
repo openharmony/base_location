@@ -391,6 +391,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"현재 Wi-Fi 네트워크의 암호를 사용하여 \"%s\" 등의 더 우수한 네트워크에 연결하도록 허용하시겠습니까?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

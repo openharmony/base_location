@@ -391,6 +391,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"Cho phép kết nối với các mạng tốt hơn như \"%s\" bằng mật khẩu của mạng Wi-Fi hiện tại?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
