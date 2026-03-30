@@ -35,6 +35,7 @@
 namespace OHOS {
 namespace Location {
 constexpr uint32_t WAIT_MS = 1000;
+constexpr uint32_t MAX_REQUEST_COUNT = 30;
 std::shared_ptr<LocatorImpl> LocatorImpl::instance_ = nullptr;
 std::mutex LocatorImpl::locatorMutex_;
 auto g_locatorImpl = Locator::GetInstance();
@@ -1636,6 +1637,11 @@ bool LocatorImpl::IsLocationCallbackRegistered(const sptr<ILocatorCallback>& cal
         return true;
     }
     std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    if (g_locationCallbackMap.size() >= MAX_REQUEST_COUNT) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: g_locationCallbackMap size is %{public}lu. return",
+            __func__, g_locationCallbackMap.size());
+        return true;
+    }
     for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
         auto locatorCallback = iter->first;
         if (locatorCallback == nullptr) {
