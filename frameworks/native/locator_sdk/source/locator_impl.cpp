@@ -1638,7 +1638,7 @@ bool LocatorImpl::IsLocationCallbackRegistered(const sptr<ILocatorCallback>& cal
     }
     std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
     if (g_locationCallbackMap.size() >= MAX_REQUEST_COUNT) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: g_locationCallbackMap size is %{public}lu. return",
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: g_locationCallbackMap size is %{public}zu. return",
             __func__, g_locationCallbackMap.size());
         return true;
     }
