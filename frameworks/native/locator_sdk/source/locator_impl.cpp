@@ -1543,8 +1543,8 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
         UpdateCallbackResumingState(true);
         // wait for remote died finished
         std::this_thread::sleep_for(std::chrono::milliseconds(WAIT_MS));
-        if (HasGnssNetworkRequest() && SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-            g_callbackResumer->ResumeCallback();
+        if (HasGnssNetworkRequest()) {
+            SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID);
         }
         UpdateCallbackResumingState(false);
     }
@@ -1906,7 +1906,7 @@ void LocatorSystemAbilityListener::OnAddSystemAbility(int32_t systemAbilityId, c
     LBSLOGD(LOCATOR_STANDARD, "%{public}s enter", __func__);
     std::unique_lock<std::mutex> lock(mutex_);
     if (needResume_) {
-        if (g_callbackResumer != nullptr && !g_locatorImpl->HasGnssNetworkRequest()) {
+        if (g_callbackResumer != nullptr) {
             g_callbackResumer->ResumeCallback();
         }
         needResume_ = false;
