@@ -1842,16 +1842,6 @@ LocationErrCode LocatorImpl::GetAppsPerformLocating(std::vector<AppIdentity>& pe
     return locationErrCode;
 }
 
-void LocatorImpl::SetIsCallbackResumed(bool isCallbackResumed)
-{
-    isCallbackResumed_ = isCallbackResumed;
-}
-
-bool LocatorImpl::GetIsCallbackResumed()
-{
-    return isCallbackResumed_;
-}
-
 void CallbackResumeManager::ResumeCallback()
 {
     ResumeGnssStatusCallback();

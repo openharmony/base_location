@@ -748,7 +748,6 @@ private:
     LocationDataManager* locationDataManager_ { nullptr };
     bool isServerExist_ = false;
     bool isCallbackResuming_ = false;
-    std::atomic<bool> isCallbackResumed_ = false;
     std::mutex mutex_;
     std::mutex resumeMutex_;
     static std::mutex locatorMutex_;
