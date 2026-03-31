@@ -309,6 +309,7 @@ void GeofenceRequest::ReadFromParcel(Parcel& data)
     delete wantAgentData;
     wantAgentData = nullptr;
 }
+
 void GeofenceRequest::ReadAppInfo(Parcel& data)
 {
     data.ReadString(bundleName_);
