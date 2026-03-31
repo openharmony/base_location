@@ -137,6 +137,9 @@ void LocatorImpl::StartLocating(std::unique_ptr<RequestConfig>& requestConfig,
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return;
     }
+    if (IsLocationRequestCountTooMany()) {
+        return;
+    }
     if (IsLocationCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s locatorCallback has registered", __func__);
         return;
@@ -214,6 +217,9 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
     }
+    if (IsSatelliteStatusChangeCallbackTooMany()) {
+        return ERRCODE_SUCCESS;
+    }
     if (IsSatelliteStatusChangeCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
         return false;
@@ -251,6 +257,9 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return false;
+    }
+    if (IsNmeaCallbackTooMany()) {
+        return ERRCODE_SUCCESS;
     }
     if (IsNmeaCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
@@ -746,6 +755,9 @@ LocationErrCode LocatorImpl::StartLocatingV9(std::unique_ptr<RequestConfig>& req
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsLocationRequestCountTooMany()) {
+        return ERRCODE_SUCCESS;
+    }
     if (IsLocationCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s locatorCallback has registered", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -833,6 +845,9 @@ LocationErrCode LocatorImpl::RegisterGnssStatusCallbackV9(const sptr<IRemoteObje
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (IsSatelliteStatusChangeCallbackTooMany()) {
+        return ERRCODE_SUCCESS;
+    }
     if (IsSatelliteStatusChangeCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -877,6 +892,9 @@ LocationErrCode LocatorImpl::RegisterNmeaMessageCallbackV9(const sptr<IRemoteObj
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (IsNmeaCallbackTooMany()) {
+        return ERRCODE_SUCCESS;
     }
     if (IsNmeaCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
@@ -1637,11 +1655,6 @@ bool LocatorImpl::IsLocationCallbackRegistered(const sptr<ILocatorCallback>& cal
         return true;
     }
     std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
-    if (g_locationCallbackMap.size() >= MAX_REQUEST_COUNT) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s: g_locationCallbackMap size is %{public}zu. return",
-            __func__, g_locationCallbackMap.size());
-        return true;
-    }
     for (auto iter = g_locationCallbackMap.begin(); iter != g_locationCallbackMap.end(); iter++) {
         auto locatorCallback = iter->first;
         if (locatorCallback == nullptr) {
@@ -1650,6 +1663,17 @@ bool LocatorImpl::IsLocationCallbackRegistered(const sptr<ILocatorCallback>& cal
         if (locatorCallback == callback) {
             return true;
         }
+    }
+    return false;
+}
+
+bool LocatorImpl::IsLocationRequestCountTooMany()
+{
+    std::unique_lock<std::mutex> lock(g_locationCallbackMapMutex);
+    if (g_locationCallbackMap.size() >= MAX_REQUEST_COUNT) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: g_locationCallbackMap size is %{public}zu. return",
+            __func__, g_locationCallbackMap.size());
+        return true;
     }
     return false;
 }
@@ -1668,6 +1692,17 @@ bool LocatorImpl::IsSatelliteStatusChangeCallbackRegistered(const sptr<IRemoteOb
     return false;
 }
 
+bool LocatorImpl::IsSatelliteStatusChangeCallbackTooMany()
+{
+    std::unique_lock<std::mutex> lock(g_gnssStatusInfoCallbacksMutex);
+    if (g_gnssStatusInfoCallbacks.size() >= MAX_REQUEST_COUNT) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: g_gnssStatusInfoCallbacks size is %{public}zu. return",
+            __func__, g_gnssStatusInfoCallbacks.size());
+        return true;
+    }
+    return false;
+}
+
 bool LocatorImpl::IsNmeaCallbackRegistered(const sptr<IRemoteObject>& callback)
 {
     if (callback == nullptr) {
@@ -1678,6 +1713,17 @@ bool LocatorImpl::IsNmeaCallbackRegistered(const sptr<IRemoteObject>& callback)
         if (nmeaCallback == callback) {
             return true;
         }
+    }
+    return false;
+}
+
+bool LocatorImpl::IsNmeaCallbackTooMany()
+{
+    std::unique_lock<std::mutex> lock(g_nmeaCallbacksMutex);
+    if (g_nmeaCallbacks.size() >= MAX_REQUEST_COUNT) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s: g_nmeaCallbacks size is %{public}zu. return",
+            __func__, g_nmeaCallbacks.size());
+        return true;
     }
     return false;
 }
