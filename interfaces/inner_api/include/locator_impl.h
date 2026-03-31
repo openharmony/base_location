@@ -721,8 +721,6 @@ public:
     void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
     void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
     void SetIsServerExist(bool isServerExist);
-    void SetIsCallbackResumed(bool isCallbackResumed);
-    bool GetIsCallbackResumed();
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);
