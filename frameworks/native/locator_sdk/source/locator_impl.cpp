@@ -218,7 +218,7 @@ bool LocatorImpl::RegisterGnssStatusCallback(const sptr<IRemoteObject>& callback
         return false;
     }
     if (IsSatelliteStatusChangeCallbackTooMany()) {
-        return ERRCODE_SUCCESS;
+        return true;
     }
     if (IsSatelliteStatusChangeCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
@@ -259,7 +259,7 @@ bool LocatorImpl::RegisterNmeaMessageCallback(const sptr<IRemoteObject>& callbac
         return false;
     }
     if (IsNmeaCallbackTooMany()) {
-        return ERRCODE_SUCCESS;
+        return true;
     }
     if (IsNmeaCallbackRegistered(callback)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback has registered.", __func__);
