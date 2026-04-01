@@ -267,16 +267,15 @@ bool Location::LocationEqual(const std::unique_ptr<Location>& location)
     if (location == nullptr) {
         return false;
     }
-    if (this->GetLatitude() == location->GetLatitude() &&
-        this->GetLongitude() == location->GetLongitude() &&
-        this->GetAltitude() == location->GetAltitude() &&
-        this->GetAccuracy() == location->GetAccuracy() &&
-        this->GetSpeed() == location->GetSpeed() &&
-        this->GetDirection() == location->GetDirection() &&
+    
+    if (DoubleEqual(this->GetLatitude(), location->GetLatitude()) &&
+        DoubleEqual(this->GetLongitude(), location->GetLongitude()) &&
+        DoubleEqual(this->GetAltitude(), location->GetAltitude()) &&
+        DoubleEqual(this->GetAccuracy(), location->GetAccuracy()) &&
+        DoubleEqual(this->GetSpeed(), location->GetSpeed()) &&
+        DoubleEqual(this->GetDirection(), location->GetDirection()) &&
         this->GetTimeStamp() == location->GetTimeStamp() &&
         this->GetTimeSinceBoot() == location->GetTimeSinceBoot() &&
-        this->AdditionEqual(location) &&
-        this->GetAdditionSize() == location->GetAdditionSize() &&
         this->GetIsFromMock() == location->GetIsFromMock()) {
         return true;
     }
@@ -373,6 +372,15 @@ double Location::GetDistanceBetweenLocations(const double lat1, const double lon
 
     double distance = EARTH_FLATTENING * highOrderCorrection * (sigma - deltaSigma);
     return distance;
+}
+
+bool Location::DoubleEqual(double a, double b)
+{
+    if (fabs(a - b) < 1e-6) {
+        return true;
+    } else {
+        return false;
+    }
 }
 } // namespace Location
 } // namespace OHOS
