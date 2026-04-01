@@ -49,16 +49,34 @@ int CachedLocationsCallbackTaihe::OnRemoteRequest(
     return 0;
 }
 
+void CachedLocationsCallbackTaihe::SetCallback(
+    ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callback)
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    callback_ = callback;
+}
+
+::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>
+    CachedLocationsCallbackTaihe::GetCallback()
+{
+    std::unique_lock<std::mutex> guard(mutex_);
+    return callback_;
+}
+
 void CachedLocationsCallbackTaihe::OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations)
 {
-    LBSLOGI(CACHED_LOCATIONS_CALLBACK, "LocatingRequiredDataCallbackTaihe::OnLocatingDataChange");
+    LBSLOGI(CACHED_LOCATIONS_CALLBACK, "CachedLocationsCallbackTaihe::OnLocatingDataChange");
     std::vector<::ohos::geoLocationManager::Location> locationList;
     for (auto &location : locations) {
+        if (location == nullptr) {
+            continue;
+        }
         std::unique_ptr<Location> locationReport = std::make_unique<Location>(*location);
         ::ohos::geoLocationManager::Location locationTaihe;
         Util::LocationToTaihe(locationTaihe, locationReport);
         locationList.push_back(locationTaihe);
     }
+    std::unique_lock<std::mutex> guard(mutex_);
     if (callback_) {
         (*callback_)(locationList);
     }

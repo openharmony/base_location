@@ -31,6 +31,11 @@ public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations) override;
+    void SetCallback(
+        ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callback);
+    ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> GetCallback();
+private:
+    std::mutex mutex_;
     ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callback_;
 };
 } // namespace Location

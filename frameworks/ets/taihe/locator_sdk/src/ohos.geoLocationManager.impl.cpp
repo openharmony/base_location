@@ -50,6 +50,8 @@ std::vector<OHOS::sptr<BluetoothScanResultCallbackTaihe>> g_taiheBluetoothScanRe
 std::vector<OHOS::sptr<LocationErrorCallbackTaihe>> g_taiheLocationErrorCallbackMap;
 std::vector<OHOS::sptr<CachedLocationsCallbackTaihe>> g_taiheCachedLocationsCallbackMap;
 
+std::mutex g_taiheCachedLocationsCallbackMapMutex;
+
 int GetCurrentLocationType(std::unique_ptr<OHOS::Location::RequestConfig>& config)
 {
     if (config->GetPriority() == OHOS::Location::LOCATION_PRIORITY_ACCURACY ||
@@ -696,9 +698,9 @@ void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocations
         OHOS::sptr<CachedLocationsCallbackTaihe>(new CachedLocationsCallbackTaihe());
     auto cachedLocationsCallback =
         OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
-    cachedLocationsCallbackTaihe->callback_ = ::taihe::optional<
+    cachedLocationsCallbackTaihe->SetCallback(::taihe::optional<
         taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>{std::in_place_t{},
-        callback};
+        callback});
     std::unique_ptr<CachedGnssLocationsRequest> cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
     cachedRequest->reportingPeriodSec = request.reportingPeriodSec;
     cachedRequest->wakeUpCacheQueueFull = request.wakeUpCacheQueueFull;
@@ -707,6 +709,7 @@ void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocations
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
     }
+    std::unique_lock<std::mutex> lock(g_taiheCachedLocationsCallbackMapMutex);
     g_taiheCachedLocationsCallbackMap.push_back(cachedLocationsCallbackTaihe);
 }
 
@@ -714,9 +717,10 @@ void OffCachedGnssLocationsChange(
     ::taihe::optional_view<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>
     callback)
 {
+    std::unique_lock<std::mutex> lock(g_taiheCachedLocationsCallbackMapMutex);
     for (std::uint32_t i = 0; i < g_taiheCachedLocationsCallbackMap.size(); i++) {
         auto cachedLocationsCallbackTaihe = g_taiheCachedLocationsCallbackMap[i];
-        if (cachedLocationsCallbackTaihe->callback_ == callback) {
+        if (cachedLocationsCallbackTaihe->GetCallback() == callback) {
             auto cachedLocationsCallback =
                 OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
             LocationErrCode errorCode =
