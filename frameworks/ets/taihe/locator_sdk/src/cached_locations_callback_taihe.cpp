@@ -32,13 +32,17 @@ int CachedLocationsCallbackTaihe::OnRemoteRequest(
     switch (code) {
         case RECEIVE_CACHED_LOCATIONS_EVENT: {
             int size = data.ReadInt32();
-            if (size > 0 && size < MAXIMUM_CACHE_LOCATIONS) {
-                std::vector<std::unique_ptr<Location>> locations;
-                for (int i = 0; i < size; i++) {
-                    locations.push_back(Location::UnmarshallingMakeUnique(data));
-                }
-                OnCacheLocationsReport(locations);
+            if (size <= 0 || size > MAXIMUM_CACHE_LOCATIONS) {
+                break;
             }
+            std::vector<std::unique_ptr<Location>> locations;
+            for (int i = 0; i < size; i++) {
+                auto loc = Location::UnmarshallingMakeUnique(data);
+                if (loc != nullptr) {
+                    locations.push_back(std::move(loc));
+                }
+            }
+            OnCacheLocationsReport(locations);
             break;
         }
         default: {
