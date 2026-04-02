@@ -34,7 +34,8 @@ public:
     void SetCallback(
         ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callback);
     void GetCallback(
-        ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>& callback);
+        ::taihe::optional<
+        ::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>& callback);
 private:
     std::mutex mutex_;
     ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callback_;
