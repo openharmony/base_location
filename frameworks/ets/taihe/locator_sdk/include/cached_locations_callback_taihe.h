@@ -33,7 +33,8 @@ public:
     void OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations) override;
     void SetCallback(
         ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callback);
-    ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> GetCallback();
+    void GetCallback(
+        ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>& callback);
 private:
     std::mutex mutex_;
     ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callback_;

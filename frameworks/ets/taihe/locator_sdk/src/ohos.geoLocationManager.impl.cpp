@@ -720,7 +720,10 @@ void OffCachedGnssLocationsChange(
     std::unique_lock<std::mutex> lock(g_taiheCachedLocationsCallbackMapMutex);
     for (std::uint32_t i = 0; i < g_taiheCachedLocationsCallbackMap.size(); i++) {
         auto cachedLocationsCallbackTaihe = g_taiheCachedLocationsCallbackMap[i];
-        if (cachedLocationsCallbackTaihe->GetCallback() == callback) {
+        ::taihe::optional<
+            ::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callbackTaihe;
+        cachedLocationsCallbackTaihe->GetCallback(callbackTaihe);
+        if (callbackTaihe == callback) {
             auto cachedLocationsCallback =
                 OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
             LocationErrCode errorCode =

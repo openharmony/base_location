@@ -60,11 +60,12 @@ void CachedLocationsCallbackTaihe::SetCallback(
     callback_ = callback;
 }
 
-::taihe::optional<::taihe::callback<void( ::taihe::array_view<::ohos::geoLocationManager::Location>)>>
-    CachedLocationsCallbackTaihe::GetCallback()
+
+void CachedLocationsCallbackTaihe::GetCallback(
+    ::taihe::optional<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>& callback)
 {
     std::unique_lock<std::mutex> guard(mutex_);
-    return callback_;
+    callback = callback_;
 }
 
 void CachedLocationsCallbackTaihe::OnCacheLocationsReport(const std::vector<std::unique_ptr<Location>>& locations)
