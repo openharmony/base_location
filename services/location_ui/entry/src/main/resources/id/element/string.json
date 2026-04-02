@@ -363,6 +363,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"Izinkan koneksi ke jaringan yang lebih baik, seperti \"%s\", menggunakan kata sandi untuk jaringan Wi-Fi saat ini?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

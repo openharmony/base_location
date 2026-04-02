@@ -197,6 +197,13 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"授权使用当前 Wi-Fi 秘钥连接更优网络“%s”等。",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
             "name":"wifipro_better_network_pop_up_title",
             "value":"发现更优 WLAN 网络",
             "attr":{

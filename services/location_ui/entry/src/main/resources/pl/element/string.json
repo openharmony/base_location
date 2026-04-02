@@ -363,6 +363,13 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifipro_auto_connect_dialog_save_context",
+            "value":"Zezwolić na połączenie z lepszymi sieciami, takimi jak „%s”, przy użyciu hasła bieżącej sieci Wi-Fi?",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
