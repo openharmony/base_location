@@ -60,8 +60,8 @@ void CachedLocationsCallbackTaihe::SetCallback(
     callback_ = callback;
 }
 
-::taihe::optional<::taihe::callback<void(
-    ::taihe::array_view<::ohos::geoLocationManager::Location>)>> CachedLocationsCallbackTaihe::GetCallback()
+::taihe::optional<::taihe::callback<void( ::taihe::array_view<::ohos::geoLocationManager::Location>)>>
+    CachedLocationsCallbackTaihe::GetCallback()
 {
     std::unique_lock<std::mutex> guard(mutex_);
     return callback_;
