@@ -76,9 +76,8 @@ void CachedLocationsCallbackTaihe::OnCacheLocationsReport(const std::vector<std:
         if (location == nullptr) {
             continue;
         }
-        std::unique_ptr<Location> locationReport = std::make_unique<Location>(*location);
         ::ohos::geoLocationManager::Location locationTaihe;
-        Util::LocationToTaihe(locationTaihe, locationReport);
+        Util::LocationToTaihe(locationTaihe, location);
         locationList.push_back(locationTaihe);
     }
     std::unique_lock<std::mutex> guard(mutex_);

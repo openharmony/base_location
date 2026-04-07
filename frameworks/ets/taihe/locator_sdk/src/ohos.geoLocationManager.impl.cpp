@@ -645,6 +645,9 @@ void RemoveGnssGeofenceSync(int32_t geofenceId)
 bool IsWlanBssidMatchedSync(
     ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
+    if (wlanBssidArray.size() > INPUT_WIFI_LIST_MAX_SIZE) {
+        Util::ThrowBussinessError(OHOS::Location::ERRCODE_INVALID_PARAM);
+    }
     std::vector<std::string> wlanBssidVec;
     for (auto &bssid : wlanBssidArray) {
         wlanBssidVec.push_back(std::string(bssid));
@@ -676,11 +679,13 @@ bool IsWlanBssidMatchedSync(
         if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
             return false;
         }
+        if (scanRes->GetWifiScanInfo()->GetRssi() < rssidThreshold) {
+            continue;
+        }
         wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = scanRes->GetWifiScanInfo()->GetRssi();
     }
     for (auto &requestWlanBssid : wlanBssidVec) {
-        if (wifiResultMap.count(requestWlanBssid) &&
-            wifiResultMap[requestWlanBssid] >= rssidThreshold) {
+        if (wifiResultMap.count(requestWlanBssid)) {
             isMatched = true;
             break;
         }
@@ -726,12 +731,12 @@ void OffCachedGnssLocationsChange(
         if (callbackTaihe == callback) {
             auto cachedLocationsCallback =
                 OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
+            g_taiheCachedLocationsCallbackMap.erase(g_taiheCachedLocationsCallbackMap.begin() + i);
             LocationErrCode errorCode =
                 Locator::GetInstance()->UnregisterCachedLocationCallbackV9(cachedLocationsCallback);
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
             }
-            g_taiheCachedLocationsCallbackMap.erase(g_taiheCachedLocationsCallbackMap.begin() + i);
             break;
         }
     }
