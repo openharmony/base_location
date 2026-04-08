@@ -439,13 +439,13 @@ int32_t GetCachedGnssLocationsSizeSync()
 {
     if (!IsLocationEnabled()) {
         Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
-        return;
+        return 0;
     }
     int32_t size = 0;
     LocationErrCode errorCode = Locator::GetInstance()->GetCachedGnssLocationsSizeV9(size);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
-        return;
+        return 0;
     }
     return size;
 }
@@ -651,7 +651,7 @@ bool IsWlanBssidMatchedSync(
 {
     if (wlanBssidArray.size() > INPUT_WIFI_LIST_MAX_SIZE) {
         Util::ThrowBussinessError(OHOS::Location::ERRCODE_INVALID_PARAM);
-        return;
+        return false;
     }
     std::vector<std::string> wlanBssidVec;
     for (auto &bssid : wlanBssidArray) {
@@ -674,7 +674,7 @@ bool IsWlanBssidMatchedSync(
     if (errorCode != OHOS::Location::SUCCESS) {
         singleLocatingRequiredDataCallbackHost->SetCount(0);
         Util::ThrowBussinessError(errorCode);
-        return;
+        return false;
     }
     singleLocatingRequiredDataCallbackHost->Wait(dataConfig->GetScanTimeoutMs());
     Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
