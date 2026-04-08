@@ -1339,6 +1339,12 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
         return;
     }
     NotifyGnssfenceStatusByNotification(request, event);
+    uint32_t tokenId = request->GetTokenId();
+    if (!PermissionManager::CheckLocationPermission(tokenId, request->GetFirstTokenId())) {
+        LBSLOGE(GNSS,
+            "NotifyGnssfenceStatusByFenceExtension CheckLocationPermission false, tokenId = %{public}d", tokenId);
+        return;
+    }
     NotifyGnssfenceStatusByFenceExtension(request, event);
     auto callback = request->GetGeofenceTransitionCallback();
     if (callback == nullptr) {
@@ -1371,6 +1377,12 @@ bool GnssAbility::NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceReque
     auto wantAgent = request->GetWantAgent();
     if (wantAgent == nullptr) {
         LBSLOGI(GNSS, "%{public}s: wantAgent == nullptr", __func__);
+        return false;
+    }
+    uint32_t tokenId = request->GetTokenId();
+    if (!PermissionManager::CheckApproximatelyPermission(tokenId, request->GetFirstTokenId())) {
+        LBSLOGE(GNSS,
+            "NotifyGnssfenceStatusByWantAgent CheckApproximatelyPermission false, tokenId = %{public}d", tokenId);
         return false;
     }
     std::shared_ptr<AAFwk::Want> want = OHOS::AbilityRuntime::WantAgent::WantAgentHelper::GetWant(wantAgent);
@@ -1426,11 +1438,6 @@ void GnssAbility::NotifyGnssfenceStatusByFenceExtension(std::shared_ptr<Geofence
         return;
     }
     uint32_t tokenId = request->GetTokenId();
-    if (!PermissionManager::CheckLocationPermission(tokenId, request->GetFirstTokenId())) {
-        LBSLOGE(GNSS,
-            "NotifyGnssfenceStatusByFenceExtension CheckLocationPermission false, tokenId = %{public}d", tokenId);
-        return;
-    }
     if (IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
         request->GetPid()) && !PermissionManager::CheckBackgroundPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
