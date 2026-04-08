@@ -75,7 +75,7 @@ const uint32_t EVENT_INTERVAL_UNITE = 1000;
 const int MAX_GNSS_STATUS_CALLBACK_NUM = 1000;
 const int MAX_NMEA_CALLBACK_NUM = 1000;
 const int MAX_GNSS_GEOFENCE_REQUEST_NUM = 1000;
-const int MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP = 20;
+const int MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP = 100;
 const int64_t MAX_BATCH_LENGTH_MS = 24 * 60 * 60 * 1000;
 const int64_t MIN_BATCH_LENGTH_MS = 1000;
 const int WANT_CODE_ELEVEN = 11;
@@ -742,6 +742,7 @@ void GnssAbility::RestoreGeofenceRequest()
                 std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
                 gnssGeofenceRequestList_.push_back(iter);
             }
+            AddGnssGeofenceRequest(iter->GetBundleName());
             AddGnssGeofence(iter);
         } else {
             AddFence(iter);
@@ -866,7 +867,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     }
     if (CheckIfExceedsLimitForOneApp(request->GetBundleName())) {
         LBSLOGE(GNSS, "Exceeded the limit of the fence request for one app");
-        return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
+        DeleteMinExpirationGeofenceRequest(request->GetBundleName());
     }
     int fenceId = 0;
     if (request->GetFenceId() > 0) {
@@ -944,6 +945,7 @@ bool GnssAbility::SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &reque
     }
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     gnssGeofenceRequestList_.push_back(request);
+    AddGnssGeofenceRequest(request->GetBundleName());
     LBSLOGI(GNSS, "After SaveFenceWantAgentInfo size %{public}zu",
         gnssGeofenceRequestList_.size());
     return true;
@@ -978,7 +980,7 @@ LocationErrCode GnssAbility::AddGnssGeofence(std::shared_ptr<GeofenceRequest>& r
     }
     if (CheckIfExceedsLimitForOneApp(request->GetBundleName())) {
         LBSLOGE(GNSS, "Exceeded the limit of the fence request for one app");
-        return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
+        DeleteMinExpirationGeofenceRequest(request->GetBundleName());
     }
     int fenceId = 0;
     if (request->GetFenceId() > 0) {
@@ -1034,6 +1036,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
     request->SetTransitionCallbackDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     gnssGeofenceRequestList_.push_back(request);
+    AddGnssGeofenceRequest(request->GetBundleName());
     LBSLOGI(GNSS, "After RegisterGnssGeofenceCallback size %{public}zu",
         gnssGeofenceRequestList_.size());
     return true;
@@ -1085,6 +1088,7 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
                     gnssGeofenceRequest->GetTransitionCallbackRecipient());
             }
             iter = gnssGeofenceRequestList_.erase(iter);
+            RemoveGnssGeofenceRequest(gnssGeofenceRequest->GetBundleName());
             break;
         } else {
             iter++;
@@ -1203,19 +1207,34 @@ size_t GnssAbility::GetGnssGeofenceRequestMapSize()
     return gnssGeofenceRequestList_.size();
 }
 
-bool GnssAbility::CheckIfExceedsLimitForOneApp(std::string bundleName)
+bool GnssAbility::CheckIfExceedsLimitForOneApp(const std::string& bundleName)
 {
-    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
-    int count = 0;
-    for (const auto& request : gnssGeofenceRequestList_) {
-        if (request != nullptr && request->GetBundleName() == bundleName) {
-            count++;
-            if (count >= MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP) {
-                return true;
-            }
-        }
+    std::lock_guard<std::mutex> lock(gnssGeofenceRequestCountMapMutex_);
+    auto it = gnssGeofenceRequestCountMap_.find(bundleName);
+    if (it != gnssGeofenceRequestCountMap_.end()) {
+        return it->second >= MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP;
     }
     return false;
+}
+
+void GnssAbility::AddGnssGeofenceRequest(const std::string& bundleName)
+{
+    std::lock_guard<std::mutex> lock(gnssGeofenceRequestCountMapMutex_);
+    gnssGeofenceRequestCountMap_[bundleName]++;
+}
+
+void GnssAbility::RemoveGnssGeofenceRequest(const std::string& bundleName)
+{
+    std::lock_guard<std::mutex> lock(gnssGeofenceRequestCountMapMutex_);
+    auto it = gnssGeofenceRequestCountMap_.find(bundleName);
+    if (it != gnssGeofenceRequestCountMap_.end()) {
+        if (it->second > 0) {
+            it->second--;
+        }
+        if (it->second == 0) {
+            gnssGeofenceRequestCountMap_.erase(it);
+        }
+    }
 }
 
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE

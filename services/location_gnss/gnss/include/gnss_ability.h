@@ -250,7 +250,6 @@ public:
     void PreRestoreGeofenceRequest();
     void RestoreGeofenceRequest();
     size_t GetGnssGeofenceRequestMapSize();
-    bool CheckIfExceedsLimitForOneApp(std::string bundleName);
     bool SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &request);
     void MonitorNetwork();
     void ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &request, GnssGeofenceOperateType type,
@@ -280,6 +279,10 @@ private:
     bool IsGnssfenceRequestExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<GeofenceRequest>& request);
     bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
+    bool CheckIfExceedsLimitForOneApp(const std::string& bundleName);
+    void AddGnssGeofenceRequest(const std::string& bundleName);
+    void RemoveGnssGeofenceRequest(const std::string& bundleName);
+    void DeleteMinExpirationGeofenceRequest(const std::string& packageName);
     bool ConnectGnssHdi();
     bool IsSupportGps();
     bool IsSupportGeofence();
@@ -333,7 +336,9 @@ private:
     ffrt::mutex gnssGeofenceRequestListMutex_;
     ffrt::mutex notificationMapMutex_;
     ffrt::mutex fenceWantAgentMapMutex_;
+    ffrt::mutex gnssGeofenceRequestCountMapMutex_;
     std::vector<std::shared_ptr<GeofenceRequest>> gnssGeofenceRequestList_;
+    std::map<std::string, int> gnssGeofenceRequestCountMap_;
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {
