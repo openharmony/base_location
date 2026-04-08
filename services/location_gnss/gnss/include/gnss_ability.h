@@ -336,7 +336,7 @@ private:
     ffrt::mutex gnssGeofenceRequestListMutex_;
     ffrt::mutex notificationMapMutex_;
     ffrt::mutex fenceWantAgentMapMutex_;
-    ffrt::mutex gnssGeofenceRequestCountMapMutex_;
+    std::mutex gnssGeofenceRequestCountMapMutex_;
     std::vector<std::shared_ptr<GeofenceRequest>> gnssGeofenceRequestList_;
     std::map<std::string, int> gnssGeofenceRequestCountMap_;
 };
