@@ -426,10 +426,12 @@ void FlushCachedGnssLocationsSync()
 {
     if (!IsLocationEnabled()) {
         Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+        return;
     }
     LocationErrCode errorCode = Locator::GetInstance()->FlushCachedGnssLocationsV9();
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
+        return;
     }
 }
 
@@ -437,11 +439,13 @@ int32_t GetCachedGnssLocationsSizeSync()
 {
     if (!IsLocationEnabled()) {
         Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+        return;
     }
     int32_t size = 0;
     LocationErrCode errorCode = Locator::GetInstance()->GetCachedGnssLocationsSizeV9(size);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
+        return;
     }
     return size;
 }
@@ -647,6 +651,7 @@ bool IsWlanBssidMatchedSync(
 {
     if (wlanBssidArray.size() > INPUT_WIFI_LIST_MAX_SIZE) {
         Util::ThrowBussinessError(OHOS::Location::ERRCODE_INVALID_PARAM);
+        return;
     }
     std::vector<std::string> wlanBssidVec;
     for (auto &bssid : wlanBssidArray) {
@@ -669,6 +674,7 @@ bool IsWlanBssidMatchedSync(
     if (errorCode != OHOS::Location::SUCCESS) {
         singleLocatingRequiredDataCallbackHost->SetCount(0);
         Util::ThrowBussinessError(errorCode);
+        return;
     }
     singleLocatingRequiredDataCallbackHost->Wait(dataConfig->GetScanTimeoutMs());
     Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
@@ -698,6 +704,7 @@ void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocations
 {
     if (!IsLocationEnabled()) {
         Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+        return;
     }
     auto cachedLocationsCallbackTaihe =
         OHOS::sptr<CachedLocationsCallbackTaihe>(new CachedLocationsCallbackTaihe());
@@ -713,6 +720,7 @@ void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocations
         Locator::GetInstance()->RegisterCachedLocationCallbackV9(cachedRequest, cachedLocationsCallback);
     if (errorCode != ERRCODE_SUCCESS) {
         Util::ThrowBussinessError(errorCode);
+        return;
     }
     std::unique_lock<std::mutex> lock(g_taiheCachedLocationsCallbackMapMutex);
     g_taiheCachedLocationsCallbackMap.push_back(cachedLocationsCallbackTaihe);
@@ -736,6 +744,7 @@ void OffCachedGnssLocationsChange(
                 Locator::GetInstance()->UnregisterCachedLocationCallbackV9(cachedLocationsCallback);
             if (errorCode != ERRCODE_SUCCESS) {
                 Util::ThrowBussinessError(errorCode);
+                return;
             }
             break;
         }
