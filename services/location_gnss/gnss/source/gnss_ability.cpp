@@ -1473,6 +1473,34 @@ std::shared_ptr<GeofenceRequest> GnssAbility::GetGeofenceRequestByFenceId(int fe
     return nullptr;
 }
 
+void GnssAbility::DeleteMinExpirationGeofenceRequest(const std::string& packageName)
+{
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
+    if (gnssGeofenceRequestList_.empty()) {
+        return;
+    }
+    std::shared_ptr<GeofenceRequest> minRequest;
+    int64_t minTimeStamp = INT64_MAX;
+    for (const auto& request : gnssGeofenceRequestList_) {
+        if (request == nullptr) {
+            continue;
+        }
+        if (request->GetBundleName() != packageName) {
+            continue;
+        }
+        int64_t currentTimeStamp = request->GetRequestExpirationTimeStamp();
+        if (currentTimeStamp < minTimeStamp) {
+            minTimeStamp = currentTimeStamp;
+            minRequest = request;
+        }
+    }
+    if (minRequest != nullptr && gnssHandler_ != nullptr) {
+        AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+            static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE), minRequest);
+        gnssHandler_->SendEvent(event);
+    }
+}
+
 bool GnssAbility::ExecuteFenceProcess(
     GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request)
 {
