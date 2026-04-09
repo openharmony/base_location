@@ -1396,7 +1396,7 @@ std::unordered_map<std::string, WifiScanResult> BuildWifiResultMap(
         if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
             continue;
         }
-        if (scanRes->GetWifiScanInfo()->GetSsid() < rssiThreshold) {
+        if (scanRes->GetWifiScanInfo()->GetRssi() < rssiThreshold) {
             continue;
         }
         WifiScanResult result;
@@ -1416,7 +1416,7 @@ void SetWlanMatchExecuteFunc(AsyncContextType* asyncContext)
         }
         auto context = static_cast<AsyncContextType*>(data);
         auto callbackHost = context->callbackHost_;
-        if (callbackHost_ != nullptr) {
+        if (callbackHost != nullptr) {
             callbackHost->Wait(context->timeout_);
             auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
             g_locatorClient->UnRegisterLocatingRequiredDataCallback(callbackPtr);
@@ -1425,7 +1425,7 @@ void SetWlanMatchExecuteFunc(AsyncContextType* asyncContext)
             }
             callbackHost->SetCount(1);
         }
-    }
+    };
 }
 
 template<typename AsyncContextType>

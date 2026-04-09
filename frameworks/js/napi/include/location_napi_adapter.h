@@ -31,7 +31,7 @@ namespace Location {
 struct WifiScanResult {
     std::string ssid;
     int rssi;
-}
+};
 napi_value GetLastLocation(napi_env env, napi_callback_info info);
 napi_value IsLocationEnabled(napi_env env, napi_callback_info info);
 napi_value EnableLocation(napi_env env, napi_callback_info info);
