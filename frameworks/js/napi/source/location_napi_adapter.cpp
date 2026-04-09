@@ -1388,26 +1388,75 @@ napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, 1);
 }
 
+std::unordered_map<std::string, WifiScanResult> BuildWifiResultMap(
+    std::vector<std::shared_ptr<LocatingRequiredData>>& res, int rssiThreshold)
+{
+    std::unordered_map<std::string, WifiScanResult> wifiResultMap;
+    for (auto &scanRes : res) {
+        if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
+            continue;
+        }
+        if (scanRes->GetWifiScanInfo()->GetSsid() < rssiThreshold) {
+            continue;
+        }
+        WifiScanResult result;
+        result.ssid = scanRes->GetWifiScanInfo()->GetSsid();
+        result.rssi = scanRes->GetWifiScanInfo()->GetRssi();
+        wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = result;
+    }
+    return wifiResultMap;
+}
+
+template<typename AsyncContextType>
+void SetWlanMatchExecuteFunc(AsyncContextType* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<AsyncContextType*>(data);
+        auto callbackHost = context->callbackHost_;
+        if (callbackHost_ != nullptr) {
+            callbackHost->Wait(context->timeout_);
+            auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
+            g_locatorClient->UnRegisterLocatingRequiredDataCallback(callbackPtr);
+            if (callbackHost->GetCount() != 0) {
+                context->errCode = ERRCODE_WIFI_SCAN_FAIL;
+            }
+            callbackHost->SetCount(1);
+        }
+    }
+}
+
+template<typename AsyncContextType>
+std::vector<MatchingWlanInfo> FindMatchingWlanInfo(sptr<LocatingRequiredDataCallbackNapi> callbackHost,
+    AsyncContextType* context)
+{
+    std::vector<MatchingWlanInfo> matchingWlanInfos;
+    std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
+    auto wifiResultMap = BuildWifiResultMap(res, context->rssiThreshold_);
+    for (size_t i = 0; i < context->wlanBssidArray_.size(); ++i) {
+        const auto& requestWlanBssid = context->wlanBssidArray_[i];
+        if (wifiResultMap.count(requestWlanBssid)) {
+            MatchingWlanInfo info;
+            info.index = static_cast<int32_t>(i);
+            info.ssid = wifiResultMap[requestWlanBssid].ssid;
+            matchingWlanInfos.push_back(info);
+        }
+    }
+}
+
 bool IsMatched(sptr<LocatingRequiredDataCallbackNapi> callbackHost,
     SingleScanAsyncContext* context)
 {
-    bool isMatched = false;
-    std::unordered_map<std::string, int> wifiResultMap;
     std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
-    for (auto &scanRes : res) {
-        if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
-            return false;
-        }
-        wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = scanRes->GetWifiScanInfo()->GetRssi();
-    }
+    auto wifiResultMap = BuildWifiResultMap(res);
     for (auto &requestWlanBssid : context->wlanBssidArray_) {
-        if (wifiResultMap.count(requestWlanBssid) &&
-            wifiResultMap[requestWlanBssid] >= context->rssiThreshold_) {
-            isMatched = true;
-            break;
+        if (wifiResultMap.count(requestWlanBssid)) {
+            return true;
         }
     }
-    return isMatched;
+    return false;
 }
 
 SingleScanAsyncContext* CreateSingleWifiScanAsyncContext(const napi_env& env,
@@ -1425,22 +1474,7 @@ SingleScanAsyncContext* CreateSingleWifiScanAsyncContext(const napi_env& env,
     asyncContext->rssiThreshold_ = config->GetRssiThreshold();
     asyncContext->wlanBssidArray_ = config->GetWlanBssidArray();
     asyncContext->callbackHost_ = callback;
-    asyncContext->executeFunc = [&](void* data) -> void {
-        if (data == nullptr) {
-            return;
-        }
-        auto context = static_cast<SingleScanAsyncContext*>(data);
-        auto callbackHost = context->callbackHost_;
-        if (callbackHost != nullptr) {
-            callbackHost->Wait(context->timeout_);
-            auto callbackPtr = sptr<ILocatingRequiredDataCallback>(callbackHost);
-            g_locatorClient->UnRegisterLocatingRequiredDataCallback(callbackPtr);
-            if (callbackHost->GetCount() != 0) {
-                context->errCode = ERRCODE_WIFI_SCAN_FAIL;
-            }
-            callbackHost->SetCount(1);
-        }
-    };
+    SetWlanMatchExecuteFunc(asyncContext);
     asyncContext->completeFunc = [&](void* data) -> void {
         if (data == nullptr) {
             return;
@@ -1508,7 +1542,10 @@ bool GetWlanRequestConfig(napi_env env, napi_value argv[], WlanRequestConfig& re
     return true;
 }
 
-napi_value IsWlanBssidMatched(napi_env env, napi_callback_info info)
+template<typename AsyncContextType>
+napi_value DoWlanMatchRequest(napi_env env, napi_callback_info info,
+    std::function<AsyncContextType*(const napi_env&, std::unique_ptr<LocatingRequiredDataConfig>&,
+    sptr<LocatingRequiredDataCallbackNapi>)> createAsyncContextFunc)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
@@ -1543,13 +1580,71 @@ napi_value IsWlanBssidMatched(napi_env env, napi_callback_info info)
         HandleSyncErrCode(env, errorCode);
         return UndefinedNapiValue(env);
     }
-    auto asyncContext = CreateSingleWifiScanAsyncContext(env, scanRequestConfig, singleCallbackHost);
+    auto asyncContext = createAsyncContextFunc(env, scanRequestConfig, singleCallbackHost);
     if (asyncContext == nullptr) {
         HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     size_t objectArgsNum = PARAM3;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+
+napi_value IsWlanBssidMatched(napi_env env, napi_callback_info info)
+{
+    return DoWlanMatchRequest<SingleScanAsyncContext>(env, info, CreateSingleWifiScanAsyncContext);
+}
+
+FindMatchingWlanAsyncContext* CreateFindMatchingWlanAsyncContext(const napi_env& env,
+    std::unique_ptr<LocatingRequiredDataConfig>& config, sptr<LocatingRequiredDataCallbackNapi> callback)
+{
+    auto asyncContext = new (std::nothrow) FindMatchingWlanAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    if (napi_create_string_latin1(env, "findMatchingWlanInfo",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->timeout_ = config->GetScanTimeoutMs();
+    asyncContext->rssiThreshold_ = config->GetRssiThreshold();
+    asyncContext->wlanBssidArray_ = config->GetWlanBssidArray();
+    asyncContext->callbackHost_ = callback;
+    SetWlanMatchExecuteFunc(asyncContext);
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<FindMatchingWlanAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        if (callbackHost != nullptr) {
+            context->matchingWlanInfos_ = findMatchingWlanInfo(callbackHost, context);
+            callbackHost->ClearSingleResult();
+        }
+        napi_value arrayResult;
+        napi_create_array(context->env, &arrayResult);
+        for (size_t i = 0; i < context->matchingWlanInfos_.size(); ++i) {
+            const auto& info = context->matchingWlanInfos_[i];
+            napi_value object;
+            napi_create_object(context->env, &object);
+            napi_value indexValue;
+            napi_create_int32(context->env, info.index, &indexValue);
+            napi_set_named_property(context->env, object, "index", indexValue);
+            napi_value ssidValue;
+            napi_create_string_utf8(context->env, info.ssid.c_str(), &ssidValue);
+            napi_set_named_property(context->env, object, "ssid", ssidValue);
+            napi_set_element(context->env, arrayResult, i, object);
+        }
+        context->result[PARAM1] = arrayResult;
+        if (context->callbackHost_) {
+            context->callbackHost_ = nullptr;
+        }
+    };
+    return asyncContext;
+}
+
+napi_value FindMatchingWlanInfo(napi_env env, napi_callback_info info)
+{
+    return DoWlanMatchRequest<FindMatchingWlanAsyncContext>(env, info, CreateFindMatchingWlanAsyncContext);
 }
 
 napi_value AddGnssGeofence(napi_env env, napi_callback_info info)

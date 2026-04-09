@@ -225,6 +225,17 @@ LocationErrCode LocatorRequiredDataManager::UnregisterCallback(const sptr<IRemot
     return ERRCODE_SUCCESS;
 }
 
+std::shared_ptr<LocatingRequiredDataConfig> LocatorRequiredDataManager::GetCallbackConfig(
+    const sptr<IRemoteObject>& callback)
+{
+    std::unique_lock<std::mutex> lock(mutex_);
+    auto iter = callbacksMap_.find(callback);
+    if (iter != callbacksMap_.end()) {
+        return std::make_shared<LocatingRequiredDataConfig>(iter->second.config_);
+    }
+    return nullptr;
+}
+
 void LocatorRequiredDataManager::StartScanBluetoothDevice(sptr<IBluetoothScanResultCallback> callback,
     AppIdentity identity)
 {
