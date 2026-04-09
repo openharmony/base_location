@@ -148,19 +148,28 @@ GnssAbility::~GnssAbility()
     }
 #endif
 #endif
-    for (const auto& pair : gnssStatusDeathMap_) {
-        if (pair.first != nullptr) {
-            pair.first->RemoveDeathRecipient(pair.second);
+    {
+        std::unique_lock<ffrt::mutex> lock(gnssMutex_);
+        for (const auto& pair : gnssStatusDeathMap_) {
+            if (pair.first != nullptr) {
+                pair.first->RemoveDeathRecipient(pair.second);
+            }
         }
     }
-    for (const auto& pair : nmeaDeathMap_) {
-        if (pair.first != nullptr) {
-            pair.first->RemoveDeathRecipient(pair.second);
+    {
+        std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
+        for (const auto& pair : nmeaDeathMap_) {
+            if (pair.first != nullptr) {
+                pair.first->RemoveDeathRecipient(pair.second);
+            }
         }
     }
-    for (const auto& pair : batchingDeathMap_) {
-        if (pair.first != nullptr) {
-            pair.first->RemoveDeathRecipient(pair.second);
+    {
+        std::unique_lock<ffrt::mutex> lock(batchingMutex_);
+        for (const auto& pair : batchingDeathMap_) {
+            if (pair.first != nullptr) {
+                pair.first->RemoveDeathRecipient(pair.second);
+            }
         }
     }
 }
