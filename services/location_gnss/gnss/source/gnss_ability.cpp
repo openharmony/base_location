@@ -1342,7 +1342,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
     uint32_t tokenId = request->GetTokenId();
     if (!PermissionManager::CheckLocationPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
-            "NotifyGnssfenceStatusByFenceExtension CheckLocationPermission false, tokenId = %{public}d", tokenId);
+            "ReportGeofenceEvent CheckLocationPermission false, tokenId = %{public}d", tokenId);
         return;
     }
     NotifyGnssfenceStatusByFenceExtension(request, event);
