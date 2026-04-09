@@ -266,8 +266,7 @@ public:
     std::vector<std::string> wlanBssidArray_;
     sptr<LocatingRequiredDataCallbackNapi> callbackHost_;
 
-    explicit SingleScanAsyncContext(napi_env env, napi_async_work work = nullptr,
-        napi_deferred deferred = nullptr)
+    explicit SingleScanAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(nullptr) {}
 
     SingleScanAsyncContext() = delete;
@@ -283,7 +282,8 @@ public:
     sptr<LocatingRequiredDataCallbackNapi> callbackHost_;
     std::vector<MatchingWlanInfo> matchingWlanInfos_;
 
-    explicit FindMatchingWlanAsyncContext(napi_env env, napi_async_work work = nullptr, napi_deferred deferred = nullptr)
+    explicit FindMatchingWlanAsyncContext(napi_env env, napi_async_work work = nullptr,
+        napi_deferred deferred = nullptr)
         : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(nullptr) {}
 
     FindMatchingWlanAsyncContext() = delete;
