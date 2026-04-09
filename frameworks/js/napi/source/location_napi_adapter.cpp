@@ -1450,7 +1450,7 @@ bool IsMatched(sptr<LocatingRequiredDataCallbackNapi> callbackHost,
     SingleScanAsyncContext* context)
 {
     std::vector<std::shared_ptr<LocatingRequiredData>> res = callbackHost->GetSingleResult();
-    auto wifiResultMap = BuildWifiResultMap(res);
+    auto wifiResultMap = BuildWifiResultMap(res, context->rssiThreshold_);
     for (auto &requestWlanBssid : context->wlanBssidArray_) {
         if (wifiResultMap.count(requestWlanBssid)) {
             return true;
