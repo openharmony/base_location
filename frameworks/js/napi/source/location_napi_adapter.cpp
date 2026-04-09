@@ -1642,7 +1642,7 @@ FindMatchingWlanAsyncContext* CreateFindMatchingWlanAsyncContext(const napi_env&
     return asyncContext;
 }
 
-napi_value FindMatchingWlanInfo(napi_env env, napi_callback_info info)
+napi_value FindMatchingWlan(napi_env env, napi_callback_info info)
 {
     return DoWlanMatchRequest<FindMatchingWlanAsyncContext>(env, info, CreateFindMatchingWlanAsyncContext);
 }
