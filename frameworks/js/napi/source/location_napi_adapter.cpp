@@ -1617,7 +1617,7 @@ FindMatchingWlanAsyncContext* CreateFindMatchingWlanAsyncContext(const napi_env&
         auto context = static_cast<FindMatchingWlanAsyncContext*>(data);
         auto callbackHost = context->callbackHost_;
         if (callbackHost != nullptr) {
-            context->matchingWlanInfos_ = findMatchingWlanInfo(callbackHost, context);
+            context->matchingWlanInfos_ = FindMatchingWlanInfo(callbackHost, context);
             callbackHost->ClearSingleResult();
         }
         napi_value arrayResult;
@@ -1630,7 +1630,7 @@ FindMatchingWlanAsyncContext* CreateFindMatchingWlanAsyncContext(const napi_env&
             napi_create_int32(context->env, info.index, &indexValue);
             napi_set_named_property(context->env, object, "index", indexValue);
             napi_value ssidValue;
-            napi_create_string_utf8(context->env, info.ssid.c_str(), &ssidValue);
+            napi_create_string_utf8(context->env, info.ssid.c_str(), NAPI_AUTO_LENGTH, &ssidValue);
             napi_set_named_property(context->env, object, "ssid", ssidValue);
             napi_set_element(context->env, arrayResult, i, object);
         }
