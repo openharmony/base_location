@@ -56,7 +56,7 @@ public:
     ~BeaconFenceManager();
     static BeaconFenceManager* GetInstance();
     ErrCode AddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest, const AppIdentity& identity);
-    ErrCode RemoveBeaconFence(const std::shared_ptr<BeaconFence>& beaconFence);
+    ErrCode RemoveBeaconFence(const std::shared_ptr<BeaconFence>& beaconFence, std::string bundleName);
     void StartAddBeaconFence(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest, const AppIdentity& identity);
 #ifdef BLUETOOTH_ENABLE
     void ReportFoundOrLost(const Bluetooth::BleScanResult &result, uint8_t type);
@@ -88,6 +88,7 @@ private:
     void OnReportOperationResultByCallback(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
         GnssGeofenceOperateType type, GnssGeofenceOperateResult result);
     bool IsBeaconFenceRequestExists(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
+    bool CheckIfExceedsLimitForOneApp(std::string bundleName);
     void RegisterBeaconFenceCallback(std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest,
         const AppIdentity& appIdentity);
     AppIdentity GetAppIdentityByBeaconFenceRequest(const std::shared_ptr<BeaconFenceRequest>& beaconFenceRequest);
