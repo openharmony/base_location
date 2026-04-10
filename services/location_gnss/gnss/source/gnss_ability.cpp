@@ -1448,7 +1448,7 @@ void GnssAbility::NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceReques
         }
         if (appAliveStatus) {
             GeofenceTransition geofenceTransition;
-            geofenceTransition.fenceId = fenceIndex;
+            geofenceTransition.fenceId = request->GetFenceId();
             geofenceTransition.event = transitionStatusList[i];
             gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
         }
