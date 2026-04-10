@@ -741,8 +741,8 @@ void GnssAbility::RestoreGeofenceRequest()
             {
                 std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
                 gnssGeofenceRequestList_.push_back(iter);
+                gnssGeofenceRequestCountMap_[iter->GetBundleName()]++;
             }
-            AddGnssGeofenceRequest(iter->GetBundleName());
             AddGnssGeofence(iter);
         } else {
             AddFence(iter);
@@ -945,7 +945,7 @@ bool GnssAbility::SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &reque
     }
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     gnssGeofenceRequestList_.push_back(request);
-    AddGnssGeofenceRequest(request->GetBundleName());
+    gnssGeofenceRequestCountMap_[request->GetBundleName()]++;
     LBSLOGI(GNSS, "After SaveFenceWantAgentInfo size %{public}zu",
         gnssGeofenceRequestList_.size());
     return true;
@@ -1036,7 +1036,7 @@ bool GnssAbility::RegisterGnssGeofenceCallback(std::shared_ptr<GeofenceRequest> 
     request->SetTransitionCallbackDeathRecipient(death);
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     gnssGeofenceRequestList_.push_back(request);
-    AddGnssGeofenceRequest(request->GetBundleName());
+    gnssGeofenceRequestCountMap_[request->GetBundleName()]++;
     LBSLOGI(GNSS, "After RegisterGnssGeofenceCallback size %{public}zu",
         gnssGeofenceRequestList_.size());
     return true;
