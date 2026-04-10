@@ -1444,6 +1444,7 @@ std::vector<MatchingWlanInfo> FindMatchingWlanInfo(sptr<LocatingRequiredDataCall
             matchingWlanInfos.push_back(info);
         }
     }
+    return matchingWlanInfos;
 }
 
 bool IsMatched(sptr<LocatingRequiredDataCallbackNapi> callbackHost,
@@ -1599,7 +1600,7 @@ FindMatchingWlanAsyncContext* CreateFindMatchingWlanAsyncContext(const napi_env&
 {
     auto asyncContext = new (std::nothrow) FindMatchingWlanAsyncContext(env);
     NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    if (napi_create_string_latin1(env, "findMatchingWlanInfo",
+    if (napi_create_string_latin1(env, "findMatchingWlan",
         NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
         GET_AND_THROW_LAST_ERROR(env);
         delete asyncContext;
