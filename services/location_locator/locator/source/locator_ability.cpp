@@ -997,6 +997,10 @@ ErrCode LocatorAbility::AddGnssGeofence(const GeofenceRequest& request)
         std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
     geofenceRequest->SetBundleName(identity.GetBundleName());
     geofenceRequest->SetUid(identity.GetUid());
+    geofenceRequest->SetPid(identity.GetPid());
+    geofenceRequest->SetTokenId(identity.GetTokenId());
+    geofenceRequest->SetTokenIdEx(identity.GetTokenIdEx());
+    geofenceRequest->SetFirstTokenId(identity.GetFirstTokenId());
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
