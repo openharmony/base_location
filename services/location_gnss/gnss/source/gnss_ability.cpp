@@ -1345,27 +1345,14 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
             "ReportGeofenceEvent CheckLocationPermission false, tokenId = %{public}d", tokenId);
         return;
     }
-    NotifyGnssfenceStatusByFenceExtension(request, event);
-    auto callback = request->GetGeofenceTransitionCallback();
-    if (callback == nullptr) {
-        LBSLOGE(GNSS, "callback is nullptr");
+    if (IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
+        request->GetPid()) && !PermissionManager::CheckBackgroundPermission(tokenId, request->GetFirstTokenId())) {
+        LBSLOGE(GNSS,
+            "ReportGeofenceEvent CheckBackgroundPermission false, tokenId = %{public}d", tokenId);
         return;
     }
-    sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
-    auto transitionStatusList = request->GetGeofenceTransitionEventList();
-    auto appAliveStatus = request->GetAppAliveStatus();
-    for (size_t i = 0; i < transitionStatusList.size(); i++) {
-        if (transitionStatusList[i] !=
-            static_cast<GeofenceTransitionEvent>(event)) {
-            continue;
-        }
-        if (appAliveStatus) {
-            GeofenceTransition geofenceTransition;
-            geofenceTransition.fenceId = fenceIndex;
-            geofenceTransition.event = transitionStatusList[i];
-            gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
-        }
-    }
+    NotifyGnssfenceStatusByFenceExtension(request, event);
+    NotifyGnssfenceStatusByCallback(request, event);
 }
 
 bool GnssAbility::NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
@@ -1437,18 +1424,35 @@ void GnssAbility::NotifyGnssfenceStatusByFenceExtension(std::shared_ptr<Geofence
     if (request->GetFenceExtensionAbilityName().empty()) {
         return;
     }
-    uint32_t tokenId = request->GetTokenId();
-    if (IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
-        request->GetPid()) && !PermissionManager::CheckBackgroundPermission(tokenId, request->GetFirstTokenId())) {
-        LBSLOGE(GNSS,
-            "NotifyGnssfenceStatusByFenceExtension CheckBackgroundPermission false, tokenId = %{public}d", tokenId);
-        return;
-    }
     FenceStruct fenceStruct;
     fenceStruct.request = request;
     fenceStruct.transitionEvent = static_cast<int>(event);
     HookUtils::ExecuteHook(
         LocationProcessStage::NOTIFY_GEOFENCE_STATUS_BY_FENCEEXTENSION_PROCESS, (void *)&fenceStruct, nullptr);
+}
+
+void GnssAbility::NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
+{
+    auto callback = request->GetGeofenceTransitionCallback();
+    if (callback == nullptr) {
+        LBSLOGE(GNSS, "callback is nullptr");
+        return;
+    }
+    sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
+    auto transitionStatusList = request->GetGeofenceTransitionEventList();
+    auto appAliveStatus = request->GetAppAliveStatus();
+    for (size_t i = 0; i < transitionStatusList.size(); i++) {
+        if (transitionStatusList[i] !=
+            static_cast<GeofenceTransitionEvent>(event)) {
+            continue;
+        }
+        if (appAliveStatus) {
+            GeofenceTransition geofenceTransition;
+            geofenceTransition.fenceId = fenceIndex;
+            geofenceTransition.event = transitionStatusList[i];
+            gnssGeofenceCallback->OnTransitionStatusChange(geofenceTransition);
+        }
+    }
 }
  
 bool GnssAbility::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
