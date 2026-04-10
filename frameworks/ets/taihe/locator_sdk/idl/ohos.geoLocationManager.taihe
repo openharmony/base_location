@@ -103,6 +103,7 @@ struct CurrentLocationRequest {
 struct SingleLocationRequest  {
     locatingPriority: LocatingPriority;
     locatingTimeoutMs: i32;
+    needPoi: Optional<bool>;
 }
 
 union CurrentRequest {
@@ -128,6 +129,25 @@ struct LocationMockConfig {
     locations: Array<Location>;
 }
 
+struct Poi {
+    id: String;
+    confidence: f64;
+    name: String;
+    latitude: f64;
+    longitude: f64;
+    administrativeArea: String;
+    subAdministrativeArea: String;
+    locality: String;
+    subLocality: String;
+    address: String;
+    additionalInfo: Optional<String>;
+}
+
+struct PoiInfo {
+    poiArray: Array<Poi>;
+    timestamp: i64;
+}
+
 struct Location {
     latitude: f64;
     longitude: f64;
@@ -146,6 +166,7 @@ struct Location {
     directionAccuracy: Optional<f64>;
     uncertaintyOfTimeSinceBoot: Optional<i64>;
     sourceType: Optional<LocationSourceType>;
+    poi: Optional<PoiInfo>;
 }
 
 struct Geofence {
@@ -324,68 +345,49 @@ function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<
 @gen_promise("getActiveGeoFences")
 function GetActiveGeoFencesSync(): Map<i32, Geofence>;
 
-@on_off("cachedGnssLocationsChange")
+@gen_promise("isWlanBssidMatched")
+function IsWlanBssidMatchedSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): bool;
+
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
 
-// @on_off("cachedGnssLocationsChange")
 function OffCachedGnssLocationsChange(callback: Optional<(data: Array<Location>) => void>): void;
 
-@on_off("locationChange")
 function OnLocationChange(request: OnRequest, callback: (data: Location) => void): void;
 
-// @on_off("locationChange")
 function OffLocationChange(callback: Optional<(data: Location) => void>): void;
 
-@on_off("gnssFenceStatusChange")
 function OnGnssFenceStatusChange(request: GeofenceRequest, want: @sts_type("WantAgent") Opaque): void;
 
-@on_off("gnssFenceStatusChange")
 function OffGnssFenceStatusChange(request: GeofenceRequest, want: @sts_type("WantAgent") Opaque): void;
 
-@on_off("locatingRequiredDataChange")
 function OnLocatingRequiredDataChange(config: LocatingRequiredDataConfig, callback: (data: Array<LocatingRequiredData>) => void): void;
 
-// @on_off("locatingRequiredDataChange")
 function OffLocatingRequiredDataChange(callback: Optional<(data: Array<LocatingRequiredData>) => void>): void;
 
-// @on_off("countryCodeChange")
 function OnCountryCodeChange(callback: (data: CountryCode) => void): void;
 
-// @on_off("countryCodeChange")
 function OffCountryCodeChange(callback: Optional<(data: CountryCode) => void>): void;
 
-// @on_off("nmeaMessage")
 function OnNmeaMessage(callback: (data: String) => void): void;
 
-// @on_off("nmeaMessage")
 function OffNmeaMessage(callback: Optional<(data: String) => void>): void;
 
-// @on_off("satelliteStatusChange")
 function OffSatelliteStatusChange(callback: Optional<(data: SatelliteStatusInfo) => void>): void;
 
-// @on_off("satelliteStatusChange")
 function OnSatelliteStatusChange(callback: (data: SatelliteStatusInfo) => void): void;
 
-// @on_off("locationEnabledChange")
 function OffLocationEnabledChange(callback: Optional<(data: bool) => void>): void;
 
-// @on_off("locationEnabledChange")
 function OnLocationEnabledChange(callback: (data: bool) => void): void;
 
-// @on_off("bluetoothScanResultChange")
 function OffBluetoothScanResultChange(callback: Optional<(data: BluetoothScanResult) => void>): void;
 
-// @on_off("bluetoothScanResultChange")
 function OnBluetoothScanResultChange(callback: (data: BluetoothScanResult) => void): void;
 
-// @on_off("locationError")
 function OffLocationError(callback: Optional<(data: LocationError) => void>): void;
 
-// @on_off("locationError")
 function OnLocationError(callback: (data: LocationError) => void): void;
 
-// @on_off("locationIconStatusChange")
 function OffLocationIconStatusChange(callback: Optional<(data: LocationIconStatus) => void>): void;
 
-// @on_off("locationIconStatusChange")
 function OnLocationIconStatusChange(callback: (data: LocationIconStatus) => void): void;

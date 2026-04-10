@@ -48,6 +48,7 @@ taihe_shared_library("location_framework_taihe_native") {
   sources += [
     "src/ani_constructor.cpp",
     "src/bluetooth_scan_result_callback_taihe.cpp",
+    "src/cached_locations_callback_taihe.cpp",
     "src/country_code_callback_taihe.cpp",
     "src/gnss_status_callback_taihe.cpp",
     "src/locating_required_data_callback_taihe.cpp",

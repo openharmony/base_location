@@ -32,6 +32,7 @@
 #include "nmea_message_callback_taihe.h"
 #include "location_error_callback_taihe.h"
 #include "bluetooth_scan_result_callback_taihe.h"
+#include "cached_locations_callback_taihe.h"
 #include "geofence_sdk.h"
 #include "geofence_definition.h"
 #include "util.h"
@@ -47,6 +48,9 @@ std::vector<OHOS::sptr<GnssStatusCallbackTaihe>> g_taiheGnssStatusCallbackMap;
 std::vector<OHOS::sptr<LocationSwitchCallbackTaihe>> g_taiheLocationSwitchCallbackMap;
 std::vector<OHOS::sptr<BluetoothScanResultCallbackTaihe>> g_taiheBluetoothScanResultCallbackMap;
 std::vector<OHOS::sptr<LocationErrorCallbackTaihe>> g_taiheLocationErrorCallbackMap;
+std::vector<OHOS::sptr<CachedLocationsCallbackTaihe>> g_taiheCachedLocationsCallbackMap;
+
+std::mutex g_taiheCachedLocationsCallbackMapMutex;
 
 int GetCurrentLocationType(std::unique_ptr<OHOS::Location::RequestConfig>& config)
 {
@@ -420,13 +424,30 @@ void SendCommandSync(::ohos::geoLocationManager::LocationCommand const& command)
 
 void FlushCachedGnssLocationsSync()
 {
-    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+        return;
+    }
+    LocationErrCode errorCode = Locator::GetInstance()->FlushCachedGnssLocationsV9();
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+        return;
+    }
 }
 
 int32_t GetCachedGnssLocationsSizeSync()
 {
-    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
-    return 0;
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+        return 0;
+    }
+    int32_t size = 0;
+    LocationErrCode errorCode = Locator::GetInstance()->GetCachedGnssLocationsSizeV9(size);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+        return 0;
+    }
+    return size;
 }
 
 bool isGeocoderAvailable()
@@ -625,17 +646,109 @@ void RemoveGnssGeofenceSync(int32_t geofenceId)
     return ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence>{res};
 }
 
+bool IsWlanBssidMatchedSync(
+    ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
+{
+    if (wlanBssidArray.size() > INPUT_WIFI_LIST_MAX_SIZE) {
+        Util::ThrowBussinessError(OHOS::Location::ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    std::vector<std::string> wlanBssidVec;
+    for (auto &bssid : wlanBssidArray) {
+        wlanBssidVec.push_back(std::string(bssid));
+    }
+    std::unique_ptr<LocatingRequiredDataConfig> dataConfig = std::make_unique<LocatingRequiredDataConfig>();
+    dataConfig->SetType(LocatingRequiredDataType::WIFI);
+    dataConfig->SetWlanBssidArray(wlanBssidVec);
+    dataConfig->SetRssiThreshold(rssidThreshold);
+    dataConfig->SetNeedStartScan(needStartScan);
+    dataConfig->SetScanIntervalMs(DEFAULT_TIMEOUT_5S);
+    dataConfig->SetIsWlanMatchCalled(true);
+    dataConfig->SetFixNumber(1);
+    auto singleLocatingRequiredDataCallbackHost =
+        OHOS::sptr<LocatingRequiredDataCallbackTaihe>(new LocatingRequiredDataCallbackTaihe());
+    auto locatingRequiredDataCallback =
+        OHOS::sptr<ILocatingRequiredDataCallback>(singleLocatingRequiredDataCallbackHost);
+    LocationErrCode errorCode =
+        Locator::GetInstance()->RegisterLocatingRequiredDataCallback(dataConfig, locatingRequiredDataCallback);
+    if (errorCode != OHOS::Location::SUCCESS) {
+        singleLocatingRequiredDataCallbackHost->SetCount(0);
+        Util::ThrowBussinessError(errorCode);
+        return false;
+    }
+    singleLocatingRequiredDataCallbackHost->Wait(dataConfig->GetScanTimeoutMs());
+    Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
+    bool isMatched = false;
+    std::unordered_map<std::string, int> wifiResultMap;
+    std::vector<std::shared_ptr<LocatingRequiredData>> res = singleLocatingRequiredDataCallbackHost->GetSingleResult();
+    for (auto &scanRes : res) {
+        if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
+            return false;
+        }
+        if (scanRes->GetWifiScanInfo()->GetRssi() < rssidThreshold) {
+            continue;
+        }
+        wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = scanRes->GetWifiScanInfo()->GetRssi();
+    }
+    for (auto &requestWlanBssid : wlanBssidVec) {
+        if (wifiResultMap.count(requestWlanBssid)) {
+            isMatched = true;
+            break;
+        }
+    }
+    return isMatched;
+}
+
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,
     ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::Location>)> callback)
 {
-    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
+    if (!IsLocationEnabled()) {
+        Util::ThrowBussinessError(LocationErrCode::ERRCODE_SWITCH_OFF);
+        return;
+    }
+    auto cachedLocationsCallbackTaihe =
+        OHOS::sptr<CachedLocationsCallbackTaihe>(new CachedLocationsCallbackTaihe());
+    auto cachedLocationsCallback =
+        OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
+    cachedLocationsCallbackTaihe->SetCallback(::taihe::optional<
+        taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>{std::in_place_t{},
+        callback});
+    std::unique_ptr<CachedGnssLocationsRequest> cachedRequest = std::make_unique<CachedGnssLocationsRequest>();
+    cachedRequest->reportingPeriodSec = request.reportingPeriodSec;
+    cachedRequest->wakeUpCacheQueueFull = request.wakeUpCacheQueueFull;
+    LocationErrCode errorCode =
+        Locator::GetInstance()->RegisterCachedLocationCallbackV9(cachedRequest, cachedLocationsCallback);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+        return;
+    }
+    std::unique_lock<std::mutex> lock(g_taiheCachedLocationsCallbackMapMutex);
+    g_taiheCachedLocationsCallbackMap.push_back(cachedLocationsCallbackTaihe);
 }
 
 void OffCachedGnssLocationsChange(
     ::taihe::optional_view<::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>>
     callback)
 {
-    Util::ThrowBussinessError(LocationErrCode::ERRCODE_NOT_SUPPORTED);
+    std::unique_lock<std::mutex> lock(g_taiheCachedLocationsCallbackMapMutex);
+    for (std::uint32_t i = 0; i < g_taiheCachedLocationsCallbackMap.size(); i++) {
+        auto cachedLocationsCallbackTaihe = g_taiheCachedLocationsCallbackMap[i];
+        ::taihe::optional<
+            ::taihe::callback<void(::taihe::array_view<::ohos::geoLocationManager::Location>)>> callbackTaihe;
+        cachedLocationsCallbackTaihe->GetCallback(callbackTaihe);
+        if (callbackTaihe == callback) {
+            auto cachedLocationsCallback =
+                OHOS::sptr<ICachedLocationsCallback>(cachedLocationsCallbackTaihe);
+            g_taiheCachedLocationsCallbackMap.erase(g_taiheCachedLocationsCallbackMap.begin() + i);
+            LocationErrCode errorCode =
+                Locator::GetInstance()->UnregisterCachedLocationCallbackV9(cachedLocationsCallback);
+            if (errorCode != ERRCODE_SUCCESS) {
+                Util::ThrowBussinessError(errorCode);
+                return;
+            }
+            break;
+        }
+    }
 }
 
 void OnLocationChange(::ohos::geoLocationManager::OnRequest const& request,
@@ -968,7 +1081,7 @@ TH_EXPORT_CPP_API_GetGeofenceSupportedCoordTypes(GetGeofenceSupportedCoordTypes)
 TH_EXPORT_CPP_API_GetLocationIconStatus(GetLocationIconStatus);
 TH_EXPORT_CPP_API_GetLocatingRequiredDataSync(GetLocatingRequiredDataSync);
 TH_EXPORT_CPP_API_GetActiveGeoFencesSync(GetActiveGeoFencesSync);
-
+TH_EXPORT_CPP_API_IsWlanBssidMatchedSync(IsWlanBssidMatchedSync);
 TH_EXPORT_CPP_API_OnCachedGnssLocationsChange(OnCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OffCachedGnssLocationsChange(OffCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OnLocationChange(OnLocationChange);

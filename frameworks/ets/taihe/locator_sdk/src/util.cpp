@@ -102,7 +102,15 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
     location.direction = lastlocation->GetDirection();
     location.timeStamp = lastlocation->GetTimeStamp();
     location.timeSinceBoot = lastlocation->GetTimeSinceBoot();
-    location.additionSize = ::taihe::optional<int>(std::in_place_t{}, lastlocation->GetAdditionSize());
+    std::vector<::taihe::string> additions;
+    for (auto &addition : lastlocation->GetAdditions()) {
+        additions.push_back(addition);
+    }
+    location.additionSize = ::taihe::optional<int>(std::in_place_t{}, additions.size());
+    location.additions =
+        ::taihe::optional<::taihe::array<::taihe::string>>(std::in_place_t{},
+        ::taihe::array<::taihe::string>{taihe::copy_data_t{},
+        additions.data(), additions.size()});
     if (lastlocation->GetIsSystemApp() != 0) {
         location.isFromMock = ::taihe::optional<bool>(std::in_place_t{}, lastlocation->GetIsFromMock());
     }
@@ -114,6 +122,31 @@ void Util::LocationToTaihe(::ohos::geoLocationManager::Location& location, std::
             static_cast<int64_t>(lastlocation->GetUncertaintyOfTimeSinceBoot()));
     location.sourceType = ::taihe::optional<::ohos::geoLocationManager::LocationSourceType>(std::in_place_t{},
         static_cast<::ohos::geoLocationManager::LocationSourceType::key_t>(lastlocation->GetLocationSourceType()));
+    ::ohos::geoLocationManager::PoiInfo taihePoiInfo = ::ohos::geoLocationManager::PoiInfo{};
+    PoiInfoToTaihe(taihePoiInfo, lastlocation->GetPoiInfo());
+    location.poi = ::taihe::optional<::ohos::geoLocationManager::PoiInfo>(std::in_place_t{}, taihePoiInfo);
+}
+
+void Util::PoiInfoToTaihe(::ohos::geoLocationManager::PoiInfo& taihePoiInfo, PoiInfo poiInfo)
+{
+    std::vector<::ohos::geoLocationManager::Poi> poiList;
+    for (auto &poi : poiInfo.poiArray) {
+        ::ohos::geoLocationManager::Poi poiTaihe = ::ohos::geoLocationManager::Poi{};
+        poiTaihe.id = poi.id;
+        poiTaihe.confidence = poi.confidence;
+        poiTaihe.name = poi.name;
+        poiTaihe.latitude = poi.latitude;
+        poiTaihe.longitude = poi.longitude;
+        poiTaihe.administrativeArea = poi.administrativeArea;
+        poiTaihe.subAdministrativeArea = poi.subAdministrativeArea;
+        poiTaihe.locality = poi.locality;
+        poiTaihe.subLocality = poi.subLocality;
+        poiTaihe.address = poi.address;
+        poiList.push_back(poiTaihe);
+    }
+    taihePoiInfo.poiArray = ::taihe::array<::ohos::geoLocationManager::Poi>{taihe::copy_data_t{},
+        poiList.data(), poiList.size()};
+    taihePoiInfo.timestamp = poiInfo.timestamp;
 }
 
 void Util::TaiheToLocation(const ::ohos::geoLocationManager::Location& location,
@@ -189,6 +222,9 @@ void Util::TaiheCurrentRequestObjToRequestConfig(
             request->get_type_SingleLocationRequest_ref();
         requestConfig->SetPriority(singleLocationRequest.locatingPriority);
         requestConfig->SetTimeOut(singleLocationRequest.locatingTimeoutMs);
+        if (singleLocationRequest.needPoi) {
+            requestConfig->SetIsNeedPoi(*singleLocationRequest.needPoi);
+        }
     }
 }
 
@@ -238,7 +274,6 @@ void Util::GeoAddressToTaihe(std::vector<::ohos::geoLocationManager::GeoAddress>
         geoAddressList.push_back(geoAddressTaihe);
     }
 }
-
 
 void Util::TaiheToGeoAddress(::ohos::geoLocationManager::GeoAddress& geoAddressTaihe,
     std::shared_ptr<GeoAddress>& geoAddress)
@@ -329,6 +364,9 @@ void Util::TaiheCurrentRequestObjToRequestConfig(::ohos::geoLocationManager::OnR
         }
         requestConfig->SetScenario(scenario);
         requestConfig->SetTimeInterval(continuousLocationRequest.interval);
+        if (continuousLocationRequest.needPoi) {
+            requestConfig->SetIsNeedPoi(*continuousLocationRequest.needPoi);
+        }
     }
 }
 
