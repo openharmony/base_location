@@ -262,6 +262,11 @@ struct GnssGeofenceRequest {
     fenceExtensionAbilityName: Optional<String>;
 }
 
+struct MatchingWlanInfo {
+    index: i32,
+    ssid: String;
+}
+
 function IsLocationEnabled(): bool;
 @gen_async("getAddressesFromLocation")
 @gen_promise("getAddressesFromLocation")
@@ -347,6 +352,9 @@ function GetActiveGeoFencesSync(): Map<i32, Geofence>;
 
 @gen_promise("isWlanBssidMatched")
 function IsWlanBssidMatchedSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): bool;
+
+@gen_promise("findMatchingWlan")
+function FindMatchingWlanSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): Promise<Array<MatchingWlanInfo>>;
 
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
 
