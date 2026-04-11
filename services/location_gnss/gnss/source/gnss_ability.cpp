@@ -872,7 +872,6 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         DeleteMinExpirationGeofenceRequest(request->GetBundleName());
     }
     if (CheckBundleNameInGnssGeofenceRequestMapForWant(request)) {
-        LBSLOGE(GNSS, "has same request, return");
         return ERRCODE_GEOFENCE_FAIL;
     }
     int fenceId = 0;
@@ -1161,6 +1160,7 @@ bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr
             gnssGeofenceRequest->GetBundleName().compare(request->GetBundleName()) == 0 &&
             IsSameGeofence(gnssGeofenceRequest->GetGeofence(), request->GetGeofence())) {
                 request->SetFenceId(gnssGeofenceRequest->GetFenceId());
+                LBSLOGI(GNSS, "has same request, fenceId:%{public}d", gnssGeofenceRequest->GetFenceId());
                 return true;
         }
     }
