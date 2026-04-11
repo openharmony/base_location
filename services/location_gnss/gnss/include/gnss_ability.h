@@ -283,6 +283,11 @@ private:
     bool IsGnssfenceRequestExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<GeofenceRequest>& request);
     bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
+    bool IsSameGeofence(const GeoFence& geoFence, const GeoFence& requestGeoFence);
+    std::vector<std::shared_ptr<GeofenceRequest>> GetGnssGeofenceRequestList(
+        std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode HandleDeleteGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
+    bool IsProcessRunning(pid_t pid, const uint32_t tokenId);
     bool CheckIfExceedsLimitForOneApp(const std::string& bundleName);
     void ReducedGeoFencesCount(const std::string& bundleName);
     void DeleteMinExpirationGeofenceRequest(const std::string& packageName);
