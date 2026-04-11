@@ -34,6 +34,7 @@ typedef struct Poi {
     std::string locality = "";
     std::string subLocality = "";
     std::string address = "";
+    std::string additionalInfo = "";
 } Poi;
  
 typedef struct PoiInfo {

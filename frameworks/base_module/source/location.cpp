@@ -200,6 +200,7 @@ bool Location::WritePoiInfoToParcel(const PoiInfo& data, Parcel& parcel)
         parcelState = parcelState && parcel.WriteString(poi.locality);
         parcelState = parcelState && parcel.WriteString(poi.subLocality);
         parcelState = parcelState && parcel.WriteString(poi.address);
+        parcelState = parcelState && parcel.WriteString(poi.additionalInfo);
     }
     return parcelState;
 }
@@ -224,6 +225,7 @@ PoiInfo Location::ReadPoiInfoFromParcel(Parcel& parcel)
         poi.locality = parcel.ReadString();
         poi.subLocality = parcel.ReadString();
         poi.address = parcel.ReadString();
+        poi.additionalInfo = parcel.ReadString();
     }
     return data;
 }

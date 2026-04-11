@@ -141,6 +141,8 @@ Poi PoiInfoCallbackNapi::ParsePoiInfoFromJson(std::string &poiJson)
     poi.name = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(cJsonObj, "address");
     poi.address = (item && cJSON_IsString(item)) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(cJsonObj, "additionalInfo");
+    poi.additionalInfo = (item && cJSON_IsString(item)) ? item->valuestring : "";
 
     cJSON* poisLoc = cJSON_GetObjectItem(cJsonObj, "location");
     if (poisLoc) {
