@@ -872,6 +872,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         DeleteMinExpirationGeofenceRequest(request->GetBundleName());
     }
     if (CheckBundleNameInGnssGeofenceRequestMapForWant(request)) {
+        LBSLOGE(GNSS, "has same request, return");
         return ERRCODE_GEOFENCE_FAIL;
     }
     int fenceId = 0;
@@ -900,7 +901,6 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
     LBSLOGD(GNSS, "Successfully AddFence!, %{public}d", ret);
 #endif
     if (!SaveFenceWantAgentInfo(request)) {
-        LBSLOGE(GNSS, "wantAgen is nullptr!");
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
     if (ExecuteFenceProcess(GnssInterfaceCode::ADD_GNSS_GEOFENCE, request)) {
@@ -1160,7 +1160,6 @@ bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr
             gnssGeofenceRequest->GetBundleName().compare(request->GetBundleName()) == 0 &&
             IsSameGeofence(gnssGeofenceRequest->GetGeofence(), request->GetGeofence())) {
                 request->SetFenceId(gnssGeofenceRequest->GetFenceId());
-                LBSLOGI(GNSS, "has same request, fenceId:%{public}d", gnssGeofenceRequest->GetFenceId());
                 return true;
         }
     }
