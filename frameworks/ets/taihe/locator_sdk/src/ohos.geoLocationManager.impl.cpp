@@ -678,7 +678,6 @@ std::unordered_map<std::string, int> GetWifiResultMap(
     }
     singleLocatingRequiredDataCallbackHost->Wait(dataConfig->GetScanTimeoutMs());
     Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
-    bool isMatched = false;
     std::unordered_map<std::string, int> wifiResultMap;
     std::vector<std::shared_ptr<LocatingRequiredData>> res = singleLocatingRequiredDataCallbackHost->GetSingleResult();
     for (auto &scanRes : res) {
@@ -733,7 +732,7 @@ bool IsWlanBssidMatchedSync(
         if (wifiResultMap.count(requestWlanBssid)) {
             ::ohos::geoLocationManager::MatchingWlanInfo matchingWlanInfo = {
             static_cast<int32_t>(i),
-            wlanBssidVec[i].ssid};
+            wlanBssidVec[i]};
             matchingWlanInfos.push_back(matchingWlanInfo);
         }
     }
