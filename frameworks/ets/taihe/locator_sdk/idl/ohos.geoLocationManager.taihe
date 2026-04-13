@@ -263,7 +263,7 @@ struct GnssGeofenceRequest {
 }
 
 struct MatchingWlanInfo {
-    index: i32,
+    index: i32;
     ssid: String;
 }
 
@@ -354,7 +354,7 @@ function GetActiveGeoFencesSync(): Map<i32, Geofence>;
 function IsWlanBssidMatchedSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): bool;
 
 @gen_promise("findMatchingWlan")
-function FindMatchingWlanSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): Promise<Array<MatchingWlanInfo>>;
+function FindMatchingWlanSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): Array<MatchingWlanInfo>;
 
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
 
