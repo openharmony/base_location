@@ -2241,41 +2241,9 @@ bool LocatorAbility::IsInvalidRequest(std::shared_ptr<Request>& request)
         return true;
     }
 
-    if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND && !IsProcessRunning(request->GetPid(), request->GetTokenId())) {
+    if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND &&
+        !AppBackgroundStatusManager::GetInstance()->IsProcessRunning(request->GetPid(), request->GetTokenId())) {
         LBSLOGI(LOCATOR, "request process is not running");
-        return true;
-    }
-    return false;
-}
-
-bool LocatorAbility::IsProcessRunning(pid_t pid, const uint32_t tokenId)
-{
-    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
-    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
-        return true;
-    }
-    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (samgrClient == nullptr) {
-        LBSLOGE(LOCATOR, "Get system ability manager failed.");
-        return true;
-    }
-    sptr<AppExecFwk::IAppMgr> iAppManager =
-        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
-    if (iAppManager == nullptr) {
-        LBSLOGE(LOCATOR, "Failed to get ability manager service.");
-        return true;
-    }
-    std::vector<AppExecFwk::RunningProcessInfo> runningProcessList;
-    int32_t res = iAppManager->GetAllRunningProcesses(runningProcessList);
-    if (res != ERR_OK) {
-        LBSLOGE(LOCATOR, "Failed to get all running process.");
-        return true;
-    }
-    auto it = std::find_if(runningProcessList.begin(), runningProcessList.end(), [pid] (auto runningProcessInfo) {
-        return pid == runningProcessInfo.pid_;
-    });
-    if (it != runningProcessList.end()) {
-        LBSLOGD(LOCATOR, "process : %{public}d is found.", pid);
         return true;
     }
     return false;

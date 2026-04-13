@@ -142,5 +142,38 @@ bool AppBackgroundStatusManager::IsAppHasFormVisible(uint32_t tokenId, uint64_t 
     return ret;
 }
 
+bool AppBackgroundStatusManager::IsProcessRunning(pid_t pid, const uint32_t tokenId)
+{
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(tokenId);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+        return true;
+    }
+    sptr<ISystemAbilityManager> samgrClient = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (samgrClient == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Get system ability manager failed.");
+        return true;
+    }
+    sptr<AppExecFwk::IAppMgr> iAppManager =
+        iface_cast<AppExecFwk::IAppMgr>(samgrClient->GetSystemAbility(APP_MGR_SERVICE_ID));
+    if (iAppManager == nullptr) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Failed to get ability manager service.");
+        return true;
+    }
+    std::vector<AppExecFwk::RunningProcessInfo> runningProcessList;
+    int32_t res = iAppManager->GetAllRunningProcesses(runningProcessList);
+    if (res != ERR_OK) {
+        LBSLOGE(LOCATOR_BACKGROUND_PROXY, "Failed to get all running process.");
+        return true;
+    }
+    auto it = std::find_if(runningProcessList.begin(), runningProcessList.end(), [pid] (auto runningProcessInfo) {
+        return pid == runningProcessInfo.pid_;
+    });
+    if (it != runningProcessList.end()) {
+        LBSLOGD(LOCATOR_BACKGROUND_PROXY, "process : %{public}d is found.", pid);
+        return true;
+    }
+    return false;
+}
+
 } // namespace Location
 } // namespace OHOS
