@@ -646,7 +646,7 @@ void RemoveGnssGeofenceSync(int32_t geofenceId)
     return ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence>{res};
 }
 
-std::unordered_map<std::string, int> GetWifiResultMap(
+std::unordered_map<std::string, WifiScanResult> GetWifiResultMap(
     ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
     if (wlanBssidArray.size() > INPUT_WIFI_LIST_MAX_SIZE) {
@@ -667,6 +667,7 @@ std::unordered_map<std::string, int> GetWifiResultMap(
     dataConfig->SetFixNumber(1);
     auto singleLocatingRequiredDataCallbackHost =
         OHOS::sptr<LocatingRequiredDataCallbackTaihe>(new LocatingRequiredDataCallbackTaihe());
+    singleLocatingRequiredDataCallbackHost->SetFixNumber(1);
     auto locatingRequiredDataCallback =
         OHOS::sptr<ILocatingRequiredDataCallback>(singleLocatingRequiredDataCallbackHost);
     LocationErrCode errorCode =
@@ -678,7 +679,7 @@ std::unordered_map<std::string, int> GetWifiResultMap(
     }
     singleLocatingRequiredDataCallbackHost->Wait(dataConfig->GetScanTimeoutMs());
     Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
-    std::unordered_map<std::string, int> wifiResultMap;
+    std::unordered_map<std::string, WifiScanResult> wifiResultMap;
     std::vector<std::shared_ptr<LocatingRequiredData>> res = singleLocatingRequiredDataCallbackHost->GetSingleResult();
     for (auto &scanRes : res) {
         if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
@@ -687,7 +688,10 @@ std::unordered_map<std::string, int> GetWifiResultMap(
         if (scanRes->GetWifiScanInfo()->GetRssi() < rssidThreshold) {
             continue;
         }
-        wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = scanRes->GetWifiScanInfo()->GetRssi();
+        WifiScanResult result;
+        result.ssid = scanRes->GetWifiScanInfo()->GetSsid();
+        result.rssi = scanRes->GetWifiScanInfo()->GetRssi();
+        wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = result;
     }
     return wifiResultMap;
 }
@@ -695,7 +699,7 @@ std::unordered_map<std::string, int> GetWifiResultMap(
 bool IsWlanBssidMatchedSync(
     ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
-    std::unordered_map<std::string, int> wifiResultMap =
+    std::unordered_map<std::string, WifiScanResult> wifiResultMap =
         GetWifiResultMap(wlanBssidArray, rssidThreshold, needStartScan);
     if (wifiResultMap.empty()) {
         return false;
@@ -717,7 +721,7 @@ bool IsWlanBssidMatchedSync(
 ::taihe::array<::ohos::geoLocationManager::MatchingWlanInfo> FindMatchingWlanSync(
     ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
-    std::unordered_map<std::string, int> wifiResultMap =
+    std::unordered_map<std::string, WifiScanResult> wifiResultMap =
         GetWifiResultMap(wlanBssidArray, rssidThreshold, needStartScan);
     if (wifiResultMap.empty()) {
         return {};
@@ -732,7 +736,7 @@ bool IsWlanBssidMatchedSync(
         if (wifiResultMap.count(requestWlanBssid)) {
             ::ohos::geoLocationManager::MatchingWlanInfo matchingWlanInfo = {
             static_cast<int32_t>(i),
-            wlanBssidVec[i]};
+            wifiResultMap[requestWlanBssid].ssid};
             matchingWlanInfos.push_back(matchingWlanInfo);
         }
     }
