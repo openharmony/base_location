@@ -68,6 +68,7 @@
 #include "common_event_helper.h"
 #include "poi_info_manager.h"
 #include "location_account_manager.h"
+#include "app_background_status_manager.h"
 
 namespace OHOS {
 namespace Location {
