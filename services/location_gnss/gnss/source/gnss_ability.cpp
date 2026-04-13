@@ -1521,7 +1521,7 @@ void GnssAbility::NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceReques
     }
     sptr<IGnssGeofenceCallback> gnssGeofenceCallback = iface_cast<IGnssGeofenceCallback>(callback);
     auto transitionStatusList = request->GetGeofenceTransitionEventList();
-    bool appAliveStatus = IsProcessRunning(iter->GetPid(), iter->GetTokenId());
+    bool appAliveStatus = IsProcessRunning(request->GetPid(), request->GetTokenId());
     for (size_t i = 0; i < transitionStatusList.size(); i++) {
         if (transitionStatusList[i] !=
             static_cast<GeofenceTransitionEvent>(event)) {
