@@ -304,8 +304,8 @@ private:
 
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
-    int gnssWorkingStatus_ = 0;
-    int gnssBatchingWorkingStatus_ = 0;
+    std::atomic<int> gnssWorkingStatus_{GNSS_WORKING_STATUS_NONE};
+    std::atomic<int> gnssBatchingWorkingStatus_{GNSS_BATCHING_WORKING_STATUS_NONE};
     int64_t fixInterval_ = 1000;
     std::shared_ptr<GnssHandler> gnssHandler_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
@@ -313,7 +313,6 @@ private:
     ffrt::mutex batchingMutex_;
     ffrt::mutex nmeaMutex_;
     ffrt::mutex hdiMutex_;
-    ffrt::mutex statusMutex_;
     std::map<sptr<IRemoteObject>, AppIdentity> gnssStatusCallbackMap_;
     std::map<sptr<IRemoteObject>, AppIdentity> nmeaCallbackMap_;
     std::map<sptr<IRemoteObject>, std::unique_ptr<CachedGnssLocationsRequest>> batchingCallbackMap_;

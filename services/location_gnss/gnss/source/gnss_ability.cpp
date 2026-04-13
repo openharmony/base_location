@@ -119,8 +119,8 @@ GnssAbility::GnssAbility() : SystemAbility(LOCATION_GNSS_SA_ID, true)
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
     agnssCallback_ = nullptr;
 #endif
-    gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
-    gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_NONE;
+    gnssWorkingStatus_.store(GNSS_WORKING_STATUS_NONE);
+    gnssBatchingWorkingStatus_.store(GNSS_BATCHING_WORKING_STATUS_NONE);
     SetAbility(GNSS_ABILITY);
 #ifndef TDD_CASES_ENABLED
     gnssHandler_ = std::make_shared<GnssHandler>(AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT));
@@ -150,19 +150,28 @@ GnssAbility::~GnssAbility()
     }
 #endif
 #endif
-    for (const auto& pair : gnssStatusDeathMap_) {
-        if (pair.first != nullptr) {
-            pair.first->RemoveDeathRecipient(pair.second);
+    {
+        std::unique_lock<ffrt::mutex> lock(gnssMutex_);
+        for (const auto& pair : gnssStatusDeathMap_) {
+            if (pair.first != nullptr) {
+                pair.first->RemoveDeathRecipient(pair.second);
+            }
         }
     }
-    for (const auto& pair : nmeaDeathMap_) {
-        if (pair.first != nullptr) {
-            pair.first->RemoveDeathRecipient(pair.second);
+    {
+        std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
+        for (const auto& pair : nmeaDeathMap_) {
+            if (pair.first != nullptr) {
+                pair.first->RemoveDeathRecipient(pair.second);
+            }
         }
     }
-    for (const auto& pair : batchingDeathMap_) {
-        if (pair.first != nullptr) {
-            pair.first->RemoveDeathRecipient(pair.second);
+    {
+        std::unique_lock<ffrt::mutex> lock(batchingMutex_);
+        for (const auto& pair : batchingDeathMap_) {
+            if (pair.first != nullptr) {
+                pair.first->RemoveDeathRecipient(pair.second);
+            }
         }
     }
 }
@@ -377,12 +386,12 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         LBSLOGE(GNSS, "unregister an invalid nmea callback");
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto deathIter = nmeaDeathMap_.find(callback);
     if (deathIter != nmeaDeathMap_.end()) {
         callback->RemoveDeathRecipient(deathIter->second);
         nmeaDeathMap_.erase(deathIter);
     }
-    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto iter = nmeaCallbackMap_.find(callback);
     if (iter != nmeaCallbackMap_.end()) {
         nmeaCallbackMap_.erase(iter);
@@ -539,7 +548,7 @@ void GnssAbility::ReConnectHdiImpl()
     SetAgnssCallback();
     SetAgnssServer();
 #endif
-    if (gnssWorkingStatus_ == GNSS_WORKING_STATUS_SESSION_BEGIN) {
+    if (gnssWorkingStatus_.load() == GNSS_WORKING_STATUS_SESSION_BEGIN) {
         StartGnss();
     }
 }
@@ -1725,12 +1734,12 @@ bool GnssAbility::EnableGnss()
     lock.unlock();
     LBSLOGD(GNSS, "Successfully enable_gnss!, %{public}d", ret);
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_WORKING_STATUS_ENGINE_ON;
-        gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_ENGINE_ON;
+        gnssWorkingStatus_.store(GNSS_WORKING_STATUS_ENGINE_ON);
+        gnssBatchingWorkingStatus_.store(GNSS_BATCHING_WORKING_STATUS_ENGINE_ON);
         HookUtils::ExecuteHook(LocationProcessStage::ENABLE_GNSS_PROCESS, nullptr, nullptr);
     } else {
-        gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
-        gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_NONE;
+        gnssWorkingStatus_.store(GNSS_WORKING_STATUS_NONE);
+        gnssBatchingWorkingStatus_.store(GNSS_BATCHING_WORKING_STATUS_NONE);
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),
             "hdiName", "EnableGnss", "hdiType", "gnss"});
     }
@@ -1750,8 +1759,8 @@ void GnssAbility::DisableGnss()
     }
     int ret = gnssInterface->DisableGnss();
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_WORKING_STATUS_ENGINE_OFF;
-        gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_ENGINE_OFF;
+        gnssWorkingStatus_.store(GNSS_WORKING_STATUS_ENGINE_OFF);
+        gnssBatchingWorkingStatus_.store(GNSS_BATCHING_WORKING_STATUS_ENGINE_OFF);
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret),
             "hdiName", "DisableGnss", "hdiType", "gnss"});
@@ -1760,26 +1769,24 @@ void GnssAbility::DisableGnss()
 
 bool GnssAbility::IsGnssEnabled()
 {
-    return (gnssWorkingStatus_ != GNSS_WORKING_STATUS_ENGINE_OFF &&
-        gnssWorkingStatus_ != GNSS_WORKING_STATUS_NONE);
+    return (gnssWorkingStatus_.load() != GNSS_WORKING_STATUS_ENGINE_OFF &&
+        gnssWorkingStatus_.load() != GNSS_WORKING_STATUS_NONE);
 }
 
 void GnssAbility::RestGnssWorkStatus()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
-    gnssWorkingStatus_ = GNSS_WORKING_STATUS_NONE;
+    gnssWorkingStatus_.store(GNSS_WORKING_STATUS_NONE);
 }
 
 bool GnssAbility::IsGnssBatchingEnabled()
 {
-    return (gnssBatchingWorkingStatus_ != GNSS_BATCHING_WORKING_STATUS_ENGINE_OFF &&
-        gnssBatchingWorkingStatus_ != GNSS_BATCHING_WORKING_STATUS_NONE);
+    return (gnssBatchingWorkingStatus_.load() != GNSS_BATCHING_WORKING_STATUS_ENGINE_OFF &&
+        gnssBatchingWorkingStatus_.load() != GNSS_BATCHING_WORKING_STATUS_NONE);
 }
 
 void GnssAbility::ResetGnssBatchingWorkStatus()
 {
-    std::unique_lock<ffrt::mutex> uniqueLock(statusMutex_);
-    gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_NONE;
+    gnssBatchingWorkingStatus_.store(GNSS_BATCHING_WORKING_STATUS_NONE);
 }
  
 int GnssAbility::GetBatchingRequestNum()
@@ -1804,7 +1811,7 @@ void GnssAbility::StartGnss()
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    if (gnssWorkingStatus_ == GNSS_WORKING_STATUS_SESSION_BEGIN) {
+    if (gnssWorkingStatus_.load() == GNSS_WORKING_STATUS_SESSION_BEGIN) {
         LBSLOGD(GNSS, "GNSS navigation started");
         return;
     }
@@ -1814,7 +1821,7 @@ void GnssAbility::StartGnss()
     SetPositionMode();
     int ret = gnssInterface->StartGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_BEGIN;
+        gnssWorkingStatus_.store(GNSS_WORKING_STATUS_SESSION_BEGIN);
         WriteLocationInnerEvent(START_GNSS, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StartGnss", "hdiType", "gnss"});
@@ -1840,7 +1847,7 @@ void GnssAbility::StopGnss()
 
     int ret = gnssInterface->StopGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
-        gnssWorkingStatus_ = GNSS_WORKING_STATUS_SESSION_END;
+        gnssWorkingStatus_.store(GNSS_WORKING_STATUS_SESSION_END);
         WriteLocationInnerEvent(STOP_GNSS, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT, {"errCode", std::to_string(ret), "hdiName", "StopGnss", "hdiType", "gnss"});
@@ -1886,7 +1893,7 @@ void GnssAbility::StartGnssBatching(int reportingPeriodSec, bool wakeUpCacheQueu
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    if (gnssBatchingWorkingStatus_ == GNSS_BATCHING_WORKING_STATUS_SESSION_BEGIN) {
+    if (gnssBatchingWorkingStatus_.load() == GNSS_BATCHING_WORKING_STATUS_SESSION_BEGIN) {
         LBSLOGD(GNSS, "GNSS batching started");
         return;
     }
@@ -1896,7 +1903,7 @@ void GnssAbility::StartGnssBatching(int reportingPeriodSec, bool wakeUpCacheQueu
     SetCachePositionMode(reportingPeriodSec, wakeUpCacheQueueFull);
     int ret = gnssInterface->StartGnss(GNSS_START_TYPE_GNSS_CACHE);
     if (ret == 0) {
-        gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_SESSION_BEGIN;
+        gnssBatchingWorkingStatus_.store(GNSS_BATCHING_WORKING_STATUS_SESSION_BEGIN);
         WriteLocationInnerEvent(START_GNSS_CACHE, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT,
@@ -1923,13 +1930,13 @@ void GnssAbility::StopGnssBatching()
         LBSLOGE(GNSS, "%{public}s gnss has been disabled", __func__);
         return;
     }
-    if (gnssBatchingWorkingStatus_ == GNSS_BATCHING_WORKING_STATUS_SESSION_END) {
+    if (gnssBatchingWorkingStatus_.load() == GNSS_BATCHING_WORKING_STATUS_SESSION_END) {
         LBSLOGD(GNSS, "GNSS batching stopped");
         return;
     }
     int ret = gnssInterface->StopGnss(GNSS_START_TYPE_GNSS_CACHE);
     if (ret == 0) {
-        gnssBatchingWorkingStatus_ = GNSS_BATCHING_WORKING_STATUS_SESSION_END;
+        gnssBatchingWorkingStatus_.store(GNSS_BATCHING_WORKING_STATUS_SESSION_END);
         WriteLocationInnerEvent(STOP_GNSS_CACHE, {});
     } else {
         WriteLocationInnerEvent(HDI_EVENT,

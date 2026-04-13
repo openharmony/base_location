@@ -2134,6 +2134,10 @@ ErrCode LocatorAbility::GetAppsPerformLocating(std::vector<AppIdentity>& perform
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
     if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
