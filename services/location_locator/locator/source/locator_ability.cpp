@@ -2390,15 +2390,18 @@ ErrCode LocatorAbility::UnRegisterLocatingRequiredDataCallback(const sptr<ILocat
     if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
-        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
-        return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
-    }
     if (cb == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s: callback is nullptr.", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     auto locatorDataManager = LocatorRequiredDataManager::GetInstance();
+    auto config = locatorDataManager->GetCallbackConfig(cb->AsObject());
+    if (config == nullptr || !config->GetIsWlanMatchCalled()) {
+        if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+            LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+            return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
+        }
+    }
     cb->AsObject()->RemoveDeathRecipient(scanRecipient_);
     return locatorDataManager->UnregisterCallback(cb->AsObject());
 }

@@ -274,6 +274,23 @@ public:
     ~SingleScanAsyncContext() override {}
 };
 
+class FindMatchingWlanAsyncContext : public AsyncContext {
+public:
+    int timeout_;
+    int rssiThreshold_;
+    std::vector<std::string> wlanBssidArray_;
+    sptr<LocatingRequiredDataCallbackNapi> callbackHost_;
+    std::vector<MatchingWlanInfo> matchingWlanInfos_;
+
+    explicit FindMatchingWlanAsyncContext(napi_env env, napi_async_work work = nullptr,
+        napi_deferred deferred = nullptr)
+        : AsyncContext(env, work, deferred), timeout_(0), callbackHost_(nullptr) {}
+
+    FindMatchingWlanAsyncContext() = delete;
+
+    ~FindMatchingWlanAsyncContext() override {}
+};
+
 class LocationErrorAsyncContext : public AsyncContext {
 public:
     int32_t errCode;

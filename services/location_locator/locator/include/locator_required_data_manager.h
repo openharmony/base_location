@@ -237,6 +237,7 @@ public:
     __attribute__((no_sanitize("cfi"))) LocationErrCode RegisterCallback(AppIdentity &identity,
         std::shared_ptr<LocatingRequiredDataConfig>& config, const sptr<IRemoteObject>& callback);
     LocationErrCode UnregisterCallback(const sptr<IRemoteObject>& callback);
+    std::shared_ptr<LocatingRequiredDataConfig> GetCallbackConfig(const sptr<IRemoteObject>& callback);
     void ReportData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result, int type);
     void ReportBluetoothScanResult(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
     void StartScanBluetoothDevice(sptr<IBluetoothScanResultCallback> callback, AppIdentity identity);
