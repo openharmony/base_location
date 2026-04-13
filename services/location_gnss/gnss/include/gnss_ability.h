@@ -276,7 +276,6 @@ private:
     LocationErrCode SetPositionMode();
     LocationErrCode SetCachePositionMode(int reportingPeriodSec, bool wakeUpCacheQueueFull);
     void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
-    bool ExecuteHookWhenSaveGeoFenceRequestToFile(std::shared_ptr<GeofenceRequest>& request);
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
