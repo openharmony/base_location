@@ -573,6 +573,8 @@ Poi PoiInfoManager::ParsePoiInfo(cJSON* poiJson)
     poi.subLocality = (item && cJSON_IsString(item)) ? item->valuestring : "";
     item = cJSON_GetObjectItem(poiJson, "address");
     poi.address = (item && cJSON_IsString(item)) ? item->valuestring : "";
+    item = cJSON_GetObjectItem(poiJson, "additionalInfo");
+    poi.additionalInfo = (item && cJSON_IsString(item)) ? item->valuestring : "";
     return poi;
 }
 

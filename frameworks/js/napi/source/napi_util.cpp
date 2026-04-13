@@ -193,6 +193,8 @@ napi_value CreatePoiInfoJsObj(const napi_env& env, const PoiInfo& poiInfo)
         NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "subLocality", jsValue));
         NAPI_CALL(env, napi_create_string_utf8(env, poi.address.c_str(), NAPI_AUTO_LENGTH, &jsValue));
         NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "address", jsValue));
+        NAPI_CALL(env, napi_create_string_utf8(env, poi.additionalInfo.c_str(), NAPI_AUTO_LENGTH, &jsValue));
+        NAPI_CALL(env, napi_set_named_property(env, jsPoiObject, "additionalInfo", jsValue));
  
         napi_value jsIndex = nullptr;
         NAPI_CALL(env, napi_create_uint32(env, index, &jsIndex));
