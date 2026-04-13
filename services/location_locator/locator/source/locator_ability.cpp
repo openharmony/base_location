@@ -2220,12 +2220,14 @@ LocationErrCode LocatorAbility::RemoveInvalidRequests()
 #endif
     }
     LBSLOGI(LOCATOR, "request num : %{public}d, invalid request num: %{public}d", requestNum, invalidRequestNum);
-    if (invalidRequestList.size() > INVALID_REQUESTS_SIZE) {
-        return ERRCODE_SUCCESS;
-    }
+    int32_t stopRequestCount = 0;
     for (auto& item : invalidRequestList) {
         sptr<ILocatorCallback> callback = item->GetLocatorCallBack();
         StopLocating(callback);
+        stopRequestCount++;
+        if (stopRequestCount >= INVALID_REQUESTS_SIZE) {
+            return ERRCODE_SUCCESS;
+        }
     }
     return ERRCODE_SUCCESS;
 }
