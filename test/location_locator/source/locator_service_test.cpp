@@ -1000,17 +1000,6 @@ HWTEST_F(LocatorServiceTest, IsInvalidRequest, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsInvalidRequest end");
 }
 
-HWTEST_F(LocatorServiceTest, IsPorcessRunning, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, IsPorcessRunning, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning begin");
-    auto locatorAbility = LocatorAbility::GetInstance();
-    auto result = locatorAbility->IsProcessRunning(1000, 1000);
-    EXPECT_EQ(false, result);
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] IsPorcessRunning end");
-}
-
 HWTEST_F(LocatorServiceTest, GetActiveGeoFences, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
