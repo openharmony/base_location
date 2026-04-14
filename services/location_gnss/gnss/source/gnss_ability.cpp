@@ -1341,9 +1341,6 @@ void GnssAbility::SaveGeoFenceRequestToFile()
     }
     cJSON *root = cJSON_CreateObject();
     for (auto gnssGeofenceRequest : gnssGeofenceRequestList_) {
-        if (!ExecuteHookWhenSaveGeoFenceRequestToFile(gnssGeofenceRequest)) {
-            continue;
-        }
         nlohmann::json jsonObject;
         gnssGeofenceRequest->ToJson(jsonObject);
         std::string geoFenceRequestStr = jsonObject.dump();
@@ -1579,19 +1576,6 @@ bool GnssAbility::ExecuteFenceProcess(
 #endif
     LocationErrCode errCode = HookUtils::ExecuteHook(
         LocationProcessStage::FENCE_REQUEST_PROCESS, (void *)&fenceStruct, nullptr);
-    if (errCode != ERRCODE_SUCCESS) {
-        return false;
-    }
-    return fenceStruct.retCode;
-}
-
-bool GnssAbility::ExecuteHookWhenSaveGeoFenceRequestToFile(std::shared_ptr<GeofenceRequest>& request)
-{
-    FenceStruct fenceStruct;
-    fenceStruct.request = request;
-    fenceStruct.retCode = false;
-    LocationErrCode errCode = HookUtils::ExecuteHook(
-        LocationProcessStage::SAVE_GEOFENCE_REQUEST_TO_FILE_PROCESS, (void *)&fenceStruct, nullptr);
     if (errCode != ERRCODE_SUCCESS) {
         return false;
     }
