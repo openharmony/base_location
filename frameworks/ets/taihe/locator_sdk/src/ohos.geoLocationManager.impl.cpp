@@ -122,6 +122,30 @@ bool IsPoiServiceSupported()
     return poiServiceSupportState;
 }
 
+bool IsGnssServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsGnssServiceSupported() enter");
+    bool gnssServiceSupported = false;
+    gnssServiceSupported = Locator::GetInstance()->IsGnssServiceSupported();
+    return gnssServiceSupported;
+}
+
+bool IsGnssFenceServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsGnssFenceServiceSupported() enter");
+    bool gnssFenceServiceSupported = false;
+    gnssFenceServiceSupported = Locator::GetInstance()->IsGnssFenceServiceSupported();
+    return gnssFenceServiceSupported;
+}
+
+bool IsCachedGnssServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsCachedGnssServiceSupported() enter");
+    bool cachedGnssServiceSupported = false;
+    cachedGnssServiceSupported = Locator::GetInstance()->IsCachedGnssServiceSupported();
+    return cachedGnssServiceSupported;
+}
+
 ::taihe::array<::ohos::geoLocationManager::GeoAddress> GetAddressesFromLocationSync(
     ::ohos::geoLocationManager::ReverseGeoCodeRequest const& request)
 {
@@ -935,6 +959,9 @@ void OffGnssFenceStatusChange(::ohos::geoLocationManager::GeofenceRequest const&
 // NOLINTBEGIN
 TH_EXPORT_CPP_API_IsLocationEnabled(IsLocationEnabled);
 TH_EXPORT_CPP_API_IsPoiServiceSupported(IsPoiServiceSupported);
+TH_EXPORT_CPP_API_IsGnssServiceSupported(IsGnssServiceSupported);
+TH_EXPORT_CPP_API_IsGnssFenceServiceSupported(IsGnssFenceServiceSupported);
+TH_EXPORT_CPP_API_IsCachedGnssServiceSupported(IsCachedGnssServiceSupported);
 TH_EXPORT_CPP_API_GetAddressesFromLocationSync(GetAddressesFromLocationSync);
 TH_EXPORT_CPP_API_GetCurrentLocationSync(GetCurrentLocationSync);
 TH_EXPORT_CPP_API_GetCurrentLocationSyncNoRequest(GetCurrentLocationSyncNoRequest);

@@ -860,38 +860,5 @@ CArrI32 GetGeofenceSupportedCoordTypes(int32_t& errCode)
     res.size = static_cast<int64_t>(coordinateSystemTypes.size());
     return res;
 }
-
-bool IsGnssServiceSupported(int32_t& errCode)
-{
-    if (g_locatorProxy == nullptr) {
-        errCode = ERRCODE_MEMORY_ERROR;
-        return false;
-    }
-    bool isSupported = false;
-    errCode = g_locatorProxy->IsGnssServiceSupported(isSupported);
-    return isSupported;
-}
-
-bool IsGnssFenceServiceSupported(int32_t& errCode)
-{
-    if (g_locatorProxy == nullptr) {
-        errCode = ERRCODE_MEMORY_ERROR;
-        return false;
-    }
-    bool isSupported = false;
-    errCode = g_locatorProxy->IsGnssFenceServiceSupported(isSupported);
-    return isSupported;
-}
-
-bool IsCachedGnssServiceSupported(int32_t& errCode)
-{
-    if (g_locatorProxy == nullptr) {
-        errCode = ERRCODE_MEMORY_ERROR;
-        return false;
-    }
-    bool isSupported = false;
-    errCode = g_locatorProxy->IsCachedGnssServiceSupported(isSupported);
-    return isSupported;
-}
 }
 }

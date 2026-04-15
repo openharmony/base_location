@@ -52,12 +52,6 @@ CJGeoAddressArr GetAddressesFromLocation(CJReverseGeoCodeRequest request, int32_
 
 CJGeoAddressArr GetAddressesFromLocationName(CJGeoCodeRequest request, int32_t& errCode);
 
-bool IsGnssServiceSupported(int32_t& errCode);
-
-bool IsGnssFenceServiceSupported(int32_t& errCode);
-
-bool IsCachedGnssServiceSupported(int32_t& errCode);
-
 int32_t OnLocationRequest(CJLocationRequest request, int64_t callbackId);
 
 int32_t OnContinuousLocationRequest(CJContinuousLocationRequest request, int64_t callbackId);
