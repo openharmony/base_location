@@ -3159,6 +3159,35 @@ HWTEST_F(GnssAbilityTest, StartGnssBatchingTest001, TestSize.Level1)
     ability_->StartGnssBatching(1000, true);
     LBSLOGI(LOCATOR, "[GnssAbilityTest] StartGnssBatchingTest001 end");
 }
+
+HWTEST_F(GnssAbilityTest, IsSupportGps001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, IsSupportGps001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSupportGps001 begin");
+    bool isSupported = ability_->IsSupportGps();
+    EXPECT_TRUE(isSupported);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSupportGps001 end");
+}
+
+HWTEST_F(GnssAbilityTest, IsSupportGeofence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, IsSupportGeofence001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSupportGeofence001 begin");
+    bool isSupported = ability_->IsSupportGeofence();
+    EXPECT_TRUE(isSupported);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSupportGeofence001 end");
+}
+
+HWTEST_F(GnssAbilityTest, IsSupportBatching001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, IsSupportBatching001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSupportBatching001 begin");
+    bool isSupported = ability_->IsSupportBatching();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSupportBatching001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
 #endif // FEATURE_GNSS_SUPPORT

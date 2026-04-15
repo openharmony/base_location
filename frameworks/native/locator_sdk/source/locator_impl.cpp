@@ -1507,6 +1507,54 @@ bool LocatorImpl::IsPoiServiceSupported()
     return poiServiceSupportState;
 }
 
+LocationErrCode LocatorImpl::IsGnssServiceSupported(bool &isSupported)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsGnssServiceSupported()");
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->IsGnssServiceSupported(isSupported);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+LocationErrCode LocatorImpl::IsGnssFenceServiceSupported(bool &isSupported)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsGnssFenceServiceSupported()");
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->IsGnssFenceServiceSupported(isSupported);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+LocationErrCode LocatorImpl::IsCachedGnssServiceSupported(bool &isSupported)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::IsCachedGnssServiceSupported()");
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->IsCachedGnssServiceSupported(isSupported);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
 LocationErrCode LocatorImpl::GetPoiInfo(sptr<IPoiInfoCallback> &poiInfoCallback)
 {
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {

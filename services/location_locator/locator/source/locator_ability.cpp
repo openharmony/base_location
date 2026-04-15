@@ -3353,5 +3353,77 @@ void ScanCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
         LBSLOGI(LOCATOR, "scan callback OnRemoteDied");
     }
 }
+
+ErrCode LocatorAbility::IsGnssServiceSupported(bool& isGnssSupported)
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    LBSLOGI(LOCATOR, "IsGnssServiceSupported enter");
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        isGnssSupported = false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::IS_SUPPORT_GPS), dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        isGnssSupported = replyToStub.ReadBool();
+    } else {
+        isGnssSupported = false;
+    }
+    return errCode;
+#else
+    isGnssSupported = false;
+    return ERRCODE_SUCCESS;
+#endif
+}
+
+ErrCode LocatorAbility::IsGnssFenceServiceSupported(bool& isGnssFenceSupported)
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    LBSLOGI(LOCATOR, "IsGnssFenceServiceSupported enter");
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        isGnssFenceSupported = false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::IS_SUPPORT_GEOFENCE), dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        isGnssFenceSupported = replyToStub.ReadBool();
+    } else {
+        isGnssFenceSupported = false;
+    }
+    return errCode;
+#else
+    isGnssFenceSupported = false;
+    return ERRCODE_SUCCESS;
+#endif
+}
+
+ErrCode LocatorAbility::IsCachedGnssServiceSupported(bool& isCachedGnssSupported)
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    LBSLOGI(LOCATOR, "IsCachedGnssServiceSupported enter");
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        isCachedGnssSupported = false;
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LocationErrCode errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::IS_SUPPORT_BATCHING), dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        isCachedGnssSupported = replyToStub.ReadBool();
+    } else {
+        isCachedGnssSupported = false;
+    }
+    return errCode;
+#else
+    isCachedGnssSupported = false;
+    return ERRCODE_SUCCESS;
+#endif
+}
 } // namespace Location
 } // namespace OHOS

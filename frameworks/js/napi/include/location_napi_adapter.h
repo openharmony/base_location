@@ -105,6 +105,9 @@ void SetExecuteFuncForCountryCodeContext(CountryCodeContext* asyncContext);
 void SetCompleteFuncForCountryCodeContext(CountryCodeContext* asyncContext);
 napi_value GetActiveGeoFences(napi_env env, napi_callback_info info);
 void CreateGeoFenceAsyncContext(GeofenceAsyncContext* asyncContext);
+napi_value IsGnssServiceSupported(napi_env env, napi_callback_info info);
+napi_value IsGnssFenceServiceSupported(napi_env env, napi_callback_info info);
+napi_value IsCachedGnssServiceSupported(napi_env env, napi_callback_info info);
 #endif
 }  // namespace Location
 }  // namespace OHOS

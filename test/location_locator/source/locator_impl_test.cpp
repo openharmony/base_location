@@ -957,6 +957,39 @@ HWTEST_F(LocatorImplTest, IsPoiServiceSupported, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorImplTest] IsPoiServiceSupported end");
 }
 
+HWTEST_F(LocatorImplTest, IsGnssServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, IsGnssServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsGnssServiceSupported begin");
+    bool isGnssSupported = false;
+    auto errCode = locatorImpl_->IsGnssServiceSupported(isGnssSupported);
+    EXPECT_EQ(ERRCODE_SUCCESS, errCode);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsGnssServiceSupported end");
+}
+
+HWTEST_F(LocatorImplTest, IsGnssFenceServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, IsGnssFenceServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsGnssFenceServiceSupported begin");
+    bool isGnssFenceSupported = false;
+    auto errCode = locatorImpl_->IsGnssFenceServiceSupported(isGnssFenceSupported);
+    EXPECT_EQ(ERRCODE_SUCCESS, errCode);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsGnssFenceServiceSupported end");
+}
+
+HWTEST_F(LocatorImplTest, IsCachedGnssServiceSupported, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorImplTest, IsCachedGnssServiceSupported, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsCachedGnssServiceSupported begin");
+    bool isCachedGnssSupported = false;
+    auto errCode = locatorImpl_->IsCachedGnssServiceSupported(isCachedGnssSupported);
+    EXPECT_EQ(ERRCODE_SUCCESS, errCode);
+    LBSLOGI(LOCATOR, "[LocatorImplTest] IsCachedGnssServiceSupported end");
+}
+
 HWTEST_F(LocatorImplTest, GetPoiInfo, TestSize.Level1)
 {
     GTEST_LOG_(INFO)

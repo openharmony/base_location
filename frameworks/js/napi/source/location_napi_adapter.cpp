@@ -299,6 +299,69 @@ napi_value IsPoiServiceSupported(napi_env env, napi_callback_info info)
     g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isPoiServiceSupported");
     return res;
 }
+
+napi_value IsGnssServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool isGnssSupported;
+    LocationErrCode errorCode = g_locatorClient->IsGnssServiceSupported(isGnssSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        ThrowBusinessError(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+    NAPI_CALL(env, napi_get_boolean(env, isGnssSupported, &res));
+    g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isGnssServiceSupported");
+    return res;
+}
+
+napi_value IsGnssFenceServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool isGnssFenceSupported;
+    LocationErrCode errorCode = g_locatorClient->IsGnssFenceServiceSupported(isGnssFenceSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        ThrowBusinessError(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+    NAPI_CALL(env, napi_get_boolean(env, isGnssFenceSupported, &res));
+    g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isGnssFenceServiceSupported");
+    return res;
+}
+
+napi_value IsCachedGnssServiceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool isCachedGnssSupported;
+    LocationErrCode errorCode = g_locatorClient->IsCachedGnssServiceSupported(isCachedGnssSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        ThrowBusinessError(env, errorCode);
+        return UndefinedNapiValue(env);
+    }
+    NAPI_CALL(env, napi_get_boolean(env, isCachedGnssSupported, &res));
+    g_hiAppEventClient->WriteEndEvent(beginTime, 0, ERRCODE_SUCCESS, "isCachedGnssServiceSupported");
+    return res;
+}
 #endif
 
 #ifdef ENABLE_NAPI_MANAGER
@@ -2209,7 +2272,7 @@ napi_value GetActiveGeoFences(napi_env env, napi_callback_info info)
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
     if (argc >= PARAM1) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     auto asyncContext = new (std::nothrow) GeofenceAsyncContext(env);

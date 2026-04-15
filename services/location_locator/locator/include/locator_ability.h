@@ -231,6 +231,9 @@ public:
     ErrCode IsPoiServiceSupported(bool& poiServiceSupportState) override;
     ErrCode GetPoiInfo(const sptr<IRemoteObject>& cb) override;
     ErrCode GetActiveGeoFences(std::map<int, Geofence>& fenceMap) override;
+    ErrCode IsGnssServiceSupported(bool& isGnssSupported) override;
+    ErrCode IsGnssFenceServiceSupported(bool& isGnssFenceSupported) override;
+    ErrCode IsCachedGnssServiceSupported(bool& isCachedGnssSupported) override;
     LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName);
 
 private:

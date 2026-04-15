@@ -126,9 +126,32 @@ void GnssAbilityStub::InitGnssEnhanceMsgHandleMap()
         };
 }
 
+void GnssAbilityStub::InitGnssSupportMsgHandleMap()
+{
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::IS_SUPPORT_GPS)] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+            reply.WriteInt32(ERRCODE_SUCCESS);
+            reply.WriteBool(GnssAbility::GetInstance()->IsSupportGps());
+            return ERR_OK;
+        };
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::IS_SUPPORT_GEOFENCE)] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+            reply.WriteInt32(ERRCODE_SUCCESS);
+            reply.WriteBool(GnssAbility::GetInstance()->IsSupportGeofence());
+            return ERR_OK;
+        };
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::IS_SUPPORT_BATCHING)] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+            reply.WriteInt32(ERRCODE_SUCCESS);
+            reply.WriteBool(GnssAbility::GetInstance()->IsSupportBatching());
+            return ERR_OK;
+        };
+}
+
 GnssAbilityStub::GnssAbilityStub()
 {
     InitGnssMsgHandleMap();
+    InitGnssSupportMsgHandleMap();
     InitGnssEnhanceMsgHandleMap();
 }
 

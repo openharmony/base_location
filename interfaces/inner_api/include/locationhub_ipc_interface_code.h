@@ -123,6 +123,9 @@ enum class GnssInterfaceCode {
     GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE = 29,
     SEND_NETWORK_LOCATION = 30,
     GET_ACTIVE_FENCES = 31,
+    IS_SUPPORT_GPS = 32,
+    IS_SUPPORT_GEOFENCE = 33,
+    IS_SUPPORT_BATCHING = 34,
 };
 
 enum class NetworkInterfaceCode {

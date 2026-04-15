@@ -126,6 +126,39 @@ bool IsPoiServiceSupported()
     return poiServiceSupportState;
 }
 
+bool IsGnssServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsGnssServiceSupported() enter");
+    bool gnssServiceSupported = false;
+    LocationErrCode errorCode = Locator::GetInstance()->IsGnssServiceSupported(gnssServiceSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return gnssServiceSupported;
+}
+
+bool IsGnssFenceServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsGnssFenceServiceSupported() enter");
+    bool gnssFenceServiceSupported = false;
+    LocationErrCode errorCode = Locator::GetInstance()->IsGnssFenceServiceSupported(gnssFenceServiceSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return gnssFenceServiceSupported;
+}
+
+bool IsCachedGnssServiceSupported()
+{
+    LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsCachedGnssServiceSupported() enter");
+    bool cachedGnssServiceSupported = false;
+    LocationErrCode errorCode = Locator::GetInstance()->IsCachedGnssServiceSupported(cachedGnssServiceSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
+    return cachedGnssServiceSupported;
+}
+
 ::taihe::array<::ohos::geoLocationManager::GeoAddress> GetAddressesFromLocationSync(
     ::ohos::geoLocationManager::ReverseGeoCodeRequest const& request)
 {
@@ -1093,6 +1126,9 @@ void OffGnssFenceStatusChange(::ohos::geoLocationManager::GeofenceRequest const&
 // NOLINTBEGIN
 TH_EXPORT_CPP_API_IsLocationEnabled(IsLocationEnabled);
 TH_EXPORT_CPP_API_IsPoiServiceSupported(IsPoiServiceSupported);
+TH_EXPORT_CPP_API_IsGnssServiceSupported(IsGnssServiceSupported);
+TH_EXPORT_CPP_API_IsGnssFenceServiceSupported(IsGnssFenceServiceSupported);
+TH_EXPORT_CPP_API_IsCachedGnssServiceSupported(IsCachedGnssServiceSupported);
 TH_EXPORT_CPP_API_GetAddressesFromLocationSync(GetAddressesFromLocationSync);
 TH_EXPORT_CPP_API_GetCurrentLocationSync(GetCurrentLocationSync);
 TH_EXPORT_CPP_API_GetCurrentLocationSyncNoRequest(GetCurrentLocationSyncNoRequest);
