@@ -126,7 +126,10 @@ bool IsGnssServiceSupported()
 {
     LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsGnssServiceSupported() enter");
     bool gnssServiceSupported = false;
-    gnssServiceSupported = Locator::GetInstance()->IsGnssServiceSupported();
+    LocationErrCode errorCode = Locator::GetInstance()->IsGnssServiceSupported(gnssServiceSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
     return gnssServiceSupported;
 }
 
@@ -134,7 +137,10 @@ bool IsGnssFenceServiceSupported()
 {
     LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsGnssFenceServiceSupported() enter");
     bool gnssFenceServiceSupported = false;
-    gnssFenceServiceSupported = Locator::GetInstance()->IsGnssFenceServiceSupported();
+    LocationErrCode errorCode = Locator::GetInstance()->IsGnssFenceServiceSupported(gnssFenceServiceSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
     return gnssFenceServiceSupported;
 }
 
@@ -142,7 +148,10 @@ bool IsCachedGnssServiceSupported()
 {
     LBSLOGI(LOCATOR_STANDARD, "LocatorImpl::IsCachedGnssServiceSupported() enter");
     bool cachedGnssServiceSupported = false;
-    cachedGnssServiceSupported = Locator::GetInstance()->IsCachedGnssServiceSupported();
+    LocationErrCode errorCode = Locator::GetInstance()->IsCachedGnssServiceSupported(cachedGnssServiceSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        Util::ThrowBussinessError(errorCode);
+    }
     return cachedGnssServiceSupported;
 }
 
