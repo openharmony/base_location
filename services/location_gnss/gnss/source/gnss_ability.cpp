@@ -79,6 +79,7 @@ const int MAX_GNSS_GEOFENCE_REQUEST_NUM = 1000;
 const int MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP = 100;
 const int64_t MAX_BATCH_LENGTH_MS = 24 * 60 * 60 * 1000;
 const int64_t MIN_BATCH_LENGTH_MS = 1000;
+const int REMOVE_FENCE_DELAY_TIME = 1000; // 1s
 const int WANT_CODE_ELEVEN = 11;
 const int MAX_CACHE_CALLBACK_NUM = 1000;
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
@@ -939,7 +940,7 @@ LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& reque
         if (gnssHandler_ != nullptr) {
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
                 static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE), request);
-            gnssHandler_->SendEvent(event, 1000);
+            gnssHandler_->SendEvent(event, REMOVE_FENCE_DELAY_TIME);
         }
     }
     return result;
