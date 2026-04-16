@@ -3052,19 +3052,19 @@ HWTEST_F(GnssAbilityTest, ReportFailedOperationResultTest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] ReportFailedOperationResultTest001 end");
 }
 
-HWTEST_F(GnssAbilityTest, CheckBundleNameInGnssGeofenceRequestMapTest001, TestSize.Level1)
+HWTEST_F(GnssAbilityTest, IsDuplicateAddRequestForGnssGeofenceTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
-        << "GnssAbilityTest, CheckBundleNameInGnssGeofenceRequestMapTest001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] CheckBundleNameInGnssGeofenceRequestMapTest001 begin");
+        << "GnssAbilityTest, IsDuplicateAddRequestForGnssGeofenceTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] IsDuplicateAddRequestForGnssGeofenceTest001 begin");
     std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
     sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi();
     request->SetGeofenceTransitionCallback(callbackHost->AsObject());
     request->SetFenceId(111);
     request->SetBundleName("GnssAbilityTest");
-    bool result = ability_->CheckBundleNameInGnssGeofenceRequestMap(request);
+    bool result = ability_->IsDuplicateAddRequestForGnssGeofence(request);
     EXPECT_EQ(false, result);
-    LBSLOGI(LOCATOR, "[GnssAbilityTest] CheckBundleNameInGnssGeofenceRequestMapTest001 end");
+    LBSLOGI(LOCATOR, "[GnssAbilityTest] IsDuplicateAddRequestForGnssGeofenceTest001 end");
 }
 
 HWTEST_F(GnssAbilityTest, CheckBundleNameInGnssGeofenceRequestMapTest002, TestSize.Level1)
