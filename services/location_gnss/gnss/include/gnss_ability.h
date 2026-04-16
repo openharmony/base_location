@@ -242,6 +242,9 @@ private:
     int32_t GenerateFenceId();
     bool IsGnssfenceRequestMapExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
+    bool CheckIfExceedsLimitForOneApp(const std::string& bundleName);
+    void ReducedGeoFencesCount(const std::string& bundleName);
+    void DeleteMinExpirationGeofenceRequest(const std::string& packageName);
     bool ConnectGnssHdi();
     bool IsSupportGps();
     bool IsSupportGeofence();
@@ -283,8 +286,10 @@ private:
     int32_t fenceId_;
     ffrt::mutex fenceIdMutex_;
     ffrt::mutex gnssGeofenceRequestMapMutex_;
+    ffrt::mutex gnssGeofenceRequestCountMapMutex_;
     std::map<std::shared_ptr<GeofenceRequest>,
         std::pair<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>> gnssGeofenceRequestMap_;
+    std::map<std::string, int> gnssGeofenceRequestCountMap_;
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {
