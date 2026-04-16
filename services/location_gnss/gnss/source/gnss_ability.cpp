@@ -871,7 +871,7 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         LBSLOGE(GNSS, "Exceeded the limit of the fence request for one app");
         DeleteMinExpirationGeofenceRequest(request->GetBundleName());
     }
-    if (CheckBundleNameInGnssGeofenceRequestMapForWant(request)) {
+    if (IsDuplicateOnRequestForGnssGeofence(request)) {
         LBSLOGE(GNSS, "has same request, return");
         return ERRCODE_GEOFENCE_FAIL;
     }
@@ -925,11 +925,21 @@ LocationErrCode GnssAbility::RemoveFence(std::shared_ptr<GeofenceRequest>& reque
         return ERRCODE_GEOFENCE_INCORRECT_ID;
     }
     LocationErrCode result = ERRCODE_SUCCESS;
-    for (auto& req : requestList) {
-        LocationErrCode singleResult = HandleDeleteGnssGeofence(req);
+    const size_t MAX_SYNC_PROCESS = 30; // 同步处理的最大次数
+    size_t i = 0;
+    for (; i < requestList.size() && i < MAX_SYNC_PROCESS; ++i) {
+        LocationErrCode singleResult = HandleDeleteGnssGeofence(requestList[i]);
         if (singleResult != ERRCODE_SUCCESS) {
             LBSLOGE(GNSS, "Failed to remove fence for request, error: %{public}d", singleResult);
             result = singleResult;
+        }
+    }
+    // 如果还有剩余请求，通过异步消息处理
+    if (i < requestList.size()) {
+        if (gnssHandler_ != nullptr) {
+            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(
+                static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE), request);
+            gnssHandler_->SendEvent(event, 1000);
         }
     }
     return result;
@@ -1054,7 +1064,7 @@ LocationErrCode GnssAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
         LBSLOGE(GNSS, "request is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    if (!CheckBundleNameInGnssGeofenceRequestMap(request)) {
+    if (!IsDuplicateAddRequestForGnssGeofence(request)) {
         LBSLOGE(GNSS, "bundleName is not registered");
         return ERRCODE_GEOFENCE_INCORRECT_ID;
     }
@@ -1118,7 +1128,7 @@ void GnssAbility::ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &
         static_cast<int>(type), static_cast<int>(DealOperationResult(code)));
 }
 
-bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<GeofenceRequest>& request)
+bool GnssAbility::IsDuplicateAddRequestForGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     for (auto iter = gnssGeofenceRequestList_.begin();
@@ -1146,7 +1156,7 @@ bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<Geofen
     return false;
 }
 
-bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request)
+bool GnssAbility::IsDuplicateOnRequestForGnssGeofence(std::shared_ptr<GeofenceRequest>& request)
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     for (auto iter = gnssGeofenceRequestList_.begin();
@@ -1159,8 +1169,7 @@ bool GnssAbility::CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr
         if (AbilityRuntime::WantAgent::WantAgentHelper::IsEquals(wantAgentPtr, request->GetWantAgent()) == 0 &&
             gnssGeofenceRequest->GetBundleName().compare(request->GetBundleName()) == 0 &&
             IsSameGeofence(gnssGeofenceRequest->GetGeofence(), request->GetGeofence())) {
-                request->SetFenceId(gnssGeofenceRequest->GetFenceId());
-                return true;
+            return true;
         }
     }
     return false;
@@ -1183,8 +1192,9 @@ std::vector<std::shared_ptr<GeofenceRequest>> GnssAbility::GetGnssGeofenceReques
             !IsSameGeofence(gnssGeofenceRequest->GetGeofence(), request->GetGeofence())) {
             continue;
         }
-        request->SetFenceId(gnssGeofenceRequest->GetFenceId());
-        matchedRequests.push_back(request);
+        auto matchedRequest = std::make_shared<GeofenceRequest>(*request);
+        matchedRequest->SetFenceId(gnssGeofenceRequest->GetFenceId());
+        matchedRequests.push_back(matchedRequest);
     }
 
     return matchedRequests;

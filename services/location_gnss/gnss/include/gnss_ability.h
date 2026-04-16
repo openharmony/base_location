@@ -281,8 +281,8 @@ private:
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
     bool IsGnssfenceRequestExist();
-    bool CheckBundleNameInGnssGeofenceRequestMap(std::shared_ptr<GeofenceRequest>& request);
-    bool CheckBundleNameInGnssGeofenceRequestMapForWant(std::shared_ptr<GeofenceRequest>& request);
+    bool IsDuplicateAddRequestForGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
+    bool IsDuplicateOnRequestForGnssGeofence(std::shared_ptr<GeofenceRequest>& request);
     bool IsSameGeofence(const GeoFence& geoFence, const GeoFence& requestGeoFence);
     std::vector<std::shared_ptr<GeofenceRequest>> GetGnssGeofenceRequestList(
         std::shared_ptr<GeofenceRequest>& request);
