@@ -209,7 +209,6 @@ public:
         int permUsedType, int succCnt, int failCnt);
     LocationErrCode RemoveInvalidRequests();
     bool IsInvalidRequest(std::shared_ptr<Request>& request);
-    bool IsProcessRunning(pid_t pid, const uint32_t tokenId);
     ErrCode QuerySupportCoordinateSystemType(std::vector<CoordinateType>& coordinateTypes) override;
     LocationErrCode SendNetworkLocation(const std::unique_ptr<Location>& location);
     void SyncStillMovementState(bool stillState);
