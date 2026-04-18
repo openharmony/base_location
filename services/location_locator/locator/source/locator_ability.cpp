@@ -941,10 +941,10 @@ ErrCode LocatorAbility::AddFence(const GeofenceRequest& request)
         std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
     fenceRequest->SetBundleName(identity.GetBundleName());
     fenceRequest->SetUid(identity.GetUid());
-    geofenceRequest->SetPid(identity.GetPid());
-    geofenceRequest->SetTokenId(identity.GetTokenId());
-    geofenceRequest->SetTokenIdEx(identity.GetTokenIdEx());
-    geofenceRequest->SetFirstTokenId(identity.GetFirstTokenId());
+    fenceRequest->SetPid(identity.GetPid());
+    fenceRequest->SetTokenId(identity.GetTokenId());
+    fenceRequest->SetTokenIdEx(identity.GetTokenIdEx());
+    fenceRequest->SetFirstTokenId(identity.GetFirstTokenId());
     fenceRequest->Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::ADD_FENCE_INFO), dataToStub, replyToStub);
@@ -976,10 +976,10 @@ ErrCode LocatorAbility::RemoveFence(const GeofenceRequest& request)
         std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
     fenceRequest->SetBundleName(identity.GetBundleName());
     fenceRequest->SetUid(identity.GetUid());
-    geofenceRequest->SetPid(identity.GetPid());
-    geofenceRequest->SetTokenId(identity.GetTokenId());
-    geofenceRequest->SetTokenIdEx(identity.GetTokenIdEx());
-    geofenceRequest->SetFirstTokenId(identity.GetFirstTokenId());
+    fenceRequest->SetPid(identity.GetPid());
+    fenceRequest->SetTokenId(identity.GetTokenId());
+    fenceRequest->SetTokenIdEx(identity.GetTokenIdEx());
+    fenceRequest->SetFirstTokenId(identity.GetFirstTokenId());
     fenceRequest->Marshalling(dataToStub);
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::REMOVE_FENCE_INFO), dataToStub, replyToStub);
