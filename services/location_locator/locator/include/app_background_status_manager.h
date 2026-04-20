@@ -39,7 +39,7 @@ public:
     bool IsAppInLocationContinuousTasks(pid_t uid, pid_t pid);
     bool IsAppHasFormVisible(uint32_t tokenId, uint64_t tokenIdEx);
     void UpdateBackgroundAppStatues(int32_t uid, int32_t status);
-    bool IsProcessRunning(pid_t pid, const uint32_t tokenId);
+    bool IsProcessRunning(pid_t pid, const uint32_t tokenId, bool defaultValue);
 private:
     void SubscribeSaStatusChangeListerner();
 

@@ -733,8 +733,6 @@ void GnssAbility::RestoreGeofenceRequest()
                 iter->GetBundleName().c_str(), iter->GetFenceId());
             continue;
         }
-        // 是否应用不存活，无notification，暂时无法回调，不恢复
-        bool appAliveStatus = IsProcessRunning(iter->GetPid(), iter->GetTokenId());
         bool hasNotification = false;
 #ifdef NOTIFICATION_ENABLE
         auto notificationRequestList = iter->GetNotificationRequestList();
@@ -742,7 +740,7 @@ void GnssAbility::RestoreGeofenceRequest()
             hasNotification = true;
         }
 #endif
-        if (!appAliveStatus && !hasNotification && iter->GetWantAgent() == nullptr &&
+        if (!hasNotification && iter->GetWantAgent() == nullptr &&
             iter->GetFenceExtensionAbilityName().empty()) {
             LBSLOGI(GNSS, "have not callback type, not need restore, %{public}s, %{public}d",
                 iter->GetBundleName().c_str(), iter->GetFenceId());
@@ -1221,7 +1219,7 @@ bool GnssAbility::IsSameGeofence(const GeoFence& geoFence, const GeoFence& reque
 
 bool GnssAbility::IsProcessRunning(pid_t pid, const uint32_t tokenId)
 {
-    return AppBackgroundStatusManager::GetInstance()->IsProcessRunning(pid, tokenId);
+    return AppBackgroundStatusManager::GetInstance()->IsProcessRunning(pid, tokenId, false);
 }
 
 bool GnssAbility::RemoveGnssGeofenceByCallbackWhenAppDie(sptr<IRemoteObject> callbackObj)
@@ -1310,7 +1308,21 @@ void GnssAbility::ReportGeofenceOperationResult(
     if (type == GeofenceOperateType::TYPE_DELETE && result == GeofenceOperateResult::GEOFENCE_OPERATION_SUCCESS) {
         UnregisterGnssGeofenceCallback(fenceId);
     }
-    SaveGeoFenceRequestToFile();
+    bool needSaveToFile = false;
+#ifdef NOTIFICATION_ENABLE
+    if (geofenceRequest->GetNotificationRequestList().size() != 0) {
+        needSaveToFile = true;
+    }
+#endif
+    if (geofenceRequest->GetWantAgent() != nullptr) {
+        needSaveToFile = true;
+    }
+    if (!geofenceRequest->GetFenceExtensionAbilityName().empty()) {
+        needSaveToFile = true;
+    }
+    if (needSaveToFile) {
+        SaveGeoFenceRequestToFile();
+    }
     auto callback = geofenceRequest->GetGeofenceTransitionCallback();
     if (callback == nullptr) {
         LBSLOGE(GNSS, "callback is nullptr");

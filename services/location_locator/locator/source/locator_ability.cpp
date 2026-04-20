@@ -2249,7 +2249,7 @@ bool LocatorAbility::IsInvalidRequest(std::shared_ptr<Request>& request)
     }
 
     if (timeDiff > REQUEST_DEFAULT_TIMEOUT_SECOUND &&
-        !AppBackgroundStatusManager::GetInstance()->IsProcessRunning(request->GetPid(), request->GetTokenId())) {
+        !AppBackgroundStatusManager::GetInstance()->IsProcessRunning(request->GetPid(), request->GetTokenId(), true)) {
         LBSLOGI(LOCATOR, "request process is not running");
         return true;
     }
