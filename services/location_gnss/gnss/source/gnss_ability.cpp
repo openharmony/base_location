@@ -1052,7 +1052,7 @@ void GnssAbility::DeleteMinExpirationGeofenceRequest(const std::string& packageN
         int64_t currentTimeStamp = requestInMap->GetRequestExpirationTime();
         if (currentTimeStamp < minTimeStamp) {
             minTimeStamp = currentTimeStamp;
-            minRequest = request;
+            minRequest = requestInMap;
         }
     }
     if (minRequest != nullptr && gnssHandler_ != nullptr) {
