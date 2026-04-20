@@ -1034,20 +1034,22 @@ std::shared_ptr<GeofenceRequest> GnssAbility::GetGeofenceRequestByFenceId(int fe
 
 void GnssAbility::DeleteMinExpirationGeofenceRequest(const std::string& packageName)
 {
-    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
-    if (gnssGeofenceRequestList_.empty()) {
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestMapMutex_);
+    if (gnssGeofenceRequestMap_.empty()) {
         return;
     }
     std::shared_ptr<GeofenceRequest> minRequest;
     int64_t minTimeStamp = INT64_MAX;
-    for (const auto& request : gnssGeofenceRequestList_) {
-        if (request == nullptr) {
+    for (auto iter = gnssGeofenceRequestMap_.begin();
+        iter != gnssGeofenceRequestMap_.end(); iter++) {
+        auto requestInMap = iter->first;
+        if (requestInMap == nullptr) {
             continue;
         }
-        if (request->GetBundleName() != packageName) {
+        if (requestInMap->GetBundleName() != packageName) {
             continue;
         }
-        int64_t currentTimeStamp = request->GetRequestExpirationTimeStamp();
+        int64_t currentTimeStamp = requestInMap->GetRequestExpirationTime();
         if (currentTimeStamp < minTimeStamp) {
             minTimeStamp = currentTimeStamp;
             minRequest = request;
