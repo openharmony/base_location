@@ -1438,12 +1438,14 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
     }
     NotifyGnssfenceStatusByNotification(request, event);
     uint32_t tokenId = request->GetTokenId();
-    if (!PermissionManager::CheckLocationPermission(tokenId, request->GetFirstTokenId())) {
+    if (IsNeedCheckPermission(request) &&
+        !PermissionManager::CheckLocationPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
             "ReportGeofenceEvent CheckLocationPermission false, tokenId = %{public}d", tokenId);
         return;
     }
-    if (IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
+    if (IsNeedCheckPermission(request) &&
+        IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
         request->GetPid()) && !PermissionManager::CheckBackgroundPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
             "ReportGeofenceEvent CheckBackgroundPermission false, tokenId = %{public}d", tokenId);
@@ -1465,7 +1467,8 @@ bool GnssAbility::NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceReque
         return false;
     }
     uint32_t tokenId = request->GetTokenId();
-    if (!PermissionManager::CheckApproximatelyPermission(tokenId, request->GetFirstTokenId())) {
+    if (IsNeedCheckPermission(request) &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
             "NotifyGnssfenceStatusByWantAgent CheckApproximatelyPermission false, tokenId = %{public}d", tokenId);
         return false;
@@ -1552,6 +1555,17 @@ void GnssAbility::NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceReques
             break;
         }
     }
+}
+
+bool GnssAbility::IsNeedCheckPermission(std::shared_ptr<GeofenceRequest> &request)
+{
+    // 升级场景，升级前请求信息中不包含应用pid等信息，不进行校验
+    if (request->GetPid() == 0 && request->GetTokenId() == 0 &&
+        request->GetTokenIdEx() == 0 && request->GetFirstTokenId() == 0) {
+        LBSLOGI(GNSS, "App Info Is InValid.");
+        return false;
+    }
+    return true;
 }
  
 bool GnssAbility::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
