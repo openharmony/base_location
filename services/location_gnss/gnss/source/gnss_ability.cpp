@@ -1557,17 +1557,6 @@ void GnssAbility::NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceReques
     }
 }
 
-bool GnssAbility::IsNeedCheckPermission(std::shared_ptr<GeofenceRequest> &request)
-{
-    // 升级场景，升级前请求信息中不包含应用pid等信息，不进行校验
-    if (request->GetPid() == 0 && request->GetTokenId() == 0 &&
-        request->GetTokenIdEx() == 0 && request->GetFirstTokenId() == 0) {
-        LBSLOGI(GNSS, "App Info Is InValid.");
-        return false;
-    }
-    return true;
-}
- 
 bool GnssAbility::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
     auto backgroundManager = AppBackgroundStatusManager::GetInstance();
