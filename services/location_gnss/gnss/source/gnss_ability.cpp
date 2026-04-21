@@ -913,8 +913,8 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
             sptr<IRemoteObject> reuestCallback = gnssGeofenceRequest->GetGeofenceTransitionCallback();
             if (reuestCallback != nullptr && reuestCallback == callbackObj &&
                 gnssGeofenceReques->GetTransitionCallbackRecipient() != nullptr) {
-                gnssGeofenceReques->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
-                gnssGeofenceReques->GetTransitionCallbackRecipient());
+                    gnssGeofenceReques->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
+                        gnssGeofenceReques->GetTransitionCallbackRecipient());
                 gnssGeofenceReques->SetAppAliveStatus(false);
                 break;
             } else {
