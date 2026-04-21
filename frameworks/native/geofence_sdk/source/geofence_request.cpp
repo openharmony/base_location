@@ -154,6 +154,16 @@ sptr<IRemoteObject> GeofenceRequest::GetGeofenceTransitionCallback()
     return callback_;
 }
 
+void GeofenceRequest::SetTransitionCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient)
+{
+    transitionCallbackRecipient_ = recipient;
+}
+ 
+sptr<IRemoteObject::DeathRecipient> GeofenceRequest::GetTransitionCallbackRecipient()
+{
+    return transitionCallbackRecipient_;
+}
+
 int GeofenceRequest::GetFenceId()
 {
     return fenceId_;

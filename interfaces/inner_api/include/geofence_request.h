@@ -91,6 +91,10 @@ public:
 
     void SetRequestExpirationTime(int64_t requestExpirationTime);
 
+    void SetTransitionCallbackRecipient(const sptr<IRemoteObject::DeathRecipient>& recipient);
+
+    sptr<IRemoteObject::DeathRecipient> GetTransitionCallbackRecipient();
+
     void ReadFromParcel(Parcel& parcel);
     bool Marshalling(Parcel& parcel) const override;
     static std::shared_ptr<GeofenceRequest> UnmarshallingShared(Parcel& parcel);
@@ -99,6 +103,7 @@ private:
     std::vector<GeofenceTransitionEvent> transitionStatusList_;
     std::vector<std::shared_ptr<OHOS::Notification::NotificationRequest>> notificationRequestList_;
     sptr<IRemoteObject> callback_ = nullptr;
+    sptr<IRemoteObject::DeathRecipient> transitionCallbackRecipient_;
     GeoFence geofence_{0.0, 0.0, 0.0, WGS84};
     int scenario_;
     int fenceId_;

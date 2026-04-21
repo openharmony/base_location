@@ -240,7 +240,7 @@ private:
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
-    bool IsGnssfenceRequestMapExist();
+    bool IsGnssfenceRequestExist();
     bool CheckBundleNameInGnssGeofenceRequestMap(const std::string& bundleName, int fenceId);
     bool CheckIfExceedsLimitForOneApp(const std::string& bundleName);
     void ReducedGeoFencesCount(const std::string& bundleName);
@@ -285,10 +285,8 @@ private:
 #endif
     int32_t fenceId_;
     ffrt::mutex fenceIdMutex_;
-    ffrt::mutex gnssGeofenceRequestMapMutex_;
-    ffrt::mutex gnssGeofenceRequestCountMapMutex_;
-    std::map<std::shared_ptr<GeofenceRequest>,
-        std::pair<sptr<IRemoteObject>, sptr<IRemoteObject::DeathRecipient>>> gnssGeofenceRequestMap_;
+    ffrt::mutex gnssGeofenceRequestListMutex_;
+    std::vector<std::shared_ptr<GeofenceRequest>> gnssGeofenceRequestList_;
     std::map<std::string, int> gnssGeofenceRequestCountMap_;
 };
 
