@@ -847,15 +847,15 @@ LocationErrCode GnssAbility::RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>
 bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
 {
     for (auto iter = gnssGeofenceRequestList_.begin(); iter != gnssGeofenceRequestList_.end();) {
-        auto gnssGeofenceReques = *iter;
-        if (gnssGeofenceReques == nullptr) {
+        auto geofenceRequest = *iter;
+        if (geofenceRequest == nullptr) {
             continue;
         }
-        if (fenceId == gnssGeofenceReques->GetFenceId()) {
-            if (gnssGeofenceReques->GetGeofenceTransitionCallback() != nullptr &&
-                gnssGeofenceReques->GetTransitionCallbackRecipient() != nullptr) {
-                    gnssGeofenceReques->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
-                        gnssGeofenceReques->GetTransitionCallbackRecipient());
+        if (fenceId == geofenceRequest->GetFenceId()) {
+            if (geofenceRequest->GetGeofenceTransitionCallback() != nullptr &&
+                geofenceRequest->GetTransitionCallbackRecipient() != nullptr) {
+                    geofenceRequest->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
+                        geofenceRequest->GetTransitionCallbackRecipient());
             }
             iter = gnssGeofenceRequestList_.erase(iter);
             ReducedGeoFencesCount(geofenceRequest->GetBundleName());
@@ -906,16 +906,16 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
     }
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     for (auto iter = gnssGeofenceRequestList_.begin(); iter != gnssGeofenceRequestList_.end();) {
-            auto gnssGeofenceReques = *iter;
-            if (gnssGeofenceReques == nullptr) {
+            auto gnssGeofenceRequest = *iter;
+            if (gnssGeofenceRequest == nullptr) {
                 continue;
             }
             sptr<IRemoteObject> reuestCallback = gnssGeofenceRequest->GetGeofenceTransitionCallback();
             if (reuestCallback != nullptr && reuestCallback == callbackObj &&
-                gnssGeofenceReques->GetTransitionCallbackRecipient() != nullptr) {
-                    gnssGeofenceReques->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
-                        gnssGeofenceReques->GetTransitionCallbackRecipient());
-                gnssGeofenceReques->SetAppAliveStatus(false);
+                gnssGeofenceRequest->GetTransitionCallbackRecipient() != nullptr) {
+                    gnssGeofenceRequest->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
+                        gnssGeofenceRequest->GetTransitionCallbackRecipient());
+                gnssGeofenceRequest->SetAppAliveStatus(false);
                 break;
             } else {
                 iter++;
@@ -928,7 +928,7 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
 
 bool GnssAbility::CheckIfExceedsLimitForOneApp(const std::string& bundleName)
 {
-    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestCountMapMutex_);
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     auto it = gnssGeofenceRequestCountMap_.find(bundleName);
     if (it != gnssGeofenceRequestCountMap_.end()) {
         return it->second >= MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP;
@@ -1060,7 +1060,7 @@ void GnssAbility::DeleteMinExpirationGeofenceRequest(const std::string& packageN
         if (request->GetBundleName() != packageName) {
             continue;
         }
-        int64_t currentTimeStamp = request->GetRequestExpirationTimeStamp();
+        int64_t currentTimeStamp = request->GetRequestExpirationTime();
         if (currentTimeStamp < minTimeStamp) {
             minTimeStamp = currentTimeStamp;
             minRequest = request;
