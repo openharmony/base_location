@@ -238,7 +238,6 @@ public:
     void NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
     void NotifyGnssfenceStatusByFenceExtension(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
     void NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
-    bool IsNeedCheckPermission(std::shared_ptr<GeofenceRequest> &request);
     bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid);
     void SaveGeoFenceRequestToFile();
     std::vector<std::shared_ptr<GeofenceRequest>> ReadGeoFenceRequestFromFile();

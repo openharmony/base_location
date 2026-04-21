@@ -135,6 +135,7 @@ public:
     static void ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
     static void ConvertGeofenceRequestInfoExt(
         std::shared_ptr<GeofenceRequest>& request, const nlohmann::json &jsonObject);
+    bool IsTokenIdValid();
 
 private:
     static void ConvertGeoFenceInfo(const nlohmann::json &geofenceObj, GeoFence& geofence);

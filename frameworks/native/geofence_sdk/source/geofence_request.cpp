@@ -565,5 +565,14 @@ std::shared_ptr<GeofenceRequest> GeofenceRequest::FromJson(const nlohmann::json 
     ConvertGeofenceRequestInfo(request, jsonObject);
     return request;
 }
+
+bool GeofenceRequest::IsTokenIdValid()
+{
+    if (pid_ == 0 && tokenId_ == 0 && tokenIdEx_ == 0 && firstTokenId_ == 0) {
+        LBSLOGI(GNSS, "App TokenId InValid.");
+        return false;
+    }
+    return true;
+}
 } // namespace Location
 } // namespace OHOS
