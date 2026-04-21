@@ -854,8 +854,8 @@ bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
         if (fenceId == gnssGeofenceReques->GetFenceId()) {
             if (gnssGeofenceReques->GetGeofenceTransitionCallback() != nullptr &&
                 gnssGeofenceReques->GetTransitionCallbackRecipient() != nullptr) {
-                gnssGeofenceReques->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
-                    gnssGeofenceReques->GetTransitionCallbackRecipient());
+                    gnssGeofenceReques->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
+                        gnssGeofenceReques->GetTransitionCallbackRecipient());
             }
             iter = gnssGeofenceRequestList_.erase(iter);
             ReducedGeoFencesCount(geofenceRequest->GetBundleName());
