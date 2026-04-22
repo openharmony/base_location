@@ -1450,12 +1450,14 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
     }
     NotifyGnssfenceStatusByNotification(request, event);
     uint32_t tokenId = request->GetTokenId();
-    if (!PermissionManager::CheckLocationPermission(tokenId, request->GetFirstTokenId())) {
+    if (request->IsTokenIdValid() &&
+        !PermissionManager::CheckLocationPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
             "ReportGeofenceEvent CheckLocationPermission false, tokenId = %{public}d", tokenId);
         return;
     }
-    if (IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
+    if (request->IsTokenIdValid() &&
+        IsAppBackground(request->GetBundleName(), tokenId, request->GetTokenIdEx(), request->GetUid(),
         request->GetPid()) && !PermissionManager::CheckBackgroundPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
             "ReportGeofenceEvent CheckBackgroundPermission false, tokenId = %{public}d", tokenId);
@@ -1477,7 +1479,8 @@ bool GnssAbility::NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceReque
         return false;
     }
     uint32_t tokenId = request->GetTokenId();
-    if (!PermissionManager::CheckApproximatelyPermission(tokenId, request->GetFirstTokenId())) {
+    if (request->IsTokenIdValid() &&
+        !PermissionManager::CheckApproximatelyPermission(tokenId, request->GetFirstTokenId())) {
         LBSLOGE(GNSS,
             "NotifyGnssfenceStatusByWantAgent CheckApproximatelyPermission false, tokenId = %{public}d", tokenId);
         return false;
@@ -1565,7 +1568,7 @@ void GnssAbility::NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceReques
         }
     }
 }
- 
+
 bool GnssAbility::IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid)
 {
     auto backgroundManager = AppBackgroundStatusManager::GetInstance();
