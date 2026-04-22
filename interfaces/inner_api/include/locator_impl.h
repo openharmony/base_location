@@ -705,6 +705,9 @@ public:
     void AddNmeaCallBack(const sptr<IRemoteObject>& callback);
     void RemoveNmeaCallBack(const sptr<IRemoteObject>& callback);
     void SetIsServerExist(bool isServerExist);
+    bool IsLocationRequestCountTooMany();
+    bool IsSatelliteStatusChangeCallbackTooMany();
+    bool IsNmeaCallbackTooMany();
 
 private:
     LocationErrCode CheckEdmPolicy(bool enable);
