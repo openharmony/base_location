@@ -906,21 +906,21 @@ bool GnssAbility::RemoveGnssGeofenceRequestByCallback(sptr<IRemoteObject> callba
     }
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     for (auto iter = gnssGeofenceRequestList_.begin(); iter != gnssGeofenceRequestList_.end();) {
-            auto gnssGeofenceRequest = *iter;
-            if (gnssGeofenceRequest == nullptr) {
-                continue;
-            }
-            sptr<IRemoteObject> reuestCallback = gnssGeofenceRequest->GetGeofenceTransitionCallback();
-            if (reuestCallback != nullptr && reuestCallback == callbackObj &&
-                gnssGeofenceRequest->GetTransitionCallbackRecipient() != nullptr) {
-                    gnssGeofenceRequest->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
-                        gnssGeofenceRequest->GetTransitionCallbackRecipient());
-                gnssGeofenceRequest->SetAppAliveStatus(false);
-                break;
-            } else {
-                iter++;
-            }
+        auto gnssGeofenceRequest = *iter;
+        if (gnssGeofenceRequest == nullptr) {
+            continue;
         }
+        sptr<IRemoteObject> reuestCallback = gnssGeofenceRequest->GetGeofenceTransitionCallback();
+        if (reuestCallback != nullptr && reuestCallback == callbackObj &&
+            gnssGeofenceRequest->GetTransitionCallbackRecipient() != nullptr) {
+                gnssGeofenceRequest->GetGeofenceTransitionCallback()->RemoveDeathRecipient(
+                    gnssGeofenceRequest->GetTransitionCallbackRecipient());
+            gnssGeofenceRequest->SetAppAliveStatus(false);
+            break;
+        } else {
+            iter++;
+        }
+    }
     LBSLOGD(GNSS, "After RemoveGnssGeofenceRequestByCallback size:%{public}s",
         std::to_string(gnssGeofenceRequestList_.size()).c_str());
     return true;
