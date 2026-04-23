@@ -243,6 +243,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
                     }
                     console.info(TAG, 'transfer finished');
                     let dirPath = this.context.filesDir;
+                    console.info(TAG, `transfer finished rmdirSync ${dirPath}`);
                     fs.rmdirSync(dirPath);
                 }
             });
@@ -271,7 +272,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
     }
 
     async publishFinishNotification(wantAgentObj: WantAgent, successNum: number, failNum: number) {
-        console.info(TAG, 'publishFinishNotification');
+        console.info(TAG, `publishFinishNotification successNum ${successNum} failNum ${failNum}`);
         let notificationRequest: notificationManager.NotificationRequest = {
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
@@ -288,7 +289,7 @@ export default class BluetoothSendUIAbility extends UIAbility {
             tapDismissed: true,
         };
         notificationManager.publish(notificationRequest).then(() => {
-            console.info(TAG, 'publishFinishNotification success');
+            console.info(TAG, `publishFinishNotification show success successNum ${successNum} failNum ${failNum}`);
         }).catch((err: BusinessError) => {
             console.error(TAG, 'publishFinishNotification fail');
             this.handleTerminate();

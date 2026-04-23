@@ -199,6 +199,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             console.info(TAG, `unlink file begin`);
             const uri = new fileUri.FileUri(this.receiveDirectory);
             let deleteSandBoxUri = uri.path;
+            console.info(TAG, `unlink file begin fileUri ${this.receiveDirectory} sandBoxUri ${deleteSandBoxUri}`);
             if (this.fileFd != -1) {
                 fs.close(this.fileFd);
                 this.fileFd = -1;
@@ -209,7 +210,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             this.cancelSendProgressNotification();
             this.oppProfile.off('transferStateChange');
             let err: BusinessError = error as BusinessError;
-            console.error(TAG, `unlink failed, code is ${err.code}, message is ${err.message}`);
+            console.error(TAG, `unlink failed, uri ${this.receiveDirectory} code ${err.code}, message ${err.message}`);
             this.oppProfile.setLastReceivedFileUri('removeFile: ' + this.receiveDirectory);
         }
     }
@@ -407,11 +408,12 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             } else {
                 this.sandBoxUri = this.receiveDirectory;
             }
+            console.info(TAG, `openFile begin fileUri ${this.sandBoxUri}`);
             let file = fs.openSync(this.sandBoxUri, fs.OpenMode.CREATE | fs.OpenMode.READ_WRITE);
             this.fileFd = file.fd;
             await this.oppProfile.setIncomingFileConfirmation(true, file.fd);
         } catch (err) {
-            console.error(TAG, `openFd failed, code: ${err?.code} message:${err?.message}`);
+            console.error(TAG, `openFd failed, code: ${err?.code} message:${err?.message} fd: ${this.fileFd}`);
             if (this.fileFd != -1) {
                 fs.close(this.fileFd);
                 this.fileFd = -1;
@@ -503,7 +505,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
 
     async publishFinishNotification(wantAgentObj: WantAgent, wantAgentObjRemove: WantAgent,
         successNum: number, failNum: number) {
-        console.info(TAG, 'publishFinishNotification');
+        console.info(TAG, `publishFinishNotification successNum ${successNum} failNum ${failNum}`);
         let notificationRequest: notificationManager.NotificationRequest = {
             content: {
                 notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
@@ -521,7 +523,7 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
             removalWantAgent: wantAgentObjRemove
         };
         notificationManager.publish(notificationRequest).then(() => {
-            console.info(TAG, 'publishFinishNotification show success');
+            console.info(TAG, `publishFinishNotification show success successNum ${successNum} failNum ${failNum}`);
             this.resetCount();
         }).catch((err: Base.BusinessError) => {
             console.error(TAG, 'publishFinishNotification fail');
