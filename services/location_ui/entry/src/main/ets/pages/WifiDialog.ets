@@ -37,6 +37,7 @@ struct dialogPlusPage {
   private WIFI_DIALOG_P2P_WSC_DISPLAY: number = 6;
   private WIFI_DIALOG_P2P_WSC_KEYPAD: number = 7;
   private WIFI_DIALOG_SETTINGS_5G_SAVE: number = 8;
+  private WIFI_DIALOG_SETTINGS_5G_SAVE_SINGLE: number = 9;
   private noActionTimer: number | undefined = undefined;
   private noAction: boolean = true;
 
@@ -65,6 +66,7 @@ struct dialogPlusPage {
             break;
         case this.WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN:
         case this.WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN:
+        case this.WIFI_DIALOG_SETTINGS_5G_SAVE_SINGLE:
             let ssid : string = AppStorage.get('wifi5gSsid') as string;
             this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_context'), ssid);
             this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_no_button').id);
