@@ -2970,6 +2970,9 @@ void LocatorHandler::ReportLocationMessageEvent(const AppExecFwk::InnerEvent::Po
             return;
         }
         std::unique_ptr<Location> location = locationMessage->GetLocation();
+        if (location == nullptr) {
+            return;
+        }
         std::string abilityName = locationMessage->GetAbilityName();
         int64_t time = location->GetTimeStamp();
         int64_t timeSinceBoot = location->GetTimeSinceBoot();

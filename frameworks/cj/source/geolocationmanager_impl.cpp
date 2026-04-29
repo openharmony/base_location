@@ -309,6 +309,10 @@ CJCountryCode GetCountryCode(int32_t& errCode)
     }
     std::shared_ptr<Location::CountryCode> country = std::make_shared<Location::CountryCode>();
     errCode = g_locatorProxy->GetIsoCountryCodeV9(country);
+    if (country == nullptr) {
+        errCode = ERRCODE_MEMORY_ERROR;
+        return CJCountryCode{0};
+    }
     return CJCountryCode{ .country = MallocCString(country->GetCountryCodeStr()),
         .type = country->GetCountryCodeType() };
 }
