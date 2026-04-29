@@ -68,6 +68,10 @@ napi_value AttachFenceExtensionContext(napi_env env, void *value, void *)
         return nullptr;
     }
     auto napiContextObj = contextRef->GetNapiValue();
+    if (napiContextObj == nullptr) {
+        LBSLOGE(FENCE_EXTENSION, "Failed to get NAPI context object");
+        return nullptr;
+    }
 
     napi_coerce_to_native_binding_object(
         env, napiContextObj, AbilityRuntime::DetachCallbackFunc, AttachFenceExtensionContext, value, nullptr);
