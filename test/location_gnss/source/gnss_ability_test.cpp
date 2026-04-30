@@ -71,6 +71,7 @@ const std::string MANAGER_SETTINGS = "ohos.permission.MANAGE_SETTINGS";
 constexpr const char *UNLOAD_GNSS_TASK = "gnss_sa_unload";
 constexpr int32_t FENCE_MAX_ID = 1000000;
 const int32_t WAIT_EVENT_TIME = 3;
+const int64_t MAX_BATCH_LENGTH_MS = 24 * 60 * 60 * 1000;
 void GnssAbilityTest::SetUp()
 {
     /*
