@@ -3138,7 +3138,7 @@ HWTEST_F(GnssAbilityTest, GetReportingPeriodSecParamTest001, TestSize.Level1)
     GTEST_LOG_(INFO)
         << "GnssAbilityTest, GetReportingPeriodSecParamTest001, TestSize.Level1";
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetReportingPeriodSecParamTest001 begin");
-    EXPECT_EQ(1000, ability_->GetReportingPeriodSecParam());
+    EXPECT_EQ(MAX_BATCH_LENGTH_MS, ability_->GetReportingPeriodSecParam());
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetReportingPeriodSecParamTest001 end");
 }
 
