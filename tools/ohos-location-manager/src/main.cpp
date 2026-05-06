@@ -41,6 +41,7 @@ namespace CliTool {
 
 constexpr int DEFAULT_LOCATE_TIMEOUT = 30;
 constexpr int MIN_ARGC_NUM = 2;
+constexpr int MIN_ARGNAME_INDEX = 3;
 
 typedef std::function<int(int, char**)> CommandHandler;
 
@@ -167,7 +168,7 @@ static std::string ParseStringArg(int argc, char** argv, const std::string& argN
     for (int i = 0; i < argc; i++) {
         std::string arg = argv[i];
         if (arg.find("--" + argName + "=") == 0) {
-            return arg.substr(argName.length() + 3);
+            return arg.substr(argName.length() + MIN_ARGNAME_INDEX);
         }
         if (arg == "--" + argName && i + 1 < argc) {
             return argv[i + 1];
@@ -210,7 +211,7 @@ int CmdGetSwitchState(int argc, char** argv)
     bool isEnabled = false;
     LocationErrCode errCode = g_locator->IsLocationEnabledV9(isEnabled);
     if (errCode != ERRCODE_SUCCESS) {
-        return OutputError(errCode, 
+        return OutputError(errCode,
             "Failed to query location switch state",
             "Check if location service is available");
     }
@@ -229,7 +230,6 @@ int CmdGetCachedLocation(int argc, char** argv)
     }
     std::unique_ptr<Location> location;
     LocationErrCode errCode = g_locator->GetCachedLocationV9(location);
-
     if (errCode != ERRCODE_SUCCESS) {
         std::string suggestion;
         if (errCode == ERRCODE_SWITCH_OFF) {
@@ -264,7 +264,6 @@ int CmdEnableSwitch(int argc, char** argv)
     }
     bool targetState = enable;
     LocationErrCode errCode = g_locator->EnableAbilityV9(targetState);
-
     if (errCode != ERRCODE_SUCCESS) {
         std::string suggestion;
         if (errCode == ERRCODE_PERMISSION_DENIED || errCode == LOCATION_ERRCODE_PERMISSION_DENIED) {
@@ -361,7 +360,7 @@ int CmdHelp(int argc, char** argv)
     CLI_LOG("");
     CLI_LOG("Available commands:");
     for (const auto& pair : g_commands) {
-        CLI_LOG("  " + std::string(pair.second.name) + "    " + std::string(pair.second.description));
+        CLI_LOG(("  " + std::string(pair.second.name) + "    " + std::string(pair.second.description)));
     }
     CLI_LOG("");
     CLI_LOG("Run 'ohos-location-manager <command> --help' for more information on each command.");
@@ -371,22 +370,22 @@ int CmdHelp(int argc, char** argv)
 void InitCommands()
 {
     g_commands["help"] = {"help", "Show help message", CmdHelp};
-    g_commands["get-switch-state"] =
-        {"get-switch-state", "Query location switch state (no permission required)", CmdGetSwitchState};
-    g_commands["get-cached-location"] =
-        {"get-cached-location", "Get cached location (requires APPROXIMATELY_LOCATION)", CmdGetCachedLocation};
-    g_commands["enable-switch"] =
-        {"enable-switch", "Enable/disable location switch (requires CONTROL_LOCATION_SWITCH)", CmdEnableSwitch};
-    g_commands["start-locate"] =
-        {"start-locate", "Start locating and wait for result (requires APPROXIMATELY_LOCATION)", CmdStartLocate};
-    g_commands["stop-locate"] =
-        {"stop-locate", "Stop active locating session (requires APPROXIMATELY_LOCATION)", CmdStopLocate};
+    g_commands["get-switch-state"] = {
+        "get-switch-state", "Query location switch state (no permission required)", CmdGetSwitchState};
+    g_commands["get-cached-location"] = {
+        "get-cached-location", "Get cached location (requires APPROXIMATELY_LOCATION)", CmdGetCachedLocation};
+    g_commands["enable-switch"] = {
+        "enable-switch", "Enable/disable location switch (requires CONTROL_LOCATION_SWITCH)", CmdEnableSwitch};
+    g_commands["start-locate"] = {
+        "start-locate", "Start locating and wait for result (requires APPROXIMATELY_LOCATION)", CmdStartLocate};
+    g_commands["stop-locate"] = {
+        "stop-locate", "Stop active locating session (requires APPROXIMATELY_LOCATION)", CmdStopLocate};
 }
 
 void PrintUsage(const char* prog)
 {
-    CLI_ERROR(()"Usage: " + std::string(prog) + " <command> [options]"));
-    CLI_ERROR(()"Run '" + std::string(prog) + " help' for more information"));
+    CLI_ERROR(("Usage: " + std::string(prog) + " <command> [options]"));
+    CLI_ERROR(("Run '" + std::string(prog) + " help' for more information"));
 }
 
 } // namespace CliTool
@@ -403,9 +402,8 @@ int main(int argc, char** argv)
     InitCommands();
     std::string cmdName = argv[1];
     auto it = g_commands.find(cmdName);
-
     if (it == g_commands.end()) {
-        CLI_ERROR("Unknown command: " + cmdName);
+        CLI_ERROR(("Unknown command: " + cmdName));
         PrintUsage(argv[0]);
         return 1;
     }

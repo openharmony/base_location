@@ -44,7 +44,7 @@ HWTEST_F(LocationCliToolTest, IsLocationEnabledV9Test, TestSize.Level1)
     bool isEnabled = false;
     LocationErrCode errCode = locator->IsLocationEnabledV9(isEnabled);
     
-    ASSERT_TRUE(errCode == ERRCODE_SUCCESS || 
+    ASSERT_TRUE(errCode == ERRCODE_SUCCESS ||
                 errCode == ERRCODE_SERVICE_UNAVAILABLE ||
                 errCode == ERRCODE_SWITCH_OFF);
 }
