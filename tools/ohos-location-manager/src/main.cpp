@@ -40,6 +40,7 @@ namespace Location {
 namespace CliTool {
 
 constexpr int DEFAULT_LOCATE_TIMEOUT = 30;
+constexpr int MIN_ARGC_NUM = 2;
 
 typedef std::function<int(int, char**)> CommandHandler;
 
@@ -205,20 +206,17 @@ int CmdGetSwitchState(int argc, char** argv)
 {
     InitLocator();
     if (g_locator == nullptr) {
-        return OutputError(ERRCODE_SERVICE_UNAVAILABLE, 
+        return OutputError(ERRCODE_SERVICE_UNAVAILABLE,
             "Failed to get location service instance",
             "Check if location service is running");
     }
-
     bool isEnabled = false;
     LocationErrCode errCode = g_locator->IsLocationEnabledV9(isEnabled);
-    
     if (errCode != ERRCODE_SUCCESS) {
         return OutputError(errCode, 
             "Failed to query location switch state",
             "Check if location service is available");
     }
-
     json data;
     data["enabled"] = isEnabled;
     return OutputSuccess(data);
@@ -232,7 +230,6 @@ int CmdGetCachedLocation(int argc, char** argv)
             "Failed to get location service instance",
             "Check if location service is running");
     }
-
     std::unique_ptr<Location> location;
     LocationErrCode errCode = g_locator->GetCachedLocationV9(location);
 
@@ -247,7 +244,6 @@ int CmdGetCachedLocation(int argc, char** argv)
         }
         return OutputError(errCode, "Failed to get cached location", suggestion);
     }
-
     json data;
     data["location"] = LocationToJson(location);
     return OutputSuccess(data);
@@ -261,7 +257,6 @@ int CmdEnableSwitch(int argc, char** argv)
             "Failed to get location service instance",
             "Check if location service is running");
     }
-
     bool enable = ParseBoolFlag(argc, argv, "enable");
     bool disable = ParseBoolFlag(argc, argv, "disable");
 
@@ -270,7 +265,6 @@ int CmdEnableSwitch(int argc, char** argv)
             "Missing --enable or --disable parameter",
             "Use --enable to turn on location switch, or --disable to turn off");
     }
-
     bool targetState = enable;
     LocationErrCode errCode = g_locator->EnableAbilityV9(targetState);
 
@@ -279,11 +273,10 @@ int CmdEnableSwitch(int argc, char** argv)
         if (errCode == ERRCODE_PERMISSION_DENIED || errCode == LOCATION_ERRCODE_PERMISSION_DENIED) {
             suggestion = "Request ohos.permission.CONTROL_LOCATION_SWITCH (system permission)";
         }
-        return OutputError(errCode, 
+        return OutputError(errCode,
             std::string("Failed to ") + (enable ? "enable" : "disable") + " location switch",
             suggestion);
     }
-
     json data;
     data["message"] = std::string("Location switch ") + (enable ? "enabled" : "disabled");
     return OutputSuccess(data);
@@ -297,7 +290,6 @@ int CmdStartLocate(int argc, char** argv)
             "Failed to get location service instance",
             "Check if location service is running");
     }
-
     int timeout = ParseIntArg(argc, argv, "timeout", DEFAULT_LOCATE_TIMEOUT);
     int scenario = ParseIntArg(argc, argv, "scenario", SCENE_DAILY_LIFE_SERVICE);
     int interval = ParseIntArg(argc, argv, "interval", 1);
@@ -312,7 +304,6 @@ int CmdStartLocate(int argc, char** argv)
             "Failed to create callback stub",
             "Check system resources");
     }
-
     LocationErrCode errCode = g_locator->StartLocatingV9(requestConfig, g_activeCallback);
     if (errCode != ERRCODE_SUCCESS) {
         g_activeCallback = nullptr;
@@ -324,14 +315,11 @@ int CmdStartLocate(int argc, char** argv)
         }
         return OutputError(errCode, "Failed to start locating", suggestion);
     }
-
     std::unique_ptr<Location> location;
     int resultError = 0;
     bool success = g_activeCallback->WaitForResult(timeout, location, resultError);
-
     g_locator->StopLocatingV9(g_activeCallback);
     g_activeCallback = nullptr;
-
     if (!success) {
         std::string suggestion;
         if (resultError == ERRCODE_REQUEST_TIMEOUT) {
@@ -341,7 +329,6 @@ int CmdStartLocate(int argc, char** argv)
         }
         return OutputError(resultError, "Locating failed or timed out", suggestion);
     }
-
     json data;
     data["location"] = LocationToJson(location);
     return OutputSuccess(data);
@@ -355,21 +342,17 @@ int CmdStopLocate(int argc, char** argv)
             "Failed to get location service instance",
             "Check if location service is running");
     }
-
     if (g_activeCallback == nullptr) {
         return OutputError(ERRCODE_INVALID_PARAM,
             "No active locating session",
             "Run start-locate first to create a locating session");
     }
-
     LocationErrCode errCode = g_locator->StopLocatingV9(g_activeCallback);
     g_activeCallback = nullptr;
-
     if (errCode != ERRCODE_SUCCESS) {
         return OutputError(errCode, "Failed to stop locating",
             "Check if locating session is still active");
     }
-
     json data;
     data["message"] = "Locating stopped";
     return OutputSuccess(data);
@@ -394,7 +377,8 @@ void InitCommands()
     REGISTER_CMD("get-switch-state", "Query location switch state (no permission required)", CmdGetSwitchState);
     REGISTER_CMD("get-cached-location", "Get cached location (requires APPROXIMATELY_LOCATION)", CmdGetCachedLocation);
     REGISTER_CMD("enable-switch", "Enable/disable location switch (requires CONTROL_LOCATION_SWITCH)", CmdEnableSwitch);
-    REGISTER_CMD("start-locate", "Start locating and wait for result (requires APPROXIMATELY_LOCATION)", CmdStartLocate);
+    REGISTER_CMD("start-locate",
+        "Start locating and wait for result (requires APPROXIMATELY_LOCATION)", CmdStartLocate);
     REGISTER_CMD("stop-locate", "Stop active locating session (requires APPROXIMATELY_LOCATION)", CmdStopLocate);
 }
 
@@ -411,14 +395,11 @@ void PrintUsage(const char* prog)
 int main(int argc, char** argv)
 {
     using namespace OHOS::Location::CliTool;
-
-    if (argc < 2) {
+    if (argc < MIN_ARGC_NUM) {
         PrintUsage(argv[0]);
         return 1;
     }
-
     InitCommands();
-
     std::string cmdName = argv[1];
     auto it = g_commands.find(cmdName);
 
@@ -427,9 +408,7 @@ int main(int argc, char** argv)
         PrintUsage(argv[0]);
         return 1;
     }
-
-    int cmdArgc = argc - 2;
-    char** cmdArgv = argv + 2;
-
+    int cmdArgc = argc - MIN_ARGC_NUM;
+    char** cmdArgv = argv + MIN_ARGC_NUM;
     return it->second.handler(cmdArgc, cmdArgv);
 }
