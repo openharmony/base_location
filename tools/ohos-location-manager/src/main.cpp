@@ -52,9 +52,6 @@ struct Command {
 
 static std::unordered_map<std::string, Command> g_commands;
 
-#define REGISTER_CMD(name, desc, handler) \
-    g_commands[name] = {name, desc, handler}
-
 static std::shared_ptr<LocatorImpl> g_locator = nullptr;
 
 static void InitLocator()
@@ -373,19 +370,23 @@ int CmdHelp(int argc, char** argv)
 
 void InitCommands()
 {
-    REGISTER_CMD("help", "Show help message", CmdHelp);
-    REGISTER_CMD("get-switch-state", "Query location switch state (no permission required)", CmdGetSwitchState);
-    REGISTER_CMD("get-cached-location", "Get cached location (requires APPROXIMATELY_LOCATION)", CmdGetCachedLocation);
-    REGISTER_CMD("enable-switch", "Enable/disable location switch (requires CONTROL_LOCATION_SWITCH)", CmdEnableSwitch);
-    REGISTER_CMD("start-locate",
-        "Start locating and wait for result (requires APPROXIMATELY_LOCATION)", CmdStartLocate);
-    REGISTER_CMD("stop-locate", "Stop active locating session (requires APPROXIMATELY_LOCATION)", CmdStopLocate);
+    g_commands["help"] = {"help", "Show help message", CmdHelp};
+    g_commands["get-switch-state"] =
+        {"get-switch-state", "Query location switch state (no permission required)", CmdGetSwitchState};
+    g_commands["get-cached-location"] =
+        {"get-cached-location", "Get cached location (requires APPROXIMATELY_LOCATION)", CmdGetCachedLocation};
+    g_commands["enable-switch"] =
+        {"enable-switch", "Enable/disable location switch (requires CONTROL_LOCATION_SWITCH)", CmdEnableSwitch};
+    g_commands["start-locate"] =
+        {"start-locate", "Start locating and wait for result (requires APPROXIMATELY_LOCATION)", CmdStartLocate};
+    g_commands["stop-locate"] =
+        {"stop-locate", "Stop active locating session (requires APPROXIMATELY_LOCATION)", CmdStopLocate};
 }
 
 void PrintUsage(const char* prog)
 {
-    CLI_ERROR("Usage: " + std::string(prog) + " <command> [options]");
-    CLI_ERROR("Run '" + std::string(prog) + " help' for more information");
+    CLI_ERROR(()"Usage: " + std::string(prog) + " <command> [options]"));
+    CLI_ERROR(()"Run '" + std::string(prog) + " help' for more information"));
 }
 
 } // namespace CliTool
