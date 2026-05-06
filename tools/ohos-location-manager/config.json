@@ -1,0 +1,232 @@
+{
+    "$schema": "https://schemas.openharmony.org/cli/tool/v1",
+    "name": "ohos-location-manager",
+    "version": "1.0.0",
+    "description": "Location service CLI tool for querying switch state, getting cached location, controlling location switch, and starting/stopping locating",
+    "executable": "/system/bin/cli_tool/executable/ohos-location-manager",
+    "requirePermissions": [],
+    "hasSubcommands": true,
+    "subcommands": {
+      "get-switch-state": {
+        "description": "Query location switch state",
+        "requirePermissions": [],
+        "input": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "description": "Result code (0 for success)"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Location switch state"
+                }
+              },
+              "required": ["enabled"]
+            }
+          },
+          "required": ["code", "data"]
+        },
+        "argumentMapping": {
+          "type": "flag",
+          "templates": {}
+        }
+      },
+      "get-cached-location": {
+        "description": "Get cached location",
+        "requirePermissions": ["ohos.permission.APPROXIMATELY_LOCATION"],
+        "input": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "description": "Result code (0 for success)"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "object",
+                  "properties": {
+                    "latitude": { "type": "number", "description": "Latitude coordinate" },
+                    "longitude": { "type": "number", "description": "Longitude coordinate" },
+                    "altitude": { "type": "number", "description": "Altitude in meters" },
+                    "accuracy": { "type": "number", "description": "Horizontal accuracy in meters" },
+                    "speed": { "type": "number", "description": "Speed in meters per second" },
+                    "direction": { "type": "number", "description": "Direction in degrees" },
+                    "timestamp": { "type": "integer", "description": "Timestamp in milliseconds" },
+                    "sourceType": { "type": "integer", "description": "Location source type (1=GNSS, 2=Network, 3=Indoor, 4=RTK)" }
+                  },
+                  "required": ["latitude", "longitude"]
+                }
+              }
+            }
+          },
+          "required": ["code"]
+        },
+        "argumentMapping": {
+          "type": "flag",
+          "templates": {}
+        }
+      },
+      "enable-switch": {
+        "description": "Enable or disable location switch",
+        "requirePermissions": ["ohos.permission.CONTROL_LOCATION_SWITCH"],
+        "input": {
+          "type": "object",
+          "properties": {
+            "enable": {
+              "type": "boolean",
+              "description": "Enable location switch"
+            },
+            "disable": {
+              "type": "boolean",
+              "description": "Disable location switch"
+            }
+          },
+          "required": []
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "description": "Result code (0 for success)"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Operation result message"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          "required": ["code", "data"]
+        },
+        "argumentMapping": {
+          "type": "flag",
+          "templates": {
+            "enable": "--enable",
+            "disable": "--disable"
+          }
+        }
+      },
+      "start-locate": {
+        "description": "Start locating and wait for result (LRO mode)",
+        "requirePermissions": ["ohos.permission.APPROXIMATELY_LOCATION"],
+        "input": {
+          "type": "object",
+          "properties": {
+            "timeout": {
+              "type": "integer",
+              "description": "Wait timeout in seconds",
+              "minimum": 1,
+              "maximum": 300,
+              "default": 30
+            },
+            "scenario": {
+              "type": "integer",
+              "description": "Locating scenario (0x0301=Navigation, 0x0302=Trajectory, 0x0303=CarHailing, 0x0304=DailyLife, 0x0305=NoPower)",
+              "default": 0x0304
+            },
+            "interval": {
+              "type": "integer",
+              "description": "Location reporting interval in seconds",
+              "minimum": 1,
+              "maximum": 1800,
+              "default": 1
+            }
+          },
+          "required": []
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "description": "Result code (0 for success)"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "location": {
+                  "type": "object",
+                  "properties": {
+                    "latitude": { "type": "number" },
+                    "longitude": { "type": "number" },
+                    "altitude": { "type": "number" },
+                    "accuracy": { "type": "number" },
+                    "speed": { "type": "number" },
+                    "direction": { "type": "number" },
+                    "timestamp": { "type": "integer" },
+                    "sourceType": { "type": "integer" }
+                  },
+                  "required": ["latitude", "longitude"]
+                }
+              }
+            }
+          },
+          "required": ["code"]
+        },
+        "argumentMapping": {
+          "type": "flag",
+          "templates": {
+            "timeout": "--timeout={value}",
+            "scenario": "--scenario={value}",
+            "interval": "--interval={value}"
+          }
+        }
+      },
+      "stop-locate": {
+        "description": "Stop active locating session",
+        "requirePermissions": ["ohos.permission.APPROXIMATELY_LOCATION"],
+        "input": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "description": "Result code (0 for success)"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "description": "Operation result message"
+                }
+              },
+              "required": ["message"]
+            }
+          },
+          "required": ["code", "data"]
+        },
+        "argumentMapping": {
+          "type": "flag",
+          "templates": {}
+        }
+      }
+    },
+    "timeout": 60000,
+    "events": ["stdout", "result"]
+  }
