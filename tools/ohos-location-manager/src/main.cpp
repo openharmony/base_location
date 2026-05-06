@@ -78,7 +78,7 @@ public:
 
     void OnLocatingStatusChange(const int status) override
     {
-        CLI_LOG("Locating status changed: " + std::to_string(status));
+        CLI_LOG(("Locating status changed: " + std::to_string(status)));
     }
 
     void OnErrorReport(const int errorCode) override
@@ -256,7 +256,6 @@ int CmdEnableSwitch(int argc, char** argv)
     }
     bool enable = ParseBoolFlag(argc, argv, "enable");
     bool disable = ParseBoolFlag(argc, argv, "disable");
-
     if (!enable && !disable) {
         return OutputError(ERRCODE_INVALID_PARAM,
             "Missing --enable or --disable parameter",
