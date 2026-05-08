@@ -964,9 +964,6 @@ ErrCode LocatorAbility::RemoveFence(const GeofenceRequest& request)
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
     MessageParcel dataToStub;
     MessageParcel replyToStub;
     if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
@@ -1033,9 +1030,6 @@ ErrCode LocatorAbility::RemoveGnssGeofence(const GeofenceRequest& request)
     }
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
-    }
-    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     std::shared_ptr<GeofenceRequest> geofenceRequest =
     std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
