@@ -31,35 +31,40 @@ protected:
     }
 };
 
-TEST_F(LocationCliTest, TestHelpCommand) {
+TEST_F(LocationCliTest, TestHelpCommand)
+{
     const char* argv[] = {"ohos-location", "help"};
     int argc = 2;
 
     EXPECT_TRUE(true);
 }
 
-TEST_F(LocationCliTest, TestIsLocationEnabledCommand) {
+TEST_F(LocationCliTest, TestIsLocationEnabledCommand)
+{
     const char* argv[] = {"ohos-location", "is-enabled"};
     int argc = 3;
 
     EXPECT_TRUE(true);
 }
 
-TEST_F(LocationCliTest, TestEnableLocationCommand) {
+TEST_F(LocationCliTest, TestEnableLocationCommand)
+{
     const char* argv[] = {"ohos-location", "enable"};
     int argc = 4;
 
     EXPECT_TRUE(true);
 }
 
-TEST_F(LocationCliTest, TestGetCachedLocationCommand) {
+TEST_F(LocationCliTest, TestGetCachedLocationCommand)
+{
     const char* argv[] = {"ohos-location", "get-last-approximate-location"};
     int argc = 3;
 
     EXPECT_TRUE(true);
 }
 
-TEST_F(LocationCliTest, TestStartLocatingCommand) {
+TEST_F(LocationCliTest, TestStartLocatingCommand)
+{
     const char* argv[] = {"ohos-location", "get-current-approximate-location", "--priority", "accuracy",
         "--timeout", "3000"};
     int argc = 6;
@@ -67,28 +72,32 @@ TEST_F(LocationCliTest, TestStartLocatingCommand) {
     EXPECT_TRUE(true);
 }
 
-TEST_F(LocationCliTest, TestStopLocatingCommand) {
+TEST_F(LocationCliTest, TestStopLocatingCommand)
+{
     const char* argv[] = {"ohos-location", "stop-locating"};
     int argc = 3;
 
     EXPECT_TRUE(true);
 }
 
-TEST_F(LocationCliTest, TestInvalidCommand) {
+TEST_F(LocationCliTest, TestInvalidCommand)
+{
     const char* argv[] = {"ohos-location", "invalid-command"};
     int argc = 2;
 
     EXPECT_TRUE(true);
 }
 
-TEST_F(LocationCliTest, TestMissingRequiredParameter) {
+TEST_F(LocationCliTest, TestMissingRequiredParameter)
+{
     const char* argv[] = {"ohos-location", "enable"};
     int argc = 2;
 
     EXPECT_TRUE(true);
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
