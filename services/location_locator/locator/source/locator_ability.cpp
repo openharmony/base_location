@@ -1472,9 +1472,6 @@ ErrCode LocatorAbility::StopLocating(const sptr<ILocatorCallback>& cb)
     if (!CheckRequestAvailable(LocatorInterfaceCode::STOP_LOCATING, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
     if (cb == nullptr) {
         LBSLOGE(LOCATOR, "LocatorAbility::StopLocating remote object nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
