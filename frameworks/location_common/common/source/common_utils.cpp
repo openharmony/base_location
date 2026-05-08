@@ -750,6 +750,5 @@ int CommonUtils::ConvertErrorCode(int errorCode)
     }
     return errorCode;
 }
-
 } // namespace Location
 } // namespace OHOS
