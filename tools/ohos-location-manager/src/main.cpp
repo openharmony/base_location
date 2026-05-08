@@ -383,7 +383,6 @@ bool LocatorCallbackForCli::WaitForResult(int timeoutSeconds, std::unique_ptr<Lo
     std::unique_lock<std::mutex> lock(mutex_);
     bool success = cv_.wait_for(lock, std::chrono::seconds(timeoutSeconds),
         [this] { return hasResult_; });
-
     if (success && location_ != nullptr) {
         outLocation = std::move(location_);
         return true;
