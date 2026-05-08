@@ -773,7 +773,7 @@ private:
     sptr<ILocatorService> client_ { nullptr };
     sptr<IRemoteObject::DeathRecipient> recipient_ { nullptr };
     LocationDataManager* locationDataManager_ { nullptr };
-    bool isServerExist_ = false;
+    std::atomic<bool> isServerExist_ = false;
     bool isCallbackResuming_ = false;
     std::mutex mutex_;
     std::mutex resumeMutex_;
