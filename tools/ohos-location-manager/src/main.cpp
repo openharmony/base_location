@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,126 +15,83 @@
 
 #include <iostream>
 #include <string>
-#include <unordered_map>
-#include <functional>
 #include <cstring>
-#include <atomic>
-#include <mutex>
-#include <condition_variable>
+#include <memory>
+#include <thread>
 #include <chrono>
-
-#include "nlohmann/json.hpp"
-using json = nlohmann::json;
-
+#include <mutex>
+#include <unordered_map>
+#include <sstream>
+#include <iomanip>
+#include <stdio.h>
+#include <iremote_broker.h>
 #include "locator_impl.h"
-#include "i_locator_callback.h"
-#include "request_config.h"
-#include "location.h"
+#include "location_log.h"
 #include "constant_definition.h"
+#include "locator_callback_host.h"
 
-#define CLI_LOG(fmt, ...) std::cerr << fmt << std::endl
-#define CLI_ERROR(fmt, ...) std::cerr << "[ERROR] " << fmt << std::endl
-
+using json = nlohmann::json;
 namespace OHOS {
 namespace Location {
-namespace CliTool {
-
-constexpr int DEFAULT_LOCATE_TIMEOUT = 30;
-constexpr int MIN_ARGC_NUM = 2;
-constexpr int MIN_ARGNAME_INDEX = 3;
-
-typedef std::function<int(int, char**)> CommandHandler;
-
+namespace {
 struct Command {
     const char* name;
     const char* description;
-    CommandHandler handler;
+    int (*handler)(int argc, char** argv);
+
+    Command(const char* n, const char* d, int (*h)(int, char**)) : name(n), description(d), handler(h) {}
 };
 
 static std::unordered_map<std::string, Command> g_commands;
+static const char* g_programName = "ohos-location";
+static const char* g_toolDescription = "Location service CLI tool for querying and controlling device location features";
 
-static std::shared_ptr<LocatorImpl> g_locator = nullptr;
+#define CLI_LOG(fmt, ...) do { \
+    fprintf(stdout, "[INFO] " fmt "\n", ##__VA_ARGS__); \
+} while(0)
 
-static void InitLocator()
+#define CLI_ERROR(fmt, ...) do { \
+    fprintf(stdout, "[ERROR] " fmt "\n", ##__VA_ARGS__); \
+} while(0)
+
+void PrintUsage(const char* prog)
 {
-    if (g_locator == nullptr) {
-        g_locator = LocatorImpl::GetInstance();
-    }
+    CLI_ERROR("Usage: %s <command> [options...]", prog);
+    CLI_ERROR("Run '%s help' for more information", prog);
 }
 
-class LocationCallbackStub : public IRemoteStub<ILocatorCallback> {
-public:
-    LocationCallbackStub() : hasResult_(false), errorCode_(0) {}
-    ~LocationCallbackStub() override = default;
+static void RegisterCommand(const char* name, const char* description, int (*handler)(int, char**)) 
+{
+    g_commands.emplace(name, Command(name, description, handler));
+}
 
-    void OnLocationReport(const std::unique_ptr<Location>& location) override
-    {
-        if (location != nullptr) {
-            location_ = std::make_unique<Location>(*location);
-            hasResult_ = true;
-            cv_.notify_one();
-        }
-    }
-
-    void OnLocatingStatusChange(const int status) override
-    {
-        CLI_LOG(("Locating status changed: " + std::to_string(status)));
-    }
-
-    void OnErrorReport(const int errorCode) override
-    {
-        errorCode_ = errorCode;
-        hasResult_ = true;
-        cv_.notify_one();
-    }
-
-    int OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override
-    {
-        return 0;
-    }
-
-    bool WaitForResult(int timeoutSeconds, std::unique_ptr<Location>& outLocation, int& outErrorCode)
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        auto deadline = std::chrono::seconds(timeoutSeconds);
-        if (cv_.wait_for(lock, deadline, [this] { return hasResult_.load(); })) {
-            if (location_ != nullptr) {
-                outLocation = std::move(location_);
-                outErrorCode = 0;
-                return true;
-            } else {
-                outErrorCode = errorCode_;
-                return false;
-            }
-        }
-        outErrorCode = ERRCODE_REQUEST_TIMEOUT;
-        return false;
-    }
-
-private:
-    std::atomic<bool> hasResult_;
-    std::mutex mutex_;
-    std::condition_variable cv_;
-    std::unique_ptr<Location> location_;
-    int errorCode_;
-};
-
-static sptr<LocationCallbackStub> g_activeCallback = nullptr;
-
-static int OutputSuccess(const json& data)
+int OutputLog(const std::string& message)
 {
     json response;
-    response["code"] = ERRCODE_SUCCESS;
+    response["type"] = "log";
+    response["level"] = "info";
+    response["message"] = message;
+    std::cout << response.dump() << std::endl;
+    return 0;
+}
+
+int OutputSuccess(const json& data)
+{
+    json response;
+    response["type"] = "result";
+    response["status"] = "success";
     response["data"] = data;
     std::cout << response.dump() << std::endl;
     return 0;
 }
 
-static int OutputError(int code, const std::string& message, const std::string& suggestion = "")
+static int OutputError(const std::string& code, const std::string& message, const std::string& suggestion = "")
 {
     json response;
-    response["code"] = code;
-    response["error"]["message"] = message;
+    response["type"] = "result";
+    response["status"] = "failed";
+    response["errCode"] = code;
+    response["errMsg"] = message;
     if (!suggestion.empty()) {
         response["suggestion"] = suggestion;
     }
@@ -142,271 +99,458 @@ static int OutputError(int code, const std::string& message, const std::string& 
     return 1;
 }
 
-static json LocationToJson(const std::unique_ptr<Location>& location)
+void  LocationToJson(const std::unique_ptr<Location>& location, json& data)
 {
-    json locJson;
     if (location == nullptr) {
-        return locJson;
+        return;
     }
-    locJson["latitude"] = location->GetLatitude();
-    locJson["longitude"] = location->GetLongitude();
-    locJson["altitude"] = location->GetAltitude();
-    locJson["accuracy"] = location->GetAccuracy();
-    locJson["speed"] = location->GetSpeed();
-    locJson["direction"] = location->GetDirection();
-    locJson["timestamp"] = location->GetTimeStamp();
-    locJson["timeSinceBoot"] = location->GetTimeSinceBoot();
-    locJson["altitudeAccuracy"] = location->GetAltitudeAccuracy();
-    locJson["speedAccuracy"] = location->GetSpeedAccuracy();
-    locJson["directionAccuracy"] = location->GetDirectionAccuracy();
-    locJson["sourceType"] = location->GetLocationSourceType();
-    return locJson;
+    data["latitude"] = location->GetLatitude();
+    data["longitude"] = location->GetLongitude();
+    data["altitude"] = location->GetAltitude();
+    data["accuracy"] = location->GetAccuracy();
+    data["speed"] = location->GetSpeed();
+    data["direction"] = location->GetDirection();
+    data["timeStamp"] = location->GetTimeStamp();
+    data["timeSinceBoot"] = location->GetTimeSinceBoot();
+    data["isFromMock"] = location->GetIsFromMock();
+    data["sourceType"] = location->GetLocationSourceType();
+    data["altitudeAccuracy"] = location->GetAltitudeAccuracy();
+    data["speedAccuracy"] = location->GetSpeedAccuracy();
+    data["directionAccuracy"] = location->GetDirectionAccuracy();
+    data["uncertaintyOfTimeSinceBoot"] = location->GetUncertaintyOfTimeSinceBoot();
 }
 
-static std::string ParseStringArg(int argc, char** argv, const std::string& argName)
+static int AllCmdHelp()
 {
-    for (int i = 0; i < argc; i++) {
-        std::string arg = argv[i];
-        if (arg.find("--" + argName + "=") == 0) {
-            return arg.substr(argName.length() + MIN_ARGNAME_INDEX);
-        }
-        if (arg == "--" + argName && i + 1 < argc) {
-            return argv[i + 1];
-        }
-    }
-    return "";
+    CLI_LOG("ohos-location - %s", g_toolDescription);
+    CLI_LOG("");
+    CLI_LOG("Usage:");
+    CLI_LOG("  %s <command> [options]", g_programName);
+    CLI_LOG("");
+    CLI_LOG("Parameters:");
+    CLI_LOG("  --help             Display this help message");
+    CLI_LOG("");
+    CLI_LOG("SubCommands:");
+    CLI_LOG("  is-enabled          Query the current status of the device location switch");
+    CLI_LOG("  enable              Enable the device location switch");
+    CLI_LOG("  disable             Disable the device location switch");
+    CLI_LOG("  get-last-approximate-location   Get the last cached approximate location from the system");
+    CLI_LOG("  get-last-precise-location Get the last cached precise location from the system");
+    CLI_LOG("  get-current-approximate-location   Get current location approximate with timeout waiting");
+    CLI_LOG("  get-current-precise-location Get current location precise with timeout waiting");
+    CLI_LOG("");
+    CLI_LOG("Examples:");
+    CLI_LOG("  # Show help for all commands");
+    CLI_LOG("  %s --help", g_programName);
+    CLI_LOG("");
+    CLI_LOG("  # Query location switch status");
+    CLI_LOG("  %s is-enabled", g_programName);
+    CLI_LOG("");
+    CLI_LOG("  # Get last cached location");
+    CLI_LOG("  %s get-last-approximate-location", g_programName);
+    CLI_LOG("");
+    CLI_LOG("  # Get current location with custom timeout");
+    CLI_LOG("  %s get-current-approximate-location --timeout 5000", g_programName);
+    return 0;
 }
 
-static int ParseIntArg(int argc, char** argv, const std::string& argName, int defaultValue)
+static int IsEnabledCmdHelp() 
 {
-    std::string value = ParseStringArg(argc, argv, argName);
-    if (value.empty()) {
-        return defaultValue;
-    }
-    try {
-        return std::stoi(value);
-    } catch (...) {
-        return defaultValue;
-    }
+    CLI_LOG("ohos-location is-enabled - Query the current status of the device location switch");
+    CLI_LOG("");
+    CLI_LOG("Usage:");
+    CLI_LOG("  %s is-enabled", g_programName);
+    CLI_LOG("");
+    CLI_LOG("Parameters:");
+    CLI_LOG("");
+    CLI_LOG("Examples:");
+    CLI_LOG("  # Query location switch status for current user");
+    CLI_LOG("  %s is-enabled", g_programName);
+    return 0;
 }
 
-static bool ParseBoolFlag(int argc, char** argv, const std::string& flagName)
+static int EnableCmdHelp() 
 {
-    for (int i = 0; i < argc; i++) {
-        if (argv[i] == "--" + flagName) {
-            return true;
+    CLI_LOG("ohos-location enable - Enable the device location switch");
+    CLI_LOG("");
+    CLI_LOG("Usage:");
+    CLI_LOG("  %s enable [--userId <id>]", g_programName);
+    CLI_LOG("");
+    CLI_LOG("Parameters:");
+    CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-9999, default: -1 for current user)");
+    CLI_LOG("");
+    CLI_LOG("Examples:");
+    CLI_LOG("  # Enable location switch for current user");
+    CLI_LOG("  %s enable", g_programName);
+    CLI_LOG("");
+    CLI_LOG("  # Enable location switch for user 100");
+    CLI_LOG("  %s enable --userId 100", g_programName);
+    return 0;
+}
+
+static int DisableCmdHelp() 
+{
+    CLI_LOG("ohos-location disable - Disable the device location switch");
+    CLI_LOG("");
+    CLI_LOG("Usage:");
+    CLI_LOG("  %s disable [--userId <id>]", g_programName);
+    CLI_LOG("");
+    CLI_LOG("Parameters:");
+    CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-9999, default: -1 for current user)");
+    CLI_LOG("");
+    CLI_LOG("Examples:");
+    CLI_LOG("  # Disable location switch for current user");
+    CLI_LOG("  %s disable", g_programName);
+    CLI_LOG("");
+    CLI_LOG("  # Disable location switch for user 100");
+    CLI_LOG("  %s disable --userId 100", g_programName);
+    return 0;
+}
+
+static int GetLastLocationCmdHelp(std::string cmd) 
+{
+    CLI_LOG("ohos-location %s - Get the last cached location from the system", cmd.c_str());
+    CLI_LOG("");
+    CLI_LOG("Usage:");
+    CLI_LOG("  %s %s", g_programName, cmd.c_str());
+    CLI_LOG("");
+    CLI_LOG("Description:");
+    CLI_LOG("  Retrieves the last known location that was cached by the system.");
+    CLI_LOG("  This command requires LOCATION permission.");
+    CLI_LOG("  Returns location data including latitude, longitude, altitude, accuracy, etc.");
+    CLI_LOG("");
+    CLI_LOG("Examples:");
+    CLI_LOG("  # Get the last cached location");
+    CLI_LOG("  %s %s", g_programName, cmd.c_str());
+    return 0;
+}
+
+static int GetCurrentLocationCmdHelp(std::string cmd) 
+{
+    CLI_LOG("ohos-location %s - Get current location with timeout waiting", cmd.c_str());
+    CLI_LOG("");
+    CLI_LOG("Usage:");
+    CLI_LOG("  %s %s [--timeout <Millisecond>]", g_programName, cmd.c_str());
+    CLI_LOG("");
+    CLI_LOG("Parameters:");
+    CLI_LOG("  --timeout         Optional. Timeout in Millisecond (range: 1000-10000, default: 2000)");
+    CLI_LOG("");
+    CLI_LOG("Description:");
+    CLI_LOG("  Requests a fresh location fix and waits for the result.");
+    CLI_LOG("  This command requires LOCATION permission.");
+    CLI_LOG("  The --timeout parameter specifies how long to wait for location data.");
+    CLI_LOG("");
+    CLI_LOG("Examples:");
+    CLI_LOG("  # Get current location with default timeout (2000 Millisecond)");
+    CLI_LOG("  %s %s", g_programName, cmd.c_str());
+    CLI_LOG("");
+    CLI_LOG("  # Get current location with 5000 Millisecond timeout");
+    CLI_LOG("  %s %s --timeout 5000", g_programName, cmd.c_str());
+    return 0;
+}
+
+static int ProcessCmdHelp(int argc, char** argv) 
+{
+    return AllCmdHelp();
+}
+
+static bool ParseIntArg(int argc, char** argv, const char* argName, int& value, bool required = false) 
+{
+    for (int i = 0; i < argc; ++i) {
+        if (strncmp(argv[i], argName, strlen(argName)) == 0) {
+            if (i + 1 < argc && argv[i + 1] != nullptr && CommonUtils::isValidInteger(argv[i + 1])) {
+                value = std::stoi(argv[i + 1]);
+                return true;
+            }
+            return false;
         }
+    }
+    if (required) {
+        CLI_ERROR("Missing required argument: %s", argName);
     }
     return false;
 }
 
-int CmdGetSwitchState(int argc, char** argv)
+static bool ParseStringArg(int argc, char** argv, const char* argName, std::string& value, bool required = false)
 {
-    InitLocator();
-    if (g_locator == nullptr) {
-        return OutputError(ERRCODE_SERVICE_UNAVAILABLE,
-            "Failed to get location service instance",
-            "Check if location service is running");
-    }
-    bool isEnabled = false;
-    LocationErrCode errCode = g_locator->IsLocationEnabledV9(isEnabled);
-    if (errCode != ERRCODE_SUCCESS) {
-        return OutputError(errCode,
-            "Failed to query location switch state",
-            "Check if location service is available");
-    }
-    json data;
-    data["enabled"] = isEnabled;
-    return OutputSuccess(data);
-}
-
-int CmdGetCachedLocation(int argc, char** argv)
-{
-    InitLocator();
-    if (g_locator == nullptr) {
-        return OutputError(ERRCODE_SERVICE_UNAVAILABLE,
-            "Failed to get location service instance",
-            "Check if location service is running");
-    }
-    std::unique_ptr<Location> location;
-    LocationErrCode errCode = g_locator->GetCachedLocationV9(location);
-    if (errCode != ERRCODE_SUCCESS) {
-        std::string suggestion;
-        if (errCode == ERRCODE_SWITCH_OFF) {
-            suggestion = "Enable location switch first";
-        } else if (errCode == ERRCODE_LOCATING_CACHE_FAIL) {
-            suggestion = "No cached location available, try start-locate first";
-        } else if (errCode == ERRCODE_PERMISSION_DENIED) {
-            suggestion = "Request ohos.permission.APPROXIMATELY_LOCATION permission";
+    for (int i = 0; i < argc; ++i) {
+        if (strncmp(argv[i], argName, strlen(argName)) == 0) {
+            if (i + 1 < argc && argv[i + 1] != nullptr) {
+                value = argv[i + 1];
+                return true;
+            }
+            return false;
         }
-        return OutputError(errCode, "Failed to get cached location", suggestion);
     }
-    json data;
-    data["location"] = LocationToJson(location);
-    return OutputSuccess(data);
+    if (required) {
+        CLI_ERROR("Missing required argument: %s", argName);
+    }
+    return false;
 }
 
-int CmdEnableSwitch(int argc, char** argv)
+class LocatorCallbackForCli : public IRemoteStub<ILocatorCallback> {
+public:
+    LocatorCallbackForCli();
+    virtual ~LocatorCallbackForCli();
+    int OnRemoteRequest(
+        uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
+    void OnLocationReport(const std::unique_ptr<Location>& location) override;
+    void OnErrorReport(const int errCode) override;
+    void OnLocatingStatusChange(const int status) override;
+    bool WaitForResult(int timeoutSeconds, std::unique_ptr<Location>& outLocation, int& outErrCode);
+private:
+    std::mutex mutex_;
+    std::condition_variable cv_;
+    bool hasResult_ = false;
+    std::unique_ptr<Location> location_ = nullptr;
+    int errCode_ = 0;
+};
+
+LocatorCallbackForCli::LocatorCallbackForCli() 
 {
-    InitLocator();
-    if (g_locator == nullptr) {
-        return OutputError(ERRCODE_SERVICE_UNAVAILABLE,
-            "Failed to get location service instance",
-            "Check if location service is running");
+}
+
+LocatorCallbackForCli::~LocatorCallbackForCli()
+{
+}
+
+void LocatorCallbackForCli::OnLocatingStatusChange(const int status)
+{
+}
+
+int LocatorCallbackForCli::OnRemoteRequest(uint32_t code,
+    MessageParcel& data, MessageParcel& reply, MessageOption& option)
+{
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        return -1;
     }
-    bool enable = ParseBoolFlag(argc, argv, "enable");
-    bool disable = ParseBoolFlag(argc, argv, "disable");
-    if (!enable && !disable) {
-        return OutputError(ERRCODE_INVALID_PARAM,
-            "Missing --enable or --disable parameter",
-            "Use --enable to turn on location switch, or --disable to turn off");
-    }
-    bool targetState = enable;
-    LocationErrCode errCode = g_locator->EnableAbilityV9(targetState);
-    if (errCode != ERRCODE_SUCCESS) {
-        std::string suggestion;
-        if (errCode == ERRCODE_PERMISSION_DENIED || errCode == LOCATION_ERRCODE_PERMISSION_DENIED) {
-            suggestion = "Request ohos.permission.CONTROL_LOCATION_SWITCH (system permission)";
+
+    OutputLog("LocatorCallbackForCli::OnRemoteRequest:" + std::to_string(code));//temp
+    switch (code) {
+        case RECEIVE_LOCATION_INFO_EVENT: {
+            std::unique_ptr<Location> location = Location::UnmarshallingMakeUnique(data);
+            OnLocationReport(location);
+            break;
         }
-        return OutputError(errCode,
-            std::string("Failed to ") + (enable ? "enable" : "disable") + " location switch",
-            suggestion);
-    }
-    json data;
-    data["message"] = std::string("Location switch ") + (enable ? "enabled" : "disabled");
-    return OutputSuccess(data);
-}
-
-int CmdStartLocate(int argc, char** argv)
-{
-    InitLocator();
-    if (g_locator == nullptr) {
-        return OutputError(ERRCODE_SERVICE_UNAVAILABLE,
-            "Failed to get location service instance",
-            "Check if location service is running");
-    }
-    int timeout = ParseIntArg(argc, argv, "timeout", DEFAULT_LOCATE_TIMEOUT);
-    int scenario = ParseIntArg(argc, argv, "scenario", SCENE_DAILY_LIFE_SERVICE);
-    int interval = ParseIntArg(argc, argv, "interval", 1);
-
-    auto requestConfig = std::make_unique<RequestConfig>();
-    requestConfig->SetScenario(scenario);
-    requestConfig->SetTimeInterval(interval);
-
-    g_activeCallback = new LocationCallbackStub();
-    if (g_activeCallback == nullptr) {
-        return OutputError(ERRCODE_SERVICE_UNAVAILABLE,
-            "Failed to create callback stub",
-            "Check system resources");
-    }
-    LocationErrCode errCode = g_locator->StartLocatingV9(requestConfig, g_activeCallback);
-    if (errCode != ERRCODE_SUCCESS) {
-        g_activeCallback = nullptr;
-        std::string suggestion;
-        if (errCode == ERRCODE_SWITCH_OFF) {
-            suggestion = "Enable location switch first using enable-switch --enable";
-        } else if (errCode == ERRCODE_PERMISSION_DENIED || errCode == LOCATION_ERRCODE_PERMISSION_DENIED) {
-            suggestion = "Request ohos.permission.APPROXIMATELY_LOCATION permission";
+        case RECEIVE_LOCATION_STATUS_EVENT: {
+            int status = data.ReadInt32();
+            OnLocatingStatusChange(status);
+            break;
         }
-        return OutputError(errCode, "Failed to start locating", suggestion);
-    }
-    std::unique_ptr<Location> location;
-    int resultError = 0;
-    bool success = g_activeCallback->WaitForResult(timeout, location, resultError);
-    g_locator->StopLocatingV9(g_activeCallback);
-    g_activeCallback = nullptr;
-    if (!success) {
-        std::string suggestion;
-        if (resultError == ERRCODE_REQUEST_TIMEOUT) {
-            suggestion = "Increase timeout value or check GPS signal";
-        } else if (resultError == ERRCODE_LOCATING_FAIL) {
-            suggestion = "Check GPS/network availability";
+        case RECEIVE_ERROR_INFO_EVENT: {
+            int errCode = data.ReadInt32();
+            OnErrorReport(errCode);
+            break;
         }
-        return OutputError(resultError, "Locating failed or timed out", suggestion);
+        default: {
+            IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+            break;
+        }
     }
-    json data;
-    data["location"] = LocationToJson(location);
-    return OutputSuccess(data);
-}
-
-int CmdStopLocate(int argc, char** argv)
-{
-    InitLocator();
-    if (g_locator == nullptr) {
-        return OutputError(ERRCODE_SERVICE_UNAVAILABLE,
-            "Failed to get location service instance",
-            "Check if location service is running");
-    }
-    if (g_activeCallback == nullptr) {
-        return OutputError(ERRCODE_INVALID_PARAM,
-            "No active locating session",
-            "Run start-locate first to create a locating session");
-    }
-    LocationErrCode errCode = g_locator->StopLocatingV9(g_activeCallback);
-    g_activeCallback = nullptr;
-    if (errCode != ERRCODE_SUCCESS) {
-        return OutputError(errCode, "Failed to stop locating",
-            "Check if locating session is still active");
-    }
-    json data;
-    data["message"] = "Locating stopped";
-    return OutputSuccess(data);
-}
-
-int CmdHelp(int argc, char** argv)
-{
-    CLI_LOG("ohos-location-manager - Location service CLI tool");
-    CLI_LOG("");
-    CLI_LOG("Available commands:");
-    for (const auto& pair : g_commands) {
-        CLI_LOG(("  " + std::string(pair.second.name) + "    " + std::string(pair.second.description)));
-    }
-    CLI_LOG("");
-    CLI_LOG("Run 'ohos-location-manager <command> --help' for more information on each command.");
     return 0;
 }
 
-void InitCommands()
+void LocatorCallbackForCli::OnLocationReport(const std::unique_ptr<Location>& location) 
 {
-    g_commands["help"] = {"help", "Show help message", CmdHelp};
-    g_commands["get-switch-state"] = {
-        "get-switch-state", "Query location switch state (no permission required)", CmdGetSwitchState};
-    g_commands["get-cached-location"] = {
-        "get-cached-location", "Get cached location (requires APPROXIMATELY_LOCATION)", CmdGetCachedLocation};
-    g_commands["enable-switch"] = {
-        "enable-switch", "Enable/disable location switch (requires CONTROL_LOCATION_SWITCH)", CmdEnableSwitch};
-    g_commands["start-locate"] = {
-        "start-locate", "Start locating and wait for result (requires APPROXIMATELY_LOCATION)", CmdStartLocate};
-    g_commands["stop-locate"] = {
-        "stop-locate", "Stop active locating session (requires APPROXIMATELY_LOCATION)", CmdStopLocate};
+    if (location == nullptr) {
+        return;
+    }
+
+    OutputLog("LocatorCallbackForCli::OnLocationReport:");//temp
+    std::unique_lock<std::mutex> lock1(mutex_);
+    if (!hasResult_ && location != nullptr) {
+        location_ = std::make_unique<Location>(*location);
+        hasResult_ = true;
+        cv_.notify_all();
+    }
 }
 
-void PrintUsage(const char* prog)
+void LocatorCallbackForCli::OnErrorReport(const int errCode) 
 {
-    CLI_ERROR(("Usage: " + std::string(prog) + " <command> [options]"));
-    CLI_ERROR(("Run '" + std::string(prog) + " help' for more information"));
+    std::unique_lock<std::mutex> lock1(mutex_);
+    if (!hasResult_) {
+        errCode_ = errCode;
+        hasResult_ = true;
+        cv_.notify_all();
+    }
 }
 
-} // namespace CliTool
-} // namespace Location
-} // namespace OHOS
-
-int main(int argc, char** argv)
+bool LocatorCallbackForCli::WaitForResult(int timeoutSeconds, std::unique_ptr<Location>& outLocation, int& outErrCode)
 {
-    using namespace OHOS::Location::CliTool;
-    if (argc < MIN_ARGC_NUM) {
-        PrintUsage(argv[0]);
+    std::unique_lock<std::mutex> lock(mutex_);
+    bool success = cv_.wait_for(lock, std::chrono::seconds(timeoutSeconds),
+        [this] { return hasResult_; });
+
+    if (success && location_ != nullptr) {
+        outLocation = std::move(location_);
+        return true;
+    }
+    outErrCode = errCode_;
+    return false;
+}
+
+static int ProcessCmdIsLocationEnabled(int argc, char** argv) 
+{
+    if (argc == 2 && argv != nullptr && std::string(argv[1]) == "--help") {
+        return IsEnabledCmdHelp();
+    }
+    auto locator = LocatorImpl::GetInstance();
+    bool isEnabled = false;
+    locator->IsLocationEnabledV9(isEnabled);
+    json data;
+    data["isEnabled"] = isEnabled;
+    data["timeStamp"] = 1518;//temp
+    return OutputSuccess(data);
+}
+
+static int ProcessCmdEnableLocation(int argc, char** argv) 
+{
+    bool enable = true;
+    int userId = -1;
+    if (argc == 2 && argv != nullptr && std::string(argv[1]) == "--help") {
+        return EnableCmdHelp();
+    }
+    ParseIntArg(argc, argv, "--userId", userId, false);
+    OutputLog("ProcessCmdEnableLocation userId:" + std::to_string(userId));//temp
+    auto locator = LocatorImpl::GetInstance();
+    LocationErrCode ret;
+    if (userId >= 0) {
+        ret = locator->EnableAbilityForUser(enable, userId);
+    } else {
+        ret = locator->EnableAbilityV9(enable);
+    }
+    if (ret != ERRCODE_SUCCESS) {
+        return OutputError("ERR_LOC_ENABLE_FAIL", CommonUtils::GetErrorMsgByCode(ret), "");
+    }
+    json data;
+    data["isEnabled"] = true;
+    return OutputSuccess(data);
+}
+
+static int ProcessCmdDisableLocation(int argc, char** argv) 
+{
+    bool enable = false;
+    int userId = -1;
+    if (argc == 2 && argv != nullptr && std::string(argv[1]) == "--help") {
+        return DisableCmdHelp();
+    }
+    ParseIntArg(argc, argv, "--userId", userId, false);
+    OutputLog("ProcessCmdDisableLocation userId:" + std::to_string(userId));//temp
+    auto locator = LocatorImpl::GetInstance();
+    LocationErrCode ret;
+    if (userId >= 0) {
+        ret = locator->EnableAbilityForUser(enable, userId);
+    } else {
+        ret = locator->EnableAbilityV9(enable);
+    }
+    if (ret != ERRCODE_SUCCESS) {
+        return OutputError("ERR_LOC_DISABLE_FAIL", CommonUtils::GetErrorMsgByCode(ret), "");
+    }
+    json data;
+    data["isEnabled"] = false;
+    return OutputSuccess(data);
+}
+
+static int ProcessCmdGetCachedLocation(int argc, char** argv) 
+{
+    if (argc == 2 && argv != nullptr && std::string(argv[1]) == "--help") {
+        return GetLastLocationCmdHelp(argv[0]);
+    }
+    auto locator = LocatorImpl::GetInstance();
+    std::unique_ptr<Location> location = nullptr;
+    LocationErrCode ret = locator->GetCachedLocationV9(location);
+    if (ret != ERRCODE_SUCCESS || location == nullptr) {
+        return OutputError("ERR_LOC_GET_LAST_LOCATION_FAIL", CommonUtils::GetErrorMsgByCode(ret), "");
+    }
+    json data;
+    LocationToJson(location, data);
+    return OutputSuccess(data);
+}
+
+static int ProcessCmdStartLocating(int argc, char** argv) 
+{
+    std::string priority = "accuracy";
+    int timeInterval = 1000;
+    int timeout = 2000;
+    int fixNumber = 1;
+    if (argc == 2 && argv != nullptr && std::string(argv[1]) == "--help") {
+        return GetCurrentLocationCmdHelp(argv[0]);
+    }
+    ParseStringArg(argc, argv, "--priority", priority, false);
+    OutputLog("priority:" + priority);//temp
+    ParseIntArg(argc, argv, "--timeout", timeout, false);
+    OutputLog("timeout" + std::to_string(timeout));//temp
+    auto requestConfig = std::make_unique<RequestConfig>();
+    if (priority == "accuracy") {
+        requestConfig->SetPriority(PRIORITY_ACCURACY);
+    } else if (priority == "speed") {
+        requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
+    }
+    requestConfig->SetTimeInterval(timeInterval);
+    requestConfig->SetFixNumber(fixNumber);
+    requestConfig->SetTimeOut(timeout);
+    sptr<LocatorCallbackForCli> callbackPtr = sptr<LocatorCallbackForCli>(new LocatorCallbackForCli());
+    sptr<ILocatorCallback> callback = sptr<ILocatorCallback>(callbackPtr);
+    LocationErrCode ret = LocatorImpl::GetInstance()->StartLocatingV9(requestConfig, callback);
+    // 等待结果
+    std::unique_ptr<Location> location = nullptr;
+    int errCode = 0;
+    if (ret == ERRCODE_SUCCESS) {
+        OutputLog("WaitForResult start");//temp
+        callbackPtr->WaitForResult(timeout / 1000, location, errCode);
+        OutputLog("WaitForResult end");//temp
+    } else {
+        return OutputError("ERR_LOC_GET_CURRENT_LOCATION_FAIL", CommonUtils::GetErrorMsgByCode(ret), "");
+    }
+    // 停止定位
+    LocatorImpl::GetInstance()->StopLocating(callback);
+    LocatorImpl::GetInstance()->GetCachedLocationV9(location);
+    json data;
+    LocationToJson(location, data);
+    return OutputSuccess(data);
+}
+
+static void InitCommands() 
+{
+    RegisterCommand("help", "Show help message", ProcessCmdHelp);
+    RegisterCommand("is-enabled", "Check if location switch is enabled", ProcessCmdIsLocationEnabled);
+    RegisterCommand("enable", "Enable location switch", ProcessCmdEnableLocation);
+    RegisterCommand("disable", "Disable location switch", ProcessCmdDisableLocation);
+    RegisterCommand("get-last-approximate-location", "Get last known cached approximate location",
+        ProcessCmdGetCachedLocation);
+    RegisterCommand("get-last-precise-location", "Get last known cached precise location",
+        ProcessCmdGetCachedLocation);
+    RegisterCommand("get-current-approximate-location", "Get current approximate location",
+        ProcessCmdStartLocating);
+    RegisterCommand("get-current-precise-location", "Get current precise location", ProcessCmdStartLocating);
+}
+}
+}
+}
+
+int main(int argc, char** argv) 
+{
+    if (argc < 2) {
+        OHOS::Location::PrintUsage(argv[0]);
         return 1;
     }
-    InitCommands();
+    OHOS::Location::InitCommands();
     std::string cmdName = argv[1];
-    auto it = g_commands.find(cmdName);
-    if (it == g_commands.end()) {
-        CLI_ERROR(("Unknown command: " + cmdName));
-        PrintUsage(argv[0]);
+    if (cmdName == "help" || cmdName == "--help" || cmdName == "-h") {
+        return OHOS::Location::AllCmdHelp();
+    }
+    auto it = OHOS::Location::g_commands.find(cmdName);
+    if (it == OHOS::Location::g_commands.end()) {
+        json response;
+        response["type"] = "result";
+        response["status"] = "failed";
+        response["errCode"] = "ERR_UNKNOWN_COMMAND";
+        response["errMsg"] = "Unknown command: " + cmdName;
+        response["suggestion"] = "Use '" + std::string(OHOS::Location::g_programName) + " --help' to see available commands.";
+        std::cout << response.dump() << std::endl;
         return 1;
     }
-    int cmdArgc = argc - MIN_ARGC_NUM;
-    char** cmdArgv = argv + MIN_ARGC_NUM;
+    int cmdArgc = argc - 1;
+    char** cmdArgv = argv + 1;
     return it->second.handler(cmdArgc, cmdArgv);
 }

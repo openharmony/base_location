@@ -3,205 +3,220 @@
 ## 基本用法
 
 ```bash
-ohos-location-manager <command> [options]
+ohos-location <command> [options]
 ```
 
 ## 命令列表
 
 | 命令 | 说明 | 参数 | 权限 | 前置依赖 |
 |------|------|------|------|----------|
-| get-switch-state | 查询定位开关状态 | 无 | 无 | 无 |
-| get-cached-location | 获取缓存位置 | 无 | ohos.permission.APPROXIMATELY_LOCATION | 定位开关已开启（可选） |
-| enable-switch | 启用/禁用定位开关 | --enable/--disable | ohos.permission.CONTROL_LOCATION_SWITCH | 无 |
-| start-locate | 启动定位并等待结果 | --timeout, --scenario, --interval | ohos.permission.APPROXIMATELY_LOCATION | 定位开关已开启（可选） |
-| stop-locate | 停止定位 | 无 | ohos.permission.APPROXIMATELY_LOCATION | start-locate（必须） |
+| `help` | 显示帮助信息 | 无 | 无 | 无 |
+| `is-enabled` | 查询位置开关是否开启 |   | 无 | 无 |
+| `enable` | 启用位置开关 |  `--userId <userId>`（可选）,   | 无 | 无 |
+| `disable` | 禁用位置开关 |  `--userId <userId>`（可选）,   | 无 | 无 |
+| `get-last-approximate-location` | 获取缓存的最后已知粗略位置 |   | 无 | 无 |
+| `get-last-precise-location` | 获取缓存的最后已知精确位置 |   | 无 | 无 |
+| `get-current-approximate-location` | 获取当前粗略位置信息 | `--priority <accuracy\|speed>`（可选）, `--timeout <milliseconds>`（可选）,    | 无 | 无 |
+| `get-current-precise-location` | 获取当前精确位置信息 | `--priority <accuracy\|speed>`（可选）, `--timeout <milliseconds>`（可选）,    | 无 | 无 |
 
-## 前置依赖说明
 
+**参数说明：**
+
+### `--priority <accuracy\|speed>`
+- **定位优先级**
+- `accuracy` - 精度优先模式
+- `speed` - 速度优先模式
+
+### `--timeout <milliseconds>`
+- **定位时间间隔**
+- 单位：毫秒
+- 默认值：3000
+- 合法范围：1000 - 60000
+
+### `--userId <userId>`
+- **用户 ID**（仅 `enable`和 `disable`命令）
+- 用于多用户场景
+- 默认使用当前用户
+
+**前置依赖说明：**
 - **无**：该命令可直接执行，无需前置条件
-- **可选**：建议先满足前置条件以确保操作成功
-- **必须**：必须先执行前置命令才能成功执行
+- **建议**：建议先执行前置命令以确保最佳执行效果
 
-## 命令详解
+## 输出格式
 
-### get-switch-state
+### 成功输出
 
-查询定位开关状态，无需权限。
-
-```bash
-ohos-location-manager get-switch-state
-```
-
-**输出示例**：
 ```json
 {
-  "code": 0,
+  "success": true,
   "data": {
-    "enabled": true
+    "isEnabled": true,
+    "errCode": 0,
+    "errMsg": "success"
   }
 }
 ```
 
-### get-cached-location
+### 失败输出
 
-获取系统缓存的位置信息。
-
-```bash
-ohos-location-manager get-cached-location
-```
-
-**输出示例**：
 ```json
 {
-  "code": 0,
-  "data": {
-    "location": {
-      "latitude": 31.2304,
-      "longitude": 121.4737,
-      "altitude": 10.0,
-      "accuracy": 50.0,
-      "speed": 0.0,
-      "direction": 0.0,
-      "timestamp": 1234567890000,
-      "sourceType": 1
-    }
+  "success": false,
+  "error": {
+    "code": "SERVICE_UNAVAILABLE",
+    "message": "Failed to get LocatorImpl instance",
+    "suggestion": "Ensure location service is available"
   }
 }
 ```
 
-### enable-switch
+## 示例
 
-启用或禁用定位开关（需要系统权限）。
+### 示例 1：查询位置开关状态
 
 ```bash
-# 启用定位开关
-ohos-location-manager enable-switch --enable
+# 查询位置开关状态（简化输出）
+ohos-location is-enabled
 
-# 禁用定位开关
-ohos-location-manager enable-switch --disable
+# 查询位置开关状态（JSON 格式输出）
+ohos-location is-enabled
 ```
 
-**输出示例**：
+**输出示例：**
 ```json
 {
-  "code": 0,
+  "success": true,
   "data": {
-    "message": "Location switch enabled"
+    "isEnabled": true,
+    "errCode": 0,
+    "errMsg": "success"
   }
 }
 ```
 
-### start-locate
-
-启动定位并等待结果。采用 LRO 模式，启动定位后注册回调等待位置结果，超时后自动停止。
+### 示例 2：启用位置开关
 
 ```bash
-# 基本用法（默认超时30秒）
-ohos-location-manager start-locate
+# 启用位置开关
+ohos-location enable
 
-# 指定超时时间
-ohos-location-manager start-locate --timeout=60
+# 禁用位置开关
+ohos-location disable
 
-# 指定定位场景
-ohos-location-manager start-locate --scenario=0x0301 --timeout=60
-
-# 指定上报间隔
-ohos-location-manager start-locate --interval=5 --timeout=60
+# 为指定用户启用位置开关
+ohos-location enable --userId=100
 ```
 
-**参数说明**：
-| 参数 | 说明 | 默认值 | 取值范围 |
-|------|------|--------|----------|
-| --timeout | 等待超时时间（秒） | 30 | 1-300 |
-| --scenario | 定位场景 | 0x0304（日常服务） | 见场景枚举 |
-| --interval | 位置上报间隔（秒） | 1 | 1-1800 |
-
-**场景枚举**：
-| 值 | 场景 |
-|----|------|
-| 0x0301 | 导航（SCENE_NAVIGATION） |
-| 0x0302 | 轨迹追踪（SCENE_TRAJECTORY_TRACKING） |
-| 0x0303 | 打车（SCENE_CAR_HAILING） |
-| 0x0304 | 日常服务（SCENE_DAILY_LIFE_SERVICE） |
-| 0x0305 | 无功耗（SCENE_NO_POWER） |
-
-**输出示例**：
+**输出示例：**
 ```json
 {
-  "code": 0,
+  "success": true,
+  "data": {
+    "enable": true,
+    "errCode": 0,
+    "errMsg": "success"
+  }
+}
+```
+
+### 示例 3：获取缓存的最后已知位置
+
+```bash
+# 获取缓存位置
+ohos-location get-last-approximate-location
+
+# JSON 格式输出
+ohos-location get-last-approximate-location
+```
+
+**输出示例：**
+```json
+{
+  "success": true,
   "data": {
     "location": {
-      "latitude": 31.2304,
-      "longitude": 121.4737,
-      "altitude": 10.0,
-      "accuracy": 10.5,
-      "speed": 0.0,
-      "direction": 180.0,
-      "timestamp": 1234567890000,
-      "sourceType": 1
-    }
+      "latitude": 39.9042,
+      "longitude": 116.4074,
+      "altitude": 50.5,
+      "accuracy": 10.0,
+      "time": 1704067200000
+    },
+    "errCode": 0,
+    "errMsg": "success"
   }
 }
 ```
 
-### stop-locate
-
-停止正在进行的定位。必须在 start-locate 执行期间或之后调用。
+### 示例 4：获取当前位置
 
 ```bash
-ohos-location-manager stop-locate
+# 使用默认参数启动定位（精度优先模式）
+ohos-location get-current-approximate-location
+
+# 高精度模式定位
+ohos-location get-current-approximate-location --priority=accuracy --timeout=3000
+
+# 速度优先模式
+ohos-location get-current-approximate-location --priority=speed --timeout=3000
+
 ```
 
-**输出示例**：
+**输出示例：**
 ```json
 {
-  "code": 0,
+  "success": true,
   "data": {
-    "message": "Locating stopped"
+    "taskId": "task_1704067200123",
+    "status": "started",
+    "priority": "high",
+    "timeInterval": 500,
+    "fixNumber": 5,
+    "errCode": 0,
+    "errMsg": "location started"
   }
 }
+```
+
+**回调输出示例（定位结果）：**
+```json
+{"event":"location_report","task_id":"task_1704067200123","location":{"latitude":39.9042,"longitude":116.4074,"altitude":50.5,"accuracy":10.0,"time":1704067200000}}
+```
+
+### 示例 5：完整使用流程
+
+```bash
+# 1. 查询位置开关状态
+ohos-location is-enabled
+
+# 2. 如果位置开关未开启，先启用
+ohos-location enable
+
+# 3. 再次确认位置开关状态
+ohos-location is-enabled
+
+# 4. 获取缓存位置
+ohos-location get-last-precise-location
+
+# 5. 启动高精度定位
+ohos-location get-current-precise-location --priority=accuracy --timeout=3000
+
 ```
 
 ## 错误码说明
 
-| 错误码 | 说明 | 建议 |
-|--------|------|------|
+| 错误码 | 说明 | 建议操作 |
+|--------|------|----------|
 | 0 | 成功 | - |
-| 201 | 权限拒绝 | 申请所需权限 |
-| 401 | 参数错误 | 检查参数格式 |
-| 3301000 | 服务不可用 | 检查定位服务是否运行 |
-| 3301100 | 定位开关关闭 | 先启用定位开关 |
-| 3301200 | 定位失败 | 检查GPS/网络信号 |
-| 3301204 | 无缓存位置 | 先执行 start-locate |
-| 3300207 | 请求超时 | 增加超时时间 |
+| 401 | 参数无效 | 检查参数格式和范围 |
+| 201 | 权限错误 | 检查应用权限配置 |
+| 801 | 服务不可用 | 确保位置服务正常运行 |
 
-## 示例
+## 注意事项
 
-### 示例1：查询开关状态并获取缓存位置
-
-```bash
-# 查询开关状态
-ohos-location-manager get-switch-state
-# 输出: {"code":0,"data":{"enabled":true}}
-
-# 获取缓存位置
-ohos-location-manager get-cached-location
-```
-
-### 示例2：启动定位获取当前位置
-
-```bash
-# 启动定位（60秒超时）
-ohos-location-manager start-locate --timeout=60
-# 等待位置结果输出
-```
-
-### 示例3：启用定位开关后获取位置
-
-```bash
-# 启用定位开关（需要系统权限）
-ohos-location-manager enable-switch --enable
-
-# 启动定位获取位置
-ohos-location-manager start-locate --timeout=30
-```
+1. **权限要求**：大多数位置查询操作无需特殊权限，但部分操作可能需要 `ohos.permission.LOCATION` 权限
+2. **位置开关**：执行定位操作前建议先检查位置开关状态，确保位置开关已开启
+3. **定位模式选择**：
+   - 精度优先模式（accuracy）会消耗更多电量，优先返回精度更高的定位结果
+   - 速度优先模式（speed）同时发起网络定位和GNSS定位，返回最先定位成功的结果
+4. **LRO 模式**：`get-current-approximate-location` 命令支持异步回调，定位结果会实时输出到标准输出
+5. **多用户支持**：`enable` 命令支持为不同用户设置位置开关（通过 `--userId` 参数）

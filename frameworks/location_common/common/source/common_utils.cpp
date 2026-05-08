@@ -658,6 +658,98 @@ bool CommonUtils::ConvertStringToDigit(const std::string& str, int32_t &ret)
     return true;
 }
 
+std::string CommonUtils::GetErrorMsgByCode(int code)
+{
+    static std::map<int, std::string> errorCodeMap = GetErrorCodeMap();
+    auto iter = errorCodeMap.find(code);
+    if (iter != errorCodeMap.end()) {
+        std::string errMessage = "BussinessError ";
+        code = ConvertErrorCode(code);
+        errMessage.append(std::to_string(code)).append(": ").append(iter->second);
+        return errMessage;
+    }
+    return "undefined error.";
+}
+
+std::map<int, std::string> CommonUtils::GetErrorCodeMap()
+{
+    std::map<int, std::string> errorCodeMap = {
+        {SUCCESS, "SUCCESS"},
+        {NOT_SUPPORTED, "NOT_SUPPORTED"},
+        {INPUT_PARAMS_ERROR, "INPUT_PARAMS_ERROR"},
+        {REVERSE_GEOCODE_ERROR, "REVERSE_GEOCODE_ERROR"},
+        {GEOCODE_ERROR, "GEOCODE_ERROR"},
+        {LOCATOR_ERROR, "LOCATOR_ERROR"},
+        {LOCATION_SWITCH_ERROR, "LOCATION_SWITCH_ERROR"},
+        {LAST_KNOWN_LOCATION_ERROR, "LAST_KNOWN_LOCATION_ERROR"},
+        {LOCATION_REQUEST_TIMEOUT_ERROR, "LOCATION_REQUEST_TIMEOUT_ERROR"},
+        {QUERY_COUNTRY_CODE_ERROR, "QUERY_COUNTRY_CODE_ERROR"},
+        {LocationErrCode::ERRCODE_SUCCESS, "SUCCESS."},
+        {LocationErrCode::ERRCODE_PERMISSION_DENIED,
+            "Permission verification failed. The application does not have the permission required to call the API."},
+        {LocationErrCode::ERRCODE_SYSTEM_PERMISSION_DENIED,
+            "Permission verification failed. A non-system application calls a system API."},
+        {LocationErrCode::ERRCODE_INVALID_PARAM,
+            "Parameter error. Possible causes:1.Mandatory parameters are left unspecified;" \
+            "2.Incorrect parameter types;3. Parameter verification failed."},
+        {LocationErrCode::ERRCODE_NOT_SUPPORTED,
+            "Capability not supported." \
+            "Failed to call function due to limited device capabilities."},
+        {LocationErrCode::ERRCODE_SERVICE_UNAVAILABLE, "The location service is unavailable."},
+        {LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL,
+        "The network locating is failed because the network cannot be accessed."},
+        {LocationErrCode::ERRCODE_LOCATING_ACC_FAIL,
+        "The positioning result does not meet the precision requirement (maxAccuracy)" \
+        " in the positioning request parameters. "},
+        {LocationErrCode::ERRCODE_LOCATING_CACHE_FAIL, "The system does not have a cache locaiton."},
+        {LocationErrCode::ERRCODE_SWITCH_OFF, "The location switch is off."},
+        {LocationErrCode::ERRCODE_LOCATING_FAIL, "Failed to obtain the geographical location."},
+        {LocationErrCode::ERRCODE_REVERSE_GEOCODING_FAIL, "Reverse geocoding query failed."},
+        {LocationErrCode::ERRCODE_GEOCODING_FAIL, "Geocoding query failed."},
+        {LocationErrCode::ERRCODE_COUNTRYCODE_FAIL, "Failed to query the area information."},
+        {LocationErrCode::ERRCODE_GEOFENCE_FAIL, "Failed to operate the geofence."},
+        {LocationErrCode::ERRCODE_NO_RESPONSE, "No response to the request."},
+        {LocationErrCode::ERRCODE_GEOFENCE_EXCEED_MAXIMUM, "The number of geofences exceeds the maximum."},
+        {LocationErrCode::ERRCODE_GEOFENCE_INCORRECT_ID, "Failed to delete a geofence due to an incorrect ID."},
+        {LocationErrCode::ERRCODE_WIFI_IS_NOT_CONNECTED,
+            "Failed to obtain the hotpot MAC address because the Wi-Fi is not connected."},
+        {LocationErrCode::ERRCODE_SCAN_FAIL, "Failed to start WiFi or Bluetooth scanning."},
+        {LocationErrCode::ERRCODE_WIFI_SCAN_FAIL, "Failed to start WiFi scanning."},
+        {LocationErrCode::ERRCODE_CELL_SCAN_FAIL, "Failed to start Cell scanning."}
+    };
+    GetErrorCodeMapExt(errorCodeMap);
+    return errorCodeMap;
+}
+
+void CommonUtils::GetErrorCodeMapExt(std::map<int, std::string>& errorCodeMap)
+{
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_LOCATION_SWITCH_OFF,
+        "Failed to add a beacon fence because the location switch is off."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_BLUETOOTH_SWITCH_OFF,
+        "Failed to add a beacon fence because the bluetooth switch is off."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_EXCEED_MAXIMUM,
+        "The number of beacon fence exceeds the maximum."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_INCORRECT_ID,
+        "Failed to delete the fence due to incorrect beacon fence information."));
+    errorCodeMap.insert(std::make_pair(LocationErrCode::ERRCODE_BEACONFENCE_DUPLICATE_INFORMATION,
+        "Duplicate beacon fence information."));
+}
+
+int CommonUtils::ConvertErrorCode(int errorCode)
+{
+    if (errorCode == LocationErrCode::ERRCODE_LOCATING_NETWORK_FAIL ||
+        errorCode == LocationErrCode::ERRCODE_LOCATING_CACHE_FAIL ||
+        errorCode == LocationErrCode::ERRCODE_LOCATING_ACC_FAIL) {
+        LBSLOGI(LOCATOR_STANDARD, "Convert ErrorCode: %{public}d to %{public}d",
+            errorCode, LocationErrCode::ERRCODE_LOCATING_FAIL);
+        return LocationErrCode::ERRCODE_LOCATING_FAIL;
+    }
+    if (errorCode == LocationErrCode::ERRCODE_WIFI_SCAN_FAIL ||
+        errorCode == LocationErrCode::ERRCODE_CELL_SCAN_FAIL) {
+        return LocationErrCode::ERRCODE_SCAN_FAIL;
+    }
+    return errorCode;
+}
 
 } // namespace Location
 } // namespace OHOS

@@ -23,8 +23,8 @@ namespace Location {
 void HandleSyncErrCode(const napi_env &env, int32_t errCode)
 {
     LBSLOGI(LOCATOR_STANDARD, "HandleSyncErrCode, errCode = %{public}d", errCode);
-    std::string errMsg = GetErrorMsgByCode(errCode);
-    errCode = ConvertErrorCode(errCode);
+    std::string errMsg = CommonUtils::GetErrorMsgByCode(errCode);
+    errCode = CommonUtils::ConvertErrorCode(errCode);
     if (errMsg != "") {
         napi_throw_error(env, std::to_string(errCode).c_str(), errMsg.c_str());
     }
@@ -33,11 +33,11 @@ void HandleSyncErrCode(const napi_env &env, int32_t errCode)
 void ThrowBusinessError(const napi_env &env, int32_t errCode)
 {
     LBSLOGI(LOCATOR_STANDARD, "ThrowBusinessError, errCode = %{public}d", errCode);
-    std::string errMsg = GetErrorMsgByCode(errCode);
+    std::string errMsg = CommonUtils::GetErrorMsgByCode(errCode);
     if (errMsg == "") {
         return;
     }
-    errCode = ConvertErrorCode(errCode);
+    errCode = CommonUtils::ConvertErrorCode(errCode);
     auto businessError = CreateError(env, errCode, errMsg);
     napi_throw(env, businessError);
 }

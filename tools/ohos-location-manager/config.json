@@ -1,232 +1,366 @@
 {
-    "$schema": "https://schemas.openharmony.org/cli/tool/v1",
-    "name": "ohos-location-manager",
-    "version": "1.0.0",
-    "description": "Location service CLI tool for querying switch state, getting cached location, controlling location switch, and starting/stopping locating",
-    "executable": "/system/bin/cli_tool/executable/ohos-location-manager",
-    "requirePermissions": [],
-    "hasSubcommands": true,
-    "subcommands": {
-      "get-switch-state": {
-        "description": "Query location switch state",
-        "requirePermissions": [],
-        "input": {
-          "type": "object",
-          "properties": {},
-          "required": []
-        },
-        "output": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "integer",
-              "description": "Result code (0 for success)"
-            },
-            "data": {
-              "type": "object",
-              "properties": {
-                "enabled": {
-                  "type": "boolean",
-                  "description": "Location switch state"
-                }
-              },
-              "required": ["enabled"]
-            }
-          },
-          "required": ["code", "data"]
-        },
-        "argumentMapping": {
-          "type": "flag",
-          "templates": {}
-        }
+  "name": "ohos-location",
+  "version": "1.0.0",
+  "description": "定位服务命令行工具。用于查询和设置设备定位开关状态、获取缓存位置及实时定位。不支持非系统权限的第三方应用定位请求。",
+  "executablePath": "/system/bin/cli_tool/executable/ohos-location",
+  "requirePermissions": [
+    "ohos.permission.MANAGE_SECURE_SETTINGS",
+    "ohos.permission.CONTROL_LOCATION_SWITCH",
+    "ohos.permission.APPROXIMATELY_LOCATION",
+    "ohos.permission.LOCATION"
+  ],
+  "hasSubCommand": true,
+  "subcommands": {
+    "is-enabled": {
+      "description": "查询设备定位开关是否已启用。用于检查当前设备的定位功能状态。",
+      "requirePermissions": [],
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
       },
-      "get-cached-location": {
-        "description": "Get cached location",
-        "requirePermissions": ["ohos.permission.APPROXIMATELY_LOCATION"],
-        "input": {
-          "type": "object",
-          "properties": {},
-          "required": []
-        },
-        "output": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "integer",
-              "description": "Result code (0 for success)"
-            },
-            "data": {
-              "type": "object",
-              "properties": {
-                "location": {
-                  "type": "object",
-                  "properties": {
-                    "latitude": { "type": "number", "description": "Latitude coordinate" },
-                    "longitude": { "type": "number", "description": "Longitude coordinate" },
-                    "altitude": { "type": "number", "description": "Altitude in meters" },
-                    "accuracy": { "type": "number", "description": "Horizontal accuracy in meters" },
-                    "speed": { "type": "number", "description": "Speed in meters per second" },
-                    "direction": { "type": "number", "description": "Direction in degrees" },
-                    "timestamp": { "type": "integer", "description": "Timestamp in milliseconds" },
-                    "sourceType": { "type": "integer", "description": "Location source type (1=GNSS, 2=Network, 3=Indoor, 4=RTK)" }
-                  },
-                  "required": ["latitude", "longitude"]
-                }
-              }
-            }
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["result", "log"],
+            "description": "标识这是最终结果"
           },
-          "required": ["code"]
-        },
-        "argumentMapping": {
-          "type": "flag",
-          "templates": {}
-        }
-      },
-      "enable-switch": {
-        "description": "Enable or disable location switch",
-        "requirePermissions": ["ohos.permission.CONTROL_LOCATION_SWITCH"],
-        "input": {
-          "type": "object",
-          "properties": {
-            "enable": {
-              "type": "boolean",
-              "description": "Enable location switch"
-            },
-            "disable": {
-              "type": "boolean",
-              "description": "Disable location switch"
-            }
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"],
+            "description": "执行状态"
           },
-          "required": []
-        },
-        "output": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "integer",
-              "description": "Result code (0 for success)"
-            },
-            "data": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "description": "Operation result message"
-                }
-              },
-              "required": ["message"]
+          "data": {
+            "type": "object",
+            "description": "开关状态数据",
+            "properties": {
+              "isEnabled": { "type": "boolean", "description": "定位开关是否启用" }
             }
-          },
-          "required": ["code", "data"]
-        },
-        "argumentMapping": {
-          "type": "flag",
-          "templates": {
-            "enable": "--enable",
-            "disable": "--disable"
           }
-        }
-      },
-      "start-locate": {
-        "description": "Start locating and wait for result (LRO mode)",
-        "requirePermissions": ["ohos.permission.APPROXIMATELY_LOCATION"],
-        "input": {
-          "type": "object",
-          "properties": {
-            "timeout": {
-              "type": "integer",
-              "description": "Wait timeout in seconds",
-              "minimum": 1,
-              "maximum": 300,
-              "default": 30
-            },
-            "scenario": {
-              "type": "integer",
-              "description": "Locating scenario (0x0301=Navigation, 0x0302=Trajectory, 0x0303=CarHailing, 0x0304=DailyLife, 0x0305=NoPower)",
-              "default": 0x0304
-            },
-            "interval": {
-              "type": "integer",
-              "description": "Location reporting interval in seconds",
-              "minimum": 1,
-              "maximum": 1800,
-              "default": 1
-            }
-          },
-          "required": []
         },
-        "output": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "integer",
-              "description": "Result code (0 for success)"
-            },
-            "data": {
-              "type": "object",
-              "properties": {
-                "location": {
-                  "type": "object",
-                  "properties": {
-                    "latitude": { "type": "number" },
-                    "longitude": { "type": "number" },
-                    "altitude": { "type": "number" },
-                    "accuracy": { "type": "number" },
-                    "speed": { "type": "number" },
-                    "direction": { "type": "number" },
-                    "timestamp": { "type": "integer" },
-                    "sourceType": { "type": "integer" }
-                  },
-                  "required": ["latitude", "longitude"]
-                }
-              }
-            }
-          },
-          "required": ["code"]
-        },
-        "argumentMapping": {
-          "type": "flag",
-          "templates": {
-            "timeout": "--timeout={value}",
-            "scenario": "--scenario={value}",
-            "interval": "--interval={value}"
-          }
-        }
-      },
-      "stop-locate": {
-        "description": "Stop active locating session",
-        "requirePermissions": ["ohos.permission.APPROXIMATELY_LOCATION"],
-        "input": {
-          "type": "object",
-          "properties": {},
-          "required": []
-        },
-        "output": {
-          "type": "object",
-          "properties": {
-            "code": {
-              "type": "integer",
-              "description": "Result code (0 for success)"
-            },
-            "data": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string",
-                  "description": "Operation result message"
-                }
-              },
-              "required": ["message"]
-            }
-          },
-          "required": ["code", "data"]
-        },
-        "argumentMapping": {
-          "type": "flag",
-          "templates": {}
-        }
+        "required": ["type", "status"]
       }
     },
-    "timeout": 60000,
-    "events": ["stdout", "result"]
+    "enable": {
+      "description": "启用设备定位开关。用于开启设备的定位功能以便获取位置信息。依赖系统定位服务运行。",
+      "requirePermissions": [
+        "ohos.permission.MANAGE_SECURE_SETTINGS",
+        "ohos.permission.CONTROL_LOCATION_SWITCH"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "description": "多用户场景下的用户ID，可选参数",
+            "minimum": -1,
+            "maximum": 9999,
+            "default": -1
+          }
+        },
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["result", "log"],
+            "description": "标识这是最终结果"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"],
+            "description": "执行状态"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "isEnabled": { "type": "boolean", "description": "位置开关状态，true表示位置开关是开启的" }
+            }
+          }
+        },
+        "required": ["type", "status"]
+      }
+    },
+    "disable": {
+      "description": "禁用设备定位开关。用于关闭设备的定位功能以保护隐私。依赖系统定位服务运行。",
+      "requirePermissions": [
+        "ohos.permission.MANAGE_SECURE_SETTINGS",
+        "ohos.permission.CONTROL_LOCATION_SWITCH"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "description": "多用户场景下的用户ID，可选参数",
+            "minimum": -1,
+            "maximum": 9999,
+            "default": -1
+          }
+        },
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["result", "log"],
+            "description": "标识这是最终结果"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"],
+            "description": "执行状态"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "isEnabled": { "type": "boolean", "description": "位置开关状态，true表示位置开关是开启的" }
+            }
+          }
+        },
+        "required": ["type", "status"]
+      }
+    },
+    "get-last-approximate-location": {
+      "description": "获取设备最后缓存的大致位置。用于快速获取位置信息而不启动实时定位。依赖定位开关已启用。",
+      "requirePermissions": [
+        "ohos.permission.APPROXIMATELY_LOCATION"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["result", "log"],
+            "description": "标识这是最终结果"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"],
+            "description": "执行状态"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "latitude": { "type": "number", "description": "纬度" },
+              "longitude": { "type": "number", "description": "经度" },
+              "altitude": { "type": "number", "description": "海拔高度" },
+              "accuracy": { "type": "number", "description": "精度（米）" },
+              "timeStamp": { "type": "integer", "description": "时间戳" },
+              "speed": { "type": "integer", "description": "速度" },
+              "direction": { "type": "integer", "description": "航向" },
+              "timeSinceBoot": { "type": "integer", "description": "获取位置成功的时间戳，值表示从本次开机到获取位置成功所经过的时间，单位为纳秒" },
+              "altitudeAccuracy": { "type": "integer", "description": "高度信息的精度" },
+              "speedAccuracy": { "type": "integer", "description": "速度信息的精度" },
+              "directionAccuracy": { "type": "integer", "description": "航行的精度" },
+              "uncertaintyOfTimeSinceBoot": { "type": "integer", "description": "位置时间戳的不确定度" },
+              "sourceType": { "type": "integer", "description": "定位结果的来源" },
+              "isFromMock": { "type": "integer", "description": "是否来自于模拟位置" }
+            }
+          },
+          "errCode": { "type": "integer", "description": "错误码，0表示成功" },
+          "errMsg": { "type": "string", "description": "错误信息" },
+          "suggestion": { "type": "string", "description": "错误时的建议" }
+        },
+        "required": ["type", "status"]
+      }
+    },
+    "get-last-precise-location": {
+      "description": "获取设备最后缓存的精确位置。用于获取高精度位置信息而不启动实时定位。依赖定位开关和定位权限已授予。",
+      "requirePermissions": [
+        "ohos.permission.LOCATION"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["result", "log"],
+            "description": "标识这是最终结果"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"],
+            "description": "执行状态"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "latitude": { "type": "number", "description": "纬度" },
+              "longitude": { "type": "number", "description": "经度" },
+              "altitude": { "type": "number", "description": "海拔高度" },
+              "accuracy": { "type": "number", "description": "精度（米）" },
+              "timeStamp": { "type": "integer", "description": "时间戳" },
+              "speed": { "type": "integer", "description": "速度" },
+              "direction": { "type": "integer", "description": "航向" },
+              "timeSinceBoot": { "type": "integer", "description": "获取位置成功的时间戳，值表示从本次开机到获取位置成功所经过的时间，单位为纳秒" },
+              "altitudeAccuracy": { "type": "integer", "description": "高度信息的精度" },
+              "speedAccuracy": { "type": "integer", "description": "速度信息的精度" },
+              "directionAccuracy": { "type": "integer", "description": "航行的精度" },
+              "uncertaintyOfTimeSinceBoot": { "type": "integer", "description": "位置时间戳的不确定度" },
+              "sourceType": { "type": "integer", "description": "定位结果的来源" },
+              "isFromMock": { "type": "integer", "description": "是否来自于模拟位置" }
+            }
+          },
+          "errCode": { "type": "integer", "description": "错误码，0表示成功" },
+          "errMsg": { "type": "string", "description": "错误信息" },
+          "suggestion": { "type": "string", "description": "错误时的建议" }
+        },
+        "required": ["type", "status"]
+      }
+    },
+    "get-current-approximate-location": {
+      "description": "获取设备当前大致位置（同步模式）。用于快速获取当前位置而不需要高精度定位。依赖定位开关已启用。",
+      "requirePermissions": [
+        "ohos.permission.APPROXIMATELY_LOCATION"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["accuracy", "speed"],
+            "description": "定位优先级，accuracy为精度优先，speed为速度优先",
+            "default": "accuracy"
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "等待定位结果的超时时间（毫秒）",
+            "minimum": 1000,
+            "maximum": 10000,
+            "default": 3000
+          }
+        },
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["result", "log"],
+            "description": "标识这是最终结果"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"],
+            "description": "执行状态"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+                "latitude": { "type": "number", "description": "纬度" },
+                "longitude": { "type": "number", "description": "经度" },
+                "altitude": { "type": "number", "description": "海拔高度" },
+                "accuracy": { "type": "number", "description": "精度（米）" },
+                "timeStamp": { "type": "integer", "description": "时间戳" },
+                "speed": { "type": "integer", "description": "速度" },
+                "direction": { "type": "integer", "description": "航向" },
+                "timeSinceBoot": { "type": "integer", "description": "获取位置成功的时间戳，值表示从本次开机到获取位置成功所经过的时间，单位为纳秒" },
+                "altitudeAccuracy": { "type": "integer", "description": "高度信息的精度" },
+                "speedAccuracy": { "type": "integer", "description": "速度信息的精度" },
+                "directionAccuracy": { "type": "integer", "description": "航行的精度" },
+                "uncertaintyOfTimeSinceBoot": { "type": "integer", "description": "位置时间戳的不确定度" },
+                "sourceType": { "type": "integer", "description": "定位结果的来源" },
+                "isFromMock": { "type": "integer", "description": "是否来自于模拟位置" }
+            }
+          },
+          "errCode": { "type": "integer", "description": "错误码，0表示成功" },
+          "errMsg": { "type": "string", "description": "错误信息" },
+          "suggestion": { "type": "string", "description": "错误时的建议" }
+        },
+        "required": ["type", "status"]
+      }
+    },
+    "get-current-precise-location": {
+      "description": "获取设备当前精确位置（同步模式）。用于获取高精度GPS定位结果。依赖定位开关、GPS权限和良好的卫星信号。",
+      "requirePermissions": [
+        "ohos.permission.LOCATION"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "priority": {
+            "type": "string",
+            "enum": ["accuracy", "speed"],
+            "description": "定位优先级，accuracy为精度优先，speed为速度优先",
+            "default": "accuracy"
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "等待定位结果的超时时间（毫秒）",
+            "minimum": 1000,
+            "maximum": 10000,
+            "default": 3000
+          }
+        },
+        "required": []
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["result", "log"],
+            "description": "标识这是最终结果"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed"],
+            "description": "执行状态"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+                "latitude": { "type": "number", "description": "纬度" },
+                "longitude": { "type": "number", "description": "经度" },
+                "altitude": { "type": "number", "description": "海拔高度" },
+                "accuracy": { "type": "number", "description": "精度（米）" },
+                "timeStamp": { "type": "integer", "description": "时间戳" },
+                "speed": { "type": "integer", "description": "速度" },
+                "direction": { "type": "integer", "description": "航向" },
+                "timeSinceBoot": { "type": "integer", "description": "获取位置成功的时间戳，值表示从本次开机到获取位置成功所经过的时间，单位为纳秒" },
+                "altitudeAccuracy": { "type": "integer", "description": "高度信息的精度" },
+                "speedAccuracy": { "type": "integer", "description": "速度信息的精度" },
+                "directionAccuracy": { "type": "integer", "description": "航行的精度" },
+                "uncertaintyOfTimeSinceBoot": { "type": "integer", "description": "位置时间戳的不确定度" },
+                "sourceType": { "type": "integer", "description": "定位结果的来源" },
+                "isFromMock": { "type": "integer", "description": "是否来自于模拟位置" }
+            }
+          },
+          "errCode": { "type": "integer", "description": "错误码，0表示成功" },
+          "errMsg": { "type": "string", "description": "错误信息" },
+          "suggestion": { "type": "string", "description": "错误时的建议" }
+        },
+        "required": ["type", "status"]
+      }
+    }
+  },
+  "eventTypes": [],
+  "eventSchemas": {},
+  "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {}
   }
+}

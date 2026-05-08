@@ -198,6 +198,10 @@ public:
     static bool IsValidForStoull(const std::string input, size_t size);
     static bool IsStrValidForStoi(const std::string &str);
     static bool ConvertStringToDigit(const std::string& str, int32_t &ret);
+    static std::string GetErrorMsgByCode(int code);
+    static int ConvertErrorCode(int errorCode);
+    static std::map<int, std::string> GetErrorCodeMap();
+    static void GetErrorCodeMapExt(std::map<int, std::string>& errorCodeMap);
 };
 
 class CountDownLatch {
