@@ -270,8 +270,8 @@ void LocatorCallbackNapi::DoSendErrorCode(uv_loop_s *&loop, uv_work_t *&work)
                 CHK_NAPI_ERR_CLOSE_SCOPE(context->env,
                     napi_get_reference_value(context->env, context->callback[FAIL_CALLBACK], &handler),
                     scope, context, work);
-                std::string msg = GetErrorMsgByCode(context->errCode);
-                context->errCode = ConvertErrorCode(context->errCode);
+                std::string msg = CommonUtils::GetErrorMsgByCode(context->errCode);
+                context->errCode = CommonUtils::ConvertErrorCode(context->errCode);
                 CreateFailCallBackParams(*context, msg, context->errCode);
                 if (napi_call_function(context->env, nullptr, handler, RESULT_SIZE,
                     context->result, &undefine) != napi_ok) {
