@@ -117,7 +117,8 @@ int PermissionManager::GetPermissionLevel(uint32_t tokenId, uint32_t firstTokenI
 bool PermissionManager::CheckSystemPermission(uint32_t callerTokenId, uint64_t callerTokenIdEx)
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
-    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE) {
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
+        Security::AccessToken::IsCliToolToken(callerTokenId)) {
         return true;
     }
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL ||
@@ -125,6 +126,7 @@ bool PermissionManager::CheckSystemPermission(uint32_t callerTokenId, uint64_t c
         return false;
     }
     bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
+    LBSLOGE(LOCATOR, "CheckSystemPermission tokenType == %{public}d.", tokenType);
     return isSysApp;
 }
 

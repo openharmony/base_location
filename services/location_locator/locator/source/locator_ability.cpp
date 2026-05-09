@@ -547,7 +547,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
 
     if (!HookUtils::ExecuteHookEnableAbility(
         identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
-        isEnabled, userId)) {
+        isEnabled, userId, identity.GetTokenId())) {
         return ERRCODE_SUCCESS;
     }
     LocationErrCode errCode = SetSwitchStateForUser(isEnabled, userId, identity.GetBundleName());
@@ -589,7 +589,7 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
     }
     if (!HookUtils::ExecuteHookEnableAbility(
         identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
-        isEnabled, userId)) {
+        isEnabled, userId, identity.GetTokenId())) {
         return ERRCODE_SUCCESS;
     }
     SetSwitchStateForUser(isEnabled, userId, identity.GetBundleName());
