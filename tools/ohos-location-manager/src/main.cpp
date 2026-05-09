@@ -45,8 +45,8 @@ struct Command {
 };
 
 static std::unordered_map<std::string, Command> g_commands;
-static const char* g_programName = "ohos-location";
-static const char* g_toolDescription =
+static const char* PROGRAM_NAME = "ohos-location";
+static const char* TOOL_DESCRIPTION =
     "Location service CLI tool for querying and controlling device location features";
 
 #define CLI_LOG(fmt, ...) do { \
@@ -125,10 +125,10 @@ void  LocationToJson(const std::unique_ptr<Location>& location, json& data)
 
 static int AllCmdHelp()
 {
-    CLI_LOG("ohos-location - %s", g_toolDescription);
+    CLI_LOG("ohos-location - %s", TOOL_DESCRIPTION);
     CLI_LOG("");
     CLI_LOG("Usage:");
-    CLI_LOG("  %s <command> [options]", g_programName);
+    CLI_LOG("  %s <command> [options]", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("Parameters:");
     CLI_LOG("  --help             Display this help message");
@@ -144,16 +144,16 @@ static int AllCmdHelp()
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Show help for all commands");
-    CLI_LOG("  %s --help", g_programName);
+    CLI_LOG("  %s --help", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("  # Query location switch status");
-    CLI_LOG("  %s is-enabled", g_programName);
+    CLI_LOG("  %s is-enabled", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("  # Get last cached location");
-    CLI_LOG("  %s get-last-approximate-location", g_programName);
+    CLI_LOG("  %s get-last-approximate-location", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("  # Get current location with custom timeout");
-    CLI_LOG("  %s get-current-approximate-location --timeout 5000", g_programName);
+    CLI_LOG("  %s get-current-approximate-location --timeout 5000", PROGRAM_NAME);
     return 0;
 }
 
@@ -162,13 +162,13 @@ static int IsEnabledCmdHelp()
     CLI_LOG("ohos-location is-enabled - Query the current status of the device location switch");
     CLI_LOG("");
     CLI_LOG("Usage:");
-    CLI_LOG("  %s is-enabled", g_programName);
+    CLI_LOG("  %s is-enabled", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("Parameters:");
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Query location switch status for current user");
-    CLI_LOG("  %s is-enabled", g_programName);
+    CLI_LOG("  %s is-enabled", PROGRAM_NAME);
     return 0;
 }
 
@@ -177,17 +177,17 @@ static int EnableCmdHelp()
     CLI_LOG("ohos-location enable - Enable the device location switch");
     CLI_LOG("");
     CLI_LOG("Usage:");
-    CLI_LOG("  %s enable [--userId <id>]", g_programName);
+    CLI_LOG("  %s enable [--userId <id>]", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("Parameters:");
     CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-9999, default: -1 for current user)");
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Enable location switch for current user");
-    CLI_LOG("  %s enable", g_programName);
+    CLI_LOG("  %s enable", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("  # Enable location switch for user 100");
-    CLI_LOG("  %s enable --userId 100", g_programName);
+    CLI_LOG("  %s enable --userId 100", PROGRAM_NAME);
     return 0;
 }
 
@@ -196,17 +196,17 @@ static int DisableCmdHelp()
     CLI_LOG("ohos-location disable - Disable the device location switch");
     CLI_LOG("");
     CLI_LOG("Usage:");
-    CLI_LOG("  %s disable [--userId <id>]", g_programName);
+    CLI_LOG("  %s disable [--userId <id>]", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("Parameters:");
     CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-9999, default: -1 for current user)");
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Disable location switch for current user");
-    CLI_LOG("  %s disable", g_programName);
+    CLI_LOG("  %s disable", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("  # Disable location switch for user 100");
-    CLI_LOG("  %s disable --userId 100", g_programName);
+    CLI_LOG("  %s disable --userId 100", PROGRAM_NAME);
     return 0;
 }
 
@@ -215,7 +215,7 @@ static int GetLastLocationCmdHelp(std::string cmd)
     CLI_LOG("ohos-location %s - Get the last cached location from the system", cmd.c_str());
     CLI_LOG("");
     CLI_LOG("Usage:");
-    CLI_LOG("  %s %s", g_programName, cmd.c_str());
+    CLI_LOG("  %s %s", PROGRAM_NAME, cmd.c_str());
     CLI_LOG("");
     CLI_LOG("Description:");
     CLI_LOG("  Retrieves the last known location that was cached by the system.");
@@ -224,7 +224,7 @@ static int GetLastLocationCmdHelp(std::string cmd)
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Get the last cached location");
-    CLI_LOG("  %s %s", g_programName, cmd.c_str());
+    CLI_LOG("  %s %s", PROGRAM_NAME, cmd.c_str());
     return 0;
 }
 
@@ -233,7 +233,7 @@ static int GetCurrentLocationCmdHelp(std::string cmd)
     CLI_LOG("ohos-location %s - Get current location with timeout waiting", cmd.c_str());
     CLI_LOG("");
     CLI_LOG("Usage:");
-    CLI_LOG("  %s %s [--timeout <Millisecond>]", g_programName, cmd.c_str());
+    CLI_LOG("  %s %s [--timeout <Millisecond>]", PROGRAM_NAME, cmd.c_str());
     CLI_LOG("");
     CLI_LOG("Parameters:");
     CLI_LOG("  --timeout         Optional. Timeout in Millisecond (range: 1000-10000, default: 2000)");
@@ -245,10 +245,10 @@ static int GetCurrentLocationCmdHelp(std::string cmd)
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Get current location with default timeout (2000 Millisecond)");
-    CLI_LOG("  %s %s", g_programName, cmd.c_str());
+    CLI_LOG("  %s %s", PROGRAM_NAME, cmd.c_str());
     CLI_LOG("");
     CLI_LOG("  # Get current location with 5000 Millisecond timeout");
-    CLI_LOG("  %s %s --timeout 5000", g_programName, cmd.c_str());
+    CLI_LOG("  %s %s --timeout 5000", PROGRAM_NAME, cmd.c_str());
     return 0;
 }
 
@@ -550,7 +550,7 @@ int main(int argc, char** argv)
         response["errCode"] = "ERR_UNKNOWN_COMMAND";
         response["errMsg"] = "Unknown command: " + cmdName;
         response["suggestion"] =
-            "Use '" + std::string(OHOS::Location::g_programName) + " --help' to see available commands.";
+            "Use '" + std::string(OHOS::Location::PROGRAM_NAME) + " --help' to see available commands.";
         std::cout << response.dump() << std::endl;
         return 1;
     }
