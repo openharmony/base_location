@@ -126,7 +126,6 @@ bool PermissionManager::CheckSystemPermission(uint32_t callerTokenId, uint64_t c
         return false;
     }
     bool isSysApp = Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(callerTokenIdEx);
-    LBSLOGE(LOCATOR, "CheckSystemPermission tokenType == %{public}d.", tokenType);
     return isSysApp;
 }
 
