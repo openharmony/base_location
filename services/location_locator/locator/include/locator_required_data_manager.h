@@ -47,7 +47,7 @@ namespace Location {
 struct WifiScanResultStruct {
     std::string ssid;
     int rssi;
-}
+};
 #ifdef WIFI_ENABLE
 class LocatorWifiScanEventCallback {
 public:

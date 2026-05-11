@@ -56,7 +56,7 @@ void LocatingRequiredDataCallbackProxy::OnMatchingWlanInfoChange(
     auto cnt = matchingWlanInfos.size();
     if (cnt > static_cast<size_t>(MAXIMUM_LOCATING_REQUIRED_DATAS)) {
         LBSLOGE(LOCATING_DATA_CALLBACK,
-            "LocatingRequiredDataCallbackProxy::OnMatchingWlanInfoChange matchingWlanInfos.size() = %{public}lu", cnt);
+            "LocatingRequiredDataCallbackProxy::OnMatchingWlanInfoChange matchingWlanInfos.size() = %{public}u", cnt);
         return;
     }
     dataParcel.WriteInt32(static_cast<int32_t>(matchingWlanInfos.size()));
