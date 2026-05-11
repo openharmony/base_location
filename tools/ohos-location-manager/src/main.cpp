@@ -523,8 +523,8 @@ static int ProcessCmdStartLocating(int argc, char** argv)
     int timeInterval = 1000;
     int timeout = 2000;
     int fixNumber = 1;
-    const int64_t TIME_OUT_MAX = 10000; //ms
-    const int64_t TIME_OUT_MIN = 1000; //ms
+    const int64_t timeoutMax = 10000; //ms
+    const int64_t timeoutMin = 1000; //ms
     if (argv == nullptr) {
         return OutputError("ERR_INVALID_ARGUMENTS", "INPUT_PARAMS_ERROR", "");
     }
@@ -534,7 +534,7 @@ static int ProcessCmdStartLocating(int argc, char** argv)
     ParseStringArg(argc, argv, "--priority", priority, false);
     OutputLog("priority:" + priority);
     ParseIntArg(argc, argv, "--timeout", timeout, false);
-    if (timeout > TIME_OUT_MAX || timeout < TIME_OUT_MIN) {
+    if (timeout > timeoutMax || timeout < timeoutMin) {
         return OutputError("ERR_ARG_INVALID", "The input parameter is incorrect. The value of the input \
             parameter is not within the valid range.", "Changing the value of an input parameter.");
     }
