@@ -86,9 +86,9 @@ int LocatingRequiredDataCallbackNapi::OnRemoteRequest(
             }
             std::vector<MatchingWlanInfo> matchingWlanInfos;
             for (int i = 0; cnt > 0 && i < cnt; i++) {
-                std::unique_ptr<MatchingWlanInfo> info(LocatingRequiredData::Unmarshalling(data));
+                std::unique_ptr<MatchingWlanInfo> info(MatchingWlanInfo::Unmarshalling(data));
                 if (info != nullptr) {
-                    matching_wlan_info.push_back(*info);
+                    matchingWlanInfos.push_back(*info);
                 }
             }
             SetMatchingWlanInfos(matchingWlanInfos);
