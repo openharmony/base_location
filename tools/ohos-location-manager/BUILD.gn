@@ -12,8 +12,10 @@
  # limitations under the License.
  
  import("//build/ohos.gni")
+ import("//build/ohos/cli/ohos_cli_executable.gni")
 
-ohos_executable("ohos-location") {
+ohos_cli_executable("ohos-location") {
+  branch_protector_ret = "pac_ret"
   sources = [
     "src/main.cpp",
   ]
