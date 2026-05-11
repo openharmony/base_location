@@ -1672,7 +1672,7 @@ FindMatchingWlanAsyncContext* CreateFindMatchingWlanAsyncContext(const napi_env&
             napi_create_int32(context->env, info.GetIndex(), &indexValue);
             napi_set_named_property(context->env, object, "index", indexValue);
             napi_value ssidValue;
-            napi_create_string_utf8(context->env, info.sGetSsid().c_str(), NAPI_AUTO_LENGTH, &ssidValue);
+            napi_create_string_utf8(context->env, info.GetSsid().c_str(), NAPI_AUTO_LENGTH, &ssidValue);
             napi_set_named_property(context->env, object, "ssid", ssidValue);
             napi_set_element(context->env, arrayResult, i, object);
         }
