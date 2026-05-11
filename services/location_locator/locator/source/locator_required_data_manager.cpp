@@ -14,6 +14,8 @@
  */
 #include "locator_required_data_manager.h"
 #include "location_log.h"
+#include "matching_wlan_info.h"
+#include <algorithm>
 #ifdef WIFI_ENABLE
 #include "wifi_errcode.h"
 #include "wifi_device.h"
@@ -45,6 +47,7 @@ const int64_t WLAN_SCAN_RESULTS_VALIDITY_PERIOD = 2 * MILLI_PER_SEC * MICRO_PER_
 const int TIMEOUT_WATCHDOG = 60; // s
 const int32_t MAX_CALLBACKS_MAP_NUM = 1000;
 const int32_t REGISTER_WIFI_CALLBACK_DELAY = 100;
+const size_t MAX_NUM_RETURN = 3;
 
 const std::string TYPE_BLE = "ble";
 LocatorRequiredDataManager::LocatorRequiredDataManager()
@@ -532,9 +535,53 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
             continue;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo.appIdentity_)) {
-            locatingRequiredDataCallback->OnLocatingDataChange(result);
+            if (type == LocatingRequiredDataType::WIFI &&
+                locatorRequiredInfo.config_.GetIsWlanMatchCalled() &&
+                !locatorRequiredInfo.config_.GetWlanBssidArray().empty()) {
+                ReportMatchData(result, locatingRequiredDataCallback, locatorRequiredInfo);
+            } else {
+                locatingRequiredDataCallback->OnLocatingDataChange(result);
+            }
         }
     }
+}
+
+void LocatorRequiredDataManager::ReportMatchData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result,
+    sptr<ILocatingRequiredDataCallback> locatingRequiredDataCallback, LocatorRequiredInfo locatorRequiredInfo)
+{
+    std::map<std::string, WifiScanResultStruct> wifiResultMap;
+    for (const auto& data : result) {
+        if (data == nullptr || data->GetWifiScanInfo() == nullptr) {
+            continue;
+        }
+        if (data->GetWifiScanInfo()->GetRssi() < locatorRequiredInfo.config_.GetRssiThreshold()) {
+            continue;
+        }
+        WifiScanResultStruct scanResult;
+        scanResult.ssid = data->GetWifiScanInfo()->GetSsid();
+        scanResult.rssi = data->GetWifiScanInfo()->GetRssi();
+        wifiResultMap[data->GetWifiScanInfo()->GetBssid()] = scanResult;
+    }
+    std::vector<MatchingWlanInfo> matchingWlanInfos;
+    const auto& wlanBssidArray = locatorRequiredInfo.config_.GetWlanBssidArray();
+    for (size_t i = 0; i < wlanBssidArray.size(); i++) {
+        const auto& requestWlanBssid = wlanBssidArray[i];
+        if (wifiResultMap.count(requestWlanBssid)) {
+            MatchingWlanInfo info;
+            info.SetIndex(static_cast<int>(i));
+            info.SetSsid(wifiResultMap[requestWlanBssid].ssid);
+            info.SetRssi(wifiResultMap[requestWlanBssid].rssi);
+            matchingWlanInfos.push_back(info);
+        }
+    }
+    std::sort(matchingWlanInfos.begin(), matchingWlanInfos.end(),
+        [](const MatchingWlanInfo& a, const MatchingWlanInfo& b) {
+            return a.GetRssi() > b.GetRssi();
+        });
+    if (matchingWlanInfos.size() > MAX_NUM_RETURN) {
+        matchingWlanInfos.resize(MAX_NUM_RETURN);
+    }
+    locatingRequiredDataCallback->OnMatchingWlanInfoChange(matchingWlanInfos);
 }
 
 void LocatorRequiredDataManager::ReportBluetoothScanResult(

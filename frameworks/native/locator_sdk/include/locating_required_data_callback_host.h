@@ -31,6 +31,7 @@ public:
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     bool IsRemoteDied();
     void OnLocatingDataChange(const std::vector<std::shared_ptr<LocatingRequiredData>>& data) override;
+    void OnMatchingWlanInfoChange(const std::vector<MatchingWlanInfo>& matchingWlanInfos) override;
     bool IsSingleLocationRequest();
     void ClearSingleResult();
     void SetSingleResult(

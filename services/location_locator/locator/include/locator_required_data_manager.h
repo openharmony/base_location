@@ -44,6 +44,10 @@
 
 namespace OHOS {
 namespace Location {
+struct WifiScanResultStruct {
+    std::string ssid;
+    int rssi;
+};
 #ifdef WIFI_ENABLE
 class LocatorWifiScanEventCallback {
 public:
@@ -283,6 +287,8 @@ private:
     void WifiInfoInit();
     bool IsWifiCallbackRegistered();
     void SetIsWifiCallbackRegistered(bool isWifiCallbackRegistered);
+    void ReportMatchData(const std::vector<std::shared_ptr<LocatingRequiredData>>& result,
+        sptr<ILocatingRequiredDataCallback> locatingRequiredDataCallback, LocatorRequiredInfo locatorRequiredInfo);
     std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     bool isWifiCallbackRegistered_ = false;
     std::mutex wifiRegisteredMutex_;

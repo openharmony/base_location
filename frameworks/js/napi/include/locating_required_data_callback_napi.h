@@ -23,6 +23,7 @@
 #include "common_utils.h"
 #include "napi/native_api.h"
 #include "uv.h"
+#include "matching_wlan_info.h"
 
 namespace OHOS {
 namespace Location {
@@ -37,6 +38,7 @@ public:
     bool IsRemoteDied();
     bool Send(const std::vector<std::shared_ptr<LocatingRequiredData>>& data);
     void OnLocatingDataChange(const std::vector<std::shared_ptr<LocatingRequiredData>>& data) override;
+    void OnMatchingWlanInfoChange(const std::vector<MatchingWlanInfo>& matchingWlanInfos) override;
     void DeleteHandler();
     void UvQueueWork(uv_loop_s* loop, uv_work_t* work);
     bool IsSingleLocationRequest();
@@ -48,6 +50,8 @@ public:
     void ClearSingleResult();
     void SetSingleResult(
         std::vector<std::shared_ptr<LocatingRequiredData>> singleResult);
+    void ClearMatchingWlanInfos();
+    void SetMatchingWlanInfos(const std::vector<MatchingWlanInfo>& matchingWlanInfos);
     napi_ref GetHandleCb();
     void SetHandleCb(const napi_ref& handlerCb);
     napi_env GetEnv();
@@ -81,6 +85,12 @@ public:
         return singleResult_;
     }
 
+    inline std::vector<MatchingWlanInfo> GetMatchingWlanInfos()
+    {
+        std::unique_lock<std::mutex> guard(matchingWlanInfosMutex_);
+        return matchingWlanInfos_;
+    }
+
     inline int GetFixNumber() const
     {
         return fixNumber_;
@@ -97,8 +107,10 @@ private:
     bool remoteDied_;
     std::mutex mutex_;
     std::mutex singleResultMutex_;
+    std::mutex matchingWlanInfosMutex_;
     CountDownLatch* latch_;
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult_;
+    std::vector<MatchingWlanInfo> matchingWlanInfos_;
 };
 } // namespace Location
 } // namespace OHOS

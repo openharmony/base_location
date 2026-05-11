@@ -266,11 +266,6 @@ typedef struct {
     int32_t rssiThreshold;
     bool needStartScan;
 } WlanRequestConfig;
-
-typedef struct {
-    int32_t index;
-    std::string ssid;
-} MatchingWlanInfo;
 } // namespace Location
 } // namespace OHOS
 #endif // CONSTANT_DEFINITION_H

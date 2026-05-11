@@ -35,11 +35,6 @@
 #include <vector>
 namespace OHOS {
 namespace Location {
-typedef struct {
-    std::string ssid;
-    int rssi;
-} WifiScanResult;
-
 class Util {
 public:
     static std::map<int, std::string> GetErrorCodeMapTaihe();

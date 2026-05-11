@@ -66,6 +66,22 @@ int LocatingRequiredDataCallbackTaihe::OnRemoteRequest(
             }
             break;
         }
+        case MATCHING_WLAN_INFO_EVENT: {
+            int cnt = data.ReadInt32();
+            if (cnt < 0 || cnt > MAXIMUM_LOCATING_REQUIRED_DATAS) {
+                break;
+            }
+            std::vector<MatchingWlanInfo> matchingWlanInfos;
+            for (int i = 0; cnt > 0 && i < cnt; i++) {
+                std::unique_ptr<MatchingWlanInfo> info(MatchingWlanInfo::Unmarshalling(data));
+                if (info != nullptr) {
+                    matchingWlanInfos.push_back(*info);
+                }
+            }
+            SetMatchingWlanInfos(matchingWlanInfos);
+            CountDown();
+            break;
+        }
         default: {
             IPCObjectStub::OnRemoteRequest(code, data, reply, option);
             break;
@@ -135,6 +151,25 @@ void LocatingRequiredDataCallbackTaihe::InitLatch()
 bool LocatingRequiredDataCallbackTaihe::IsSingleLocationRequest()
 {
     return (fixNumber_ == 1);
+}
+
+void LocatingRequiredDataCallbackTaihe::OnMatchingWlanInfoChange(
+    const std::vector<MatchingWlanInfo>& matchingWlanInfos)
+{
+    LBSLOGD(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackTaihe::OnMatchingWlanInfoChange");
+}
+
+void LocatingRequiredDataCallbackTaihe::ClearMatchingWlanInfos()
+{
+    std::lock_guard<std::mutex> lock(matchingWlanInfosMutex_);
+    std::vector<MatchingWlanInfo>().swap(matchingWlanInfos_);
+}
+
+void LocatingRequiredDataCallbackTaihe::SetMatchingWlanInfos(
+    const std::vector<MatchingWlanInfo>& matchingWlanInfos)
+{
+    std::lock_guard<std::mutex> lock(matchingWlanInfosMutex_);
+    matchingWlanInfos_.assign(matchingWlanInfos.begin(), matchingWlanInfos.end());
 }
 }  // namespace Location
 }  // namespace OHOS
