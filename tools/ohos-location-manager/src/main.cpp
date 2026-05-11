@@ -29,6 +29,8 @@
 #include "location_log.h"
 #include "constant_definition.h"
 #include "locator_callback_host.h"
+#include "ipc_skeleton.h"
+#include "privacy_kit.h"
 
 using json = nlohmann::json;
 namespace OHOS {
@@ -48,6 +50,7 @@ static std::unordered_map<std::string, Command> g_commands;
 static const char* PROGRAM_NAME = "ohos-location";
 static const char* TOOL_DESCRIPTION =
     "Location service CLI tool for querying and controlling device location features";
+const int64_t USER_ID_MAX = 999;
 
 #define CLI_LOG(fmt, ...) do { \
     fprintf(stdout, "[INFO] " fmt "\n", ##__VA_ARGS__); \
@@ -180,7 +183,7 @@ static int EnableCmdHelp()
     CLI_LOG("  %s enable [--userId <id>]", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("Parameters:");
-    CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-9999, default: -1 for current user)");
+    CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-999, default: -1 for current user)");
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Enable location switch for current user");
@@ -199,7 +202,7 @@ static int DisableCmdHelp()
     CLI_LOG("  %s disable [--userId <id>]", PROGRAM_NAME);
     CLI_LOG("");
     CLI_LOG("Parameters:");
-    CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-9999, default: -1 for current user)");
+    CLI_LOG("  --userId         Optional. User ID (range: -1 or 0-999, default: -1 for current user)");
     CLI_LOG("");
     CLI_LOG("Examples:");
     CLI_LOG("  # Disable location switch for current user");
@@ -259,7 +262,18 @@ static int ProcessCmdHelp(int argc, char** argv)
 
 static bool ParseIntArg(int argc, char** argv, const char* argName, int& value, bool required = false)
 {
+    if (argv == nullptr) {
+        CLI_ERROR("argv is null");
+        return false;
+    }
+    if (argName == nullptr) {
+        CLI_ERROR("argName is null");
+        return false;
+    }
     for (int i = 0; i < argc; ++i) {
+        if (argv[i] == nullptr) {
+            continue;
+        }
         if (strncmp(argv[i], argName, strlen(argName)) == 0) {
             if (i + 1 < argc && argv[i + 1] != nullptr && CommonUtils::isValidInteger(argv[i + 1])) {
                 value = std::stoi(argv[i + 1]);
@@ -276,7 +290,18 @@ static bool ParseIntArg(int argc, char** argv, const char* argName, int& value, 
 
 static bool ParseStringArg(int argc, char** argv, const char* argName, std::string& value, bool required = false)
 {
+    if (argv == nullptr) {
+        CLI_ERROR("argv is null");
+        return false;
+    }
+    if (argName == nullptr) {
+        CLI_ERROR("argName is null");
+        return false;
+    }
     for (int i = 0; i < argc; ++i) {
+        if (argv[i] == nullptr) {
+            continue;
+        }
         if (strncmp(argv[i], argName, strlen(argName)) == 0) {
             if (i + 1 < argc && argv[i + 1] != nullptr) {
                 value = argv[i + 1];
@@ -328,7 +353,7 @@ int LocatorCallbackForCli::OnRemoteRequest(uint32_t code,
         return -1;
     }
 
-    OutputLog("LocatorCallbackForCli::OnRemoteRequest:" + std::to_string(code)); // temp
+    OutputLog("LocatorCallbackForCli::OnRemoteRequest:" + std::to_string(code));
     switch (code) {
         case RECEIVE_LOCATION_INFO_EVENT: {
             std::unique_ptr<Location> location = Location::UnmarshallingMakeUnique(data);
@@ -359,7 +384,7 @@ void LocatorCallbackForCli::OnLocationReport(const std::unique_ptr<Location>& lo
         return;
     }
 
-    OutputLog("LocatorCallbackForCli::OnLocationReport:"); // temp
+    OutputLog("LocatorCallbackForCli::OnLocationReport:");
     std::unique_lock<std::mutex> lock1(mutex_);
     if (!hasResult_ && location != nullptr) {
         location_ = std::make_unique<Location>(*location);
@@ -399,10 +424,8 @@ static int ProcessCmdIsLocationEnabled(int argc, char** argv)
     auto locator = LocatorImpl::GetInstance();
     bool isEnabled = false;
     locator->IsLocationEnabledV9(isEnabled);
-    int timeStamp = 1518;
     json data;
     data["isEnabled"] = isEnabled;
-    data["timeStamp"] = timeStamp; // temp
     return OutputSuccess(data);
 }
 
@@ -410,11 +433,18 @@ static int ProcessCmdEnableLocation(int argc, char** argv)
 {
     bool enable = true;
     int userId = -1;
-    if (argc == PARAM_NUM_TWO && argv != nullptr && std::string(argv[1]) == "--help") {
+    if (argv == nullptr) {
+        return OutputError("ERR_ARG_INVALID", "ERR_ARG_INVALID", "");
+    }
+    if (argc == PARAM_NUM_TWO && argv[1] != nullptr && std::string(argv[1]) == "--help") {
         return EnableCmdHelp();
     }
     ParseIntArg(argc, argv, "--userId", userId, false);
-    OutputLog("ProcessCmdEnableLocation userId:" + std::to_string(userId)); // temp
+    OutputLog("ProcessCmdEnableLocation userId:" + std::to_string(userId));
+    if (userId > USER_ID_MAX) {
+        return OutputError("ERR_ARG_INVALID", "The input parameter is incorrect. The value of the input \
+            parameter is not within the valid range.", "Changing the value of an input parameter.");
+    }
     auto locator = LocatorImpl::GetInstance();
     LocationErrCode ret;
     if (userId >= 0) {
@@ -423,7 +453,12 @@ static int ProcessCmdEnableLocation(int argc, char** argv)
         ret = locator->EnableAbilityV9(enable);
     }
     if (ret != ERRCODE_SUCCESS) {
+        Security::AccessToken::PrivacyKit::AddPermissionUsedRecord(IPCSkeleton::GetCallingTokenID(),
+            "ohos.permission.cli.CONTROL_LOCATION_SWITCH", 0, 1);
         return OutputError("ERR_LOC_ENABLE_FAIL", CommonUtils::GetErrorMsgByCode(ret), "");
+    } else {
+        Security::AccessToken::PrivacyKit::AddPermissionUsedRecord(IPCSkeleton::GetCallingTokenID(),
+            "ohos.permission.cli.CONTROL_LOCATION_SWITCH", 1, 0);
     }
     json data;
     data["isEnabled"] = true;
@@ -434,11 +469,18 @@ static int ProcessCmdDisableLocation(int argc, char** argv)
 {
     bool enable = false;
     int userId = -1;
-    if (argc == PARAM_NUM_TWO && argv != nullptr && std::string(argv[1]) == "--help") {
+    if (argv == nullptr) {
+        return OutputError("ERR_ARG_INVALID", "ERR_ARG_INVALID", "");
+    }
+    if (argc == PARAM_NUM_TWO && argv[1] != nullptr && std::string(argv[1]) == "--help") {
         return DisableCmdHelp();
     }
     ParseIntArg(argc, argv, "--userId", userId, false);
-    OutputLog("ProcessCmdDisableLocation userId:" + std::to_string(userId)); // temp
+    OutputLog("ProcessCmdDisableLocation userId:" + std::to_string(userId));
+    if (userId > USER_ID_MAX) {
+        return OutputError("ERR_ARG_INVALID", "The input parameter is incorrect. The value of the input \
+            parameter is not within the valid range.", "Changing the value of an input parameter.");
+    }
     auto locator = LocatorImpl::GetInstance();
     LocationErrCode ret;
     if (userId >= 0) {
@@ -447,7 +489,12 @@ static int ProcessCmdDisableLocation(int argc, char** argv)
         ret = locator->EnableAbilityV9(enable);
     }
     if (ret != ERRCODE_SUCCESS) {
+        Security::AccessToken::PrivacyKit::AddPermissionUsedRecord(IPCSkeleton::GetCallingTokenID(),
+            "ohos.permission.cli.CONTROL_LOCATION_SWITCH", 0, 1);
         return OutputError("ERR_LOC_DISABLE_FAIL", CommonUtils::GetErrorMsgByCode(ret), "");
+    } else {
+        Security::AccessToken::PrivacyKit::AddPermissionUsedRecord(IPCSkeleton::GetCallingTokenID(),
+            "ohos.permission.cli.CONTROL_LOCATION_SWITCH", 1, 0);
     }
     json data;
     data["isEnabled"] = false;
@@ -476,17 +523,25 @@ static int ProcessCmdStartLocating(int argc, char** argv)
     int timeInterval = 1000;
     int timeout = 2000;
     int fixNumber = 1;
-    if (argc == PARAM_NUM_TWO && argv != nullptr && std::string(argv[1]) == "--help") {
+    const int64_t timeoutMax = 10000; //ms
+    const int64_t timeoutMin = 1000; //ms
+    if (argv == nullptr) {
+        return OutputError("ERR_INVALID_ARGUMENTS", "INPUT_PARAMS_ERROR", "");
+    }
+    if (argc == PARAM_NUM_TWO && argv[1] != nullptr && std::string(argv[1]) == "--help") {
         return GetCurrentLocationCmdHelp(argv[0]);
     }
     ParseStringArg(argc, argv, "--priority", priority, false);
-    OutputLog("priority:" + priority); // temp
+    OutputLog("priority:" + priority);
     ParseIntArg(argc, argv, "--timeout", timeout, false);
-    OutputLog("timeout" + std::to_string(timeout)); // temp
+    if (timeout > timeoutMax || timeout < timeoutMin) {
+        return OutputError("ERR_ARG_INVALID", "The input parameter is incorrect. The value of the input \
+            parameter is not within the valid range.", "Changing the value of an input parameter.");
+    }
+    OutputLog("timeout" + std::to_string(timeout));
     auto requestConfig = std::make_unique<RequestConfig>();
-    if (priority == "accuracy") {
-        requestConfig->SetPriority(PRIORITY_ACCURACY);
-    } else if (priority == "speed") {
+    requestConfig->SetPriority(PRIORITY_ACCURACY);
+    if (priority == "speed") {
         requestConfig->SetPriority(PRIORITY_FAST_FIRST_FIX);
     }
     requestConfig->SetTimeInterval(timeInterval);
@@ -499,9 +554,9 @@ static int ProcessCmdStartLocating(int argc, char** argv)
     std::unique_ptr<Location> location = nullptr;
     int errCode = 0;
     if (ret == ERRCODE_SUCCESS) {
-        OutputLog("WaitForResult start"); // temp
+        OutputLog("WaitForResult start");
         callbackPtr->WaitForResult(timeout / MILLI_PER_SECS, location, errCode);
-        OutputLog("WaitForResult end"); // emp
+        OutputLog("WaitForResult end");
     } else {
         return OutputError("ERR_LOC_GET_CURRENT_LOCATION_FAIL", CommonUtils::GetErrorMsgByCode(ret), "");
     }

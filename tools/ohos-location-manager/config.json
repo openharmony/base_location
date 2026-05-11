@@ -56,7 +56,7 @@
             "type": "integer",
             "description": "多用户场景下的用户ID，可选参数",
             "minimum": -1,
-            "maximum": 9999,
+            "maximum": 999,
             "default": -1
           }
         },
@@ -98,7 +98,7 @@
             "type": "integer",
             "description": "多用户场景下的用户ID，可选参数",
             "minimum": -1,
-            "maximum": 9999,
+            "maximum": 999,
             "default": -1
           }
         },
