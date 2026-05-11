@@ -118,7 +118,7 @@ bool HookUtilFuzzTest(const char* data, size_t size)
     HookUtils::CheckGnssLocationValidity(location);
     HookUtils::ExecuteHookWhenCheckAppForUser(testString);
     HookUtils::ExecuteHookReportManagerGetCacheLocation(testString, 0);
-    HookUtils::ExecuteHookEnableAbility(testString, false, 0);
+    HookUtils::ExecuteHookEnableAbility(testString, false, 0, 0);
     HookUtils::ExecuteHookWhenPreStartLocating(testString);
     HookUtils::ExecuteHookWhenAddNetworkRequest(testString);
     HookUtils::ExecuteHookWhenRemoveNetworkRequest(testString);
