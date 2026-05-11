@@ -67,12 +67,14 @@ public:
         fixNumber_ = fixNumber;
     }
     std::vector<std::shared_ptr<LocatingRequiredData>> singleResult_;
+    std::vector<MatchingWlanInfo> matchingWlanInfos_;
     ::taihe::optional<::taihe::callback<
         void(::taihe::array_view<::ohos::geoLocationManager::LocatingRequiredData>)>> callback_;
     int fixNumber_;
     bool remoteDied_;
     std::mutex mutex_;
     std::mutex singleResultMutex_;
+    std::mutex matchingWlanInfosMutex_;
     CountDownLatch* latch_;
 };
 } // namespace Location
