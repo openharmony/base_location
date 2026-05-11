@@ -164,7 +164,7 @@ bool HookUtils::ExecuteHookEnableAbility(
     enableAbilityStruct.bundleName = packageName;
     enableAbilityStruct.isEnabled = isEnabled;
     enableAbilityStruct.userId = userId;
-    enableAbilityStruct.userId = callerTokenId;
+    enableAbilityStruct.callerTokenId = callerTokenId;
     enableAbilityStruct.result = true;
     ExecuteHook(
         LocationProcessStage::ENABLE_ABILITY_PROCESS, (void *)&enableAbilityStruct, nullptr);
