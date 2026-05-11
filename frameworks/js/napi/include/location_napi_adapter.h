@@ -28,10 +28,6 @@
 
 namespace OHOS {
 namespace Location {
-struct WifiScanResult {
-    std::string ssid;
-    int rssi;
-};
 napi_value GetLastLocation(napi_env env, napi_callback_info info);
 napi_value IsLocationEnabled(napi_env env, napi_callback_info info);
 napi_value EnableLocation(napi_env env, napi_callback_info info);
@@ -62,8 +58,6 @@ LocationErrCode CheckLocationSwitchState();
 napi_value GetLocatingRequiredData(napi_env env, napi_callback_info info);
 napi_value IsWlanBssidMatched(napi_env env, napi_callback_info info);
 napi_value FindMatchingWlan(napi_env env, napi_callback_info info);
-std::unordered_map<std::string, WifiScanResult> BuildWifiResultMap(
-    std::vector<std::shared_ptr<LocatingRequiredData>>& res, int rssiThreshold);
 template<typename AsyncContextType>
 void SetWlanMatchExecuteFunc(AsyncContextType* asyncContext);
 template<typename AsyncContextType>
