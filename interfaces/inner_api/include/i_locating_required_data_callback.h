@@ -18,6 +18,7 @@
 
 #include "iremote_broker.h"
 #include "locating_required_data.h"
+#include "matching_wlan_info.h"
 
 namespace OHOS {
 namespace Location {
@@ -25,6 +26,7 @@ class ILocatingRequiredDataCallback : public IRemoteBroker {
 public:
     enum {
         RECEIVE_INFO_EVENT = 1,
+        MATCHING_WLAN_INFO_EVENT = 2,
     };
 
     DECLARE_INTERFACE_DESCRIPTOR(u"location.ILocatingRequiredDataCallback");
@@ -32,6 +34,10 @@ public:
      * locating data report to kits
      */
     virtual void OnLocatingDataChange(const std::vector<std::shared_ptr<LocatingRequiredData>>& data) = 0;
+    /*
+     * matching wlan info report to kits
+     */
+    virtual void OnMatchingWlanInfoChange(const std::vector<MatchingWlanInfo>& matchingWlanInfos) = 0;
 };
 } // namespace Location
 } // namespace OHOS

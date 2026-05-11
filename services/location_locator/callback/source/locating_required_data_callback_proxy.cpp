@@ -16,6 +16,7 @@
 #include "locating_required_data_callback_proxy.h"
 #include "message_option.h"
 #include "location_log.h"
+#include "common_utils.h"
 
 namespace OHOS {
 namespace Location {
@@ -41,6 +42,38 @@ void LocatingRequiredDataCallbackProxy::OnLocatingDataChange(
     if (error != ERR_OK) {
         LBSLOGI(LOCATING_DATA_CALLBACK,
             "LocatingRequiredDataCallbackProxy::OnLocatingDataChange Transact ErrCode = %{public}d", error);
+    }
+}
+
+void LocatingRequiredDataCallbackProxy::OnMatchingWlanInfoChange(
+    const std::vector<MatchingWlanInfo>& matchingWlanInfos)
+{
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        return;
+    }
+    auto cnt = matchingWlanInfos.size();
+    if (cnt > static_cast<size_t>(MAXIMUM_LOCATING_REQUIRED_DATAS)) {
+        LBSLOGE(LOCATING_DATA_CALLBACK,
+            "LocatingRequiredDataCallbackProxy::OnMatchingWlanInfoChange matchingWlanInfos.size() = %{public}lu", cnt);
+        return;
+    }
+    dataParcel.WriteInt32(static_cast<int32_t>(matchingWlanInfos.size()));
+    for (const auto& info : matchingWlanInfos) {
+        info.Marshalling(dataParcel);
+    }
+    MessageOption option = { MessageOption::TF_ASYNC };
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        LBSLOGI(LOCATING_DATA_CALLBACK,
+            "LocatingRequiredDataCallbackProxy::remote is nullptr");
+        return;
+    }
+    int error = remote->SendRequest(MATCHING_WLAN_INFO_EVENT, dataParcel, reply, option);
+    if (error != ERR_OK) {
+        LBSLOGI(LOCATING_DATA_CALLBACK,
+            "LocatingRequiredDataCallbackProxy::OnMatchingWlanInfoChange Transact ErrCode = %{public}d", error);
     }
 }
 } // namespace Location

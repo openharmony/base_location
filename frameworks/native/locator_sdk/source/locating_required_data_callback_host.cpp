@@ -80,6 +80,11 @@ void LocatingRequiredDataCallbackHost::OnLocatingDataChange(
     LBSLOGD(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackHost::OnLocatingDataChange");
 }
 
+void LocatingRequiredDataCallbackHost::OnMatchingWlanInfoChange(const std::vector<MatchingWlanInfo>& matchingWlanInfos)
+{
+    LBSLOGD(LOCATING_DATA_CALLBACK, "LocatingRequiredDataCallbackHost::OnMatchingWlanInfoChange");
+}
+
 bool LocatingRequiredDataCallbackHost::IsSingleLocationRequest()
 {
     return (fixNumber_ == 1);

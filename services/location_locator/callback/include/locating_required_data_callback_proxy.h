@@ -30,6 +30,7 @@ public:
     explicit LocatingRequiredDataCallbackProxy(const sptr<IRemoteObject> &impl);
     ~LocatingRequiredDataCallbackProxy() = default;
     void OnLocatingDataChange(const std::vector<std::shared_ptr<LocatingRequiredData>>& data) override;
+    void OnMatchingWlanInfoChange(const std::vector<MatchingWlanInfo>& matchingWlanInfos) override;
 private:
     static inline BrokerDelegator<LocatingRequiredDataCallbackProxy> delegator_;
 };
