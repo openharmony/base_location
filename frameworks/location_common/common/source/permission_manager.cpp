@@ -118,7 +118,7 @@ bool PermissionManager::CheckSystemPermission(uint32_t callerTokenId, uint64_t c
 {
     auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerTokenId);
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
-        Security::AccessToken::IsCliToolToken(callerTokenId)) {
+        Security::AccessToken::AccessTokenKit::IsCliToolToken(callerTokenId)) {
         return true;
     }
     if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL ||
