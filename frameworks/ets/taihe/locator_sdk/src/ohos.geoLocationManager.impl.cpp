@@ -682,8 +682,8 @@ void RemoveGnssGeofenceSync(int32_t geofenceId)
     return ::taihe::map<int32_t, ::ohos::geoLocationManager::Geofence>{res};
 }
 
-std::unordered_map<std::string, WifiScanResult> GetWifiResultMap(
-    ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
+std::vector<MatchingWlanInfo> GetWifiResultMap(
+    ::taihe::array_view<::taihe::string>& wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
     if (wlanBssidArray.size() > INPUT_WIFI_LIST_MAX_SIZE) {
         Util::ThrowBussinessError(OHOS::Location::ERRCODE_INVALID_PARAM);
@@ -715,69 +715,34 @@ std::unordered_map<std::string, WifiScanResult> GetWifiResultMap(
     }
     singleLocatingRequiredDataCallbackHost->Wait(dataConfig->GetScanTimeoutMs());
     Locator::GetInstance()->UnRegisterLocatingRequiredDataCallback(locatingRequiredDataCallback);
-    std::unordered_map<std::string, WifiScanResult> wifiResultMap;
-    std::vector<std::shared_ptr<LocatingRequiredData>> res = singleLocatingRequiredDataCallbackHost->GetSingleResult();
-    for (auto &scanRes : res) {
-        if (scanRes == nullptr || scanRes->GetWifiScanInfo() == nullptr) {
-            return {};
-        }
-        if (scanRes->GetWifiScanInfo()->GetRssi() < rssidThreshold) {
-            continue;
-        }
-        WifiScanResult result;
-        result.ssid = scanRes->GetWifiScanInfo()->GetSsid();
-        result.rssi = scanRes->GetWifiScanInfo()->GetRssi();
-        wifiResultMap[scanRes->GetWifiScanInfo()->GetBssid()] = result;
-    }
-    return wifiResultMap;
+    std::vector<MatchingWlanInfo> matchingWlanInfos =
+        singleLocatingRequiredDataCallbackHost->GetMatchingWlanInfos();
+    singleLocatingRequiredDataCallbackHost->ClearMatchingWlanInfos();
+    return matchingWlanInfos;
 }
 
 bool IsWlanBssidMatchedSync(
     ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
-    std::unordered_map<std::string, WifiScanResult> wifiResultMap =
+    std::vector<MatchingWlanInfo> matchingWlanInfos =
         GetWifiResultMap(wlanBssidArray, rssidThreshold, needStartScan);
-    if (wifiResultMap.empty()) {
-        return false;
-    }
-    std::vector<std::string> wlanBssidVec;
-    for (auto &bssid : wlanBssidArray) {
-        wlanBssidVec.push_back(std::string(bssid));
-    }
-    bool isMatched = false;
-    for (auto &requestWlanBssid : wlanBssidVec) {
-        if (wifiResultMap.count(requestWlanBssid)) {
-            isMatched = true;
-            break;
-        }
-    }
-    return isMatched;
+    return !matchingWlanInfos.empty();
 }
 
 ::taihe::array<::ohos::geoLocationManager::MatchingWlanInfo> FindMatchingWlanSync(
     ::taihe::array_view<::taihe::string> wlanBssidArray, int32_t rssidThreshold, bool needStartScan)
 {
-    std::unordered_map<std::string, WifiScanResult> wifiResultMap =
+    std::vector<MatchingWlanInfo> matchingWlanInfos =
         GetWifiResultMap(wlanBssidArray, rssidThreshold, needStartScan);
-    if (wifiResultMap.empty()) {
-        return {};
-    }
-    std::vector<std::string> wlanBssidVec;
-    for (auto &bssid : wlanBssidArray) {
-        wlanBssidVec.push_back(std::string(bssid));
-    }
-    std::vector<::ohos::geoLocationManager::MatchingWlanInfo> matchingWlanInfos;
-    for (size_t i = 0; i < wlanBssidVec.size(); ++i) {
-        auto requestWlanBssid = wlanBssidVec[i];
-        if (wifiResultMap.count(requestWlanBssid)) {
-            ::ohos::geoLocationManager::MatchingWlanInfo matchingWlanInfo = {
-            static_cast<int32_t>(i),
-            wifiResultMap[requestWlanBssid].ssid};
-            matchingWlanInfos.push_back(matchingWlanInfo);
-        }
+    std::vector<::ohos::geoLocationManager::MatchingWlanInfo> result;
+    for (const auto& info : matchingWlanInfos) {
+        ::ohos::geoLocationManager::MatchingWlanInfo matchingWlanInfo = {
+            info.GetIndex(),
+            info.GetSsid()};
+        result.push_back(matchingWlanInfo);
     }
     return ::taihe::array<::ohos::geoLocationManager::MatchingWlanInfo>{taihe::copy_data_t{},
-        matchingWlanInfos.data(), matchingWlanInfos.size()};
+        result.data(), result.size()};
 }
 
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,

@@ -25,6 +25,7 @@
 #include "ohos.geoLocationManager.impl.hpp"
 #include "taihe/runtime.hpp"
 #include "stdexcept"
+#include "matching_wlan_info.h"
 
 namespace OHOS {
 namespace Location {
@@ -35,13 +36,21 @@ public:
     virtual int OnRemoteRequest(
         uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
     void OnLocatingDataChange(const std::vector<std::shared_ptr<LocatingRequiredData>>& data) override;
+    void OnMatchingWlanInfoChange(const std::vector<MatchingWlanInfo>& matchingWlanInfos) override;
     void ClearSingleResult();
     void SetSingleResult(
         std::vector<std::shared_ptr<LocatingRequiredData>> singleResult);
+    void ClearMatchingWlanInfos();
+    void SetMatchingWlanInfos(const std::vector<MatchingWlanInfo>& matchingWlanInfos);
     bool IsSingleLocationRequest();
     inline std::vector<std::shared_ptr<LocatingRequiredData>> GetSingleResult()
     {
         return singleResult_;
+    }
+    inline std::vector<MatchingWlanInfo> GetMatchingWlanInfos()
+    {
+        std::unique_lock<std::mutex> guard(matchingWlanInfosMutex_);
+        return matchingWlanInfos_;
     }
     void CountDown();
     void Wait(int time);
