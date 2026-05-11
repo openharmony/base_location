@@ -51,7 +51,7 @@ napi_value GeofenceTransitionEventConstructor(napi_env env)
         "GEOFENCE_TRANSITION_EVENT_LEAVING_GEOFENCE");
     SetEnumPropertyByInteger(env, geofenceTransitionStatus,
         GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_NEAR_WANDER,
-         "GEOFENCE_TRANSITION_EVENT_NEAR_WANDER");
+        "GEOFENCE_TRANSITION_EVENT_NEAR_WANDER");
     return geofenceTransitionStatus;
 }
 
