@@ -16,6 +16,7 @@
 #ifdef FEATURE_GNSS_SUPPORT
 #include "string_utils.h"
 
+#include <cctype>
 #include <codecvt>
 #include <sstream>
 #include <string_ex.h>
