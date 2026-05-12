@@ -107,7 +107,7 @@ std::string StringUtils::HexToString(const std::string &str)
 std::vector<uint8_t> StringUtils::HexToByteVector(const std::string &str)
 {
     std::vector<uint8_t> ret;
-    if (str.empty() || str.length() % 2 != 0) {
+    if (str.empty() || str.length() % STEP_2BIT != 0) {
         return ret;
     }
     for (char c : str) {
