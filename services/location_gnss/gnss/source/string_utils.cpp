@@ -106,10 +106,15 @@ std::string StringUtils::HexToString(const std::string &str)
 std::vector<uint8_t> StringUtils::HexToByteVector(const std::string &str)
 {
     std::vector<uint8_t> ret;
-    int sz = static_cast<int>(str.length());
-    if (sz <= 0) {
+    if (str.empty() || str.length() % 2 != 0) {
         return ret;
     }
+    for (char c : str) {
+        if (!isxdigit(static_cast<unsigned char>(c))) {
+            return ret;
+        }
+    }
+    int sz = static_cast<int>(str.length());
     for (int i = 0; i < (sz - 1); i += STEP_2BIT) {
         auto temp = static_cast<uint8_t>((HexCharToInt(str.at(i)) << HEX_OFFSET) | HexCharToInt(str.at(i + 1)));
         ret.push_back(temp);
