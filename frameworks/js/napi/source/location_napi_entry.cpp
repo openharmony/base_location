@@ -43,6 +43,15 @@ napi_value GeofenceTransitionEventConstructor(napi_env env)
         GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT, "GEOFENCE_TRANSITION_EVENT_EXIT");
     SetEnumPropertyByInteger(env, geofenceTransitionStatus,
         GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_DWELL, "GEOFENCE_TRANSITION_EVENT_DWELL");
+    SetEnumPropertyByInteger(env, geofenceTransitionStatus,
+        GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_APPROACHING_GEOFENCE,
+        "GEOFENCE_TRANSITION_EVENT_APPROACHING_GEOFENCE");
+    SetEnumPropertyByInteger(env, geofenceTransitionStatus,
+        GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_LEAVING_GEOFENCE,
+        "GEOFENCE_TRANSITION_EVENT_LEAVING_GEOFENCE");
+    SetEnumPropertyByInteger(env, geofenceTransitionStatus,
+        GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_NEAR_WANDER,
+        "GEOFENCE_TRANSITION_EVENT_NEAR_WANDER");
     return geofenceTransitionStatus;
 }
 

@@ -106,8 +106,8 @@ static constexpr int MAXIMUM_CACHE_LOCATIONS = 1000;
 static constexpr int MAXIMUM_LOCATING_REQUIRED_DATAS = 200;
 static constexpr int MAC_LEN = 6;
 static constexpr int DEFAULT_CODE = 0;
-static constexpr int MAX_TRANSITION_SIZE = 3;
-static constexpr int MAX_NOTIFICATION_REQUEST_LIST_SIZE = 3;
+static constexpr int MAX_TRANSITION_SIZE = 6;
+static constexpr int MAX_NOTIFICATION_REQUEST_LIST_SIZE = 6;
 
 #define CHK_PARCEL_RETURN_VALUE(ret) \
 { \
