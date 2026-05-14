@@ -59,13 +59,14 @@ struct btCreateFilePickerPage {
    */
   private async removeAssets() {
       try {
+          console.info(TAG, `removeAssets begin removeFileUri ${this.removeFileUri}`);
           let photoUris: string[] = [];
           photoUris.push(this.removeFileUri);
           await photoAccessHelper.MediaAssetChangeRequest.deleteLocalAssetsPermanentlyWithUri(this.context, photoUris);
           console.info('removeAssets successfully');
       } catch (error) {
           let err: BusinessError = error as BusinessError;
-          console.error(TAG, `unlink failed, code is ${err.code}, message is ${err.message}`);
+          console.error(TAG, `unlink ${this.removeFileUri} failed, code is ${err.code}, message is ${err.message}`);
       }
       this.context.terminateSelf();
   }
