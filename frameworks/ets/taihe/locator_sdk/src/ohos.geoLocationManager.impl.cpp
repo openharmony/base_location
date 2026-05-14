@@ -745,6 +745,12 @@ bool IsWlanBssidMatchedSync(
         result.data(), result.size()};
 }
 
+::ohos::geoLocationManager::DistrictInfo GetCurrentDistrictSync(
+    ::ohos::geoLocationManager::DistrictInfoRequest const& request)
+{
+    TH_THROW(std::runtime_error, "not implemented");
+}
+
 void OnCachedGnssLocationsChange(::ohos::geoLocationManager::CachedGnssLocationsRequest const& request,
     ::taihe::callback_view<void(::taihe::array_view<::ohos::geoLocationManager::Location>)> callback)
 {
@@ -1132,6 +1138,7 @@ TH_EXPORT_CPP_API_GetLocatingRequiredDataSync(GetLocatingRequiredDataSync);
 TH_EXPORT_CPP_API_GetActiveGeoFencesSync(GetActiveGeoFencesSync);
 TH_EXPORT_CPP_API_IsWlanBssidMatchedSync(IsWlanBssidMatchedSync);
 TH_EXPORT_CPP_API_FindMatchingWlanSync(FindMatchingWlanSync);
+TH_EXPORT_CPP_API_GetCurrentDistrictSync(GetCurrentDistrictSync);
 TH_EXPORT_CPP_API_OnCachedGnssLocationsChange(OnCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OffCachedGnssLocationsChange(OffCachedGnssLocationsChange);
 TH_EXPORT_CPP_API_OnLocationChange(OnLocationChange);

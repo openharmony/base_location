@@ -267,6 +267,21 @@ struct MatchingWlanInfo {
     ssid: String;
 }
 
+struct DistrictInfo {
+    locale: Optional<String>;
+    countryCode: Optional<String>;
+    countryName: Optional<String>;
+    administrativeArea: Optional<String>;
+    subAdministrativeArea: Optional<String>;
+    locality: Optional<String>;
+    subLocality: Optional<String>;
+}
+
+struct DistrictInfoRequest {
+    locale: Optional<String>;
+    country: Optional<String>;
+}
+
 function IsLocationEnabled(): bool;
 @gen_async("getAddressesFromLocation")
 @gen_promise("getAddressesFromLocation")
@@ -359,6 +374,9 @@ function IsWlanBssidMatchedSync(wlanBssidArray: Array<String>, rssidThreshold: i
 
 @gen_promise("findMatchingWlan")
 function FindMatchingWlanSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): Array<MatchingWlanInfo>;
+
+@gen_promise("getCurrentDistrict")
+function GetCurrentDistrictSync(request: DistrictInfoRequest): DistrictInfo;
 
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
 
