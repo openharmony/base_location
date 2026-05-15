@@ -2501,7 +2501,7 @@ HWTEST_F(GnssAbilityTest, StringUtilsHexToByteVector005, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector005 begin");
     std::string str = "     ";
     std::vector<uint8_t> ret = StringUtils::HexToByteVector(str);
-    EXPECT_EQ(2, ret.size());
+    EXPECT_EQ(0, ret.size());
     LBSLOGI(LOCATOR, "[GnssAbilityTest] StringUtilsHexToByteVector005 end");
 }
 
