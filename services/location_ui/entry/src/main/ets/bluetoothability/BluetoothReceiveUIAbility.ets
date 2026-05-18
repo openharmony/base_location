@@ -293,9 +293,8 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
                   this.totalCount, btTransactionStatisticsSceneCode.TRANSACTION_SCENECODE_5, this.totalCount);
               this.reportBtTransactionChr(btTransactionStatisticsResult.TRANSACTION_RESULT_TOTAL,
                   this.totalCount, btTransactionStatisticsSceneCode.TRANSACTION_SCENECODE_NA, 0);
-              this.pullUpReceiveResultNotification();
-              this.handleTerminate();
               this.tapEventIsAllowed = true;
+              this.handleTerminate();
               break;
           }
           case 'ohos.event.notification.BT.LIVEVIEW_REMOVE': {
@@ -317,14 +316,16 @@ export default class BluetoothReceiveUIAbility extends UIAbility {
               break;
           }
           case 'usual.event.bluetooth.OPP.FINISH.REMOVE': {
-              setTimeout(() => {
-                  if (this.transfering) {
-                      console.info(TAG, 'still transfering, do not terminate');
-                      return;
-                  }
-                  console.info(TAG, 'transfer finished, terminateSelf');
-                  this.handleTerminate();
-              }, 100);
+              console.info(TAG, 'user OPP.FINISH.REMOVE tapEventIsAllowed is ' + this.tapEventIsAllowed);
+              clearTimeout(this.timerIdReceive);
+              this.transfering = false;
+              this.oppProfile.setIncomingFileConfirmation(false, -1);
+              this.reportBtTransactionChr(btTransactionStatisticsResult.TRANSACTION_RESULT_FAIL,
+                  this.totalCount, btTransactionStatisticsSceneCode.TRANSACTION_SCENECODE_5, this.totalCount);
+              this.reportBtTransactionChr(btTransactionStatisticsResult.TRANSACTION_RESULT_TOTAL,
+                  this.totalCount, btTransactionStatisticsSceneCode.TRANSACTION_SCENECODE_NA, 0);
+              this.tapEventIsAllowed = true;
+              this.handleTerminate();
               break;
           }
           case 'ohos.event.notification.BT.GET_URI': {
