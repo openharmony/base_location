@@ -23,7 +23,7 @@
 namespace OHOS {
 namespace Location {
 using HDI::Location::Geofence::V2_0::IGeofenceCallback;
-using HDI::Location::Geofence::V2_0::GeofenceEvent;
+using HDI::Location::Geofence::V2_1::GeofenceEvent;
 using HDI::Location::Geofence::V2_0::GeofenceOperateType;
 using HDI::Location::Geofence::V2_0::GeofenceOperateResult;
 using HDI::Location::Geofence::V2_0::TYPE_DELETE;
