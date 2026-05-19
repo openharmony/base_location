@@ -1225,6 +1225,7 @@ ErrCode LocatorAbility::EnableLocationMock()
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::ENABLE_LOCATION_MOCK, identity)) {
+        LBSLOGE(LOCATOR, "CheckRequestEnableMock return false, [%{private}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
