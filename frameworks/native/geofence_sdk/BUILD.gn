@@ -58,6 +58,7 @@ ohos_shared_library("geofence_sdk") {
 
   external_deps = [
     "ability_base:configuration",
+    "bundle_framework:appexecfwk_core",
   ]
 
   defines = []
@@ -114,6 +115,7 @@ ohos_static_library("geofence_sdk_static") {
 
   external_deps = [
     "ability_base:configuration",
+    "bundle_framework:appexecfwk_core",
   ]
 
   public_external_deps = [

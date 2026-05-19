@@ -83,7 +83,10 @@ ohos_shared_library("geolocation") {
 
   external_deps = [
     "ability_base:configuration",
+    "bundle_framework:appexecfwk_core",
+    "form_fwk:fmskit_native",
     "hilog:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_single",
     "napi:ace_napi",
     "window_manager:libwm",
@@ -173,7 +176,10 @@ ohos_shared_library("geolocationmanager") {
   defines = [ "ENABLE_NAPI_MANAGER" ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_core",
+    "form_fwk:fmskit_native",
     "hilog:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_single",
     "napi:ace_napi",
     "window_manager:libwm",
