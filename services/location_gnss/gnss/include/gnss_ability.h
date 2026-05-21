@@ -21,7 +21,7 @@
 #include <singleton.h>
 #include <v2_0/ignss_interface.h>
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-#include <v2_0/igeofence_interface.h>
+#include <v3_0/igeofence_interface.h>
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include <v2_0/ia_gnss_interface.h>
@@ -85,10 +85,10 @@ using HDI::Location::Agnss::V2_0::AGNSS_TYPE_SUPL;
 using HDI::Location::Agnss::V2_0::AGnssServerInfo;
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-using HDI::Location::Geofence::V2_0::IGeofenceInterface;
-using HDI::Location::Geofence::V2_0::IGeofenceCallback;
-using HDI::Location::Geofence::V2_1::GeofenceEvent;
-using HDI::Location::Geofence::V2_0::GeofenceInfo;
+using HDI::Location::Geofence::V3_0::IGeofenceInterface;
+using HDI::Location::Geofence::V3_0::IGeofenceCallback;
+using HDI::Location::Geofence::V3_0::GeofenceEvent;
+using HDI::Location::Geofence::V3_0::GeofenceInfo;
 #endif
 
 enum class GnssAbilityInterfaceCode {

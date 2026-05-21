@@ -18,26 +18,25 @@
 
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 
-#include <v2_0/igeofence_callback.h>
+#include <v3_0/igeofence_callback.h>
 
 namespace OHOS {
 namespace Location {
-using HDI::Location::Geofence::V2_0::IGeofenceCallback;
-using HDI::Location::Geofence::V2_1::GeofenceEvent;
-using HDI::Location::Geofence::V2_0::GeofenceOperateType;
-using HDI::Location::Geofence::V2_0::GeofenceOperateResult;
-using HDI::Location::Geofence::V2_0::TYPE_DELETE;
-using HDI::Location::Geofence::V2_0::GEOFENCE_OPERATION_SUCCESS;
-using HDI::Location::Geofence::V2_0::TYPE_ADD;
+using HDI::Location::Geofence::V3_0::IGeofenceCallback;
+using HDI::Location::Geofence::V3_0::GeofenceEvent;
+using HDI::Location::Geofence::V3_0::GeofenceOperateType;
+using HDI::Location::Geofence::V3_0::GeofenceOperateResult;
+using HDI::Location::Geofence::V3_0::TYPE_DELETE;
+using HDI::Location::Geofence::V3_0::GEOFENCE_OPERATION_SUCCESS;
+using HDI::Location::Geofence::V3_0::TYPE_ADD;
 
 class GeofenceEventCallback : public IGeofenceCallback {
 public:
     ~GeofenceEventCallback() override {}
     int32_t ReportGeofenceAvailability(bool isAvailable) override;
     int32_t ReportGeofenceEvent(int32_t fenceIndex,
-        const HDI::Location::Geofence::V2_0::LocationInfo& location, GeofenceEvent event, int64_t timestamp) override;
-    int32_t ReportGeofenceOperateResult(
-        int32_t fenceIndex, GeofenceOperateType type, GeofenceOperateResult result) override;
+        const HDI::Location::Geofence::V2_0::LocationInfo& location, int32_t event, int64_t timestamp) override;
+    int32_t ReportGeofenceOperateResult(int32_t fenceIndex, int32_t type, int32_t result) override;
 };
 }  // namespace Location
 }  // namespace OHOS

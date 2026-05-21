@@ -27,20 +27,21 @@ int32_t GeofenceEventCallback::ReportGeofenceAvailability(bool isAvailable)
 }
 
 int32_t GeofenceEventCallback::ReportGeofenceEvent(int32_t fenceIndex,
-    const HDI::Location::Geofence::V2_0::LocationInfo& location, GeofenceEvent event, int64_t timestamp)
+    const HDI::Location::Geofence::V2_0::LocationInfo& location, int32_t event, int64_t timestamp)
 {
     LBSLOGD(GNSS, "ReportGeofenceEvent enter");
     auto gnssAbility = GnssAbility::GetInstance();
-    gnssAbility->ReportGeofenceEvent(fenceIndex, event);
+    gnssAbility->ReportGeofenceEvent(fenceIndex, static_cast<GeofenceEvent>(event));
     return 0;
 }
 
 int32_t GeofenceEventCallback::ReportGeofenceOperateResult(
-    int32_t fenceIndex, GeofenceOperateType type, GeofenceOperateResult result)
+    int32_t fenceIndex, int32_t type, int32_t result)
 {
     LBSLOGD(GNSS, "ReportGeofenceOperateResult enter");
     auto gnssAbility = GnssAbility::GetInstance();
-    gnssAbility->ReportGeofenceOperationResult(fenceIndex, type, result);
+    gnssAbility->ReportGeofenceOperationResult(fenceIndex,
+        static_cast<GeofenceOperateType>(type), static_cast<GeofenceOperateResult>(result));
     return 0;
 }
 }  // namespace Location
