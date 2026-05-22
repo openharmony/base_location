@@ -68,6 +68,7 @@
                 "icu",
                 "i18n",
                 "init",
+                "input",
                 "ipc",
                 "libuv",
                 "napi",

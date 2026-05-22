@@ -68,6 +68,7 @@ taihe_shared_library("location_framework_taihe_native") {
   ]
 
   external_deps = [
+    "bundle_framework:appexecfwk_core",
     "c_utils:utils",
     "hilog:libhilog",
     "i18n:intl_util",
