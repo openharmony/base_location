@@ -46,8 +46,7 @@
     "enable": {
       "description": "启用设备定位开关。用于开启设备的定位功能以便获取位置信息。依赖系统定位服务运行。",
       "requirePermissions": [
-        "ohos.permission.MANAGE_SECURE_SETTINGS",
-        "ohos.permission.CONTROL_LOCATION_SWITCH"
+        "ohos.permission.cli.CONTROL_LOCATION_SWITCH"
       ],
       "inputSchema": {
         "type": "object",
@@ -88,8 +87,7 @@
     "disable": {
       "description": "禁用设备定位开关。用于关闭设备的定位功能以保护隐私。依赖系统定位服务运行。",
       "requirePermissions": [
-        "ohos.permission.MANAGE_SECURE_SETTINGS",
-        "ohos.permission.CONTROL_LOCATION_SWITCH"
+        "ohos.permission.cli.CONTROL_LOCATION_SWITCH"
       ],
       "inputSchema": {
         "type": "object",
