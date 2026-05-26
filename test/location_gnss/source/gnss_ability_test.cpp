@@ -1194,7 +1194,7 @@ HWTEST_F(GnssAbilityTest, GeofenceEventCallbackReportGeofenceEvent001, TestSize.
     sptr<IGeofenceCallback> geofenceEventCallback = new (std::nothrow) GeofenceEventCallback();
     EXPECT_NE(nullptr, geofenceEventCallback);
     int32_t fenceIndex = 0;
-    HDI::Location::Geofence::V2_0::LocationInfo location;
+    HDI::Location::Geofence::V3_0::LocationInfo location;
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
     int64_t timestamp = 0;
     geofenceEventCallback->ReportGeofenceEvent(fenceIndex, location, event, timestamp);
@@ -1210,7 +1210,7 @@ HWTEST_F(GnssAbilityTest, GeofenceEventCallbackReportGeofenceEvent002, TestSize.
     sptr<IGeofenceCallback> geofenceEventCallback = new (std::nothrow) GeofenceEventCallback();
     EXPECT_NE(nullptr, geofenceEventCallback);
     int32_t fenceIndex = 0;
-    HDI::Location::Geofence::V2_0::LocationInfo location;
+    HDI::Location::Geofence::V3_0::LocationInfo location;
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
     int64_t timestamp = 0;
     auto gnssAbility = GnssAbility::GetInstance();
