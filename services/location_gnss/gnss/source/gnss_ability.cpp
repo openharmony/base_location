@@ -1467,7 +1467,7 @@ void GnssAbility::ReportGeofenceEvent(int fenceIndex, GeofenceEvent event)
     NotifyGnssfenceStatusByCallback(request, event);
 }
 
-bool GnssAbility::NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
+bool GnssAbility::NotifyGnssfenceStatusByWantAgent(const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
 {
     if (request == nullptr) {
         LBSLOGE(GNSS, "NotifyGnssfenceStatusByWantAgent request is nullptr");
@@ -1498,7 +1498,8 @@ bool GnssAbility::NotifyGnssfenceStatusByWantAgent(std::shared_ptr<GeofenceReque
     return true;
 }
 
-void GnssAbility::NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
+void GnssAbility::NotifyGnssfenceStatusByNotification(
+    const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
 {
     if (request == nullptr) {
         LBSLOGE(GNSS, "NotifyGnssfenceStatusByNotification request is nullptr");
@@ -1528,7 +1529,8 @@ void GnssAbility::NotifyGnssfenceStatusByNotification(std::shared_ptr<GeofenceRe
 #endif
 }
 
-void GnssAbility::NotifyGnssfenceStatusByFenceExtension(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
+void GnssAbility::NotifyGnssfenceStatusByFenceExtension(
+    const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
 {
     if (request == nullptr) {
         LBSLOGE(GNSS, "NotifyGnssfenceStatusByFenceExtension request is nullptr");
@@ -1544,7 +1546,7 @@ void GnssAbility::NotifyGnssfenceStatusByFenceExtension(std::shared_ptr<Geofence
         LocationProcessStage::NOTIFY_GEOFENCE_STATUS_BY_FENCEEXTENSION_PROCESS, (void *)&fenceStruct, nullptr);
 }
 
-void GnssAbility::NotifyGnssfenceStatusByCallback(std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
+void GnssAbility::NotifyGnssfenceStatusByCallback(const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event)
 {
     auto callback = request->GetGeofenceTransitionCallback();
     if (callback == nullptr) {
