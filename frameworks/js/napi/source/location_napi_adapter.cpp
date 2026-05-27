@@ -1580,6 +1580,16 @@ template<>
 struct IsFindMatchingWlanContext<FindMatchingWlanAsyncContext> : std::true_type {};
 
 template<typename AsyncContextType>
+void HandleWlanMatchInvalidParam(napi_env env, LocationErrCode errCode)
+{
+    if constexpr (IsFindMatchingWlanContext<AsyncContextType>::value) {
+        ThrowBusinessError(env, errCode);
+    } else {
+        HandleSyncErrCode(env, errCode);
+    }
+}
+
+template<typename AsyncContextType>
 napi_value DoWlanMatchRequest(napi_env env, napi_callback_info info,
     std::function<AsyncContextType*(const napi_env&, std::unique_ptr<LocatingRequiredDataConfig>&,
     sptr<LocatingRequiredDataCallbackNapi>)> createAsyncContextFunc)
@@ -1594,13 +1604,13 @@ napi_value DoWlanMatchRequest(napi_env env, napi_callback_info info,
 
     if (argc != PARAM3 || !GetWlanRequestConfig(env, argv, requestConfig)) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s Expected 3 arguments.", __func__);
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        HandleWlanMatchInvalidParam<AsyncContextType>(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
 
     auto singleCallbackHost = CreateSingleCallbackHost();
     if (singleCallbackHost == nullptr) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        HandleWlanMatchInvalidParam<AsyncContextType>(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     std::unique_ptr<LocatingRequiredDataConfig> scanRequestConfig = std::make_unique<LocatingRequiredDataConfig>();
@@ -1611,9 +1621,13 @@ napi_value DoWlanMatchRequest(napi_env env, napi_callback_info info,
     scanRequestConfig->SetScanTimeoutMs(DEFAULT_TIMEOUT_5S);
     scanRequestConfig->SetIsWlanMatchCalled(true);
     scanRequestConfig->SetFixNumber(1);
+    if (createAsyncContextFunc  == nullptr) {
+        HandleWlanMatchInvalidParam<AsyncContextType>(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
     auto asyncContext = createAsyncContextFunc(env, scanRequestConfig, singleCallbackHost);
     if (asyncContext == nullptr) {
-        HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
+        HandleWlanMatchInvalidParam<AsyncContextType>(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     auto callbackPtr = sptr<ILocatingRequiredDataCallback>(singleCallbackHost);
