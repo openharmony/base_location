@@ -1610,11 +1610,7 @@ napi_value DoWlanMatchRequest(napi_env env, napi_callback_info info,
 
     auto singleCallbackHost = CreateSingleCallbackHost();
     if (singleCallbackHost == nullptr) {
-        if constexpr (IsFindMatchingWlanContext<AsyncContextType>::value) {
-            ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-        } else {
-            HandleSyncErrCode(env, ERRCODE_INVALID_PARAM);
-        }
+        HandleWlanMatchInvalidParam<AsyncContextType>(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     std::unique_ptr<LocatingRequiredDataConfig> scanRequestConfig = std::make_unique<LocatingRequiredDataConfig>();
