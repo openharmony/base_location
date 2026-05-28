@@ -1001,6 +1001,21 @@ ErrCode LocatorAbility::AddGnssGeofence(const GeofenceRequest& request)
     }
     std::shared_ptr<GeofenceRequest> geofenceRequest =
         std::make_shared<GeofenceRequest>(const_cast<GeofenceRequest&>(request));
+    std::vector<GeofenceTransitionEvent> transitionStatusList = geofenceRequest->GetGeofenceTransitionEventList();
+    bool isNewEvent = false;
+    for (const auto& event : transitionStatusList) {
+        if (event == GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_APPROACHING_GEOFENCE ||
+            event == GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_LEAVING_GEOFENCE ||
+            event == GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_NEAR_WANDER) {
+            isNewEvent = true;
+            break;
+        }
+    }
+    if (isNewEvent &&
+        !PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        LBSLOGE(LOCATOR, "CheckSystemPermission return false, [%{public}s]", identity.ToString().c_str());
+        return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
     geofenceRequest->SetBundleName(identity.GetBundleName());
     geofenceRequest->SetUid(identity.GetUid());
     geofenceRequest->SetPid(identity.GetPid());
