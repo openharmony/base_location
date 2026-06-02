@@ -18,7 +18,7 @@
 #include <string>
 
 #include <initializer_list>
-
+#include <unordered_map>
 #include "hisysevent.h"
 
 #include "location_log.h"
