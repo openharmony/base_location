@@ -26,6 +26,9 @@
 
 namespace OHOS {
 namespace Location {
+static const std::unordered_map<std::string, std::string> typeValues = {{"gps", "100"},
+    {"passive", "101"}, {"network", "102"}};
+
 template<typename... Types>
 static void WriteEvent(const std::string& eventType, Types... args)
 {
@@ -78,7 +81,10 @@ void WriteLocationRequestEvent(const std::string& packageName, const std::string
         LBSLOGE(COMMON_UTILS, "packageName is empty");
         return;
     }
-    WriteEvent("APPLICATION_LOCATION_REASON", "TYPE", abilityName, "REASON", packageName);
+    auto it = typeValues.find(abilityName);
+    if (it != typeValues.end()) {
+        WriteEvent("APPLICATION_LOCATION_REASON", "TYPE", it->second, "REASON", packageName);
+    }
 }
 }  // namespace Location
 }  // namespace OHOS
