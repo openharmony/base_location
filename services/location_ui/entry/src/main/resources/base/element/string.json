@@ -422,6 +422,22 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_title",
+            "value":"Note"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_text",
+            "value":"Block connection requests from unknown devices for the next %s minutes?"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_no_button",
+            "value":"Cancel"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_ok_button",
+            "value":"OK"
         }
     ]
 }
