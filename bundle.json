@@ -89,7 +89,8 @@
                 "time_service",
                 "netmanager_base",
                 "cJSON",
-                "json"
+                "json",
+                "taihe_ffi_gen"
             ]
         },
         "build": {
