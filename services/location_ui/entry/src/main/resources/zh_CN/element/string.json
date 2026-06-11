@@ -426,6 +426,22 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_title",
+            "value":"提示"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_text",
+            "value":"%s分钟内不再允许陌生设备发起连接请求？"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_no_button",
+            "value":"取消"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_ok_button",
+            "value":"确认"
         }
     ]
 }

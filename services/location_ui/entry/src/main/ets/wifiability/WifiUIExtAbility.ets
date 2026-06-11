@@ -23,6 +23,7 @@ const DEVICE_TYPE_TV = 'tv';
 const WIFI_DIALOG_P2P_WSC_PBC: number = 4;
 const WIFI_DIALOG_P2P_WSC_DISPLAY: number = 6;
 const WIFI_DIALOG_P2P_WSC_KEYPAD: number = 7;
+const WIFI_DIALOG_P2P_UNTRUST_INVITE: number = 8;
 
 export default class WifiUIExtAbility extends UIExtensionAbility {
     onSessionCreate(want: Want, session: UIExtensionContentSession) {
@@ -38,6 +39,7 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         AppStorage.setOrCreate('p2pPinCode', want.parameters?.['p2pPinCode']);
         AppStorage.setOrCreate('targetSsid', want.parameters?.['targetSsid']);
         AppStorage.setOrCreate('dialogTimeout', want.parameters?.['dialogTimeout']);
+        AppStorage.setOrCreate('untrustDuration', want.parameters?.['untrustDuration']);
 
         let param: Record<string, UIExtensionContentSession> = {
             'session': session
@@ -47,7 +49,8 @@ export default class WifiUIExtAbility extends UIExtensionAbility {
         if (type == WIFI_DIALOG_P2P_WSC_PBC || type == WIFI_DIALOG_P2P_WSC_DISPLAY ||
             type == WIFI_DIALOG_P2P_WSC_KEYPAD) {
             session.loadContent('pages/P2pWscDialog', storage);
-
+        } else if (type == WIFI_DIALOG_P2P_UNTRUST_INVITE) {
+ 	  	    session.loadContent('pages/P2pUntrustDialog', storage);
         } else {
             session.loadContent('pages/WifiDialog', storage);
         }
