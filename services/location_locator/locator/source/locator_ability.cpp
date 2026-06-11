@@ -112,6 +112,7 @@ const uint32_t RETRY_INTERVAL_OF_UNLOAD_SA = 30 * 60 * RETRY_INTERVAL_UNITE;
 #endif // FEATURE_DYNAMIC_OFFLOAD
 const int COMMON_SA_ID = 4353;
 const int COMMON_SWITCH_STATE_ID = 30;
+const int UID_SUPER_PRIVACY_SERVER = 7888;
 const std::u16string COMMON_DESCRIPTION = u"location.IHifenceAbility";
 const std::string UNLOAD_TASK = "locatior_sa_unload";
 const std::string WIFI_SCAN_STATE_CHANGE = "wifiScanStateChange";
@@ -539,7 +540,8 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
     int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
     LocationErrCode code =
         LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
-    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState &&
+        (identity.GetBundleName() == "com.ohos.sceneboard" || identity.GetUid() == UID_SUPER_PRIVACY_SERVER)) {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -581,7 +583,8 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
     int currentUserId = 0;
     LocationErrCode code =
         LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
-    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard" &&
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState &&
+        (identity.GetBundleName() == "com.ohos.sceneboard" || identity.GetUid() == UID_SUPER_PRIVACY_SERVER) &&
         (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
