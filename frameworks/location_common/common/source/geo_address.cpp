@@ -57,11 +57,11 @@ std::string GeoAddress::GetDescriptions(int index)
     if (index < 0) {
         return "";
     }
+
+    std::unique_lock<std::mutex> lock(mutex_);
     if (descriptionsSize_ <= 0) {
         return "";
     }
-
-    std::unique_lock<std::mutex> lock(mutex_);
     std::map<int, std::string>::iterator it = descriptions_.find(index);
     if (it == descriptions_.end()) {
         return "";
@@ -117,18 +117,20 @@ void GeoAddress::ReadFromParcel(Parcel& in)
     addressUrl_ = Str16ToStr8(in.ReadString16());
     int size = in.ReadInt32(); // descriptionsSize
     if (size > 0 && size < MAXIMUM_INTERATION) {
+        std::unique_lock<std::mutex> lock(mutex_);
         for (int i = 0; i < size; i++) {
             int index = in.ReadInt32();
             if (index < 0 || index >= MAXIMUM_INTERATION) {
                 continue;
             }
             std::string line = Str16ToStr8(in.ReadString16());
-            std::unique_lock<std::mutex> lock(mutex_);
             descriptions_.insert(std::pair<int, std::string>(index, line));
             descriptionsSize_ = std::max(descriptionsSize_, index + 1);
         }
     } else {
+        std::unique_lock<std::mutex> lock(mutex_);
         descriptionsSize_ = 0;
+        descriptions_.clear();
     }
     isFromMock_ = in.ReadBool();
 }
