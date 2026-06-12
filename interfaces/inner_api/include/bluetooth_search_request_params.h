@@ -38,19 +38,19 @@ public:
         rssiThreshold_ = parcel.ReadInt32();
         int32_t size = parcel.ReadInt32();
         for (int32_t i = 0; i < size; i++) {
-            deviceIdArray_.push_back(Str16ToStr8(parcel.ReadString16()));
+            deviceIdArray.push_back(Str16ToStr8(parcel.ReadString16()));
         }
     }
 
     bool Marshalling(Parcel& parcel) const override
     {
-        if (!parcel.WriteInt32(rssiThreshold_)) {
+        if (!parcel.WriteInt32(rssiThreshold)) {
             return false;
         }
-        if (!parcel.WriteInt32(deviceIdArray_.size())) {
+        if (!parcel.WriteInt32(deviceIdArray.size())) {
             return false;
         }
-        for (const auto& deviceId : deviceIdArray_) {
+        for (const auto& deviceId : deviceIdArray) {
             if (!parcel.WriteString16(Str8ToStr16(deviceId))) {
                 return false;
             }
@@ -67,8 +67,8 @@ public:
         return params;
     }
 
-    std::vector<std::string> deviceIdArray_;
-    int32_t rssiThreshold_;
+    std::vector<std::string> deviceIdArray;
+    int32_t rssiThreshold;
 };
 
 } // namespace Location

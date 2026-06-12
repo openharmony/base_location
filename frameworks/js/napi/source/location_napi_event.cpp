@@ -761,7 +761,10 @@ bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi
     if (savedCallback == nullptr || handler == nullptr) {
         return false;
     }
-    NAPI_CALL_BASE(env, napi_get_reference_value(env, savedCallback, &handlerTemp), false);
+    napi_status status = napi_get_reference_value(env, savedCallback, &handlerTemp);
+    if (status != napi_ok || handlerTemp == nullptr) {
+        return false;
+    }
     bool isEqual = false;
     NAPI_CALL_BASE(env, napi_strict_equals(env, handlerTemp, handler, &isEqual), false);
     return isEqual;
