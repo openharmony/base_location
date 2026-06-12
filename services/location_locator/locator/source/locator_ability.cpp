@@ -2051,28 +2051,26 @@ ErrCode LocatorAbility::UnSubscribeBluetoothScanResultChange(
 ErrCode LocatorAbility::StartBluetoothSearch(const BluetoothSearchRequestParams& params,
     const sptr<IBluetoothScanResultCallback>& cb)
 {
-    LBSLOGI(LOCATOR, "BT_SEARCH_LOG LocatorAbility::StartBluetoothSearch called, rssiThreshold=%{public}d, deviceIdArray.size=%{public}zu",
-        params.rssiThreshold, params.deviceIdArray.size());
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::START_SCAN_BLUETOOTH_DEVICE, identity)) {
-        LBSLOGE(LOCATOR, "BT_SEARCH_LOG StartBluetoothSearch CheckRequestAvailable failed");
+        LBSLOGE(LOCATOR, " StartBluetoothSearch CheckRequestAvailable failed");
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!CheckLocationSwitchState()) {
-        LBSLOGE(LOCATOR, "BT_SEARCH_LOG StartBluetoothSearch CheckLocationSwitchState failed");
+        LBSLOGE(LOCATOR, " StartBluetoothSearch CheckLocationSwitchState failed");
         return ERRCODE_SWITCH_OFF;
     }
     if (!CheckBluetoothSwitchState()) {
-        LBSLOGE(LOCATOR, "BT_SEARCH_LOG %{public}s bluetooth is off", __func__);
+        LBSLOGE(LOCATOR, " %{public}s bluetooth is off", __func__);
         return ERRCODE_SCAN_FAIL;
     }
     if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        LBSLOGE(LOCATOR, "BT_SEARCH_LOG StartBluetoothSearch CheckLocationPermission failed");
+        LBSLOGE(LOCATOR, " StartBluetoothSearch CheckLocationPermission failed");
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {
-        LBSLOGE(LOCATOR, "BT_SEARCH_LOG %{public}s.callback == nullptr", __func__);
+        LBSLOGE(LOCATOR, " %{public}s.callback == nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
@@ -2080,13 +2078,11 @@ ErrCode LocatorAbility::StartBluetoothSearch(const BluetoothSearchRequestParams&
     callbackMessage->SetCallback(cb);
     callbackMessage->SetAppIdentity(identity);
     callbackMessage->SetBluetoothSearchParams(params);
-    LBSLOGI(LOCATOR, "BT_SEARCH_LOG StartBluetoothSearch sending event to handler");
     AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
         Get(EVENT_START_BLUETOOTH_SEARCH, callbackMessage);
     if (locatorHandler_ != nullptr) {
         locatorHandler_->SendEvent(event);
     }
-    LBSLOGI(LOCATOR, "BT_SEARCH_LOG StartBluetoothSearch event sent");
     return ERRCODE_SUCCESS;
 }
 

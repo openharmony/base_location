@@ -1621,13 +1621,10 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
 LocationErrCode LocatorImpl::StartBluetoothSearch(const BluetoothSearchRequestParams& params,
     sptr<IBluetoothScanResultCallback>& callback)
 {
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG LocatorImpl::StartBluetoothSearch() begin, rssiThreshold=%{public}d, deviceIdArray.size=%{public}zu",
-        params.rssiThreshold, params.deviceIdArray.size());
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG StartBluetoothSearch InitLocationSa failed");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(LOCATOR_STANDARD, "BT_SEARCH_LOG LocatorImpl::StartBluetoothSearch()");
     sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG %{public}s get proxy failed.", __func__);
@@ -1637,21 +1634,11 @@ LocationErrCode LocatorImpl::StartBluetoothSearch(const BluetoothSearchRequestPa
         LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG StartBluetoothSearch callback is nullptr");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG LocatorImpl::StartBluetoothSearch() calling proxy");
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG params.rssiThreshold=%{public}d, params.deviceIdArray.size=%{public}zu",
-        params.rssiThreshold, params.deviceIdArray.size());
     auto callbackObj = callback->AsObject();
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG callback ptr=%{public}p, AsObject ptr=%{public}p",
-        callback.GetRefPtr(), callbackObj.GetRefPtr());
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG proxy ptr=%{public}p", proxy.GetRefPtr());
     if (callbackObj == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG callback->AsObject() is nullptr!");
     }
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG TEST: using original params");
     ErrCode errorCodeValue = proxy->StartBluetoothSearch(params, callback);
-
-
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG LocatorImpl::StartBluetoothSearch() proxy returned, errorCodeValue=%{public}d", errorCodeValue);
     if (errorCodeValue != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG StartBluetoothSearch failed.");
     }
@@ -1664,7 +1651,6 @@ LocationErrCode LocatorImpl::StopBluetoothSearch(sptr<IBluetoothScanResultCallba
     if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopBluetoothSearch()");
     sptr<ILocatorService> proxy = GetProxy();
     if (proxy == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);

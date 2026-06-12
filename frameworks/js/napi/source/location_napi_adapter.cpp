@@ -2350,16 +2350,11 @@ void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext
 {
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG CreateBluetoothSearchAsyncContext execute, rssiThreshold=%{public}d",
-            context->bluetoothSearchParams->rssiThreshold);
-        LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG CreateBluetoothSearchAsyncContext callback ptr=%{public}p, AsObject ptr=%{public}p",
-            context->callback.GetRefPtr(), context->callback->AsObject().GetRefPtr());
         context->errCode = g_locatorClient->StartBluetoothSearch(
             *(context->bluetoothSearchParams), context->callback);
     };
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG StartBluetoothSearch complete, errCode=%{public}d", context->errCode);
         if (context->errCode != ERRCODE_SUCCESS) {
             auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
             if (callbackNapi != nullptr) {
@@ -2371,7 +2366,7 @@ void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext
 
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
 {
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG StartBluetoothSearch napi called");
+
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
@@ -2417,12 +2412,10 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
     }
 
     if (!ParseBluetoothSearchRequestParams(env, argv[PARAM0], *(asyncContext->bluetoothSearchParams))) {
-        LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG ParseBluetoothSearchRequestParams failed");
+        LBSLOGE(LOCATOR_STANDARD, " ParseBluetoothSearchRequestParams failed");
         delete asyncContext;
         return UndefinedNapiValue(env);
     }
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG ParseBluetoothSearchRequestParams success, rssiThreshold=%{public}d, deviceIdArray.size=%{public}zu",
-        asyncContext->bluetoothSearchParams->rssiThreshold, asyncContext->bluetoothSearchParams->deviceIdArray.size());
 
     napi_ref callbackRef = nullptr;
     NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], 1, &callbackRef));
@@ -2448,12 +2441,11 @@ void CreateStopBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncCon
 {
     asyncContext->executeFunc = [&](void* data) -> void {
         auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG CreateStopBluetoothSearchAsyncContext execute");
+        LBSLOGI(LOCATOR_STANDARD, " CreateStopBluetoothSearchAsyncContext execute");
         context->errCode = g_locatorClient->StopBluetoothSearch(context->callback);
     };
     asyncContext->completeFunc = [&](void* data) -> void {
         auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG StopBluetoothSearch complete, errCode=%{public}d", context->errCode);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->errCode == ERRCODE_SUCCESS, &context->result[PARAM1]));
         if (context->errCode == ERRCODE_SUCCESS) {
@@ -2472,7 +2464,6 @@ void CreateStopBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncCon
 
 napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
 {
-    LBSLOGI(LOCATOR_STANDARD, "BT_SEARCH_LOG StopBluetoothSearch napi called");
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
@@ -2497,7 +2488,7 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
 
     auto bluetoothScanResultCallbackHost = g_bluetoothSearchCallbackHosts.GetCallbackPtr(env, argv[PARAM0]);
     if (bluetoothScanResultCallbackHost == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG StopBluetoothSearch callback not found");
+        LBSLOGE(LOCATOR_STANDARD, "StopBluetoothSearch callback not found");
         ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return UndefinedNapiValue(env);
     }
@@ -2517,7 +2508,7 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
     }
 
     asyncContext->callback = bluetoothScanResultCallbackHost;
-    asyncContext->handlerRef = argv[PARAM0];
+    NAPI_CALL(env, napi_create_reference(env, argv[PARAM0], 1, &asyncContext->handlerRef));
 
     CreateStopBluetoothSearchAsyncContext(asyncContext);
 
