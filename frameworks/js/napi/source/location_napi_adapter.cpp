@@ -2360,6 +2360,11 @@ void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext
             if (callbackNapi != nullptr) {
                 callbackNapi->DeleteHandler();
             }
+            napi_value handler = nullptr;
+            if (context->handlerRef != nullptr &&
+                napi_get_reference_value(context->env, context->handlerRef, &handler) == napi_ok) {
+                g_bluetoothSearchCallbackHosts.DeleteCallback(context->env, handler);
+            }
         }
     };
 }
@@ -2429,6 +2434,7 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     asyncContext->callback = bluetoothScanResultCallback;
+    asyncContext->handlerRef = callbackRef;
     g_bluetoothSearchCallbackHosts.AddCallback(env, callbackRef, bluetoothScanResultCallback);
 
     CreateBluetoothSearchAsyncContext(asyncContext);
