@@ -38,7 +38,7 @@ public:
         rssiThreshold_ = parcel.ReadInt32();
         int32_t size = parcel.ReadInt32();
         for (int32_t i = 0; i < size; i++) {
-            deviceIdArray.push_back(Str16ToStr8(parcel.ReadString16()));
+            deviceIdArray_.push_back(Str16ToStr8(parcel.ReadString16()));
         }
     }
 
