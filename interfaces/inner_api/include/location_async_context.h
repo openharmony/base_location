@@ -38,6 +38,8 @@
 #include "location_gnss_geofence_callback_napi.h"
 #include "bluetooth_scan_result.h"
 #include "poi_info_callback_napi.h"
+#include "bluetooth_search_request_params.h"
+#include "ibluetooth_scan_result_callback.h"
 
 namespace OHOS {
 namespace Location {
@@ -305,16 +307,19 @@ public:
 
 class BluetoothSearchAsyncContext : public AsyncContext {
 public:
-    std::unique_ptr<BluetoothScanResult> bluetoothSearchParams;
+    std::unique_ptr<BluetoothSearchRequestParams> bluetoothSearchParams;
     sptr<IBluetoothScanResultCallback> callback;
+    napi_ref handlerRef;
 
     explicit BluetoothSearchAsyncContext(napi_env env, napi_async_work work = nullptr,
-        napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), callback(nullptr) {}
+        napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), callback(nullptr), handlerRef(nullptr) {}
 
     BluetoothSearchAsyncContext() = delete;
 
     ~BluetoothSearchAsyncContext() override {}
 };
+
+
 
 class BluetoothScanResultAsyncContext : public AsyncContext {
 public:
