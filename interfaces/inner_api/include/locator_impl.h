@@ -628,6 +628,10 @@ public:
      */
     LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoothScanResultCallback>& callback);
 
+
+   
+   
+
     /**
      * @brief Unsubscribe location errorcode changed.
      *

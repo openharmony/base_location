@@ -303,6 +303,19 @@ public:
     ~LocationErrorAsyncContext() override {}
 };
 
+class BluetoothSearchAsyncContext : public AsyncContext {
+public:
+    std::unique_ptr<BluetoothScanResult> bluetoothSearchParams;
+    sptr<IBluetoothScanResultCallback> callback;
+
+    explicit BluetoothSearchAsyncContext(napi_env env, napi_async_work work = nullptr,
+        napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), callback(nullptr) {}
+
+    BluetoothSearchAsyncContext() = delete;
+
+    ~BluetoothSearchAsyncContext() override {}
+};
+
 class BluetoothScanResultAsyncContext : public AsyncContext {
 public:
     std::unique_ptr<BluetoothScanResult> bluetoothScanResult;

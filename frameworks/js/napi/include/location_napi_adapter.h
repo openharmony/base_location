@@ -102,6 +102,11 @@ void CreateGeoFenceAsyncContext(GeofenceAsyncContext* asyncContext);
 napi_value IsGnssServiceSupported(napi_env env, napi_callback_info info);
 napi_value IsGnssFenceServiceSupported(napi_env env, napi_callback_info info);
 napi_value IsCachedGnssServiceSupported(napi_env env, napi_callback_info info);
+napi_value StartBluetoothSearch(napi_env env, napi_callback_info info);
+napi_value StopBluetoothSearch(napi_env env, napi_callback_info info);
+bool ParseBluetoothSearchRequestParams(napi_env env, napi_value paramObj,
+    BluetoothScanResult)
+
 #endif
 }  // namespace Location
 }  // namespace OHOS

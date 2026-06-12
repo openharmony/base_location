@@ -32,6 +32,7 @@ void DeleteBlueToothCallback(napi_ref cb);
 class BluetoothScanResultCallbackNapi : public IRemoteStub<IBluetoothScanResultCallback> {
 public:
     BluetoothScanResultCallbackNapi();
+    BluetoothScanResultCallbackNapi(napi_env env, napi_ref callbackRef);
     virtual ~BluetoothScanResultCallbackNapi();
     virtual int OnRemoteRequest(uint32_t code,
         MessageParcel& data, MessageParcel& reply, MessageOption& option) override;
