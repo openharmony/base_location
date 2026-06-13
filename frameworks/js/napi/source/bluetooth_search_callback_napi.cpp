@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,11 @@ namespace Location {
 const int MAX_DEVICE_ID_ARRAY_SIZE = 64;
 const int MAX_DEVICE_ID_STR_LEN = 64;
 
+static bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
+    BluetoothSearchRequestParams& params);
+static bool ParseRssiThresholdFromJs(const napi_env& env, const napi_value& object,
+    BluetoothSearchRequestParams& params);
+
 bool JsObjToBluetoothSearchRequest(const napi_env& env, const napi_value& object,
     BluetoothSearchRequestParams& params)
 {
@@ -44,7 +49,7 @@ bool JsObjToBluetoothSearchRequest(const napi_env& env, const napi_value& object
     return true;
 }
 
-bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
+static bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
     BluetoothSearchRequestParams& params)
 {
     bool hasDeviceIdArray = false;
@@ -67,6 +72,7 @@ bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
     }
     for (uint32_t i = 0; i < arrayLength; ++i) {
         napi_value element;
+        napi_valuetype valueType;
         napi_get_element(env, deviceIdArrayValue, i, &element);
         napi_typeof(env, element, &valueType);
         if (valueType != napi_string) {
@@ -81,7 +87,7 @@ bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
     return true;
 }
 
-bool ParseRssiThresholdFromJs(const napi_env& env, const napi_value& object,
+static bool ParseRssiThresholdFromJs(const napi_env& env, const napi_value& object,
     BluetoothSearchRequestParams& params)
 {
     bool hasRssiThreshold = false;
