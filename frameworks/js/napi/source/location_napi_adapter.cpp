@@ -2285,67 +2285,6 @@ napi_value GetActiveGeoFences(napi_env env, napi_callback_info info)
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
 
-bool ParseBluetoothSearchRequestParams(napi_env env, napi_value paramsObj,
-    BluetoothSearchRequestParams& params)
-{
-    napi_valuetype valueType;
-    
-    params.rssiThreshold = -1000;
-    params.deviceIdArray.clear();
-
-    bool hasDeviceIdArray = false;
-    napi_has_named_property(env, paramsObj, "deviceIdArray", &hasDeviceIdArray);
-    if (hasDeviceIdArray) {
-        napi_value deviceIdArrayValue;
-        napi_get_named_property(env, paramsObj, "deviceIdArray", &deviceIdArrayValue);
-        napi_typeof(env, deviceIdArrayValue, &valueType);
-        if (valueType == napi_object) {
-            bool isArray = false;
-            napi_is_array(env, deviceIdArrayValue, &isArray);
-            if (isArray) {
-                uint32_t arrayLength = 0;
-                napi_get_array_length(env, deviceIdArrayValue, &arrayLength);
-                if (arrayLength > 64) {
-                    LBSLOGE(LOCATOR_STANDARD, "ParseBluetoothSearchRequestParams deviceIdArray too large");
-                    ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-                    return false;
-                }
-                for (uint32_t i = 0; i < arrayLength; ++i) {
-                    napi_value element;
-                    napi_get_element(env, deviceIdArrayValue, i, &element);
-                    napi_typeof(env, element, &valueType);
-                    if (valueType != napi_string) {
-                        LBSLOGE(LOCATOR_STANDARD, "ParseBluetoothSearchRequestParams element not string");
-                        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-                        return false;
-                    }
-                    char deviceIdStr[64] = {0};
-                    size_t deviceIdLen = 0;
-                    napi_get_value_string_utf8(env, element, deviceIdStr, sizeof(deviceIdStr), &deviceIdLen);
-                    params.deviceIdArray.push_back(std::string(deviceIdStr));
-                }
-            }
-        }
-    }
-
-    bool hasRssiThreshold = false;
-    napi_has_named_property(env, paramsObj, "rssiThreshold", &hasRssiThreshold);
-    if (hasRssiThreshold) {
-        napi_value rssiValue;
-        napi_get_named_property(env, paramsObj, "rssiThreshold", &rssiValue);
-        napi_typeof(env, rssiValue, &valueType);
-        if (valueType == napi_number) {
-            int32_t rssi = 0;
-            napi_status status = napi_get_value_int32(env, rssiValue, &rssi);
-            if (status == napi_ok) {
-                params.rssiThreshold = rssi;
-            }
-        }
-    }
-
-    return true;
-}
-
 void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext)
 {
     asyncContext->executeFunc = [&](void* data) -> void {
