@@ -2054,23 +2054,18 @@ ErrCode LocatorAbility::StartBluetoothSearch(const BluetoothSearchRequestParams&
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::START_SCAN_BLUETOOTH_DEVICE, identity)) {
-        LBSLOGE(LOCATOR, " StartBluetoothSearch CheckRequestAvailable failed");
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!CheckLocationSwitchState()) {
-        LBSLOGE(LOCATOR, " StartBluetoothSearch CheckLocationSwitchState failed");
         return ERRCODE_SWITCH_OFF;
     }
     if (!CheckBluetoothSwitchState()) {
-        LBSLOGE(LOCATOR, " %{public}s bluetooth is off", __func__);
         return ERRCODE_SCAN_FAIL;
     }
     if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        LBSLOGE(LOCATOR, " StartBluetoothSearch CheckLocationPermission failed");
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {
-        LBSLOGE(LOCATOR, " %{public}s.callback == nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
     std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =

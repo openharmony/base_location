@@ -29,13 +29,13 @@ class BluetoothSearchRequestParams : public Parcelable {
 public:
     BluetoothSearchRequestParams()
     {
-        rssiThreshold_ = -1000;
+        rssiThreshold = -1000;
     }
     ~BluetoothSearchRequestParams() override = default;
 
     void ReadFromParcel(Parcel& parcel)
     {
-        rssiThreshold_ = parcel.ReadInt32();
+        rssiThreshold = parcel.ReadInt32();
         int32_t size = parcel.ReadInt32();
         for (int32_t i = 0; i < size; i++) {
             deviceIdArray.push_back(Str16ToStr8(parcel.ReadString16()));

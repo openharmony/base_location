@@ -279,8 +279,7 @@ static napi_value Init(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("getSupportedCoordTypes", GetSupportedCoordTypes),
         DECLARE_NAPI_FUNCTION("startBluetoothSearch", StartBluetoothSearch),
         DECLARE_NAPI_FUNCTION("stopBluetoothSearch", StopBluetoothSearch),
-
-
+        
         DECLARE_NAPI_PROPERTY("LocationRequestPriority", LocationRequestPriorityTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationRequestScenario", LocationRequestScenarioTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("LocationPrivacyType", LocationPrivacyTypeConstructor(env)),

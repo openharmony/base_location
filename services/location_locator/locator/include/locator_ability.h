@@ -189,7 +189,7 @@ public:
     LocationErrCode UnregisterBleScanInfoCallback(const sptr<IRemoteObject>& callback);
     ErrCode SubscribeBluetoothScanResultChange(const sptr<IBluetoothScanResultCallback>& cb) override;
     ErrCode UnSubscribeBluetoothScanResultChange(const sptr<IBluetoothScanResultCallback>& cb) override;
-     ErrCode StartBluetoothSearch(const BluetoothSearchRequestParams& params,
+    ErrCode StartBluetoothSearch(const BluetoothSearchRequestParams& params,
         const sptr<IBluetoothScanResultCallback>& cb) override;
     ErrCode StopBluetoothSearch(const sptr<IBluetoothScanResultCallback>& cb) override;
     LocationErrCode RegisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity);
