@@ -2352,117 +2352,16 @@ void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext
         auto context = static_cast<BluetoothSearchAsyncContext*>(data);
         context->errCode = g_locatorClient->StartBluetoothSearch(
             *(context->bluetoothSearchParams), context->callback);
-    };
-    asyncContext->completeFunc = [&](void* data) -> void {
-        auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        if (context->errCode != ERRCODE_SUCCESS) {
-            auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
-            if (callbackNapi != nullptr) {
-                callbackNapi->DeleteHandler();
-            }
-            napi_value handler = nullptr;
-            if (context->handlerRef != nullptr &&
-                napi_get_reference_value(context->env, context->handlerRef, &handler) == napi_ok) {
-                g_bluetoothSearchCallbackHosts.DeleteCallback(context->env, handler);
-            }
-        }
-    };
-}
-
-static bool ParseDeviceIdArray(napi_env env, napi_value paramsObj, BluetoothSearchRequestParams& params)
-{
-    bool hasDeviceIdArray = false;
-    napi_has_named_property(env, paramsObj, "deviceIdArray", &hasDeviceIdArray);
-    if (!hasDeviceIdArray) {
-        return true;
-    }
-    napi_valuetype valueType;
-    napi_value deviceIdArrayValue;
-    napi_get_named_property(env, paramsObj, "deviceIdArray", &deviceIdArrayValue);
-    napi_typeof(env, deviceIdArrayValue, &valueType);
-    if (valueType != napi_object) {
-        return true;
-    }
-    bool isArray = false;
-    napi_is_array(env, deviceIdArrayValue, &isArray);
-    if (!isArray) {
-        return true;
-    }
-    uint32_t arrayLength = 0;
-    napi_get_array_length(env, deviceIdArrayValue, &arrayLength);
-    if (arrayLength > 64) {
-        LBSLOGE(LOCATOR_STANDARD, "ParseBluetoothSearchRequestParams deviceIdArray too large");
-        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-        return false;
-    }
-    for (uint32_t i = 0; i < arrayLength; ++i) {
-        napi_value element;
-        napi_get_element(env, deviceIdArrayValue, i, &element);
-        napi_typeof(env, element, &valueType);
-        if (valueType != napi_string) {
-            LBSLOGE(LOCATOR_STANDARD, "ParseBluetoothSearchRequestParams element not string");
-            ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-            return false;
-        }
-        char deviceIdStr[64] = {0};
-        size_t deviceIdLen = 0;
-        napi_get_value_string_utf8(env, element, deviceIdStr, sizeof(deviceIdStr), &deviceIdLen);
-        params.deviceIdArray.push_back(std::string(deviceIdStr));
-    }
-    return true;
-}
-
-static bool ParseRssiThreshold(napi_env env, napi_value paramsObj, BluetoothSearchRequestParams& params)
-{
-    bool hasRssiThreshold = false;
-    napi_has_named_property(env, paramsObj, "rssiThreshold", &hasRssiThreshold);
-    if (!hasRssiThreshold) {
-        return true;
-    }
-    napi_valuetype valueType;
-    napi_value rssiValue;
-    napi_get_named_property(env, paramsObj, "rssiThreshold", &rssiValue);
-    napi_typeof(env, rssiValue, &valueType);
-    if (valueType != napi_number) {
-        return true;
-    }
-    int32_t rssi = 0;
-    napi_status status = napi_get_value_int32(env, rssiValue, &rssi);
-    if (status == napi_ok) {
-        params.rssiThreshold = rssi;
-    }
-    return true;
-}
-
-bool ParseBluetoothSearchRequestParams(napi_env env, napi_value paramsObj,
-    BluetoothSearchRequestParams& params)
-{
-    params.rssiThreshold = DEFAULT_RSSI_THRESHOLD;
-    params.deviceIdArray.clear();
-    if (!ParseDeviceIdArray(env, paramsObj, params)) {
-        return false;
-    }
-    if (!ParseRssiThreshold(env, paramsObj, params)) {
-        return false;
-    }
-    return true;
-}
-
-void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext)
-{
-    asyncContext->executeFunc = [&](void* data) -> void {
-        auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        context->errCode = g_locatorClient->StartBluetoothSearch(
-            *(context->bluetoothSearchParams), context->callback);
-    };
-    asyncContext->completeFunc = [&](void* data) -> void {
-        auto context = static_cast<BluetoothSearchAsyncContext*>(data);
         if (context->errCode == ERRCODE_SUCCESS) {
             auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
             if (callbackNapi != nullptr) {
                 g_bluetoothSearchCallbackHosts.AddCallback(context->env, context->handlerRef, callbackNapi);
             }
-        } else {
+        }
+    };
+    asyncContext->completeFunc = [&](void* data) -> void {
+        auto context = static_cast<BluetoothSearchAsyncContext*>(data);
+        if (context->errCode != ERRCODE_SUCCESS) {
             auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
             if (callbackNapi != nullptr) {
                 callbackNapi->DeleteHandler();
@@ -2509,8 +2408,10 @@ static bool CheckBluetoothSwitchEnabled(napi_env env)
         ThrowBusinessError(env, ERRCODE_SCAN_FAIL);
         return false;
     }
-#endif
     return true;
+#else
+    return false;
+#endif
 }
 
 static bool ValidateStartBluetoothSearchParams(napi_env env, napi_value* argv)
@@ -2594,7 +2495,7 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    if (!ParseBluetoothSearchRequestParams(env, argv[PARAM0], *(asyncContext->bluetoothSearchParams))) {
+    if (!JsObjToBluetoothSearchRequest(env, argv[PARAM0], *(asyncContext->bluetoothSearchParams))) {
         delete asyncContext;
         return UndefinedNapiValue(env);
     }
@@ -2622,7 +2523,7 @@ void CreateStopBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncCon
         if (context->errCode == ERRCODE_SUCCESS) {
             auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
             if (callbackNapi != nullptr) {
-                g_bluetoothSearchCallbackHosts.DeleteCallbackByPtr(context->env, callbackNapi);
+                g_bluetoothSearchCallbackHosts.DeleteCallbackByRef(context->env, callbackNapi->GetHandleCb());
                 callbackNapi->DeleteHandler();
             }
         }
