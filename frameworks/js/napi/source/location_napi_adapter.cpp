@@ -2352,9 +2352,7 @@ static bool CheckBluetoothSwitchEnabled(napi_env env)
     }
     return true;
 #else
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: BLUETOOTH_ENABLE not defined");
-    ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
-    return false;
+    return true;
 #endif
 }
 
