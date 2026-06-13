@@ -67,9 +67,8 @@ private:
         void OnStartOrStopScanEvent(int32_t resultCode, bool isStartScan) override;
     };
 #endif
-
     std::mutex callbacksMapMutex_;
-    std::map<sptr<IRemoteObject>, std::pair<AppIdentity, std::pair<BluetoothSearchRequestParams, 
+    std::map<sptr<IRemoteObject>, std::pair<AppIdentity, std::pair<BluetoothSearchRequestParams,
         sptr<IRemoteObject::DeathRecipient>>>> bluetoothSearchCallbacksMap_;
 
     std::mutex bluetoothSearchScanStatusMutex_;
