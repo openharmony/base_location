@@ -21,7 +21,7 @@
 
 namespace OHOS {
 namespace Location {
-    
+bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback);    
 template <typename T>
 class CallbackManager {
 public:
