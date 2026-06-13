@@ -105,7 +105,7 @@ napi_value IsCachedGnssServiceSupported(napi_env env, napi_callback_info info);
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info);
 napi_value StopBluetoothSearch(napi_env env, napi_callback_info info);
 bool ParseBluetoothSearchRequestParams(napi_env env, napi_value paramObj,
-    BluetoothSearchRequestParams& params)
+    BluetoothSearchRequestParams& params);
 
 #endif
 }  // namespace Location
