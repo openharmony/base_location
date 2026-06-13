@@ -47,10 +47,11 @@
 #include "beacon_fence_request.h"
 #include "beacon_fence.h"
 #include "beacon_fence_manager.h"
-#include "locationhub_ipc_interface_code.h"
-#include "i_poi_info_callback.h"
 #include "bluetooth_search_request_params.h"
 #include "bluetooth_search_manager.h"
+#include "locationhub_ipc_interface_code.h"
+#include "i_poi_info_callback.h"
+
 
 namespace OHOS {
 namespace Location {
