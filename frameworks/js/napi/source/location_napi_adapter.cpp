@@ -2544,7 +2544,7 @@ static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
         return false;
     }
     callback = sptr<BluetoothScanResultCallbackNapi>(
-        new (std::nothrow) BluetoothScanResultCallbackNapi(env, callbackRef));
+        new (std::nothrow) BluetoothScanResultCallbackNapi());
     if (callback == nullptr) {
         napi_delete_reference(env, callbackRef);
         delete asyncContext;
@@ -2552,6 +2552,8 @@ static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
         ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return false;
     }
+    callback->SetEnv(env);
+    callback->SetHandleCb(callbackRef);
     asyncContext->callback = callback;
     asyncContext->handlerRef = callbackRef;
     return true;

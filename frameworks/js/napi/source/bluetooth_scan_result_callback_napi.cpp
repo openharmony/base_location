@@ -36,16 +36,6 @@ BluetoothScanResultCallbackNapi::BluetoothScanResultCallbackNapi()
     handlerCb_ = nullptr;
 }
 
-BluetoothScanResultCallbackNapi::BluetoothScanResultCallbackNapi(napi_env env, napi_ref callbackRef)
-{
-    env_ = env;
-    handlerCb_ = callbackRef;
-    {
-        std::unique_lock<std::mutex> guard(g_regCallbackMutex);
-        g_registerCallbacks.emplace_back(callbackRef);
-    }
-}
-
 BluetoothScanResultCallbackNapi::~BluetoothScanResultCallbackNapi()
 {
 }
