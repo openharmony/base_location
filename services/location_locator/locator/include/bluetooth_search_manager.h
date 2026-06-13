@@ -69,7 +69,8 @@ private:
 #endif
 
     std::mutex callbacksMapMutex_;
-    std::map<sptr<IRemoteObject>, std::pair<AppIdentity, std::pair<BluetoothSearchRequestParams, sptr<IRemoteObject::DeathRecipient>>>> bluetoothSearchCallbacksMap_;
+    std::map<sptr<IRemoteObject>, std::pair<AppIdentity, std::pair<BluetoothSearchRequestParams, 
+        sptr<IRemoteObject::DeathRecipient>>>> bluetoothSearchCallbacksMap_;
 
     std::mutex bluetoothSearchScanStatusMutex_;
     bool bluetoothSearchScanStatus_;

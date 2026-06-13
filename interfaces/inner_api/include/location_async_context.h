@@ -319,8 +319,6 @@ public:
     ~BluetoothSearchAsyncContext() override {}
 };
 
-
-
 class BluetoothScanResultAsyncContext : public AsyncContext {
 public:
     std::unique_ptr<BluetoothScanResult> bluetoothScanResult;

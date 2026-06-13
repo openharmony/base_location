@@ -20,6 +20,7 @@
 #include <parcel.h>
 #include <string>
 #include <vector>
+#include "constant_definition.h"
 #include "string_ex.h"
 
 namespace OHOS {
@@ -29,7 +30,7 @@ class BluetoothSearchRequestParams : public Parcelable {
 public:
     BluetoothSearchRequestParams()
     {
-        rssiThreshold = -1000;
+        rssiThreshold = DEFAULT_RSSI_THRESHOLD;
     }
     ~BluetoothSearchRequestParams() override = default;
 

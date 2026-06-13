@@ -2513,6 +2513,50 @@ static bool CheckBluetoothSwitchEnabled(napi_env env)
     return true;
 }
 
+static bool ValidateStartBluetoothSearchParams(napi_env env, napi_value* argv)
+{
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s second param must be function", __func__);
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
+    if (!CheckBluetoothSearchParams(env, argv[PARAM0])) {
+        return false;
+    }
+    if (!CheckLocationSwitchEnabled(env)) {
+        return false;
+    }
+    if (!CheckBluetoothSwitchEnabled(env)) {
+        return false;
+    }
+    return true;
+}
+
+static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
+    BluetoothSearchAsyncContext* asyncContext, sptr<BluetoothScanResultCallbackNapi>& callback)
+{
+    napi_ref callbackRef = nullptr;
+    napi_status refStatus = napi_create_reference(env, handler, 1, &callbackRef);
+    if (refStatus != napi_ok || callbackRef == nullptr) {
+        delete asyncContext;
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s create reference failed", __func__);
+        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
+        return false;
+    }
+    callback = sptr<BluetoothScanResultCallbackNapi>(
+        new (std::nothrow) BluetoothScanResultCallbackNapi(env, callbackRef));
+    if (callback == nullptr) {
+        napi_delete_reference(env, callbackRef);
+        delete asyncContext;
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
+        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
+        return false;
+    }
+    asyncContext->callback = callback;
+    asyncContext->handlerRef = callbackRef;
+    return true;
+}
+
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
@@ -2529,21 +2573,7 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
 
-    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s second param must be function", __func__);
-        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
-
-    if (!CheckBluetoothSearchParams(env, argv[PARAM0])) {
-        return UndefinedNapiValue(env);
-    }
-
-    if (!CheckLocationSwitchEnabled(env)) {
-        return UndefinedNapiValue(env);
-    }
-
-    if (!CheckBluetoothSwitchEnabled(env)) {
+    if (!ValidateStartBluetoothSearchParams(env, argv)) {
         return UndefinedNapiValue(env);
     }
 
@@ -2567,28 +2597,12 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
 
-    napi_ref callbackRef = nullptr;
-    napi_status refStatus = napi_create_reference(env, argv[PARAM1], 1, &callbackRef);
-    if (refStatus != napi_ok || callbackRef == nullptr) {
-        delete asyncContext;
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s create reference failed", __func__);
-        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
+    sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback;
+    if (!CreateBluetoothSearchCallback(env, argv[PARAM1], asyncContext, bluetoothScanResultCallback)) {
         return UndefinedNapiValue(env);
     }
-    auto bluetoothScanResultCallback = sptr<BluetoothScanResultCallbackNapi>(
-        new (std::nothrow) BluetoothScanResultCallbackNapi(env, callbackRef));
-    if (bluetoothScanResultCallback == nullptr) {
-        napi_delete_reference(env, callbackRef);
-        delete asyncContext;
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
-        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
-        return UndefinedNapiValue(env);
-    }
-    asyncContext->callback = bluetoothScanResultCallback;
-    asyncContext->handlerRef = callbackRef;
 
     CreateBluetoothSearchAsyncContext(asyncContext);
-
     size_t objectArgsNum = 1;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
