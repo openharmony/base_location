@@ -2236,55 +2236,6 @@ bool CompareBeaconFence(
     return true;
 }
 
-void CreateGeofenceAsyncContext(GeofenceAsyncContext* asyncContext)
-{
-    asyncContext->executeFunc = [&](void* data) -> void {
-        if (data == nullptr) {
-            return;
-        }
-        auto context = static_cast<GeofenceAsyncContext*>(data);
-        context->errCode = g_geofenceClient->GetActiveGeoFences(context->geofenceMap_);
-    };
-
-    asyncContext->completeFunc = [&](void* data) -> void {
-        if (data == nullptr) {
-            return;
-        }
-        auto context = static_cast<GeofenceAsyncContext*>(data);
-        context->result[PARAM1] = CreateFenceMap(context->env, context->geofenceMap_);
-        g_hiAppEventClient->WriteEndEvent(
-            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "getActiveGeoFences");
-        LBSLOGI(LOCATOR_STANDARD, "Push GetActiveGeoFences result to client");
-    };
-}
-
-napi_value GetActiveGeoFences(napi_env env, napi_callback_info info)
-{
-    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
-    size_t argc = MAXIMUM_JS_PARAMS;
-    napi_value argv[MAXIMUM_JS_PARAMS];
-    napi_value thisVar = nullptr;
-    void* data = nullptr;
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
-    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
-    if (argc >= PARAM1) {
-        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
-    auto asyncContext = new (std::nothrow) GeofenceAsyncContext(env);
-    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
-    if (napi_create_string_latin1(env, "GetActiveGeoFences",
-        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
-        GET_AND_THROW_LAST_ERROR(env);
-        delete asyncContext;
-        return nullptr;
-    }
-    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
-    CreateGeofenceAsyncContext(asyncContext);
-    size_t objectArgsNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
-}
-
 void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext)
 {
     asyncContext->executeFunc = [&](void* data) -> void {
@@ -2341,21 +2292,6 @@ static bool CheckLocationSwitchEnabled(napi_env env)
     return true;
 }
 
-static bool CheckBluetoothSwitchEnabled(napi_env env)
-{
-#ifdef BLUETOOTH_ENABLE
-    Bluetooth::BluetoothState state = Bluetooth::BluetoothHost::GetDefaultHost().GetBluetoothState();
-    if (state != Bluetooth::BluetoothState::STATE_ON) {
-        LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: bluetooth is off, state=%{public}d", state);
-        ThrowBusinessError(env, ERRCODE_SCAN_FAIL);
-        return false;
-    }
-    return true;
-#else
-    return true;
-#endif
-}
-
 static bool ValidateStartBluetoothSearchParams(napi_env env, napi_value* argv)
 {
     if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
@@ -2367,9 +2303,6 @@ static bool ValidateStartBluetoothSearchParams(napi_env env, napi_value* argv)
         return false;
     }
     if (!CheckLocationSwitchEnabled(env)) {
-        return false;
-    }
-    if (!CheckBluetoothSwitchEnabled(env)) {
         return false;
     }
     return true;
@@ -2402,6 +2335,27 @@ static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
     return true;
 }
 
+static bool CheckAndCreateBluetoothSearchContext(napi_env env, napi_value* argv,
+    BluetoothSearchAsyncContext*& asyncContext, sptr<BluetoothScanResultCallbackNapi>& callback)
+{
+    if (napi_create_string_latin1(env, "StartBluetoothSearch",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        delete asyncContext;
+        GET_AND_THROW_LAST_ERROR(env);
+        return false;
+    }
+    if (!JsObjToBluetoothSearchRequest(env, argv[PARAM0], *(asyncContext->bluetoothSearchParams))) {
+        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: JsObjToBluetoothSearchRequest failed");
+        delete asyncContext;
+        return false;
+    }
+    if (!CreateBluetoothSearchCallback(env, argv[PARAM1], asyncContext, callback)) {
+        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: CreateBluetoothSearchCallback failed");
+        return false;
+    }
+    return true;
+}
+
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
@@ -2418,13 +2372,15 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: before ValidateStartBluetoothSearchParams");
     if (!ValidateStartBluetoothSearchParams(env, argv)) {
         LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: ValidateStartBluetoothSearchParams failed");
         return UndefinedNapiValue(env);
     }
-
+    auto existingCallback = g_bluetoothSearchCallbackHosts.GetCallbackPtr(env, argv[PARAM1]);
+    if (existingCallback != nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: callback already exists");
+        return UndefinedNapiValue(env);
+    }
     auto asyncContext = new (std::nothrow) BluetoothSearchAsyncContext(env);
     if (asyncContext == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s asyncContext is nullptr", __func__);
@@ -2432,32 +2388,12 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     asyncContext->bluetoothSearchParams = std::make_unique<BluetoothSearchRequestParams>();
-
-    if (napi_create_string_latin1(env, "StartBluetoothSearch",
-        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
-        delete asyncContext;
-        GET_AND_THROW_LAST_ERROR(env);
-        return nullptr;
-    }
-
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: before JsObjToBluetoothSearchRequest");
-    if (!JsObjToBluetoothSearchRequest(env, argv[PARAM0], *(asyncContext->bluetoothSearchParams))) {
-        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: JsObjToBluetoothSearchRequest failed");
-        delete asyncContext;
-        return UndefinedNapiValue(env);
-    }
-
     sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback;
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: before CreateBluetoothSearchCallback");
-    if (!CreateBluetoothSearchCallback(env, argv[PARAM1], asyncContext, bluetoothScanResultCallback)) {
-        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: CreateBluetoothSearchCallback failed");
+    if (!CheckAndCreateBluetoothSearchContext(env, argv, asyncContext, bluetoothScanResultCallback)) {
         return UndefinedNapiValue(env);
     }
-
     CreateBluetoothSearchAsyncContext(asyncContext);
-    size_t objectArgsNum = 1;
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: before DoAsyncWork");
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+    return DoAsyncWork(env, asyncContext, argc, argv, 1);
 }
 
 void CreateStopBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext)
@@ -2539,6 +2475,56 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
     size_t objectArgsNum = 0;
     return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
 }
+
+void CreateGeofenceAsyncContext(GeofenceAsyncContext* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GeofenceAsyncContext*>(data);
+        context->errCode = g_geofenceClient->GetActiveGeoFences(context->geofenceMap_);
+    };
+
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<GeofenceAsyncContext*>(data);
+        context->result[PARAM1] = CreateFenceMap(context->env, context->geofenceMap_);
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "getActiveGeoFences");
+        LBSLOGI(LOCATOR_STANDARD, "Push GetActiveGeoFences result to client");
+    };
+}
+
+napi_value GetActiveGeoFences(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    if (argc >= PARAM1) {
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto asyncContext = new (std::nothrow) GeofenceAsyncContext(env);
+    NAPI_ASSERT(env, asyncContext != nullptr, "asyncContext is null.");
+    if (napi_create_string_latin1(env, "GetActiveGeoFences",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    CreateGeofenceAsyncContext(asyncContext);
+    size_t objectArgsNum = 0;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+
 #endif
 } // namespace Location
 } // namespace OHOS

@@ -244,7 +244,7 @@ void BluetoothSearchManager::ReportBluetoothScanResult(
     }
     if (bluetoothScanResult->GetDeviceId().empty() && bluetoothScanResult->GetRssi() == 0) {
         LBSLOGW(LOCATOR, "BT_SEARCH_LOG ReportBluetoothScanResult invalid data, deviceId=%{public}s, rssi=%{public}ld",
-            bluetoothScanResult->GetDeviceId().c_str(), bluetoothScanResult->GetRssi());
+            bluetoothScanResult->GetDeviceId().c_str(), static_cast<long>(bluetoothScanResult->GetRssi()));
         return;
     }
     std::vector<std::pair<sptr<IBluetoothScanResultCallback>, BluetoothSearchRequestParams>> callbacksToNotify;

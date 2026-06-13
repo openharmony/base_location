@@ -57,13 +57,11 @@ private:
     bool MatchFilter(const BluetoothScanResult& result, const BluetoothSearchRequestParams& params);
     void InitBleManager();
     void UninitBleManager();
-#ifdef BLUETOOTH_ENABLE
     bool CheckBluetoothState();
     bool InitAndCheckBleManager();
     bool RegisterBluetoothCallback(sptr<IRemoteObject> callbackObj,
         AppIdentity identity, const BluetoothSearchRequestParams& params);
     void StartBleScan(sptr<IRemoteObject> callbackObj);
-#endif
 
 #ifdef BLUETOOTH_ENABLE
     class BluetoothSearchScanCallback : public Bluetooth::BleCentralManagerCallback {
