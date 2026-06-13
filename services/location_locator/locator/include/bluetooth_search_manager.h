@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -57,6 +57,13 @@ private:
     bool MatchFilter(const BluetoothScanResult& result, const BluetoothSearchRequestParams& params);
     void InitBleManager();
     void UninitBleManager();
+#ifdef BLUETOOTH_ENABLE
+    bool CheckBluetoothState();
+    bool InitAndCheckBleManager();
+    bool RegisterBluetoothCallback(sptr<IRemoteObject> callbackObj,
+        AppIdentity identity, const BluetoothSearchRequestParams& params);
+    void StartBleScan(sptr<IRemoteObject> callbackObj);
+#endif
 
 #ifdef BLUETOOTH_ENABLE
     class BluetoothSearchScanCallback : public Bluetooth::BleCentralManagerCallback {
@@ -67,6 +74,7 @@ private:
         void OnStartOrStopScanEvent(int32_t resultCode, bool isStartScan) override;
     };
 #endif
+
     std::mutex callbacksMapMutex_;
     std::map<sptr<IRemoteObject>, std::pair<AppIdentity, std::pair<BluetoothSearchRequestParams,
         sptr<IRemoteObject::DeathRecipient>>>> bluetoothSearchCallbacksMap_;
