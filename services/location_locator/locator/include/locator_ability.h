@@ -52,7 +52,6 @@
 #include "locationhub_ipc_interface_code.h"
 #include "i_poi_info_callback.h"
 
-
 namespace OHOS {
 namespace Location {
 class ScanCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

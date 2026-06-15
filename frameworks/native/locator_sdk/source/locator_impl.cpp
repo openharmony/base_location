@@ -1659,47 +1659,6 @@ void LocatorImpl::ResetLocatorProxy(const wptr<IRemoteObject> &remote)
     }
 }
 
-LocationErrCode LocatorImpl::StartBluetoothSearch(const BluetoothSearchRequestParams& params,
-    sptr<IBluetoothScanResultCallback>& callback)
-{
-    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    sptr<ILocatorService> proxy = GetProxy();
-    if (proxy == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (callback == nullptr) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    ErrCode errorCodeValue = proxy->StartBluetoothSearch(params, callback);
-    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
-    return locationErrCode;
-}
-
-LocationErrCode LocatorImpl::StopBluetoothSearch(sptr<IBluetoothScanResultCallback>& callback)
-{
-    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopBluetoothSearch()");
-    sptr<ILocatorService> proxy = GetProxy();
-    if (proxy == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (callback == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "StopBluetoothSearch callback is nullptr");
-        return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    ErrCode errorCodeValue = proxy->StopBluetoothSearch(callback);
-    if (errorCodeValue != ERRCODE_SUCCESS) {
-        LBSLOGE(LOCATOR_STANDARD, "StopBluetoothSearch failed.");
-    }
-    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
-    return locationErrCode;
-}
-
 sptr<ILocatorService> LocatorImpl::GetProxy()
 {
     std::unique_lock<std::mutex> lock(mutex_);

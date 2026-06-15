@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Huawei Device Co., Ltd.
+ * Copyright (C) 2026 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -121,7 +121,6 @@ void BluetoothSearchManager::StartBluetoothSearch(sptr<IBluetoothScanResultCallb
     if (!addedToMap) {
         return;
     }
-    StartBleScan(callbackObj);
 #endif
 }
 
@@ -197,10 +196,14 @@ bool BluetoothSearchManager::RegisterBluetoothCallback(sptr<IRemoteObject> callb
         return false;
     }
     std::lock_guard<std::mutex> lock(callbacksMapMutex_);
+    bool shouldStartScan = bluetoothSearchCallbacksMap_.empty();
     if (bluetoothSearchCallbacksMap_.size() < MAX_BLUETOOTH_SEARCH_CALLBACK_NUM) {
         callbackObj->AddDeathRecipient(deathRecipient);
         bluetoothSearchCallbacksMap_.insert(std::make_pair(
             callbackObj, std::make_pair(identity, std::make_pair(params, deathRecipient))));
+        if (shouldStartScan) {
+            StartBleScanLocked();
+        }
         return true;
     } else {
         LBSLOGE(LOCATOR, "BT_SEARCH_LOG %{public}s fail,Exceeded the maximum number limit", __func__);
@@ -211,7 +214,7 @@ bool BluetoothSearchManager::RegisterBluetoothCallback(sptr<IRemoteObject> callb
 #endif
 }
 
-void BluetoothSearchManager::StartBleScan(sptr<IRemoteObject> callbackObj)
+void BluetoothSearchManager::StartBleScanLocked()
 {
 #ifdef BLUETOOTH_ENABLE
     Bluetooth::BleScanSettings settings;
@@ -225,13 +228,15 @@ void BluetoothSearchManager::StartBleScan(sptr<IRemoteObject> callbackObj)
         bluetoothSearchScanStatus_ = true;
     } else {
         LBSLOGE(LOCATOR, "BT_SEARCH_LOG %{public}s StartScan failed, ret=%{public}d", __func__, ret);
-        std::lock_guard<std::mutex> lock(callbacksMapMutex_);
-        auto it = bluetoothSearchCallbacksMap_.find(callbackObj);
-        if (it != bluetoothSearchCallbacksMap_.end()) {
-            callbackObj->RemoveDeathRecipient(it->second.second.second.GetRefPtr());
-            bluetoothSearchCallbacksMap_.erase(it);
-        }
     }
+#endif
+}
+
+void BluetoothSearchManager::StartBleScan(sptr<IRemoteObject> callbackObj)
+{
+#ifdef BLUETOOTH_ENABLE
+    std::lock_guard<std::mutex> lock(bluetoothSearchScanStatusMutex_);
+    StartBleScanLocked();
 #endif
 }
 

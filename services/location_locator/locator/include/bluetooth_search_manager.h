@@ -61,6 +61,7 @@ private:
     bool InitAndCheckBleManager();
     bool RegisterBluetoothCallback(sptr<IRemoteObject> callbackObj,
         AppIdentity identity, const BluetoothSearchRequestParams& params);
+    void StartBleScanLocked();
     void StartBleScan(sptr<IRemoteObject> callbackObj);
 
 #ifdef BLUETOOTH_ENABLE

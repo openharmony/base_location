@@ -23,10 +23,11 @@
 #include "beacon_fence_request.h"
 #include "beacon_fence_napi.h"
 #include "location_hiappevent.h"
-#include "poi_info_callback_napi.h"
 #include "bluetooth_scan_result_callback_napi.h"
+#include "bluetooth_search_callback_napi.h"
 #include "callback_manager.h"
 #include "location_napi_event.h"
+#include "poi_info_callback_napi.h"
 
 namespace OHOS {
 namespace Location {
@@ -2406,12 +2407,10 @@ void CreateStopBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncCon
         auto context = static_cast<BluetoothSearchAsyncContext*>(data);
         NAPI_CALL_RETURN_VOID(context->env,
             napi_get_boolean(context->env, context->errCode == ERRCODE_SUCCESS, &context->result[PARAM1]));
-        if (context->errCode == ERRCODE_SUCCESS) {
-            auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
-            if (callbackNapi != nullptr) {
-                g_bluetoothSearchCallbackHosts.DeleteCallbackByRef(context->env, callbackNapi->GetHandleCb());
-                callbackNapi->DeleteHandler();
-            }
+        auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
+        if (callbackNapi != nullptr) {
+            g_bluetoothSearchCallbackHosts.DeleteCallbackByRef(context->env, callbackNapi->GetHandleCb());
+            callbackNapi->DeleteHandler();
         }
     };
 }
