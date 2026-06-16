@@ -311,19 +311,15 @@ public:
     std::unique_ptr<BluetoothSearchRequestParams> bluetoothSearchParams;
     sptr<IBluetoothScanResultCallback> callback;
     napi_ref handlerRef;
-
+ 
     explicit BluetoothSearchAsyncContext(napi_env env, napi_async_work work = nullptr,
         napi_deferred deferred = nullptr) : AsyncContext(env, work, deferred), callback(nullptr), handlerRef(nullptr) {}
-
+ 
     BluetoothSearchAsyncContext() = delete;
-
+ 
     ~BluetoothSearchAsyncContext() override {}
-    {
-        if (handlerRef != nullptr) {
-            napi_delete_reference(env, handlerRef);
-        }
-    }
 };
+ 
 
 class BluetoothScanResultAsyncContext : public AsyncContext {
 public:

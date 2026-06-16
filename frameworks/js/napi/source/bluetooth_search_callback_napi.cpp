@@ -21,8 +21,9 @@
 
 namespace OHOS {
 namespace Location {
-const int MAX_DEVICE_ID_ARRAY_SIZE = 64;
 const int MAX_DEVICE_ID_STR_LEN = 64;
+const int MIN_RSSI_VALUE = -127;
+const int MAX_RSSI_VALUE = 255;
 
 static bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
     BluetoothSearchRequestParams& params);
@@ -53,35 +54,36 @@ static bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& obje
     BluetoothSearchRequestParams& params)
 {
     bool hasDeviceIdArray = false;
-    napi_has_named_property(env, object, "deviceIdArray", &hasDeviceIdArray);
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, "deviceIdArray", &hasDeviceIdArray), false);
     if (!hasDeviceIdArray) {
         return true;
     }
     napi_value deviceIdArrayValue;
-    napi_get_named_property(env, object, "deviceIdArray", &deviceIdArrayValue);
+    NAPI_CALL_BASE(env, napi_get_named_property(env, object, "deviceIdArray", &deviceIdArrayValue), false);
     bool isArray = false;
-    napi_is_array(env, deviceIdArrayValue, &isArray);
+    NAPI_CALL_BASE(env, napi_is_array(env, deviceIdArrayValue, &isArray), false);
     if (!isArray) {
         return true;
     }
     uint32_t arrayLength = 0;
-    napi_get_array_length(env, deviceIdArrayValue, &arrayLength);
-    if (arrayLength > MAX_DEVICE_ID_ARRAY_SIZE) {
-        LBSLOGE(LOCATOR_STANDARD, "deviceIdArray too large, max is %{public}d", MAX_DEVICE_ID_ARRAY_SIZE);
+    NAPI_CALL_BASE(env, napi_get_array_length(env, deviceIdArrayValue, &arrayLength), false);
+    if (arrayLength > MAX_BLUETOOTH_DEVICE_ID_ARRAY_SIZE) {
+        LBSLOGE(LOCATOR_STANDARD, "deviceIdArray too large, max is %{public}d", MAX_BLUETOOTH_DEVICE_ID_ARRAY_SIZE);
         return false;
     }
     for (uint32_t i = 0; i < arrayLength; ++i) {
         napi_value element;
         napi_valuetype valueType;
-        napi_get_element(env, deviceIdArrayValue, i, &element);
-        napi_typeof(env, element, &valueType);
+        NAPI_CALL_BASE(env, napi_get_element(env, deviceIdArrayValue, i, &element), false);
+        NAPI_CALL_BASE(env, napi_typeof(env, element, &valueType), false);
         if (valueType != napi_string) {
             LBSLOGE(LOCATOR_STANDARD, "deviceIdArray element must be string");
             return false;
         }
         char deviceIdStr[MAX_DEVICE_ID_STR_LEN] = {0};
         size_t deviceIdLen = 0;
-        napi_get_value_string_utf8(env, element, deviceIdStr, sizeof(deviceIdStr), &deviceIdLen);
+        NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, element, deviceIdStr,
+            sizeof(deviceIdStr), &deviceIdLen), false);
         params.deviceIdArray.push_back(std::string(deviceIdStr));
     }
     return true;
@@ -91,20 +93,25 @@ static bool ParseRssiThresholdFromJs(const napi_env& env, const napi_value& obje
     BluetoothSearchRequestParams& params)
 {
     bool hasRssiThreshold = false;
-    napi_has_named_property(env, object, "rssiThreshold", &hasRssiThreshold);
+    NAPI_CALL_BASE(env, napi_has_named_property(env, object, "rssiThreshold", &hasRssiThreshold), false);
     if (!hasRssiThreshold) {
         return true;
     }
     napi_valuetype valueType;
     napi_value rssiValue;
-    napi_get_named_property(env, object, "rssiThreshold", &rssiValue);
-    napi_typeof(env, rssiValue, &valueType);
+    NAPI_CALL_BASE(env, napi_get_named_property(env, object, "rssiThreshold", &rssiValue), false);
+    NAPI_CALL_BASE(env, napi_typeof(env, rssiValue, &valueType), false);
     if (valueType != napi_number) {
         return true;
     }
     int32_t rssi = 0;
     napi_status status = napi_get_value_int32(env, rssiValue, &rssi);
     if (status == napi_ok) {
+        if (rssi < MIN_RSSI_VALUE || rssi > MAX_RSSI_VALUE) {
+            LBSLOGE(LOCATOR_STANDARD, "rssiThreshold out of range [%{public}d, %{public}d]",
+                MIN_RSSI_VALUE, MAX_RSSI_VALUE);
+            return false;
+        }
         params.rssiThreshold = rssi;
     }
     return true;
