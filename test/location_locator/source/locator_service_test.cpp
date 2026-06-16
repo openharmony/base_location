@@ -154,14 +154,14 @@ void LocatorServiceTest::SetStartUpConfirmed(bool isAuthorized)
 {
     std::string value = isAuthorized ? "1" : "0";
     std::string executeCmd = "settings put SECURE high_accuracy_startup_comfirm " + value;
-    system(executeCmd.c_str());
+    ::system(executeCmd.c_str());
 }
 
 void LocatorServiceTest::ChangedLocationMode(bool isEnable)
 {
     std::string value = isEnable ? "3" : "0";
     std::string executeCmd = "settings put SECURE location_mode " + value;
-    system(executeCmd.c_str());
+    ::system(executeCmd.c_str());
 }
 
 #ifdef FEATURE_GEOCODE_SUPPORT
