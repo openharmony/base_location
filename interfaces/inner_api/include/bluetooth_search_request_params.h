@@ -26,6 +26,8 @@
 namespace OHOS {
 namespace Location {
 
+const int32_t MAX_BLUETOOTH_DEVICE_ID_ARRAY_SIZE = 64;
+
 class BluetoothSearchRequestParams : public Parcelable {
 public:
     BluetoothSearchRequestParams()
@@ -38,6 +40,9 @@ public:
     {
         rssiThreshold = parcel.ReadInt32();
         int32_t size = parcel.ReadInt32();
+        if (size < 0 || size > MAX_BLUETOOTH_DEVICE_ID_ARRAY_SIZE) {
+            return;
+        }
         for (int32_t i = 0; i < size; i++) {
             deviceIdArray.push_back(Str16ToStr8(parcel.ReadString16()));
         }
@@ -65,6 +70,13 @@ public:
         if (params != nullptr) {
             params->ReadFromParcel(parcel);
         }
+        return params;
+    }
+
+    static std::unique_ptr<BluetoothSearchRequestParams> UnmarshallingUnique(Parcel& parcel)
+    {
+        auto params = std::make_unique<BluetoothSearchRequestParams>();
+        params->ReadFromParcel(parcel);
         return params;
     }
 

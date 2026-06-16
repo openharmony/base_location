@@ -318,6 +318,11 @@ public:
     BluetoothSearchAsyncContext() = delete;
 
     ~BluetoothSearchAsyncContext() override {}
+    {
+        if (handlerRef != nullptr) {
+            napi_delete_reference(env, handlerRef);
+        }
+    }
 };
 
 class BluetoothScanResultAsyncContext : public AsyncContext {

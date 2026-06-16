@@ -2259,6 +2259,7 @@ void CreateBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext
             auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
             if (callbackNapi != nullptr) {
                 callbackNapi->DeleteHandler();
+                context->handlerRef = nullptr;
             }
         }
     };
@@ -2377,11 +2378,11 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: ValidateStartBluetoothSearchParams failed");
         return UndefinedNapiValue(env);
     }
-    auto existingCallback = g_bluetoothSearchCallbackHosts.GetCallbackPtr(env, argv[PARAM1]);
-    if (existingCallback != nullptr) {
+    if (g_bluetoothSearchCallbackHosts.GetCallbackPtr(env, argv[PARAM1]) != nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: callback already exists");
         return UndefinedNapiValue(env);
     }
+
     auto asyncContext = new (std::nothrow) BluetoothSearchAsyncContext(env);
     if (asyncContext == nullptr) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s asyncContext is nullptr", __func__);
@@ -2391,28 +2392,26 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
     asyncContext->bluetoothSearchParams = std::make_unique<BluetoothSearchRequestParams>();
     sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback;
     if (!CheckAndCreateBluetoothSearchContext(env, argv, asyncContext, bluetoothScanResultCallback)) {
+        delete asyncContext;
         return UndefinedNapiValue(env);
     }
-    CreateBluetoothSearchAsyncContext(asyncContext);
-    return DoAsyncWork(env, asyncContext, argc, argv, 1);
-}
 
-void CreateStopBluetoothSearchAsyncContext(BluetoothSearchAsyncContext* asyncContext)
-{
-    asyncContext->executeFunc = [&](void* data) -> void {
-        auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        context->errCode = g_locatorClient->StopBluetoothSearch(context->callback);
-    };
-    asyncContext->completeFunc = [&](void* data) -> void {
-        auto context = static_cast<BluetoothSearchAsyncContext*>(data);
-        NAPI_CALL_RETURN_VOID(context->env,
-            napi_get_boolean(context->env, context->errCode == ERRCODE_SUCCESS, &context->result[PARAM1]));
-        auto callbackNapi = static_cast<BluetoothScanResultCallbackNapi*>(context->callback.GetRefPtr());
-        if (callbackNapi != nullptr) {
-            g_bluetoothSearchCallbackHosts.DeleteCallbackByRef(context->env, callbackNapi->GetHandleCb());
-            callbackNapi->DeleteHandler();
-        }
-    };
+    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: before call g_locatorClient->StartBluetoothSearch");
+    asyncContext->errCode = g_locatorClient->StartBluetoothSearch(
+        *(asyncContext->bluetoothSearchParams), asyncContext->callback);
+    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: errCode=%{public}d", asyncContext->errCode);
+
+    if (asyncContext->errCode != ERRCODE_SUCCESS) {
+        LocationErrCode errCode = static_cast<LocationErrCode>(asyncContext->errCode);
+        bluetoothScanResultCallback->DeleteHandler();
+        delete asyncContext;
+        ThrowBusinessError(env, errCode);
+        return UndefinedNapiValue(env);
+    }
+
+    g_bluetoothSearchCallbackHosts.AddCallback(env, asyncContext->handlerRef, bluetoothScanResultCallback);
+    delete asyncContext;
+    return UndefinedNapiValue(env);
 }
 
 napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
@@ -2422,12 +2421,13 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     void* data = nullptr;
 
+    LBSLOGI(LOCATOR_STANDARD, "StopBluetoothSearch: enter");
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
     if (argc < PARAM1) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s argc=%{public}zu expected 1", __func__, argc);
-        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        LBSLOGE(LOCATOR_STANDARD, "StopBluetoothSearch: no callback provided");
+        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return UndefinedNapiValue(env);
     }
 
@@ -2446,33 +2446,22 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
 
-    auto asyncContext = new (std::nothrow) BluetoothSearchAsyncContext(env);
-    if (asyncContext == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s asyncContext is nullptr", __func__);
-        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
+    LBSLOGI(LOCATOR_STANDARD, "StopBluetoothSearch: before call g_locatorClient->StopBluetoothSearch");
+    auto locatorCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
+    int errCode = g_locatorClient->StopBluetoothSearch(locatorCallback);
+    LBSLOGI(LOCATOR_STANDARD, "StopBluetoothSearch: errCode=%{public}d", errCode);
+
+    if (errCode == ERRCODE_SUCCESS) {
+        g_bluetoothSearchCallbackHosts.DeleteCallbackByRef(env, bluetoothScanResultCallbackHost->GetHandleCb());
+        bluetoothScanResultCallbackHost->DeleteHandler();
+    }
+
+    if (errCode != ERRCODE_SUCCESS) {
+        ThrowBusinessError(env, errCode);
         return UndefinedNapiValue(env);
     }
 
-    if (napi_create_string_latin1(env, "StopBluetoothSearch",
-        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
-        delete asyncContext;
-        GET_AND_THROW_LAST_ERROR(env);
-        return nullptr;
-    }
-
-    asyncContext->callback = bluetoothScanResultCallbackHost;
-    napi_status refStatus = napi_create_reference(env, argv[PARAM0], 1, &asyncContext->handlerRef);
-    if (refStatus != napi_ok || asyncContext->handlerRef == nullptr) {
-        delete asyncContext;
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s create reference failed", __func__);
-        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
-        return UndefinedNapiValue(env);
-    }
-
-    CreateStopBluetoothSearchAsyncContext(asyncContext);
-
-    size_t objectArgsNum = 0;
-    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+    return UndefinedNapiValue(env);
 }
 
 void CreateGeofenceAsyncContext(GeofenceAsyncContext* asyncContext)

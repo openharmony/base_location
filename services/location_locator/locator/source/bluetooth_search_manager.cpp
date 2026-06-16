@@ -232,14 +232,6 @@ void BluetoothSearchManager::StartBleScanLocked()
 #endif
 }
 
-void BluetoothSearchManager::StartBleScan(sptr<IRemoteObject> callbackObj)
-{
-#ifdef BLUETOOTH_ENABLE
-    std::lock_guard<std::mutex> lock(bluetoothSearchScanStatusMutex_);
-    StartBleScanLocked();
-#endif
-}
-
 void BluetoothSearchManager::ReportBluetoothScanResult(
     const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult)
 {
