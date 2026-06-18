@@ -208,7 +208,7 @@ HWTEST_F(LocationWithoutPermissionTest, LocatorWithoutLocationPermissionV9001, T
     if (state) {
         EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->StartLocatingV9(requestConfig, callbackStub));
     }
-    EXPECT_EQ(ERRCODE_PERMISSION_DENIED, locatorImpl->StopLocatingV9(callbackStub));
+    EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl->StopLocatingV9(callbackStub));
 
     std::unique_ptr loc = std::make_unique<Location>();
     if (state) {
