@@ -85,29 +85,8 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"การถ่ายโอนบลูทูธเสร็จสิ้นแล้ว",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"เครือข่าย WLAN นี้ไม่มีการเข้าถึงอินเทอร์เน็ต ยืนยันที่จะเชื่อมต่อหรือไม่",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"บลูทูธ: กำลังส่ง %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"กำลังรับ…",
             "attr":{
                 "priority":"translate"
             }
@@ -141,13 +120,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"กำลังส่ง…",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"ยกเลิก",
             "attr":{
@@ -157,13 +129,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"พบเครือข่าย WLAN ที่ดีกว่า",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"การถ่ายโอนบลูทูธเสร็จสิ้นแล้ว",
             "attr":{
                 "priority":"LT"
             }
@@ -197,20 +162,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"ยอมรับ",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_no_button",
             "value":"ยกเลิก",
             "attr":{
@@ -218,24 +169,10 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"บลูทูธ",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"คำขอเชื่อมต่อ",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"ปฏิเสธ",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -281,36 +218,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"บลูทูธ: กำลังรับ %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"ปฏิเสธ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"การถ่ายโอนไฟล์ผ่านบลูทูธ",
             "attr":{
                 "priority":"translate"
             }

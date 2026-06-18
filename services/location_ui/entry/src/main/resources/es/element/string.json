@@ -85,24 +85,10 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"Transferencia vía Bluetooth finalizada",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"Esta red WLAN no tiene acceso a Internet. ¿Conectarse de todos modos?",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Recibiendo…",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -134,13 +120,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"Enviando…",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"Cancelar",
             "attr":{
@@ -150,13 +129,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"Se ha encontrado una red WLAN mejor",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Transferencia vía Bluetooth finalizada",
             "attr":{
                 "priority":"LT"
             }
@@ -190,20 +162,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Aceptar",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Transferencia de archivos vía Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_no_button",
             "value":"Cancelar",
             "attr":{
@@ -211,22 +169,8 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"Solicitud de conexión",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Rechazar",
             "attr":{
                 "priority":"LT"
             }
@@ -267,29 +211,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"Denegar",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Transferencia de archivos vía Bluetooth",
             "attr":{
                 "priority":"LT"
             }
@@ -304,20 +227,6 @@
         {
             "name":"location_target_statement_content",
             "value":"Los Servicios de localización requieren conexión a Internet y utilizan GNSS o información de red (WLAN, red celular, Bluetooth, IP) para proporcionarte servicios basados en la ubicación. Cuando esta función esté habilitada, la información de ubicación del dispositivo se compartirá con los servicios a los que se les haya otorgado acceso a la ubicación. Los servicios del sistema también utilizarán la información de tu ubicación para actualizar tu zona horaria y para llamadas de emergencia. Para obtener más información sobre los Servicios de localización, consulta la <a>Declaración acerca de Servicios de localización y la privacidad</a>.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: Enviando %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: Recibiendo %1$d/%2$d",
             "attr":{
                 "priority":"LT"
             }
