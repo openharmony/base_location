@@ -2067,23 +2067,22 @@ void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncConte
                 context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
         }
         if (callbackHost != nullptr && context->errCode == ERRCODE_SUCCESS &&
-            callbackHost->GetGeofenceOperationType() ==
-            GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE) {
-             context->errCode = callbackHost->DealGeofenceOperationResult();
-             if (context->errCode != ERRCODE_SUCCESS) {
-                 return;
-             }
-             if (context->clearBeaconFence_) {
-                 ClearBeaconFenceRequest();
-             } else {
-                 RemoveBeaconFenceRequest(context->beaconFence_);
-             }
-             NAPI_CALL_RETURN_VOID(
-                 context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
-         }
-         g_hiAppEventClient->WriteEndEvent(
-             context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "removeBeaconFence");
-         LBSLOGI(LOCATOR_STANDARD, "Push RemoveBeaconFence result to client");
+            callbackHost->GetGeofenceOperationType() == GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE) {
+                context->errCode = callbackHost->DealGeofenceOperationResult();
+                if (context->errCode != ERRCODE_SUCCESS) {
+                    return;
+                }
+                if (context->clearBeaconFence_) {
+                    ClearBeaconFenceRequest();
+                } else {
+                    RemoveBeaconFenceRequest(context->beaconFence_);
+                }
+                NAPI_CALL_RETURN_VOID(
+                    context->env, napi_get_undefined(context->env, &context->result[PARAM1]));
+        }
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "removeBeaconFence");
+        LBSLOGI(LOCATOR_STANDARD, "Push RemoveBeaconFence result to client");
      };
  }
 
