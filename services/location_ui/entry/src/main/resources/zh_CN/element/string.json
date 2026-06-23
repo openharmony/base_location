@@ -429,19 +429,31 @@
         },
         {
             "name":"p2p_untrust_invite_dialog_title",
-            "value":"提示"
+            "value":"提示",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"p2p_untrust_invite_dialog_text",
-            "value":"%s分钟内不再允许陌生设备发起连接请求？"
+            "value":"%d 分钟内不再允许陌生设备发起连接请求？",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"p2p_untrust_invite_dialog_no_button",
-            "value":"取消"
+            "value":"取消",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
             "name":"p2p_untrust_invite_dialog_ok_button",
-            "value":"确认"
+            "value":"确定",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

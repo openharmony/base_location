@@ -72,9 +72,9 @@
         },
         {
             "name":"stop_idle_tether_notification_message",
-            "value":"Tiada peranti disambungkan. Hotspot telah dinyahdayakan. Hayat bateri akan dilanjutkan.",
+            "value":"Tiada peranti disambungkan. Hotspot telah dinyahdayakan untuk melanjutkan hayat bateri.",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
@@ -333,35 +333,35 @@
             "name":"p2p_wsc_keypad_enter_pin_message",
             "value":"Masukkan PIN:",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_display_to_message",
             "value":"Kepada:",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_display_show_pin_message",
             "value":"PIN:",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_display_invitation_sent_title",
             "value":"Jemputan dihantar",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
             "name":"p2p_wsc_display_ok_button",
             "value":"OK",
             "attr":{
-                "priority":"translate"
+                "priority":"LT"
             }
         },
         {
