@@ -204,83 +204,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_title",
-            "value":"كۆكچىش ئورتاقلاشقان ھۆججەت",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"رەت قىلىش",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"قوبۇللاش",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"كۆكچىش: قوبۇللىغان ھۆججەت",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s، %2$s.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s، %2$s.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"كۆكچىش ئورتاقلاشقۇچ",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"قوبۇللاۋاتىدۇ",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_title",
-            "value":"كۆكچىش يوللىغان ھۆججەت",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_send_text",
-            "value":"يوللاۋاتىدۇ",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"share_name",
-            "value":"كۆكچىش",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_text",
             "value":"\u200f«%s» نى ئۇلامسىز؟",
             "attr":{
@@ -304,20 +227,6 @@
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"چەكلەش",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"كۆكچىش: يوللاۋاتىدۇ %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"كۆكچىش: قوبۇللاۋاتىدۇ %1$d/%2$d",
             "attr":{
                 "priority":"LT"
             }

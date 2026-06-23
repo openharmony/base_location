@@ -71,13 +71,6 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီး",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"ဤ WLAN ကွန်ရက်တွင် အင်တာနက် ဝင်ရောက် သုံးစွဲခွင့် မရှိပါ။ မည်သို့ပင်ဖြစ်စေ ချိတ်ဆက်မည်လား။",
             "attr":{
@@ -89,20 +82,6 @@
             "value":"မလုပ်ပါ",
             "attr":{
                 "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"ဘလူးတုသ်- ပေးပို့နေဆဲ %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"လက်ခံနေဆဲ…",
-            "attr":{
-                "priority":"translate"
             }
         },
         {
@@ -134,13 +113,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"ပေးပို့နေဆဲ…",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"မလုပ်ပါ",
             "attr":{
@@ -150,13 +122,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"ပိုမိုကောင်းမွန်သော WLAN ကွန်ရက်ကို ရှာတွေ့ထားပါသည်",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"ဘလူးတုသ် လွှဲပြောင်းမှု ပြီးပါပြီ",
             "attr":{
                 "priority":"LT"
             }
@@ -190,20 +155,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"လက်ခံရန်",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"ဘလူးတုသ် ဖိုင် လွှဲပြောင်းမှု",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"ni_notify_title",
             "value":"တည်နေရာ တောင်းဆိုမှု",
             "attr":{
@@ -218,24 +169,10 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"ဘလူးတုသ်",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"ချိတ်ဆက်မှု တောင်းဆိုချက်",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"ငြင်းပယ်ရန်",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -281,36 +218,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s၊ %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"ဘလူးတုသ်- လက်ခံနေဆဲ %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s၊ %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"ပိတ်ပင်မည်",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"ဘလူးတုသ် ဖိုင် လွှဲပြောင်းမှု",
             "attr":{
                 "priority":"translate"
             }

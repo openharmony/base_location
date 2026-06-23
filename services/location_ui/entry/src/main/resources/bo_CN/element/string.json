@@ -204,83 +204,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_title",
-            "value":"སོ་སྔོན་མཉམ་སྤྱོད་ཡིག་ཆ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"དང་ལེན་མི་བྱེད།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"འབྱོར་ལེན།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"སོ་སྔོན་མཉམ་སྤྱོད། : འབྱོར་ཟིན་པའི་ཡིག་ཆ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"སོ་སྔོན་མཉམ་སྤྱོད།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"ལེན་བཞིན་པ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_title",
-            "value":"སོ་སྔོན་མཉམ་སྤྱོད། : བསྐུར་ཟིན་པའི་ཡིག་ཆ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_send_text",
-            "value":"སྐུར་བཞིན་པ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"share_name",
-            "value":"སོ་སྔོན།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_text",
             "value":"%s ལ་སྦྲེལ་མཐུད་བྱེད་དམ།",
             "attr":{
@@ -304,20 +227,6 @@
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"དང་ལེན་མི་བྱེད།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"སོ་སྔོན་མཉམ་སྤྱོད། : %1$d/%2$d སྐུར་བཞིན་པ།",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"སོ་སྔོན་མཉམ་སྤྱོད། : %1$d/%2$d ལེན་བཞིན་པ།",
             "attr":{
                 "priority":"LT"
             }

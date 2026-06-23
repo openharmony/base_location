@@ -71,13 +71,6 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"Transfer melalui Bluetooth selesai",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"Jaringan WLAN ini tidak memiliki akses Internet. Tetap hubungkan?",
             "attr":{
@@ -89,20 +82,6 @@
             "value":"Batal",
             "attr":{
                 "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: Mengirim %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Menerima…",
-            "attr":{
-                "priority":"translate"
             }
         },
         {
@@ -134,13 +113,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"Mengirim…",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"Batal",
             "attr":{
@@ -150,13 +122,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"Ditemukan jaringan WLAN yang lebih baik",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Transfer melalui Bluetooth selesai",
             "attr":{
                 "priority":"LT"
             }
@@ -190,20 +155,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Terima",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Transfer file melalui Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"ni_notify_title",
             "value":"Permintaan lokasi",
             "attr":{
@@ -218,24 +169,10 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"Permintaan koneksi",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Tolak",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -281,36 +218,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: Menerima %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"Tolak",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Transfer file melalui Bluetooth",
             "attr":{
                 "priority":"translate"
             }
