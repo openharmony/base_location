@@ -22,8 +22,8 @@
 namespace OHOS {
 namespace Location {
 const int MAX_DEVICE_ID_STR_LEN = 64;
-const int MIN_RSSI_VALUE = -127;
-const int MAX_RSSI_VALUE = 255;
+const int MIN_RSSI_VALUE = -10000;
+const int MAX_RSSI_VALUE = 10000;
 
 static bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
     BluetoothSearchRequestParams& params);
@@ -56,14 +56,16 @@ static bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& obje
     bool hasDeviceIdArray = false;
     NAPI_CALL_BASE(env, napi_has_named_property(env, object, "deviceIdArray", &hasDeviceIdArray), false);
     if (!hasDeviceIdArray) {
-        return true;
+        LBSLOGE(LOCATOR_STANDARD, "deviceIdArray is required");
+        return false;
     }
     napi_value deviceIdArrayValue;
     NAPI_CALL_BASE(env, napi_get_named_property(env, object, "deviceIdArray", &deviceIdArrayValue), false);
     bool isArray = false;
     NAPI_CALL_BASE(env, napi_is_array(env, deviceIdArrayValue, &isArray), false);
     if (!isArray) {
-        return true;
+        LBSLOGE(LOCATOR_STANDARD, "deviceIdArray must be array");
+        return false;
     }
     uint32_t arrayLength = 0;
     NAPI_CALL_BASE(env, napi_get_array_length(env, deviceIdArrayValue, &arrayLength), false);

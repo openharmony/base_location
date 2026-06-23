@@ -32,13 +32,14 @@
 #include "constant_definition.h"
 #include "ibluetooth_scan_result_callback.h"
 #include "iremote_stub.h"
-#include "singleton.h"
 
 namespace OHOS {
 namespace Location {
 
-class BluetoothSearchManager : public Singleton<BluetoothSearchManager> {
+class BluetoothSearchManager {
 public:
+    static BluetoothSearchManager& GetInstance();
+
     BluetoothSearchManager();
     ~BluetoothSearchManager();
 
@@ -48,6 +49,12 @@ public:
     void ReportBluetoothScanResult(const std::unique_ptr<BluetoothScanResult>& bluetoothScanResult);
 
 public:
+    struct BluetoothSearchCallbackInfo {
+        AppIdentity identity;
+        BluetoothSearchRequestParams params;
+        sptr<IRemoteObject::DeathRecipient> deathRecipient;
+    };
+
     class BluetoothSearchCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
     public:
         void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
@@ -75,12 +82,12 @@ private:
 #endif
 
     std::mutex callbacksMapMutex_;
-    std::map<sptr<IRemoteObject>, std::pair<AppIdentity, std::pair<BluetoothSearchRequestParams,
-        sptr<IRemoteObject::DeathRecipient>>>> bluetoothSearchCallbacksMap_;
+    std::map<sptr<IRemoteObject>, BluetoothSearchCallbackInfo> bluetoothSearchCallbacksMap_;
 
     std::mutex bluetoothSearchScanStatusMutex_;
     bool bluetoothSearchScanStatus_;
 
+    std::mutex bleManagerMutex_;
 #ifdef BLUETOOTH_ENABLE
     std::shared_ptr<Bluetooth::BleCentralManager> bleCentralManager_;
     std::shared_ptr<BluetoothSearchScanCallback> scanCallback_;

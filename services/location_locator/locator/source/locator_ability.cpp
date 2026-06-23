@@ -2057,7 +2057,7 @@ ErrCode LocatorAbility::StartBluetoothSearch(const BluetoothSearchRequestParams&
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (!CheckLocationSwitchState()) {
-        return ERRCODE_SWITCH_OFF;
+        return ERRCODE_SERVICE_UNAVAILABLE;
     }
     if (!CheckBluetoothSwitchState()) {
         return ERRCODE_SCAN_FAIL;

@@ -26,7 +26,7 @@
 namespace OHOS {
 namespace Location {
 
-const int32_t MAX_BLUETOOTH_DEVICE_ID_ARRAY_SIZE = 64;
+const int32_t MAX_BLUETOOTH_DEVICE_ID_ARRAY_SIZE = 1000;
 
 class BluetoothSearchRequestParams : public Parcelable {
 public:

@@ -21,7 +21,6 @@
 
 namespace OHOS {
 namespace Location {
-bool IsCallbackEquals(const napi_env& env, const napi_value& handler, const napi_ref& savedCallback);
 template <typename T>
 class CallbackManager {
 public:
@@ -30,7 +29,6 @@ public:
     bool IsCallbackInMap(const napi_env& env, const napi_value& handler);
     void AddCallback(const napi_env& env, const napi_ref& handlerRef, const sptr<T>& callback);
     void DeleteCallback(const napi_env& env, const napi_value& handler);
-    void DeleteCallbackByRef(const napi_env& env, const napi_ref& ref);
     sptr<T> GetCallbackPtr(const napi_env& env, const napi_value& handler);
     void DeleteCallbackByEnv(const napi_env& env);
     std::map<napi_env, std::map<napi_ref, sptr<T>>> GetCallbackMap();
@@ -102,25 +100,6 @@ void CallbackManager<T>::DeleteCallback(const napi_env& env, const napi_value& h
     for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
         auto ref = innerIter->first;
         if (IsCallbackEquals(env, handler, ref)) {
-            innerIter = iter->second.erase(innerIter);
-            if (iter->second.size() == 0) {
-                callbackMap_.erase(iter);
-            }
-            break;
-        }
-    }
-}
-
-template <typename T>
-void CallbackManager<T>::DeleteCallbackByRef(const napi_env& env, const napi_ref& ref)
-{
-    std::unique_lock<std::mutex> lock(mutex_);
-    auto iter = callbackMap_.find(env);
-    if (iter == callbackMap_.end()) {
-        return;
-    }
-    for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
-        if (innerIter->first == ref) {
             innerIter = iter->second.erase(innerIter);
             if (iter->second.size() == 0) {
                 callbackMap_.erase(iter);
