@@ -2083,7 +2083,7 @@ void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncConte
         g_hiAppEventClient->WriteEndEvent(
             context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "removeBeaconFence");
         LBSLOGI(LOCATOR_STANDARD, "Push RemoveBeaconFence result to client");
-     };
+    };
  }
 
  napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info)
@@ -2098,7 +2098,7 @@ void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncConte
      int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
      bool beaconFenceSupportedState = g_locatorClient->IsBeaconFenceSupported();
      g_hiAppEventClient->WriteEndEvent(
-             beginTime, 0, ERRCODE_SUCCESS, "isBeaconFenceSupported");
+         beginTime, 0, ERRCODE_SUCCESS, "isBeaconFenceSupported");
      NAPI_CALL(env, napi_get_boolean(env, beaconFenceSupportedState, &res));
      return res;
  }
