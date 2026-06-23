@@ -2084,37 +2084,37 @@ void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncConte
             context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "removeBeaconFence");
         LBSLOGI(LOCATOR_STANDARD, "Push RemoveBeaconFence result to client");
     };
- }
+}
 
- napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info)
- {
-     size_t argc = MAXIMUM_JS_PARAMS;
-     napi_value argv[MAXIMUM_JS_PARAMS];
-     napi_value thisVar = nullptr;
-     void* data = nullptr;
-     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
-     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
-     napi_value res;
-     int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
-     bool beaconFenceSupportedState = g_locatorClient->IsBeaconFenceSupported();
-     g_hiAppEventClient->WriteEndEvent(
-         beginTime, 0, ERRCODE_SUCCESS, "isBeaconFenceSupported");
-     NAPI_CALL(env, napi_get_boolean(env, beaconFenceSupportedState, &res));
-     return res;
- }
+napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool beaconFenceSupportedState = g_locatorClient->IsBeaconFenceSupported();
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, 0, ERRCODE_SUCCESS, "isBeaconFenceSupported");
+    NAPI_CALL(env, napi_get_boolean(env, beaconFenceSupportedState, &res));
+    return res;
+}
 
- napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
- {
-     size_t argc = MAXIMUM_JS_PARAMS;
-     napi_value argv[MAXIMUM_JS_PARAMS];
-     napi_value thisVar = nullptr;
-     void* data = nullptr;
-     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
-     NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
-     std::vector<CoordinateSystemType> coordinateSystemTypes;
-     int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
-     LocationErrCode errorCode =
-         g_geofenceClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
+napi_value GetGeofenceSupportedCoordTypes(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_locatorClient != nullptr, "get locator SA failed");
+    std::vector<CoordinateSystemType> coordinateSystemTypes;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    LocationErrCode errorCode =
+        g_geofenceClient->GetGeofenceSupportedCoordTypes(coordinateSystemTypes);
     g_hiAppEventClient->WriteEndEvent(
         beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "getGeofenceSupportedCoordTypes");
     if (errorCode != ERRCODE_SUCCESS) {
