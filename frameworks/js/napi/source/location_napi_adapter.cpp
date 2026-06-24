@@ -2240,8 +2240,6 @@ static bool CheckLocationSwitchEnabled(napi_env env)
 {
     bool isLocationEnabled = false;
     LocationErrCode locationSwitchErrorCode = g_locatorClient->IsLocationEnabledV9(isLocationEnabled);
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: IsLocationEnabledV9 ret=%{public}d, isEnabled=%{public}d",
-        locationSwitchErrorCode, isLocationEnabled);
     if (locationSwitchErrorCode != ERRCODE_SUCCESS) {
         ThrowBusinessError(env, locationSwitchErrorCode);
         return false;
@@ -2347,7 +2345,7 @@ static bool StartBluetoothSearchExecute(napi_env env,
         *(asyncContext->bluetoothSearchParams), asyncContext->callback);
     if (asyncContext->errCode != ERRCODE_SUCCESS) {
         LocationErrCode errCode = static_cast<LocationErrCode>(asyncContext->errCode);
-        bluetoothScanResultCallback->DeleteHandler();
+        callback->DeleteHandler();
         ThrowBusinessError(env, errCode);
         return false;
     }
@@ -2424,7 +2422,6 @@ static napi_value StopBluetoothSearchWithHandler(napi_env env, napi_value handle
 
     auto locatorCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
     int errCode = g_locatorClient->StopBluetoothSearch(locatorCallback);
-    LBSLOGI(LOCATOR_STANDARD, "StopBluetoothSearch: errCode=%{public}d", errCode);
 
     if (errCode == ERRCODE_SUCCESS) {
         g_bluetoothSearchCallbackHosts.DeleteCallback(env, handler);
