@@ -2241,7 +2241,7 @@ static bool CheckLocationSwitchEnabled(napi_env env)
     bool isLocationEnabled = false;
     LocationErrCode locationSwitchErrorCode = g_locatorClient->IsLocationEnabledV9(isLocationEnabled);
     if (locationSwitchErrorCode != ERRCODE_SUCCESS) {
-        ThrowBusinessError(env, locationSwitchErrorCode);
+        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return false;
     }
     if (!isLocationEnabled) {
