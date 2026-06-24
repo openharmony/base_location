@@ -319,7 +319,6 @@ public:
  
     ~BluetoothSearchAsyncContext() override {}
 };
- 
 
 class BluetoothScanResultAsyncContext : public AsyncContext {
 public:

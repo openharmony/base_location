@@ -2317,6 +2317,43 @@ static bool CheckAndCreateBluetoothSearchContext(napi_env env, napi_value* argv,
     return true;
 }
 
+static bool StartBluetoothSearchPrepare(napi_env env, napi_value* argv,
+    BluetoothSearchAsyncContext*& asyncContext, sptr<BluetoothScanResultCallbackNapi>& callback)
+{
+    asyncContext = new (std::nothrow) BluetoothSearchAsyncContext(env);
+    if (asyncContext == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s asyncContext is nullptr", __func__);
+        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
+        return false;
+    }
+    asyncContext->bluetoothSearchParams = std::make_unique<BluetoothSearchRequestParams>();
+    if (asyncContext->bluetoothSearchParams == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s bluetoothSearchParams is nullptr", __func__);
+        delete asyncContext;
+        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
+        return false;
+    }
+    if (!CheckAndCreateBluetoothSearchContext(env, argv, asyncContext, callback)) {
+        delete asyncContext;
+        return false;
+    }
+    return true;
+}
+
+static bool StartBluetoothSearchExecute(napi_env env,
+    BluetoothSearchAsyncContext* asyncContext, sptr<BluetoothScanResultCallbackNapi>& callback)
+{
+    asyncContext->errCode = g_locatorClient->StartBluetoothSearch(
+        *(asyncContext->bluetoothSearchParams), asyncContext->callback);
+    if (asyncContext->errCode != ERRCODE_SUCCESS) {
+        LocationErrCode errCode = static_cast<LocationErrCode>(asyncContext->errCode);
+        bluetoothScanResultCallback->DeleteHandler();
+        ThrowBusinessError(env, errCode);
+        return false;
+    }
+    return true;
+}
+
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
@@ -2324,7 +2361,6 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
     napi_value thisVar = nullptr;
     void* data = nullptr;
 
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: enter");
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
 
@@ -2343,35 +2379,13 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
 
-    auto asyncContext = new (std::nothrow) BluetoothSearchAsyncContext(env);
-    if (asyncContext == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s asyncContext is nullptr", __func__);
-        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
-        return UndefinedNapiValue(env);
-    }
-    asyncContext->bluetoothSearchParams = std::make_unique<BluetoothSearchRequestParams>();
-    if (asyncContext->bluetoothSearchParams == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s bluetoothSearchParams is nullptr", __func__);
-        delete asyncContext;
-        ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
-        return UndefinedNapiValue(env);
-    }
+    BluetoothSearchAsyncContext* asyncContext = nullptr;
     sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback;
-    if (!CheckAndCreateBluetoothSearchContext(env, argv, asyncContext, bluetoothScanResultCallback)) {
-        delete asyncContext;
+    if (!StartBluetoothSearchPrepare(env, argv, asyncContext, bluetoothScanResultCallback)) {
         return UndefinedNapiValue(env);
     }
-
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: before call g_locatorClient->StartBluetoothSearch");
-    asyncContext->errCode = g_locatorClient->StartBluetoothSearch(
-        *(asyncContext->bluetoothSearchParams), asyncContext->callback);
-    LBSLOGI(LOCATOR_STANDARD, "StartBluetoothSearch: errCode=%{public}d", asyncContext->errCode);
-
-    if (asyncContext->errCode != ERRCODE_SUCCESS) {
-        LocationErrCode errCode = static_cast<LocationErrCode>(asyncContext->errCode);
-        bluetoothScanResultCallback->DeleteHandler();
+    if (!StartBluetoothSearchExecute(env, asyncContext, bluetoothScanResultCallback)) {
         delete asyncContext;
-        ThrowBusinessError(env, errCode);
         return UndefinedNapiValue(env);
     }
 
