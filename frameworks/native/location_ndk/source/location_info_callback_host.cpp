@@ -78,6 +78,7 @@ void LocationInfoCallbackHost::OnLocationReport(const std::unique_ptr<Location>&
     location_info.directionAccuracy = location->GetDirectionAccuracy();
     location_info.uncertaintyOfTimeSinceBoot = location->GetUncertaintyOfTimeSinceBoot();
     location_info.locationSourceType = (Location_SourceType)location->GetLocationSourceType();
+    location_info.isFromMock = location->GetIsFromMock();
     if (requestConfig_ != nullptr && requestConfig_->callback_ != nullptr &&
         requestConfig_->userData_ != nullptr && IsRequestConfigValid()) {
         requestConfig_->callback_(&location_info, requestConfig_->userData_);

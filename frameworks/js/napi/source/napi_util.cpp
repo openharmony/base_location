@@ -1,4 +1,4 @@
-/*
+sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss/*
  * Copyright (C) 2022 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,9 +127,7 @@ void LocationToJs(const napi_env& env, const std::unique_ptr<Location>& location
         NAPI_CALL_RETURN_VOID(env, napi_set_element(env, additionArray, index, value));
     }
     SetValueStringArray(env, "additions", additionArray, result);
-    if (locationInfo->GetIsSystemApp() != 0) {
-        SetValueBool(env, "isFromMock", locationInfo->GetIsFromMock(), result);
-    }
+    SetValueBool(env, "isFromMock", locationInfo->GetIsFromMock(), result);
     napi_value additionMap = CreateJsMap(env, locationInfo->GetAdditionsMap());
     SetValueStringMap(env, "additionsMap", additionMap, result);
     SetValueDouble(env, "altitudeAccuracy", locationInfo->GetAltitudeAccuracy(), result);
