@@ -227,7 +227,6 @@ bool BluetoothSearchManager::RegisterBluetoothCallback(sptr<IRemoteObject> callb
         return true;
     } else {
         LBSLOGE(LOCATOR, "%{public}s fail,Exceeded the maximum number limit", __func__);
-        delete deathRecipient;
         return false;
     }
 #else
