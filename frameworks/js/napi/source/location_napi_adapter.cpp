@@ -2275,7 +2275,6 @@ static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
     napi_ref callbackRef = nullptr;
     napi_status refStatus = napi_create_reference(env, handler, 1, &callbackRef);
     if (refStatus != napi_ok || callbackRef == nullptr) {
-        delete asyncContext;
         LBSLOGE(LOCATOR_STANDARD, "%{public}s create reference failed", __func__);
         ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return false;
@@ -2284,7 +2283,6 @@ static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
         new (std::nothrow) BluetoothScanResultCallbackNapi());
     if (callback == nullptr) {
         napi_delete_reference(env, callbackRef);
-        delete asyncContext;
         LBSLOGE(LOCATOR_STANDARD, "%{public}s callback is nullptr", __func__);
         ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return false;
