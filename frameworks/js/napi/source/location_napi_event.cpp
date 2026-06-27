@@ -1842,24 +1842,24 @@ bool OffLocationErrorCallback(const napi_env& env, const napi_value& handler)
 
 napi_value OnLocationChange(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = 2;
-    napi_value argv[2] = {nullptr};
+    size_t argc = PARAM2;
+    napi_value argv[PARAM2] = {nullptr};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     LBSLOGD(LOCATION_NAPI, "OnLocationChange entry");
-    if (argc != 2) {
+    if (argc != PARAM2) {
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     napi_valuetype valueType0;
     napi_valuetype valueType1;
-    NAPI_CALL(env, napi_typeof(env, argv[0], &valueType0));
-    NAPI_CALL(env, napi_typeof(env, argv[1], &valueType1));
-    if (valueType0 != napi_object || !CheckIfParamIsFunctionType(env, argv[1])) {
+    NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType0));
+    NAPI_CALL(env, napi_typeof(env, argv[PARAM1], &valueType1));
+    if (valueType0 != napi_object || !CheckIfParamIsFunctionType(env, argv[PARAM1])) {
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-    if (g_locationCallbacks.IsCallbackInMap(env, argv[1])) {
+    if (g_locationCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
         LBSLOGE(LOCATION_NAPI, "This request already exists");
         return UndefinedNapiValue(env);
     }
@@ -1867,9 +1867,9 @@ napi_value OnLocationChange(napi_env env, napi_callback_info cbinfo)
         sptr<LocatorCallbackNapi>(new (std::nothrow) LocatorCallbackNapi());
     if (locatorCallbackHost != nullptr) {
         napi_ref handlerRef = nullptr;
-        NAPI_CALL(env, napi_create_reference(env, argv[1], 1, &handlerRef));
+        NAPI_CALL(env, napi_create_reference(env, argv[PARAM1], PARAM1, &handlerRef));
         int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
-        LocationErrCode errorCode = SubscribeLocationChangeV9(env, argv[0], handlerRef, locatorCallbackHost);
+        LocationErrCode errorCode = SubscribeLocationChangeV9(env, argv[PARAM0], handlerRef, locatorCallbackHost);
         g_locationHiAppEvent->WriteEndEvent(
             beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "locationChangeOnDynamic");
         if (errorCode != ERRCODE_SUCCESS) {
@@ -1883,20 +1883,20 @@ napi_value OnLocationChange(napi_env env, napi_callback_info cbinfo)
 
 napi_value OffLocationChange(napi_env env, napi_callback_info cbinfo)
 {
-    size_t argc = 1;
-    napi_value argv[1] = {nullptr};
+    size_t argc = PARAM1;
+    napi_value argv[PARAM1] = {nullptr};
     napi_value thisVar = nullptr;
     NAPI_CALL(env, napi_get_cb_info(env, cbinfo, &argc, argv, &thisVar, nullptr));
     LBSLOGD(LOCATION_NAPI, "OffLocationChange entry");
-    if (argc == 0) {
+    if (argc == PARAM0) {
         OffAllLocationChangeCallback(env);
         return UndefinedNapiValue(env);
     }
-    if (!CheckIfParamIsFunctionType(env, argv[0])) {
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM0])) {
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-    auto locatorCallbackHost = g_locationCallbacks.GetCallbackPtr(env, argv[0]);
+    auto locatorCallbackHost = g_locationCallbacks.GetCallbackPtr(env, argv[PARAM0]);
     if (locatorCallbackHost == nullptr) {
         LBSLOGE(LOCATION_NAPI, "OffLocationChange callback not found");
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
@@ -1911,7 +1911,7 @@ napi_value OffLocationChange(napi_env env, napi_callback_info cbinfo)
         ThrowBusinessError(env, errorCode);
         return UndefinedNapiValue(env);
     }
-    g_locationCallbacks.DeleteCallback(env, argv[0]);
+    g_locationCallbacks.DeleteCallback(env, argv[PARAM0]);
     locatorCallbackHost->DeleteAllCallbacks();
     locatorCallbackHost = nullptr;
     return UndefinedNapiValue(env);
