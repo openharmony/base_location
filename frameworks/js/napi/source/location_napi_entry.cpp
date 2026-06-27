@@ -310,6 +310,8 @@ static napi_value InitManager(napi_env env, napi_value exports)
     napi_property_descriptor desc[] = {
         DECLARE_WRITABLE_NAPI_FUNCTION("on", On),
         DECLARE_WRITABLE_NAPI_FUNCTION("off", Off),
+        DECLARE_WRITABLE_NAPI_FUNCTION("onLocationChange", OnLocationChange),
+        DECLARE_WRITABLE_NAPI_FUNCTION("offLocationChange", OffLocationChange),
         DECLARE_WRITABLE_NAPI_FUNCTION("getCurrentLocation", GetCurrentLocation),
         DECLARE_WRITABLE_NAPI_FUNCTION("getLastLocation", GetLastLocation),
         DECLARE_WRITABLE_NAPI_FUNCTION("isLocationEnabled", IsLocationEnabled),
