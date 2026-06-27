@@ -1874,6 +1874,7 @@ napi_value OnLocationChange(napi_env env, napi_callback_info cbinfo)
         g_locationHiAppEvent->WriteEndEvent(
             beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "locationChangeOnDynamic");
         if (errorCode != ERRCODE_SUCCESS) {
+            api_delete_reference(env, handlerRef);
             ThrowBusinessError(env, errorCode);
             return UndefinedNapiValue(env);
         }
