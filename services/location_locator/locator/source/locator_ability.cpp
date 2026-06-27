@@ -539,7 +539,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
     int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
     LocationErrCode code =
         LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
-    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState) {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -581,7 +581,7 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
     int currentUserId = 0;
     LocationErrCode code =
         LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
-    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard" &&
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState &&
         (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
