@@ -1861,6 +1861,7 @@ napi_value OnLocationChange(napi_env env, napi_callback_info cbinfo)
     }
     if (g_locationCallbacks.IsCallbackInMap(env, argv[PARAM1])) {
         LBSLOGE(LOCATION_NAPI, "This request already exists");
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     auto locatorCallbackHost =
@@ -1890,6 +1891,10 @@ napi_value OffLocationChange(napi_env env, napi_callback_info cbinfo)
     LBSLOGD(LOCATION_NAPI, "OffLocationChange entry");
     if (argc == PARAM0) {
         OffAllLocationChangeCallback(env);
+        return UndefinedNapiValue(env);
+    }
+    if (argc != PARAM1) {
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
     if (!CheckIfParamIsFunctionType(env, argv[PARAM0])) {
