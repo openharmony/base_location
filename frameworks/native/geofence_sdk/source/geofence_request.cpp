@@ -506,7 +506,7 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
         request->fenceId_ = jsonObject.at("fenceId").get<int>();
     }
     if (jsonObject.find("uid") != jsonObject.cend() && jsonObject.at("uid").is_number()) {
-        request->uid_ = jsonObject.at("uid").get<int>();
+        request->uid_ = jsonObject.at("uid").get<int32_t>();
     }
     if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
         request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
