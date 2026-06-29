@@ -104,7 +104,8 @@ static bool ParseRssiThresholdFromJs(const napi_env& env, const napi_value& obje
     NAPI_CALL_BASE(env, napi_get_named_property(env, object, "rssiThreshold", &rssiValue), false);
     NAPI_CALL_BASE(env, napi_typeof(env, rssiValue, &valueType), false);
     if (valueType != napi_number) {
-        return true;
+        LBSLOGE(LOCATOR_STANDARD, "rssiThreshold type error");
+        return false;
     }
     int32_t rssi = 0;
     napi_status status = napi_get_value_int32(env, rssiValue, &rssi);

@@ -41,6 +41,8 @@ public:
         rssiThreshold = parcel.ReadInt32();
         int32_t size = parcel.ReadInt32();
         if (size < 0 || size > MAX_BLUETOOTH_DEVICE_ID_ARRAY_SIZE) {
+            rssiThreshold = DEFAULT_RSSI_THRESHOLD;
+            deviceIdArray.clear();
             return;
         }
         for (int32_t i = 0; i < size; i++) {

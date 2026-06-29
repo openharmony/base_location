@@ -2088,9 +2088,6 @@ ErrCode LocatorAbility::StopBluetoothSearch(const sptr<IBluetoothScanResultCallb
     if (!CheckRequestAvailable(LocatorInterfaceCode::STOP_SCAN_BLUETOOTH_DEVICE, identity)) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
-    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
     if (cb == nullptr) {
         LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
         return ERRCODE_SERVICE_UNAVAILABLE;
