@@ -44,6 +44,7 @@ typedef struct Location_Info {
     double directionAccuracy = 0.0;
     int64_t uncertaintyOfTimeSinceBoot = 0;
     Location_SourceType locationSourceType;
+    bool isFromMock = false;
 } Location_Info;
 
 void AddLocationCallBack(OHOS::sptr<OHOS::Location::LocationInfoCallbackHost>& callback);
