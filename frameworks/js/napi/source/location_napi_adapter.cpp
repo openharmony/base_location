@@ -2334,7 +2334,8 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
     BluetoothSearchRequestParams bluetoothSearchParams;
     sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback;
     napi_ref handlerRef = nullptr;
-    if (!CheckAndCreateBluetoothSearchContext(env, argv, bluetoothSearchParams, bluetoothScanResultCallback, handlerRef)) {
+    if (!CheckAndCreateBluetoothSearchContext(env, argv, bluetoothSearchParams,
+        bluetoothScanResultCallback, handlerRef)) {
         if (bluetoothScanResultCallback != nullptr) {
             bluetoothScanResultCallback->DeleteHandler();
         }
