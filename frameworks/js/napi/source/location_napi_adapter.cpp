@@ -2253,13 +2253,13 @@ static bool CheckLocationSwitchEnabled(napi_env env)
 
 static bool ValidateStartBluetoothSearchParams(napi_env env, napi_value* argv)
 {
-    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s second param must be function", __func__);
+    if (!CheckIfParamIsObjectType(env, argv[PARAM0])) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s first param must be object", __func__);
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return false;
     }
-    if (!CheckIfParamIsObjectType(env, argv[PARAM0])) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s first param must be object", __func__);
+    if (!CheckIfParamIsFunctionType(env, argv[PARAM1])) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s second param must be function", __func__);
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return false;
     }
