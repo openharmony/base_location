@@ -147,7 +147,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceEvent001,
     location.horizontalAccuracy = 1.0;
     location.speed = 1.0;
     location.bearing = 1.0;
-    location.timestamp = 1000000000;
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_ENTERED;
     int32_t fenceIndex = 0;
     int64_t timestamp = 1000000000;
@@ -170,7 +169,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceEvent002,
     location.horizontalAccuracy = 5.0;
     location.speed = 10.0;
     location.bearing = 180.0;
-    location.timestamp = 2000000000;
     GeofenceEvent event = GeofenceEvent::GEOFENCE_EVENT_EXITED;
     int32_t fenceIndex = 1;
     int64_t timestamp = 2000000000;
@@ -193,7 +191,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceEvent00
     location.horizontalAccuracy = 1.0;
     location.speed = 1.0;
     location.bearing = 1.0;
-    location.timestamp = 1000000000;
     int event = 1;
     int32_t fenceIndex = 0;
     int64_t timestamp = 1000000000;
@@ -216,7 +213,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceEvent00
     location.horizontalAccuracy = -5.0;
     location.speed = -10.0;
     location.bearing = -180.0;
-    location.timestamp = 2000000000;
     int event = 2;
     int32_t fenceIndex = 5;
     int64_t timestamp = 2000000000;
