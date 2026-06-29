@@ -1875,6 +1875,7 @@ napi_value OnLocationChange(napi_env env, napi_callback_info cbinfo)
             beginTime, errorCode == ERRCODE_SUCCESS ? 0 : 1, errorCode, "locationChangeOnDynamic");
         if (errorCode != ERRCODE_SUCCESS) {
             napi_delete_reference(env, handlerRef);
+            locatorCallbackHost = nullptr;
             ThrowBusinessError(env, errorCode);
             return UndefinedNapiValue(env);
         }
