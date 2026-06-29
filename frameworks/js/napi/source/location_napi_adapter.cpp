@@ -2410,7 +2410,8 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
     napi_valuetype valueType;
     NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
     if (valueType == napi_undefined || valueType == napi_null) {
-        StopAllBluetoothSearchCallbacks(env);
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s valueType napi_undefined", __func__);
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
 
