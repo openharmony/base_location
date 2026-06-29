@@ -21,6 +21,7 @@
 #include "accesstoken_kit.h"
 #include "nativetoken_kit.h"
 #include "token_setproc.h"
+#include "permission_manager.h"
 
 #include "geofence_event_callback.h"
 #include "common_utils.h"
