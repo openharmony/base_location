@@ -250,12 +250,6 @@ typedef struct Location_Info Location_Info;
 bool OH_LocationInfo_IsFromMock(Location_Info* location);
 
 /**
- * @brief Define the structure of location information.
- * @since 13
- */
-typedef struct Location_Info Location_Info;
-
-/**
  * @brief Obtain basic location information.
  *
  * @param location - Pointer to the location information structure.\n
