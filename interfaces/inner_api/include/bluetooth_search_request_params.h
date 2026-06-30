@@ -75,13 +75,6 @@ public:
         return params;
     }
 
-    static std::unique_ptr<BluetoothSearchRequestParams> UnmarshallingUnique(Parcel& parcel)
-    {
-        auto params = std::make_unique<BluetoothSearchRequestParams>();
-        params->ReadFromParcel(parcel);
-        return params;
-    }
-
     std::vector<std::string> deviceIdArray;
     int32_t rssiThreshold;
 };

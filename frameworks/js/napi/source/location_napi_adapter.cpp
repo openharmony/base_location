@@ -2261,6 +2261,36 @@ static bool ValidateStartBluetoothSearchParams(napi_env env, napi_value* argv)
     return true;
 }
 
+static int StartBluetoothSearchExecute(napi_env env,
+    const BluetoothSearchRequestParams& bluetoothSearchParams, sptr<BluetoothScanResultCallbackNapi>& callback)
+{
+    sptr<IBluetoothScanResultCallback> callbackInterface = callback;
+    int errCode = g_locatorClient->StartBluetoothSearch(bluetoothSearchParams, callbackInterface);
+    if (errCode != ERRCODE_SUCCESS) {
+        callback->DeleteHandler();
+    }
+    return errCode;
+}
+
+static void StopAllBluetoothSearchCallbacks(napi_env env)
+{
+    std::map<napi_env, std::map<napi_ref, sptr<BluetoothScanResultCallbackNapi>>> callbackMap =
+        g_bluetoothSearchCallbackHosts.GetCallbackMap();
+    auto iter = callbackMap.find(env);
+    if (iter != callbackMap.end()) {
+        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
+            auto callbackHost = innerIter->second;
+            if (callbackHost == nullptr) {
+                continue;
+            }
+            auto locatorCallback = sptr<IBluetoothScanResultCallback>(callbackHost);
+            g_locatorClient->StopBluetoothSearch(locatorCallback);
+            callbackHost->DeleteHandler();
+        }
+        g_bluetoothSearchCallbackHosts.DeleteCallbackByEnv(env);
+    }
+}
+
 static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
     sptr<BluetoothScanResultCallbackNapi>& callback, napi_ref& callbackRef)
 {
@@ -2296,27 +2326,14 @@ static bool CheckAndCreateBluetoothSearchContext(napi_env env, napi_value* argv,
     return true;
 }
 
-static int StartBluetoothSearchExecute(napi_env env,
-    const BluetoothSearchRequestParams& bluetoothSearchParams, sptr<BluetoothScanResultCallbackNapi>& callback)
-{
-    sptr<IBluetoothScanResultCallback> callbackInterface = callback;
-    int errCode = g_locatorClient->StartBluetoothSearch(bluetoothSearchParams, callbackInterface);
-    if (errCode != ERRCODE_SUCCESS) {
-        callback->DeleteHandler();
-    }
-    return errCode;
-}
-
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-
     if (argc != PARAM2) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s argc=%{public}zu expected 2", __func__, argc);
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
@@ -2349,26 +2366,10 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     g_bluetoothSearchCallbackHosts.AddCallback(env, handlerRef, bluetoothScanResultCallback);
+    napi_add_env_cleanup_hook(env, [](void* data) {
+        StopAllBluetoothSearchCallbacks(reinterpret_cast<napi_env>(data));
+    }, env);
     return UndefinedNapiValue(env);
-}
-
-static void StopAllBluetoothSearchCallbacks(napi_env env)
-{
-    std::map<napi_env, std::map<napi_ref, sptr<BluetoothScanResultCallbackNapi>>> callbackMap =
-        g_bluetoothSearchCallbackHosts.GetCallbackMap();
-    auto iter = callbackMap.find(env);
-    if (iter != callbackMap.end()) {
-        for (auto innerIter = iter->second.begin(); innerIter != iter->second.end(); innerIter++) {
-            auto callbackHost = innerIter->second;
-            if (callbackHost == nullptr) {
-                continue;
-            }
-            auto locatorCallback = sptr<IBluetoothScanResultCallback>(callbackHost);
-            g_locatorClient->StopBluetoothSearch(locatorCallback);
-            callbackHost->DeleteHandler();
-        }
-        g_bluetoothSearchCallbackHosts.DeleteCallbackByEnv(env);
-    }
 }
 
 static napi_value StopBluetoothSearchWithHandler(napi_env env, napi_value handler)
@@ -2379,7 +2380,6 @@ static napi_value StopBluetoothSearchWithHandler(napi_env env, napi_value handle
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-
     auto locatorCallback = sptr<IBluetoothScanResultCallback>(bluetoothScanResultCallbackHost);
     int errCode = g_locatorClient->StopBluetoothSearch(locatorCallback);
 
@@ -2389,7 +2389,6 @@ static napi_value StopBluetoothSearchWithHandler(napi_env env, napi_value handle
     } else {
         ThrowBusinessError(env, errCode);
     }
-
     return UndefinedNapiValue(env);
 }
 
@@ -2399,29 +2398,28 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
     napi_value argv[MAXIMUM_JS_PARAMS];
     napi_value thisVar = nullptr;
     void* data = nullptr;
-
     NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
     NAPI_ASSERT(env, g_locatorClient != nullptr, "locator instance is null.");
-
     if (argc < PARAM1) {
         StopAllBluetoothSearchCallbacks(env);
         return UndefinedNapiValue(env);
     }
-
     napi_valuetype valueType;
     NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
-    if (valueType == napi_undefined || valueType == napi_null) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s valueType napi_undefined", __func__);
+    if (valueType == napi_null) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s valueType napi_null", __func__);
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-
+    if (valueType == napi_undefined) {
+        StopAllBluetoothSearchCallbacks(env);
+        return UndefinedNapiValue(env);
+    }
     if (valueType != napi_function) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s first param must be function", __func__);
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
-
     return StopBluetoothSearchWithHandler(env, argv[PARAM0]);
 }
 

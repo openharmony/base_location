@@ -90,21 +90,19 @@ bool BluetoothSearchManager::MatchFilter(const BluetoothScanResult& result,
             rssi, params.rssiThreshold);
         return false;
     }
-
-            if (!params.deviceIdArray.empty()) {
-                std::string mac = result.GetDeviceId();
-                bool found = false;
-                for (const auto& allowedMac : params.deviceIdArray) {
-                    if (mac == allowedMac) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    return false;
-                }
+    if (!params.deviceIdArray.empty()) {
+        std::string mac = result.GetDeviceId();
+        bool found = false;
+        for (const auto& allowedMac : params.deviceIdArray) {
+            if (mac == allowedMac) {
+                found = true;
+            break;
             }
-
+        }
+        if (!found) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -156,17 +154,17 @@ void BluetoothSearchManager::StopBluetoothSearch(IRemoteObject* remote)
             if (bluetoothSearchScanStatus_) {
                 shouldStopScan = true;
                 bluetoothSearchScanStatus_ = false;
-#ifdef BLUETOOTH_ENABLE
-                {
-                    std::lock_guard<std::mutex> bleLock(bleManagerMutex_);
-                    if (bleCentralManager_ != nullptr) {
-                        bleCentralManager_->StopScan();
-                        LBSLOGI(LOCATOR, " %{public}s StopScan", __func__);
-                    }
-                }
-#endif
             }
         }
+    }
+    if (shouldStopScan) {
+#ifdef BLUETOOTH_ENABLE
+        std::lock_guard<std::mutex> bleLock(bleManagerMutex_);
+        if (bleCentralManager_ != nullptr) {
+            bleCentralManager_->StopScan();
+            LBSLOGI(LOCATOR, " %{public}s StopScan", __func__);
+        }
+#endif
     }
 }
 
@@ -286,7 +284,7 @@ void BluetoothSearchManager::ReportBluetoothScanResult(
         if (bluetoothScanResultCallback == nullptr) {
             continue;
         }
-        if (PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId()) &&
+        if (PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId()) &&
             !ProxyFreezeManager::GetInstance()->IsProxyPid(identity.GetPid())) {
             bluetoothScanResultCallback->OnBluetoothScanResultChange(bluetoothScanResult);
         }
