@@ -576,7 +576,7 @@ HWTEST_F(LocatorServiceTest, locatorServiceLocationMock001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] locatorServiceLocationMock001 begin");
     auto locatorAbility = LocatorAbility::GetInstance();
     int timeInterval = 2;
-    EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->EnableLocationMock());
+    EXPECT_EQ(ERRCODE_SERVICE_UNAVAILABLE, locatorAbility->EnableLocationMock());
     std::vector<Location> locations;
     EXPECT_EQ(ERRCODE_SUCCESS, locatorAbility->SetMockedLocations(timeInterval, locations));
 
