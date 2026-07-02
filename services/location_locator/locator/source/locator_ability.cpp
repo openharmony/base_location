@@ -2799,7 +2799,7 @@ void LocatorAbility::GetAppIdentityInfo(AppIdentity& identity)
         identity.SetFirstTokenId(0);
     }
     std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+    if (!BundleMgrHelper::GetBundleNameByUid(identity.GetUid(), bundleName)) {
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{private}d.", identity.GetUid());
     }
     identity.SetBundleName(bundleName);
