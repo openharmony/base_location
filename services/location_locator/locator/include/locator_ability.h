@@ -244,12 +244,6 @@ public:
     ErrCode IsGnssFenceServiceSupported(bool& isGnssFenceSupported) override;
     ErrCode IsCachedGnssServiceSupported(bool& isCachedGnssSupported) override;
     LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName);
-    ErrCode GetCurrentDistrict(
-        const DistrictInfoRequest& request, const sptr<IRemoteObject>& cb) override;
-    std::unique_ptr<Location> GetCurrentLocationForDistrict(const AppIdentity& identity,
-        int32_t totalTimeoutMs, int32_t& remainTimeoutMs);
-    ErrCode ReverseGeocodeForDistrict(const Location& location,
-        const DistrictInfoRequest& request, DistrictInfo& info, int32_t remainingTimeoutMs);
     void SetUSBState(bool status);
     bool GetUSBState();
     bool IsDeveloperMode();
