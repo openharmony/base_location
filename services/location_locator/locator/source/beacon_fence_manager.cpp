@@ -15,6 +15,7 @@
 #include "beacon_fence_manager.h"
 #include "location_log.h"
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "hook_utils.h"
 #include <sstream>
 #include <iomanip>
@@ -339,7 +340,7 @@ void BeaconFenceManager::TransitionStatusChange(std::shared_ptr<BeaconFenceReque
     }
     // 判断应用是否卸载
     std::shared_ptr<BeaconFence> beacon = beaconFenceRequest->GetBeaconFence();
-    if (!CommonUtils::CheckAppInstalled(beaconFenceRequest->GetBundleName())) {
+    if (!BundleMgrHelper::CheckAppInstalled(beaconFenceRequest->GetBundleName())) {
         LBSLOGE(BEACON_FENCE_MANAGER, "%{public}s service is not available", __func__);
         RemoveBeaconFence(beacon, beaconFenceRequest->GetBundleName());
         return;

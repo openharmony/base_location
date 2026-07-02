@@ -16,8 +16,6 @@
 #include "permission_manager.h"
 
 #include "accesstoken_kit.h"
-#include "bundle_mgr_interface.h"
-#include "bundle_mgr_proxy.h"
 #include "iservice_registry.h"
 #include "os_account_manager.h"
 #include "tokenid_kit.h"

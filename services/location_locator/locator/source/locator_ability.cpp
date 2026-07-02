@@ -27,6 +27,7 @@
 #include "common_hisysevent.h"
 #include "location_log_event_ids.h"
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "constant_definition.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_proxy.h"
@@ -69,6 +70,9 @@
 #include "poi_info_manager.h"
 #include "location_account_manager.h"
 #include "app_background_status_manager.h"
+#ifdef NOTIFICATION_ENABLE
+#include "notification_helper.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -128,6 +132,14 @@ const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
 const int DEFAULT_USERID = 100;
 const int MAX_FENCE_NUM = 1000;
+
+const int32_t REGISTER_CALLBACK_DELAY = 30 * 1000L; // 30s
+const int32_t RE_REGISTER_CALLBACK_DELAY = 10 * 1000L; // 10s
+constexpr int32_t RE_REGISTER_CALLBACK_MAX = 20;
+
+const int32_t MOCK_LOCATION_NOTIFICATION_ID = LOCATION_LOCATOR_SA_ID * 100;
+constexpr uint32_t NOTIFICATION_AUTO_DELETED_TIME = 1000;
+constexpr std::string_view CONNECTED {"connected"};
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -250,6 +262,15 @@ bool LocatorAbility::Init()
     }
     SetLocationhubStateToSyspara(LOCATIONHUB_STATE_LOAD);
     registerToAbility_ = true;
+
+    auto task = [=]() {
+        LocatorAbility::GetInstance()->RegisterUSBPortStateCallback();
+    };
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->PostTask(task, REGISTER_CALLBACK_DELAY);
+    }
+    retryRegisterCallbackCount_.store(0);
+
     return registerToAbility_;
 }
 
@@ -1171,6 +1192,50 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     return ERRCODE_SUCCESS;
 }
 
+void LocatorAbility::SendLocationMockNotification()
+{
+#ifdef NOTIFICATION_ENABLE
+    std::shared_ptr<Notification::NotificationNormalContent> notificationNormalContent =
+        std::make_shared<Notification::NotificationNormalContent>();
+    LBSLOGI(LOCATOR, "SendLocationMockNotification");
+    if (notificationNormalContent == nullptr) {
+        LBSLOGE(LOCATOR, "get notification normal content nullptr");
+        return;
+    }
+    std::string title = "MockLocation";
+    std::string message = "The mock location function has been enabled. The normal location function is unavailable.";
+    notificationNormalContent->SetTitle(title);
+    notificationNormalContent->SetText(message);
+    std::shared_ptr<OHOS::Notification::NotificationContent> notificationContent =
+        std::make_shared<OHOS::Notification::NotificationContent>(notificationNormalContent);
+    if (notificationContent == nullptr) {
+        LBSLOGE(LOCATOR, "get notification content nullptr");
+        return;
+    }
+    Notification::NotificationRequest request;
+    request.SetNotificationId(MOCK_LOCATION_NOTIFICATION_ID);
+    request.SetContent(notificationContent);
+    request.SetCreatorUid(LOCATOR_UID);
+    request.SetCreatorPid(getpid());
+    request.SetAutoDeletedTime(NOTIFICATION_AUTO_DELETED_TIME);
+    request.SetTapDismissed(true);
+    request.SetSlotType(Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
+    int32_t userId = DEFAULT_USERID;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    request.SetCreatorUserId(userId);
+    int32_t ret = Notification::NotificationHelper::PublishNotification(request);
+    if (ret != 0) {
+        LBSLOGE(LOCATOR, "Publish Notification errorCode = %{public}d", ret);
+        return;
+    }
+    LBSLOGI(LOCATOR, "LOCATOR publish notification success");
+#else
+    LBSLOGI(LOCATOR, "LOCATOR publish notification not support");
+#endif
+}
+
 void LocatorAbility::UpdateLoadedSaMap()
 {
     std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
@@ -1235,10 +1300,76 @@ void LocatorAbility::UpdateProxyMap()
 #endif
 }
 
+void LocatorAbility::SetUSBState(bool status)
+{
+    isUSBConnected_.store(status);
+}
+
+bool LocatorAbility::GetUSBState()
+{
+    return isUSBConnected_.load();
+}
+
+USBStatusEventClass::USBStatusEventClass(const EventFwk::CommonEventSubscribeInfo &subscriberInfo)
+    : EventFwk::CommonEventSubscriber(subscriberInfo)
+{}
+
+void USBStatusEventClass::OnReceiveEvent(const EventFwk::CommonEventData &data)
+{
+    EventFwk::Want want = data.GetWant();
+    std::string action = data.GetWant().GetAction();
+    LBSLOGI(LOCATOR, "USBStatusEventClass receive one broadcast: %{public}s", action.c_str());
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USB_STATE) {
+        bool isUSBConnected = want.GetBoolParam(std::string {CONNECTED}, false);
+        auto locatorAbility = LocatorAbility::GetInstance();
+        locatorAbility->SetUSBState(isUSBConnected);
+        LBSLOGE(LOCATOR, "UsbSrvSupport::CONNECTED: %{public}d.", isUSBConnected);
+        if (!isUSBConnected || !locatorAbility->IsDeveloperMode()) {
+            LBSLOGI(LOCATOR, "Disable mock location if developer mode is detected on USB status change");
+            locatorAbility->DisableLocationMock();
+        }
+    }
+}
+
+void LocatorAbility::RegisterUSBPortStateCallback()
+{
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USB_STATE);
+    EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    if (eventSubscriber_ == nullptr) {
+        eventSubscriber_ = std::make_shared<USBStatusEventClass>(subscriberInfo);
+    }
+    // Subscribe Success Return true
+    bool subscribeResult = EventFwk::CommonEventManager::SubscribeCommonEvent(eventSubscriber_);
+    LBSLOGI(LOCATOR, "Register USBStatusCallback errorCode = %{public}d", subscribeResult);
+    if (subscribeResult != true && retryRegisterCallbackCount_.load() < RE_REGISTER_CALLBACK_MAX) {
+        auto task = [=]() {
+            LocatorAbility::GetInstance()->RegisterUSBPortStateCallback();
+        };
+        if (locatorHandler_ == nullptr) {
+            LBSLOGE(LOCATOR, "null locatorHandler_");
+            return;
+        }
+        LBSLOGI(LOCATOR, "Post Delayed Task Register USBStatusCallback");
+        locatorHandler_->PostTask(task, RE_REGISTER_CALLBACK_DELAY);
+        retryRegisterCallbackCount_.fetch_add(1);
+    }
+}
+
+bool LocatorAbility::IsDeveloperMode()
+{
+    return OHOS::system::GetBoolParameter("const.security.developermode.state", true);
+}
+
 ErrCode LocatorAbility::EnableLocationMock()
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
+    if (!isUSBConnected_.load() || !IsDeveloperMode()) {
+        LBSLOGI(LOCATOR, "usb is not connecting");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+
     if (!CheckRequestAvailable(LocatorInterfaceCode::ENABLE_LOCATION_MOCK, identity)) {
         LBSLOGE(LOCATOR, "CheckRequestEnableMock return false, [%{private}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -1251,6 +1382,7 @@ ErrCode LocatorAbility::EnableLocationMock()
         LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{private}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
+    SendLocationMockNotification();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
@@ -1272,10 +1404,17 @@ ErrCode LocatorAbility::DisableLocationMock()
         LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{private}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
+    CancelNotification();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
         static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK));
+}
+
+void LocatorAbility::CancelNotification()
+{
+    ErrCode code = Notification::NotificationHelper::CancelNotification(MOCK_LOCATION_NOTIFICATION_ID);
+    LBSLOGD(LOCATOR, "CancelNotification: %{public}d", static_cast<int32_t>(code));
 }
 
 ErrCode LocatorAbility::SetMockedLocations(int32_t timeInterval, const std::vector<Location>& locations)
@@ -2458,7 +2597,7 @@ ErrCode LocatorAbility::IsPoiServiceSupported(bool& poiServiceSupportState)
         poiServiceSupportState = false;
         return ERRCODE_SUCCESS;
     }
-    if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+    if (!BundleMgrHelper::CheckAppInstalled(serviceName)) { // app is not installed
         poiServiceSupportState = false;
     } else {
         poiServiceSupportState = true;

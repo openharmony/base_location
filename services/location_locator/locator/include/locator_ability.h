@@ -18,6 +18,7 @@
 
 #include <map>
 #include <mutex>
+#include <atomic>
 #include <singleton.h>
 
 #include "event_handler.h"
@@ -57,6 +58,14 @@ public:
     void OnRemoteDied(const wptr<IRemoteObject> &remote) override;
     ScanCallbackDeathRecipient();
     ~ScanCallbackDeathRecipient() override;
+};
+
+class USBStatusEventClass : public EventFwk::CommonEventSubscriber {
+public:
+    explicit USBStatusEventClass(const EventFwk::CommonEventSubscribeInfo &info);
+    ~USBStatusEventClass() override = default;
+private:
+    void OnReceiveEvent(const EventFwk::CommonEventData &event) override;
 };
 
 class LocatorHandler : public AppExecFwk::EventHandler {
@@ -132,6 +141,7 @@ public:
     void InitRequestManagerMap();
     int32_t CallbackEnter(uint32_t code) override;
     int32_t CallbackExit(uint32_t code, int32_t result) override;
+    void RegisterUSBPortStateCallback();
     LocationErrCode UpdateSaAbility();
     ErrCode GetSwitchState(int32_t& state) override;
     ErrCode EnableAbility(bool isEnabled) override;
@@ -234,6 +244,15 @@ public:
     ErrCode IsGnssFenceServiceSupported(bool& isGnssFenceSupported) override;
     ErrCode IsCachedGnssServiceSupported(bool& isCachedGnssSupported) override;
     LocationErrCode SetSwitchStateForUser(bool isEnabled, int32_t userId, const std::string& bundleName);
+    ErrCode GetCurrentDistrict(
+        const DistrictInfoRequest& request, const sptr<IRemoteObject>& cb) override;
+    std::unique_ptr<Location> GetCurrentLocationForDistrict(const AppIdentity& identity,
+        int32_t totalTimeoutMs, int32_t& remainTimeoutMs);
+    ErrCode ReverseGeocodeForDistrict(const Location& location,
+        const DistrictInfoRequest& request, DistrictInfo& info, int32_t remainingTimeoutMs);
+    void SetUSBState(bool status);
+    bool GetUSBState();
+    bool IsDeveloperMode();
 
 private:
     bool Init();
@@ -266,6 +285,8 @@ private:
     bool registerToAbility_ = false;
     bool isActionRegistered = false;
     bool isLocationPrivacyActionRegistered_ = false;
+    std::atomic<bool> isUSBConnected_ = false;
+    std::atomic<int32_t> retryRegisterCallbackCount_ = 0;
     std::string deviceId_;
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     std::shared_ptr<LocatorEventSubscriber> locatorEventSubscriber_;
@@ -291,6 +312,9 @@ private:
     std::mutex LocationSwitchIgnoredFlagMutex_;
     std::mutex testMutex_;
     sptr<IRemoteObject::DeathRecipient> scanRecipient_ = new (std::nothrow) ScanCallbackDeathRecipient();
+    std::shared_ptr<USBStatusEventClass> eventSubscriber_ = nullptr;
+    void SendLocationMockNotification();
+    void CancelNotification();
 };
 
 class LocationMessage {

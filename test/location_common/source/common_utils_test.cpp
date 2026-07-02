@@ -25,6 +25,7 @@
 #include "token_setproc.h"
 
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "location_log.h"
 #include "location_sa_load_manager.h"
 #include "permission_manager.h"
@@ -249,7 +250,7 @@ HWTEST_F(CommonUtilsTest, GetBundleNameByUidTest001, TestSize.Level1)
         << "CommonUtilsTest, GetBundleNameByUidTest001, TestSize.Level1";
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetBundleNameByUidTest001 begin");
     std::string bundleName;
-    EXPECT_EQ(false, CommonUtils::GetBundleNameByUid(SYSTEM_UID, bundleName));
+    EXPECT_EQ(false, BundleMgrHelper::GetBundleNameByUid(SYSTEM_UID, bundleName));
     LBSLOGI(COMMON_UTILS, "[CommonUtilsTest] GetBundleNameByUidTest001 end");
 }
 

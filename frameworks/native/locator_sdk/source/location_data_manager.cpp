@@ -97,11 +97,6 @@ LocationErrCode LocationDataManager::RegisterSwitchCallback(const sptr<IRemoteOb
         LBSLOGE(LOCATOR, "callback has registered");
         return ERRCODE_SUCCESS;
     }
-    std::string bundleName = "";
-    int uid = identity.GetUid();
-    if (CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-        identity.SetBundleName(bundleName);
-    }
     AppSwitchState appInfo{.appIdentity = identity, .lastState = DEFAULT_SWITCH_STATE};
     if (switchCallbackMap_.size() < MAX_SWITCH_CALLBACK_NUM) {
         switchCallbackMap_.emplace(callback, appInfo);

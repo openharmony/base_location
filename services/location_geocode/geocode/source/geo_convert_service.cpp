@@ -21,6 +21,7 @@
 #include "ability_manager_client.h"
 #include "geo_address.h"
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "location_config_manager.h"
 #include "location_dumper.h"
 #include "location_sa_load_manager.h"
@@ -199,7 +200,7 @@ int GeoConvertService::IsGeoConvertAvailable(MessageParcel &reply)
         return ERRCODE_SUCCESS;
     }
     reply.WriteInt32(ERRCODE_SUCCESS);
-    if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+    if (!BundleMgrHelper::CheckAppInstalled(serviceName)) { // app is not installed
         reply.WriteBool(false);
     } else {
         reply.WriteBool(true);
@@ -216,7 +217,7 @@ bool GeoConvertService::CheckGeoConvertAvailable()
             LBSLOGE(GEO_CONVERT, "get service name failed!");
             return false;
         }
-        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+        if (!BundleMgrHelper::CheckAppInstalled(serviceName)) { // app is not installed
             LBSLOGE(GEO_CONVERT, "service is not available.");
             return false;
         }
@@ -307,7 +308,7 @@ bool GeoConvertService::GetService()
             LBSLOGE(GEO_CONVERT, "get service name failed!");
             return false;
         }
-        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+        if (!BundleMgrHelper::CheckAppInstalled(serviceName)) { // app is not installed
             LBSLOGE(GEO_CONVERT, "service is not available.");
             return false;
         } else if (!ConnectService()) {

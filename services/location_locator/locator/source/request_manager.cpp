@@ -538,7 +538,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     std::string bundleName = "";
     pid_t uid = request->GetUid();
     pid_t pid = request->GetPid();
-    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+    if (!BundleMgrHelper::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
     auto requestConfig = request->GetRequestConfig();

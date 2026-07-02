@@ -21,6 +21,7 @@ local_base_sources = [
   "$LOCATION_NETWORK_ROOT/source/network_ability.cpp",
   "$LOCATION_NETWORK_ROOT/source/network_ability_skeleton.cpp",
   "$LOCATION_NETWORK_ROOT/source/network_callback_host.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/location_common/common/source/bundle_mgr_helper.cpp",
 ]
 
 if (location_feature_with_network) {
