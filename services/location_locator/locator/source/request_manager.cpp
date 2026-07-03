@@ -19,6 +19,7 @@
 #include "privacy_error.h"
 
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "constant_definition.h"
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_proxy.h"

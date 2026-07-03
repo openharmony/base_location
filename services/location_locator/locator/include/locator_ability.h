@@ -50,6 +50,7 @@
 #include "beacon_fence_manager.h"
 #include "locationhub_ipc_interface_code.h"
 #include "i_poi_info_callback.h"
+#include "parameters.h"
 
 namespace OHOS {
 namespace Location {
