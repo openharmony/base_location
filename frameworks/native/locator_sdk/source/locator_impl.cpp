@@ -302,11 +302,6 @@ bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callbac
     identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
     identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
-    std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
-        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
-    }
-    identity.SetBundleName(bundleName);
     countryCodeManager->RegisterCountryCodeCallback(callback, identity);
     return true;
 }
@@ -944,11 +939,6 @@ LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObj
     identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
     identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
-    std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
-        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
-    }
-    identity.SetBundleName(bundleName);
     countryCodeManager->RegisterCountryCodeCallback(callback, identity);
     return ERRCODE_SUCCESS;
 }

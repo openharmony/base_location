@@ -18,6 +18,7 @@
 #include <cmath>
 #include "privacy_kit.h"
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "fusion_controller.h"
 #include "i_locator_callback.h"
 #include "location_log.h"
@@ -183,6 +184,13 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
 bool ReportManager::ReportLocationByCallback(std::shared_ptr<Request>& request,
     const std::unique_ptr<Location>& finalLocation)
 {
+    std::string packageName = request->GetPackageName();
+    bool ret = BundleMgrHelper::CheckAppDebug(packageName);
+    auto locatorAbility = LocatorAbility::GetInstance();
+    bool isUSBConnected = locatorAbility->GetUSBState();
+    if (finalLocation->GetIsFromMock() && (!isUSBConnected || !ret)) {
+        return false;
+    }
     auto locatorCallback = request->GetLocatorCallBack();
     if (locatorCallback != nullptr) {
         // add location permission using record
@@ -277,7 +285,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
     auto tokenIdEx = request->GetTokenIdEx();
     auto uid =  request->GetUid();
     if (bundleName.length() == 0) {
-        if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+        if (!BundleMgrHelper::GetBundleNameByUid(uid, bundleName)) {
             LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
         }
     }

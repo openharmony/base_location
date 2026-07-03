@@ -17,6 +17,7 @@
 
 #include "location_log.h"
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "location_config_manager.h"
 #include "ability_connect_callback_stub.h"
 #include "ability_manager_client.h"
@@ -101,7 +102,7 @@ void PoiInfoManager::RequestPoiInfo(sptr<IRemoteObject>& cb, AppIdentity identit
             LBSLOGE(POI, "get service name failed!");
             return;
         }
-        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+        if (!BundleMgrHelper::CheckAppInstalled(serviceName)) { // app is not installed
             LBSLOGE(POI, "poi service is not available.");
             return;
         } else if (!ConnectPoiService()) {
