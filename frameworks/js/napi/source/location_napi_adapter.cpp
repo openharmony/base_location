@@ -2311,21 +2311,6 @@ static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
     return true;
 }
 
-static bool CheckAndCreateBluetoothSearchContext(napi_env env, napi_value* argv,
-    BluetoothSearchRequestParams& bluetoothSearchParams, sptr<BluetoothScanResultCallbackNapi>& callback,
-    napi_ref& handlerRef)
-{
-    if (!JsObjToBluetoothSearchRequest(env, argv[PARAM0], bluetoothSearchParams)) {
-        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: JsObjToBluetoothSearchRequest failed");
-        return false;
-    }
-    if (!CreateBluetoothSearchCallback(env, argv[PARAM1], callback, handlerRef)) {
-        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: CreateBluetoothSearchCallback failed");
-        return false;
-    }
-    return true;
-}
-
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
 {
     size_t argc = MAXIMUM_JS_PARAMS;
@@ -2349,13 +2334,18 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         return UndefinedNapiValue(env);
     }
     BluetoothSearchRequestParams bluetoothSearchParams;
-    sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback;
+    sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback = nullptr;
     napi_ref handlerRef = nullptr;
-    if (!CheckAndCreateBluetoothSearchContext(env, argv, bluetoothSearchParams,
-        bluetoothScanResultCallback, handlerRef)) {
+    if (!JsObjToBluetoothSearchRequest(env, argv[PARAM0], bluetoothSearchParams)) {
+        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: JsObjToBluetoothSearchRequest failed");
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    if (!CreateBluetoothSearchCallback(env, argv[PARAM1], bluetoothScanResultCallback, handlerRef)) {
         if (bluetoothScanResultCallback != nullptr) {
             bluetoothScanResultCallback->DeleteHandler();
         }
+        LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: CreateBluetoothSearchCallback failed");
         ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return UndefinedNapiValue(env);
     }

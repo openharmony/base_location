@@ -22,8 +22,8 @@
 namespace OHOS {
 namespace Location {
 const int MAX_DEVICE_ID_STR_LEN = 64;
-const int MIN_RSSI_VALUE = -10000;
-const int MAX_RSSI_VALUE = 10000;
+const int MIN_RSSI_VALUE = -128;
+const int MAX_RSSI_VALUE = 127;
 
 static bool ParseDeviceIdArrayFromJs(const napi_env& env, const napi_value& object,
     BluetoothSearchRequestParams& params);

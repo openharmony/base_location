@@ -2062,7 +2062,7 @@ ErrCode LocatorAbility::StartBluetoothSearch(const BluetoothSearchRequestParams&
     if (!CheckBluetoothSwitchState()) {
         return ERRCODE_SCAN_FAIL;
     }
-    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     if (cb == nullptr) {

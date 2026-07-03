@@ -266,12 +266,7 @@ void BluetoothSearchManager::ReportBluetoothScanResult(
             if (bluetoothScanResultCallback == nullptr) {
                 continue;
             }
-
             AppIdentity identity = pair.second.identity;
-            if (!CommonUtils::IsAppBelongCurrentAccount(identity)) {
-                continue;
-            }
-
             BluetoothSearchRequestParams params = pair.second.params;
             if (MatchFilter(*bluetoothScanResult, params)) {
                 callbacksToNotify.push_back(std::make_tuple(bluetoothScanResultCallback, identity, params));
@@ -285,7 +280,8 @@ void BluetoothSearchManager::ReportBluetoothScanResult(
             continue;
         }
         if (PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId()) &&
-            !ProxyFreezeManager::GetInstance()->IsProxyPid(identity.GetPid())) {
+            !ProxyFreezeManager::GetInstance()->IsProxyPid(identity.GetPid()) &&
+            CommonUtils::IsAppBelongCurrentAccount(identity)) {
             bluetoothScanResultCallback->OnBluetoothScanResultChange(bluetoothScanResult);
         }
     }
