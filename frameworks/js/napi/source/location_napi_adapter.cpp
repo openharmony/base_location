@@ -2258,6 +2258,11 @@ static bool ValidateStartBluetoothSearchParams(napi_env env, napi_value* argv)
         ThrowBusinessError(env, ERRCODE_SERVICE_UNAVAILABLE);
         return false;
     }
+    if (g_bluetoothSearchCallbackHosts.IsCallbackInMap(env, argv[PARAM1])) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s This request already exists", __func__);
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return false;
+    }
     return true;
 }
 
@@ -2328,11 +2333,6 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         LBSLOGE(LOCATOR_STANDARD, "StartBluetoothSearch: ValidateStartBluetoothSearchParams failed");
         return UndefinedNapiValue(env);
     }
-    if (g_bluetoothSearchCallbackHosts.IsCallbackInMap(env, argv[PARAM1])) {
-        LBSLOGE(LOCATION_NAPI, "This request already exists");
-        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
     BluetoothSearchRequestParams bluetoothSearchParams;
     sptr<BluetoothScanResultCallbackNapi> bluetoothScanResultCallback = nullptr;
     napi_ref handlerRef = nullptr;
@@ -2355,6 +2355,9 @@ napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
         ThrowBusinessError(env, locErrCode);
         return UndefinedNapiValue(env);
     }
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errCode == ERRCODE_SUCCESS ? 0 : 1, errCode, "StartBluetoothSearch");
     g_bluetoothSearchCallbackHosts.AddCallback(env, handlerRef, bluetoothScanResultCallback);
     napi_add_env_cleanup_hook(env, [](void* data) {
         StopAllBluetoothSearchCallbacks(reinterpret_cast<napi_env>(data));
@@ -2366,7 +2369,7 @@ static napi_value StopBluetoothSearchWithHandler(napi_env env, napi_value handle
 {
     auto bluetoothScanResultCallbackHost = g_bluetoothSearchCallbackHosts.GetCallbackPtr(env, handler);
     if (bluetoothScanResultCallbackHost == nullptr) {
-        LBSLOGE(LOCATOR_STANDARD, "BT_SEARCH_LOG StopBluetoothSearch callback not found");
+        LBSLOGE(LOCATOR_STANDARD, "StopBluetoothSearch callback not found");
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
         return UndefinedNapiValue(env);
     }
@@ -2379,6 +2382,9 @@ static napi_value StopBluetoothSearchWithHandler(napi_env env, napi_value handle
     } else {
         ThrowBusinessError(env, errCode);
     }
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    g_hiAppEventClient->WriteEndEvent(
+        beginTime, errCode == ERRCODE_SUCCESS ? 0 : 1, errCode, "StopBluetoothSearch");
     return UndefinedNapiValue(env);
 }
 
@@ -2396,15 +2402,6 @@ napi_value StopBluetoothSearch(napi_env env, napi_callback_info info)
     }
     napi_valuetype valueType;
     NAPI_CALL(env, napi_typeof(env, argv[PARAM0], &valueType));
-    if (valueType == napi_null) {
-        LBSLOGE(LOCATOR_STANDARD, "%{public}s valueType napi_null", __func__);
-        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
-        return UndefinedNapiValue(env);
-    }
-    if (valueType == napi_undefined) {
-        StopAllBluetoothSearchCallbacks(env);
-        return UndefinedNapiValue(env);
-    }
     if (valueType != napi_function) {
         LBSLOGE(LOCATOR_STANDARD, "%{public}s first param must be function", __func__);
         ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
