@@ -46,7 +46,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         let logWant = { ...want };
         let originalSSID = want.parameters?.['ssid'] as string;
         if (logWant.parameters) {
-            delete logWant.parameters['ssid'];
+            delete logWant.parameters.['ssid'];
             logWant.parameters = {
                 ...logWant.parameters,
                 'ssid': this.maskSSID(originalSSID)
