@@ -48,6 +48,8 @@
 #include "beacon_fence_request.h"
 #include "beacon_fence.h"
 #include "beacon_fence_manager.h"
+#include "bluetooth_search_request_params.h"
+#include "bluetooth_search_manager.h"
 #include "locationhub_ipc_interface_code.h"
 #include "i_poi_info_callback.h"
 #include "parameters.h"
@@ -94,6 +96,8 @@ private:
     void GetCachedLocationFailed(const AppExecFwk::InnerEvent::Pointer& event);
     void StartScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void StopScanBluetoothDeviceEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StartBluetoothSearchEvent(const AppExecFwk::InnerEvent::Pointer& event);
+    void StopBluetoothSearchEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void RegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void UnRegLocationErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
     void ReportNetworkLocatingErrorEvent(const AppExecFwk::InnerEvent::Pointer& event);
@@ -196,6 +200,9 @@ public:
     LocationErrCode UnregisterBleScanInfoCallback(const sptr<IRemoteObject>& callback);
     ErrCode SubscribeBluetoothScanResultChange(const sptr<IBluetoothScanResultCallback>& cb) override;
     ErrCode UnSubscribeBluetoothScanResultChange(const sptr<IBluetoothScanResultCallback>& cb) override;
+    ErrCode StartBluetoothSearch(const BluetoothSearchRequestParams& params,
+        const sptr<IBluetoothScanResultCallback>& cb) override;
+    ErrCode StopBluetoothSearch(const sptr<IBluetoothScanResultCallback>& cb) override;
     LocationErrCode RegisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity);
     LocationErrCode UnregisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity);
     ErrCode ReportLocationError(int32_t errCodeNum, const std::string& errMsg, const std::string& uuid) override;
@@ -344,6 +351,20 @@ public:
 private:
     sptr<IBluetoothScanResultCallback> callback_;
     AppIdentity appIdentity_;
+};
+
+class BluetoothSearchCallbackMessage {
+public:
+    void SetCallback(const sptr<IBluetoothScanResultCallback>& callback);
+    sptr<IBluetoothScanResultCallback> GetCallback();
+    void SetAppIdentity(AppIdentity& appIdentity);
+    AppIdentity GetAppIdentity();
+    void SetBluetoothSearchParams(const BluetoothSearchRequestParams& params);
+    BluetoothSearchRequestParams GetBluetoothSearchParams();
+private:
+    sptr<IBluetoothScanResultCallback> callback_;
+    AppIdentity appIdentity_;
+    BluetoothSearchRequestParams bluetoothSearchParams_;
 };
 
 class LocatorErrorMessage {

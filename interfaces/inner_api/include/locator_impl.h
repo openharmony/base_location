@@ -37,6 +37,7 @@
 #include "beacon_fence_request.h"
 #include "beacon_fence.h"
 #include "i_poi_info_callback.h"
+#include "bluetooth_search_request_params.h"
 
 namespace OHOS {
 namespace Location {
@@ -627,6 +628,24 @@ public:
      * @return Returns ERRCODE_SUCCESS if subscribe error changed succeed.
      */
     LocationErrCode UnSubscribeBluetoothScanResultChange(sptr<IBluetoothScanResultCallback>& callback);
+
+    /**
+     * @brief Start bluetooth search with filtering parameters.
+     *
+     * @param params Indicates the bluetooth search parameters.
+     * @param callback Indicates the callback for reporting the bluetooth scan result.
+     * @return Returns ERRCODE_SUCCESS if start bluetooth search succeed.
+     */
+    LocationErrCode StartBluetoothSearch(const BluetoothSearchRequestParams& params,
+        sptr<IBluetoothScanResultCallback>& callback);
+
+    /**
+     * @brief Stop bluetooth search.
+     *
+     * @param callback Indicates the callback to stop.
+     * @return Returns ERRCODE_SUCCESS if stop bluetooth search succeed.
+     */
+    LocationErrCode StopBluetoothSearch(sptr<IBluetoothScanResultCallback>& callback);
 
     /**
      * @brief Unsubscribe location errorcode changed.

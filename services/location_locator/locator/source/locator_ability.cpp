@@ -106,6 +106,8 @@ const uint32_t EVENT_WATCH_SWITCH_PARAMETER = 0x0025;
 const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
 const uint32_t EVENT_START_SCAN_BLUETOOTH_DEVICE = 0x0027;
 const uint32_t EVENT_STOP_SCAN_BLUETOOTH_DEVICE = 0x0028;
+const uint32_t EVENT_START_BLUETOOTH_SEARCH = 0x0029;
+const uint32_t EVENT_STOP_BLUETOOTH_SEARCH = 0x0030;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -2200,6 +2202,59 @@ ErrCode LocatorAbility::UnSubscribeBluetoothScanResultChange(
     return ERRCODE_SUCCESS;
 }
 
+ErrCode LocatorAbility::StartBluetoothSearch(const BluetoothSearchRequestParams& params,
+    const sptr<IBluetoothScanResultCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::START_SCAN_BLUETOOTH_DEVICE, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (!CheckBluetoothSwitchState()) {
+        return ERRCODE_SCAN_FAIL;
+    }
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        std::make_unique<BluetoothSearchCallbackMessage>();
+    callbackMessage->SetCallback(cb);
+    callbackMessage->SetAppIdentity(identity);
+    callbackMessage->SetBluetoothSearchParams(params);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_START_BLUETOOTH_SEARCH, callbackMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
+    return ERRCODE_SUCCESS;
+}
+
+ErrCode LocatorAbility::StopBluetoothSearch(const sptr<IBluetoothScanResultCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        std::make_unique<BluetoothSearchCallbackMessage>();
+    callbackMessage->SetCallback(cb);
+    callbackMessage->SetAppIdentity(identity);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_STOP_BLUETOOTH_SEARCH, callbackMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
+    return ERRCODE_SUCCESS;
+}
+
 LocationErrCode LocatorAbility::RegisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
@@ -2871,6 +2926,37 @@ AppIdentity BluetoothScanResultCallbackMessage::GetAppIdentity()
     return appIdentity_;
 }
 
+void BluetoothSearchCallbackMessage::SetCallback(const sptr<IBluetoothScanResultCallback>& callback)
+{
+    callback_ = callback;
+}
+
+sptr<IBluetoothScanResultCallback> BluetoothSearchCallbackMessage::GetCallback()
+{
+    return callback_;
+}
+
+void BluetoothSearchCallbackMessage::SetAppIdentity(AppIdentity& appIdentity)
+{
+    appIdentity_ = appIdentity;
+}
+
+AppIdentity BluetoothSearchCallbackMessage::GetAppIdentity()
+{
+    return appIdentity_;
+}
+
+void BluetoothSearchCallbackMessage::SetBluetoothSearchParams(const BluetoothSearchRequestParams& params)
+{
+    bluetoothSearchParams_ = params;
+}
+
+BluetoothSearchRequestParams BluetoothSearchCallbackMessage::GetBluetoothSearchParams()
+{
+    return bluetoothSearchParams_;
+}
+
+
 void LocatorErrorMessage::SetUuid(std::string uuid)
 {
     uuid_ = uuid;
@@ -3022,6 +3108,32 @@ void LocatorHandler::ConstructBluetoothScanHandleMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { StartScanBluetoothDeviceEvent(event); };
     locatorHandlerEventMap_[EVENT_STOP_SCAN_BLUETOOTH_DEVICE] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { StopScanBluetoothDeviceEvent(event); };
+    locatorHandlerEventMap_[EVENT_START_BLUETOOTH_SEARCH] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartBluetoothSearchEvent(event); };
+    locatorHandlerEventMap_[EVENT_STOP_BLUETOOTH_SEARCH] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StopBluetoothSearchEvent(event); };
+}
+
+void LocatorHandler::StartBluetoothSearchEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        event->GetUniqueObject<BluetoothSearchCallbackMessage>();
+    if (callbackMessage == nullptr) {
+        return;
+    }
+    BluetoothSearchManager::GetInstance().StartBluetoothSearch(
+        callbackMessage->GetCallback(), callbackMessage->GetAppIdentity(),
+        callbackMessage->GetBluetoothSearchParams());
+}
+
+void LocatorHandler::StopBluetoothSearchEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        event->GetUniqueObject<BluetoothSearchCallbackMessage>();
+    if (callbackMessage == nullptr) {
+        return;
+    }
+    BluetoothSearchManager::GetInstance().StopBluetoothSearch(callbackMessage->GetCallback()->AsObject());
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)
