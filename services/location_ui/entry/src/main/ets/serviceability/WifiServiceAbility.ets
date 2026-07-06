@@ -45,13 +45,11 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     onRequest(want: Want, startId: number): void {
         let logWant = { ...want };
         let originalSSID = want.parameters?.['ssid'] as string;
-        if (logWant.parameters) {
-            delete logWant.parameters.['ssid'];
-            logWant.parameters = {
-                ...logWant.parameters,
-                'ssid': this.maskSSID(originalSSID)
-            };
-        }
+        delete logWant.parameters?.['ssid'];	 
+        logWant.parameters = {	 
+            ...logWant.parameters,	 
+            'ssid': this.maskSSID(originalSSID)	 
+        };
         console.info(TAG, `WifiServiceAbility onRequest, want: ${JSON.stringify(logWant)}`);        
         let file: fs.File | undefined;
         let imageSourceApi: image.ImageSource | undefined;
