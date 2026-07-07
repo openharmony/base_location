@@ -85,24 +85,10 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"اكتمل النقل عبر البلوتوث",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"هذه الشبكة اللاسلكية غير متصلة بالإنترنت. هل حقًا تريد الاتصال بها؟",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"جارٍ الاستلام…",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -134,13 +120,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"جارٍ الإرسال…",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"إلغاء",
             "attr":{
@@ -152,13 +131,6 @@
             "value":"تم العثور على شبكة لاسلكية أفضل",
             "attr":{
                 "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"اكتمل النقل عبر البلوتوث",
-            "attr":{
-                "priority":"translate"
             }
         },
         {
@@ -190,20 +162,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"استلام",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"نقل الملفات عبر البلوتوث",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_no_button",
             "value":"إلغاء",
             "attr":{
@@ -211,22 +169,8 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"البلوتوث",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"طلب الاتصال",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"رفض",
             "attr":{
                 "priority":"LT"
             }
@@ -267,29 +211,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s، و%2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s، و%2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"رفض",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"نقل الملفات عبر البلوتوث",
             "attr":{
                 "priority":"LT"
             }
@@ -304,20 +227,6 @@
         {
             "name":"location_target_statement_content",
             "value":"تحتاج خدمات الموقع إلى الاتصال بالإنترنت واستخدام نظام الملاحة العالمي عبر الأقمار الصناعية GNSS أو معلومات الشبكة (الشبكة اللاسلكية، والشبكة الخلوية، والبلوتوث، وعنوان IP) لتزويدك بالخدمات المستندة إلى الموقع. عند تشغيل هذا الخيار، ستتم مشاركة معلومات موقع جهازك مع الخدمات التي منحتها إذن الوصول إلى الموقع. كما سيتم أيضًا استخدام معلومات موقعك بواسطة خدمات النظام، لأغراض مثل تحديث المنطقة الزمنية ومكالمات الطوارئ. يمكنك الاطلاع على <a>البيان المتعلق بخدمات الموقع والخصوصية</a> لمعرفة المزيد من المعلومات حول خدمات الموقع.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"البلوتوث: جارٍ إرسال %1$d‏/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"البلوتوث: جارٍ استلام %1$d‏/%2$d",
             "attr":{
                 "priority":"LT"
             }

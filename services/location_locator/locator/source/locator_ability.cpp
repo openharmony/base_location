@@ -27,6 +27,7 @@
 #include "common_hisysevent.h"
 #include "location_log_event_ids.h"
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "constant_definition.h"
 #ifdef FEATURE_GEOCODE_SUPPORT
 #include "geo_convert_proxy.h"
@@ -69,6 +70,9 @@
 #include "poi_info_manager.h"
 #include "location_account_manager.h"
 #include "app_background_status_manager.h"
+#ifdef NOTIFICATION_ENABLE
+#include "notification_helper.h"
+#endif
 
 namespace OHOS {
 namespace Location {
@@ -102,6 +106,8 @@ const uint32_t EVENT_WATCH_SWITCH_PARAMETER = 0x0025;
 const uint32_t EVENT_SET_SWITCH_STATE_TO_DB_BY_USERID = 0x0026;
 const uint32_t EVENT_START_SCAN_BLUETOOTH_DEVICE = 0x0027;
 const uint32_t EVENT_STOP_SCAN_BLUETOOTH_DEVICE = 0x0028;
+const uint32_t EVENT_START_BLUETOOTH_SEARCH = 0x0029;
+const uint32_t EVENT_STOP_BLUETOOTH_SEARCH = 0x0030;
 
 const uint32_t RETRY_INTERVAL_UNITE = 1000;
 const uint32_t RETRY_INTERVAL_OF_INIT_REQUEST_MANAGER = 5 * RETRY_INTERVAL_UNITE;
@@ -128,6 +134,14 @@ const int MAX_SWITCH_CALLBACKS_NUM = 1000;
 const int LOCATION_SWITCH_IGNORED_STATE_VALID_TIME = 2 * 60 * 1000; // 2min
 const int DEFAULT_USERID = 100;
 const int MAX_FENCE_NUM = 1000;
+
+const int32_t REGISTER_CALLBACK_DELAY = 30 * 1000L; // 30s
+const int32_t RE_REGISTER_CALLBACK_DELAY = 10 * 1000L; // 10s
+constexpr int32_t RE_REGISTER_CALLBACK_MAX = 20;
+
+const int32_t MOCK_LOCATION_NOTIFICATION_ID = LOCATION_LOCATOR_SA_ID * 100;
+constexpr uint32_t NOTIFICATION_AUTO_DELETED_TIME = 1000;
+constexpr std::string_view CONNECTED {"connected"};
 
 LocatorAbility* LocatorAbility::GetInstance()
 {
@@ -250,6 +264,15 @@ bool LocatorAbility::Init()
     }
     SetLocationhubStateToSyspara(LOCATIONHUB_STATE_LOAD);
     registerToAbility_ = true;
+
+    auto task = [=]() {
+        LocatorAbility::GetInstance()->RegisterUSBPortStateCallback();
+    };
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->PostTask(task, REGISTER_CALLBACK_DELAY);
+    }
+    retryRegisterCallbackCount_.store(0);
+
     return registerToAbility_;
 }
 
@@ -539,7 +562,7 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
     int userId = CommonUtils::GetUserIdByUid(identity.GetUid());
     LocationErrCode code =
         LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
-    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard") {
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState) {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
@@ -581,7 +604,7 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
     int currentUserId = 0;
     LocationErrCode code =
         LocationConfigManager::GetInstance()->GetPrivacyTypeStateForUser(PRIVACY_TYPE_STARTUP, privacyState, userId);
-    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState && identity.GetBundleName() == "com.ohos.sceneboard" &&
+    if (code == ERRCODE_SUCCESS && isEnabled && !privacyState &&
         (CommonUtils::GetCurrentUserId(currentUserId) && userId == currentUserId)) {
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
@@ -1171,6 +1194,50 @@ LocationErrCode LocatorAbility::ProcessLocationMockMsg(
     return ERRCODE_SUCCESS;
 }
 
+void LocatorAbility::SendLocationMockNotification()
+{
+#ifdef NOTIFICATION_ENABLE
+    std::shared_ptr<Notification::NotificationNormalContent> notificationNormalContent =
+        std::make_shared<Notification::NotificationNormalContent>();
+    LBSLOGI(LOCATOR, "SendLocationMockNotification");
+    if (notificationNormalContent == nullptr) {
+        LBSLOGE(LOCATOR, "get notification normal content nullptr");
+        return;
+    }
+    std::string title = "MockLocation";
+    std::string message = "The mock location function has been enabled. The normal location function is unavailable.";
+    notificationNormalContent->SetTitle(title);
+    notificationNormalContent->SetText(message);
+    std::shared_ptr<OHOS::Notification::NotificationContent> notificationContent =
+        std::make_shared<OHOS::Notification::NotificationContent>(notificationNormalContent);
+    if (notificationContent == nullptr) {
+        LBSLOGE(LOCATOR, "get notification content nullptr");
+        return;
+    }
+    Notification::NotificationRequest request;
+    request.SetNotificationId(MOCK_LOCATION_NOTIFICATION_ID);
+    request.SetContent(notificationContent);
+    request.SetCreatorUid(LOCATOR_UID);
+    request.SetCreatorPid(getpid());
+    request.SetAutoDeletedTime(NOTIFICATION_AUTO_DELETED_TIME);
+    request.SetTapDismissed(true);
+    request.SetSlotType(Notification::NotificationConstant::SlotType::SOCIAL_COMMUNICATION);
+    int32_t userId = DEFAULT_USERID;
+    if (!CommonUtils::GetCurrentUserId(userId)) {
+        userId = DEFAULT_USERID;
+    }
+    request.SetCreatorUserId(userId);
+    int32_t ret = Notification::NotificationHelper::PublishNotification(request);
+    if (ret != 0) {
+        LBSLOGE(LOCATOR, "Publish Notification errorCode = %{public}d", ret);
+        return;
+    }
+    LBSLOGI(LOCATOR, "LOCATOR publish notification success");
+#else
+    LBSLOGI(LOCATOR, "LOCATOR publish notification not support");
+#endif
+}
+
 void LocatorAbility::UpdateLoadedSaMap()
 {
     std::unique_lock<ffrt::mutex> lock(loadedSaMapMutex_);
@@ -1235,10 +1302,76 @@ void LocatorAbility::UpdateProxyMap()
 #endif
 }
 
+void LocatorAbility::SetUSBState(bool status)
+{
+    isUSBConnected_.store(status);
+}
+
+bool LocatorAbility::GetUSBState()
+{
+    return isUSBConnected_.load();
+}
+
+USBStatusEventClass::USBStatusEventClass(const EventFwk::CommonEventSubscribeInfo &subscriberInfo)
+    : EventFwk::CommonEventSubscriber(subscriberInfo)
+{}
+
+void USBStatusEventClass::OnReceiveEvent(const EventFwk::CommonEventData &data)
+{
+    EventFwk::Want want = data.GetWant();
+    std::string action = data.GetWant().GetAction();
+    LBSLOGI(LOCATOR, "USBStatusEventClass receive one broadcast: %{public}s", action.c_str());
+    if (action == EventFwk::CommonEventSupport::COMMON_EVENT_USB_STATE) {
+        bool isUSBConnected = want.GetBoolParam(std::string {CONNECTED}, false);
+        auto locatorAbility = LocatorAbility::GetInstance();
+        locatorAbility->SetUSBState(isUSBConnected);
+        LBSLOGE(LOCATOR, "UsbSrvSupport::CONNECTED: %{public}d.", isUSBConnected);
+        if (!isUSBConnected || !locatorAbility->IsDeveloperMode()) {
+            LBSLOGI(LOCATOR, "Disable mock location if developer mode is detected on USB status change");
+            locatorAbility->DisableLocationMock();
+        }
+    }
+}
+
+void LocatorAbility::RegisterUSBPortStateCallback()
+{
+    EventFwk::MatchingSkills matchingSkills;
+    matchingSkills.AddEvent(EventFwk::CommonEventSupport::COMMON_EVENT_USB_STATE);
+    EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
+    if (eventSubscriber_ == nullptr) {
+        eventSubscriber_ = std::make_shared<USBStatusEventClass>(subscriberInfo);
+    }
+    // Subscribe Success Return true
+    bool subscribeResult = EventFwk::CommonEventManager::SubscribeCommonEvent(eventSubscriber_);
+    LBSLOGI(LOCATOR, "Register USBStatusCallback errorCode = %{public}d", subscribeResult);
+    if (subscribeResult != true && retryRegisterCallbackCount_.load() < RE_REGISTER_CALLBACK_MAX) {
+        auto task = [=]() {
+            LocatorAbility::GetInstance()->RegisterUSBPortStateCallback();
+        };
+        if (locatorHandler_ == nullptr) {
+            LBSLOGE(LOCATOR, "null locatorHandler_");
+            return;
+        }
+        LBSLOGI(LOCATOR, "Post Delayed Task Register USBStatusCallback");
+        locatorHandler_->PostTask(task, RE_REGISTER_CALLBACK_DELAY);
+        retryRegisterCallbackCount_.fetch_add(1);
+    }
+}
+
+bool LocatorAbility::IsDeveloperMode()
+{
+    return OHOS::system::GetBoolParameter("const.security.developermode.state", true);
+}
+
 ErrCode LocatorAbility::EnableLocationMock()
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
+    if (!isUSBConnected_.load() || !IsDeveloperMode()) {
+        LBSLOGI(LOCATOR, "usb is not connecting");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+
     if (!CheckRequestAvailable(LocatorInterfaceCode::ENABLE_LOCATION_MOCK, identity)) {
         LBSLOGE(LOCATOR, "CheckRequestEnableMock return false, [%{private}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -1251,6 +1384,7 @@ ErrCode LocatorAbility::EnableLocationMock()
         LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{private}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
+    SendLocationMockNotification();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
@@ -1272,10 +1406,17 @@ ErrCode LocatorAbility::DisableLocationMock()
         LBSLOGE(LOCATOR, "CheckMockLocationPermission return false, [%{private}s]", identity.ToString().c_str());
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
+    CancelNotification();
     int timeInterval = 0;
     std::vector<std::shared_ptr<Location>> location;
     return ProcessLocationMockMsg(timeInterval, location,
         static_cast<int>(LocatorInterfaceCode::DISABLE_LOCATION_MOCK));
+}
+
+void LocatorAbility::CancelNotification()
+{
+    ErrCode code = Notification::NotificationHelper::CancelNotification(MOCK_LOCATION_NOTIFICATION_ID);
+    LBSLOGD(LOCATOR, "CancelNotification: %{public}d", static_cast<int32_t>(code));
 }
 
 ErrCode LocatorAbility::SetMockedLocations(int32_t timeInterval, const std::vector<Location>& locations)
@@ -2061,6 +2202,59 @@ ErrCode LocatorAbility::UnSubscribeBluetoothScanResultChange(
     return ERRCODE_SUCCESS;
 }
 
+ErrCode LocatorAbility::StartBluetoothSearch(const BluetoothSearchRequestParams& params,
+    const sptr<IBluetoothScanResultCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::START_SCAN_BLUETOOTH_DEVICE, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (!CheckBluetoothSwitchState()) {
+        return ERRCODE_SCAN_FAIL;
+    }
+    if (!PermissionManager::CheckApproximatelyPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (cb == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        std::make_unique<BluetoothSearchCallbackMessage>();
+    callbackMessage->SetCallback(cb);
+    callbackMessage->SetAppIdentity(identity);
+    callbackMessage->SetBluetoothSearchParams(params);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_START_BLUETOOTH_SEARCH, callbackMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
+    return ERRCODE_SUCCESS;
+}
+
+ErrCode LocatorAbility::StopBluetoothSearch(const sptr<IBluetoothScanResultCallback>& cb)
+{
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (cb == nullptr) {
+        LBSLOGE(LOCATOR, "%{public}s.callback == nullptr", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        std::make_unique<BluetoothSearchCallbackMessage>();
+    callbackMessage->SetCallback(cb);
+    callbackMessage->SetAppIdentity(identity);
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::
+        Get(EVENT_STOP_BLUETOOTH_SEARCH, callbackMessage);
+    if (locatorHandler_ != nullptr) {
+        locatorHandler_->SendEvent(event);
+    }
+    return ERRCODE_SUCCESS;
+}
+
 LocationErrCode LocatorAbility::RegisterLocationError(const sptr<ILocatorCallback>& callback, AppIdentity &identity)
 {
     std::unique_ptr<LocatorCallbackMessage> callbackMessage = std::make_unique<LocatorCallbackMessage>();
@@ -2458,7 +2652,7 @@ ErrCode LocatorAbility::IsPoiServiceSupported(bool& poiServiceSupportState)
         poiServiceSupportState = false;
         return ERRCODE_SUCCESS;
     }
-    if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+    if (!BundleMgrHelper::CheckAppInstalled(serviceName)) { // app is not installed
         poiServiceSupportState = false;
     } else {
         poiServiceSupportState = true;
@@ -2660,7 +2854,7 @@ void LocatorAbility::GetAppIdentityInfo(AppIdentity& identity)
         identity.SetFirstTokenId(0);
     }
     std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
+    if (!BundleMgrHelper::GetBundleNameByUid(identity.GetUid(), bundleName)) {
         LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{private}d.", identity.GetUid());
     }
     identity.SetBundleName(bundleName);
@@ -2731,6 +2925,37 @@ AppIdentity BluetoothScanResultCallbackMessage::GetAppIdentity()
 {
     return appIdentity_;
 }
+
+void BluetoothSearchCallbackMessage::SetCallback(const sptr<IBluetoothScanResultCallback>& callback)
+{
+    callback_ = callback;
+}
+
+sptr<IBluetoothScanResultCallback> BluetoothSearchCallbackMessage::GetCallback()
+{
+    return callback_;
+}
+
+void BluetoothSearchCallbackMessage::SetAppIdentity(AppIdentity& appIdentity)
+{
+    appIdentity_ = appIdentity;
+}
+
+AppIdentity BluetoothSearchCallbackMessage::GetAppIdentity()
+{
+    return appIdentity_;
+}
+
+void BluetoothSearchCallbackMessage::SetBluetoothSearchParams(const BluetoothSearchRequestParams& params)
+{
+    bluetoothSearchParams_ = params;
+}
+
+BluetoothSearchRequestParams BluetoothSearchCallbackMessage::GetBluetoothSearchParams()
+{
+    return bluetoothSearchParams_;
+}
+
 
 void LocatorErrorMessage::SetUuid(std::string uuid)
 {
@@ -2883,6 +3108,32 @@ void LocatorHandler::ConstructBluetoothScanHandleMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { StartScanBluetoothDeviceEvent(event); };
     locatorHandlerEventMap_[EVENT_STOP_SCAN_BLUETOOTH_DEVICE] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { StopScanBluetoothDeviceEvent(event); };
+    locatorHandlerEventMap_[EVENT_START_BLUETOOTH_SEARCH] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StartBluetoothSearchEvent(event); };
+    locatorHandlerEventMap_[EVENT_STOP_BLUETOOTH_SEARCH] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { StopBluetoothSearchEvent(event); };
+}
+
+void LocatorHandler::StartBluetoothSearchEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        event->GetUniqueObject<BluetoothSearchCallbackMessage>();
+    if (callbackMessage == nullptr) {
+        return;
+    }
+    BluetoothSearchManager::GetInstance().StartBluetoothSearch(
+        callbackMessage->GetCallback(), callbackMessage->GetAppIdentity(),
+        callbackMessage->GetBluetoothSearchParams());
+}
+
+void LocatorHandler::StopBluetoothSearchEvent(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    std::unique_ptr<BluetoothSearchCallbackMessage> callbackMessage =
+        event->GetUniqueObject<BluetoothSearchCallbackMessage>();
+    if (callbackMessage == nullptr) {
+        return;
+    }
+    BluetoothSearchManager::GetInstance().StopBluetoothSearch(callbackMessage->GetCallback()->AsObject());
 }
 
 void LocatorHandler::GetCachedLocationSuccess(const AppExecFwk::InnerEvent::Pointer& event)

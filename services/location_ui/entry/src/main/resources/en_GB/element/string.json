@@ -85,29 +85,8 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"Bluetooth transfer finished",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"This WLAN network has no Internet access. Connect anyway?",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: Sending %1$d/%2$d",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Receiving…",
             "attr":{
                 "priority":"translate"
             }
@@ -141,13 +120,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"Sending…",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"Cancel",
             "attr":{
@@ -157,13 +129,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"Found a better WLAN network",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Bluetooth transfer finished",
             "attr":{
                 "priority":"translate"
             }
@@ -197,20 +162,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Accept",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Bluetooth file transfer",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_no_button",
             "value":"Cancel",
             "attr":{
@@ -218,22 +169,8 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"Bluetooth",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"Connection request",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Reject",
             "attr":{
                 "priority":"translate"
             }
@@ -281,36 +218,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: Receiving %1$d/%2$d",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"Deny",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Bluetooth file transfer",
             "attr":{
                 "priority":"translate"
             }

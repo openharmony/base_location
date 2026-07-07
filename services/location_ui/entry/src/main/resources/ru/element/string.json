@@ -85,24 +85,10 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"Передача по Bluetooth завершена",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"У этой сети WLAN нет доступа в Интернет. Подключить?",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Получение…",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -134,13 +120,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"Отправка…",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"Отмена",
             "attr":{
@@ -150,13 +129,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"Найдена сеть WLAN с более сильным сигналом",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Передача по Bluetooth завершена",
             "attr":{
                 "priority":"LT"
             }
@@ -190,20 +162,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Принять",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Передача файлов по Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_no_button",
             "value":"Отмена",
             "attr":{
@@ -211,22 +169,8 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"Запрос на подключение",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Отклонить",
             "attr":{
                 "priority":"LT"
             }
@@ -267,29 +211,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"Запретить",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Передача файлов по Bluetooth",
             "attr":{
                 "priority":"LT"
             }
@@ -304,20 +227,6 @@
         {
             "name":"location_target_statement_content",
             "value":"Службам геолокации требуется доступ в Интернет, они используют данные GNSS или сети (WLAN, сотовая сеть, Bluetooth, IP) для предоставления служб на базе геоданных. Когда эта функция включена, геоданные вашего устройства будут предоставляться службам, у которых есть право доступа к геоданным. Ваши геоданные также будут использоваться системными службами в целях обновления часового пояса и выполнения экстренных вызовов. Подробную информацию о Службах геолокации см. в <a>Уведомлении о Службах геолокации и конфиденциальности</a>.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: отправка %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: получение %1$d/%2$d",
             "attr":{
                 "priority":"LT"
             }

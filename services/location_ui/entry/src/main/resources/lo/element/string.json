@@ -71,13 +71,6 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"ສຳເລັດການໂອນຍ້າຍຜ່ານ Bluetooth ແລ້ວ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"ເຄືອຂ່າຍ WLAN ນີ້ບໍ່ມີການເຂົ້າເຖິງອິນເຕີເນັດ. ເຊື່ອມຕໍ່ເລີຍບໍ?",
             "attr":{
@@ -89,20 +82,6 @@
             "value":"ຍົກເລີກ",
             "attr":{
                 "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: ກຳລັງສົ່ງ %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"ກຳລັງຮັບ…",
-            "attr":{
-                "priority":"translate"
             }
         },
         {
@@ -134,13 +113,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"ກໍາລັງສົ່ງ…",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"ຍົກເລີກ",
             "attr":{
@@ -152,13 +124,6 @@
             "value":"ພົບເຄືອຂ່າຍ WLAN ທີ່ດີກວ່າ",
             "attr":{
                 "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"ສຳເລັດການໂອນຍ້າຍຜ່ານ Bluetooth ແລ້ວ",
-            "attr":{
-                "priority":"translate"
             }
         },
         {
@@ -190,20 +155,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"ຍອມຮັບ",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"ni_notify_title",
             "value":"ຄຳຂໍທີ່ຕັ້ງ",
             "attr":{
@@ -218,24 +169,10 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"ຄຳ​ຂໍ​​ການເຊື່ອມ​ຕໍ່",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"ປະຕິເສດ",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -281,36 +218,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: ກຳລັງຮັບ %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"ປະ​ຕິ​ເສດ",
-            "attr":{
-                "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"ການໂອນໄຟລ໌ຜ່ານ Bluetooth",
             "attr":{
                 "priority":"translate"
             }

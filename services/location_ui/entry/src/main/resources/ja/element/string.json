@@ -85,22 +85,8 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"Bluetooth転送が完了",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"このWLANネットワークは、インターネットに接続していません。接続しますか？",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"受信中…",
             "attr":{
                 "priority":"LT"
             }
@@ -134,13 +120,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"送信中…",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"キャンセル",
             "attr":{
@@ -150,13 +129,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"より良いWLANネットワークを発見",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Bluetooth転送が完了",
             "attr":{
                 "priority":"LT"
             }
@@ -190,20 +162,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"受信",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Bluetoothファイル転送",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_no_button",
             "value":"キャンセル",
             "attr":{
@@ -211,22 +169,8 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"接続要求",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"拒否",
             "attr":{
                 "priority":"LT"
             }
@@ -267,29 +211,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s、%2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s、%2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"拒否",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Bluetoothファイル転送",
             "attr":{
                 "priority":"LT"
             }
@@ -304,20 +227,6 @@
         {
             "name":"location_target_statement_content",
             "value":"位置情報サービスは、インターネット接続を必要とし、GNSSまたはネットワーク情報（WLAN、セルラーネットワーク、Bluetooth、IP）を使用して位置情報ベースのサービスを提供します。これを有効にすると、ご利用のデバイスの位置情報は、位置情報へのアクセスを許可されているサービスと共有されます。ユーザーの位置情報は、タイムゾーンの更新や緊急通報などの目的でシステムサービスによっても使用されます。位置情報サービスの詳細については、<a>位置情報サービスと個人情報保護に関する声明</a>を参照してください。",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth：%1$d/%2$dを送信中",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth：%1$d/%2$dを受信中",
             "attr":{
                 "priority":"LT"
             }
