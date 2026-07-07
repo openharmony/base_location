@@ -86,10 +86,10 @@ using HDI::Location::Agnss::V2_0::AGNSS_TYPE_SUPL;
 using HDI::Location::Agnss::V2_0::AGnssServerInfo;
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-using HDI::Location::Geofence::V3_0::IGeofenceInterface;
-using HDI::Location::Geofence::V3_0::IGeofenceCallback;
-using HDI::Location::Geofence::V3_0::GeofenceEvent;
-using HDI::Location::Geofence::V3_0::GeofenceInfo;
+using HDI::Location::Geofence::V2_0::IGeofenceInterface;
+using HDI::Location::Geofence::V2_0::IGeofenceCallback;
+using HDI::Location::Geofence::V2_0::GeofenceEvent;
+using HDI::Location::Geofence::V2_0::GeofenceInfo;
 #endif
 
 enum class GnssAbilityInterfaceCode {
