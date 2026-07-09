@@ -40,8 +40,7 @@ int32_t GeofenceEventCallback::ReportGeofenceOperateResult(
 {
     LBSLOGD(GNSS, "ReportGeofenceOperateResult enter");
     auto gnssAbility = GnssAbility::GetInstance();
-    gnssAbility->ReportGeofenceOperationResult(fenceIndex,
-        static_cast<GeofenceOperateType>(type), static_cast<GeofenceOperateResult>(result));
+    gnssAbility->ReportGeofenceOperationResult(fenceIndex, static_cast<int>(type), static_cast<int>(result));
     return 0;
 }
 
