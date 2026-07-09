@@ -31,7 +31,7 @@ int32_t GeofenceEventCallback::ReportGeofenceEvent(int32_t fenceIndex,
 {
     LBSLOGD(GNSS, "ReportGeofenceEvent enter");
     auto gnssAbility = GnssAbility::GetInstance();
-    gnssAbility->ReportGeofenceEvent(fenceIndex, static_cast<GeofenceEvent>(event));
+    gnssAbility->ReportGeofenceEvent(fenceIndex, static_cast<int>(event));
     return 0;
 }
 
@@ -42,6 +42,29 @@ int32_t GeofenceEventCallback::ReportGeofenceOperateResult(
     auto gnssAbility = GnssAbility::GetInstance();
     gnssAbility->ReportGeofenceOperationResult(fenceIndex,
         static_cast<GeofenceOperateType>(type), static_cast<GeofenceOperateResult>(result));
+    return 0;
+}
+
+int32_t GeofenceEventCallbackV3::ReportGeofenceAvailability(bool isAvailable)
+{
+    return 0;
+}
+ 
+int32_t GeofenceEventCallbackV3::ReportGeofenceEvent(int32_t fenceIndex,
+    const HDI::Location::Geofence::V3_0::LocationInfo& location, int event, int64_t timestamp)
+{
+    LBSLOGD(GNSS, "ReportGeofenceEventV3 enter");
+    auto gnssAbility = GnssAbility::GetInstance();
+    gnssAbility->ReportGeofenceEvent(fenceIndex, event);
+    return 0;
+}
+ 
+int32_t GeofenceEventCallbackV3::ReportGeofenceOperateResult(
+    int32_t fenceIndex, int type, int result)
+{
+    LBSLOGD(GNSS, "ReportGeofenceOperateResultV3 enter");
+    auto gnssAbility = GnssAbility::GetInstance();
+    gnssAbility->ReportGeofenceOperationResult(fenceIndex, type, result);
     return 0;
 }
 }  // namespace Location
