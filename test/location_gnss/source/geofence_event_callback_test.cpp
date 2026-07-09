@@ -75,16 +75,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackConstructor001, TestSiz
     LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackConstructor001 end");
 }
 
-HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3Constructor001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceEventCallbackTest, GeofenceEventCallbackV3Constructor001, TestSize.Level0";
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3Constructor001 begin");
-    sptr<GeofenceEventCallbackV3> geofenceCallbackV3 = new (std::nothrow) GeofenceEventCallbackV3();
-    EXPECT_NE(nullptr, geofenceCallbackV3);
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3Constructor001 end");
-}
-
 HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceAvailability001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
@@ -107,30 +97,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceAvailabil
     int32_t result = geofenceCallback->ReportGeofenceAvailability(false);
     EXPECT_EQ(ERR_OK, result);
     LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackReportGeofenceAvailability002 end");
-}
-
-HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceAvailability001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceAvailability001, TestSize.Level0";
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceAvailability001 begin");
-    sptr<GeofenceEventCallbackV3> geofenceCallbackV3 = new (std::nothrow) GeofenceEventCallbackV3();
-    EXPECT_NE(nullptr, geofenceCallbackV3);
-    int32_t result = geofenceCallbackV3->ReportGeofenceAvailability(true);
-    EXPECT_EQ(ERR_OK, result);
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceAvailability001 end");
-}
-
-HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceAvailability002, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceAvailability002, TestSize.Level0";
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceAvailability002 begin");
-    sptr<GeofenceEventCallbackV3> geofenceCallbackV3 = new (std::nothrow) GeofenceEventCallbackV3();
-    EXPECT_NE(nullptr, geofenceCallbackV3);
-    int32_t result = geofenceCallbackV3->ReportGeofenceAvailability(false);
-    EXPECT_EQ(ERR_OK, result);
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceAvailability002 end");
 }
 
 HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceEvent001, TestSize.Level0)
@@ -177,50 +143,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceEvent002,
     LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackReportGeofenceEvent002 end");
 }
 
-HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceEvent001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceEvent001, TestSize.Level0";
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceEvent001 begin");
-    sptr<GeofenceEventCallbackV3> geofenceCallbackV3 = new (std::nothrow) GeofenceEventCallbackV3();
-    EXPECT_NE(nullptr, geofenceCallbackV3);
-    HDI::Location::Geofence::V3_0::LocationInfo location;
-    location.latitude = 1.0;
-    location.longitude = 2.0;
-    location.altitude = 1.0;
-    location.horizontalAccuracy = 1.0;
-    location.speed = 1.0;
-    location.bearing = 1.0;
-    int event = 1;
-    int32_t fenceIndex = 0;
-    int64_t timestamp = 1000000000;
-    int32_t result = geofenceCallbackV3->ReportGeofenceEvent(fenceIndex, location, event, timestamp);
-    EXPECT_EQ(ERR_OK, result);
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceEvent001 end");
-}
-
-HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceEvent002, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceEvent002, TestSize.Level0";
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceEvent002 begin");
-    sptr<GeofenceEventCallbackV3> geofenceCallbackV3 = new (std::nothrow) GeofenceEventCallbackV3();
-    EXPECT_NE(nullptr, geofenceCallbackV3);
-    HDI::Location::Geofence::V3_0::LocationInfo location;
-    location.latitude = -45.0;
-    location.longitude = -90.0;
-    location.altitude = -100.0;
-    location.horizontalAccuracy = -5.0;
-    location.speed = -10.0;
-    location.bearing = -180.0;
-    int event = 2;
-    int32_t fenceIndex = 5;
-    int64_t timestamp = 2000000000;
-    int32_t result = geofenceCallbackV3->ReportGeofenceEvent(fenceIndex, location, event, timestamp);
-    EXPECT_EQ(ERR_OK, result);
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceEvent002 end");
-}
-
 HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceOperateResult001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
@@ -249,36 +171,6 @@ HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackReportGeofenceOperateRe
     int32_t ret = geofenceCallback->ReportGeofenceOperateResult(fenceIndex, type, result);
     EXPECT_EQ(ERR_OK, ret);
     LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackReportGeofenceOperateResult002 end");
-}
-
-HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceOperateResult001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceOperateResult001, TestSize.Level0";
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceOperateResult001 begin");
-    sptr<GeofenceEventCallbackV3> geofenceCallbackV3 = new (std::nothrow) GeofenceEventCallbackV3();
-    EXPECT_NE(nullptr, geofenceCallbackV3);
-    int type = 1;
-    int result = 0;
-    int32_t fenceIndex = 0;
-    int32_t ret = geofenceCallbackV3->ReportGeofenceOperateResult(fenceIndex, type, result);
-    EXPECT_EQ(ERR_OK, ret);
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceOperateResult001 end");
-}
-
-HWTEST_F(GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceOperateResult002, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "GeofenceEventCallbackTest, GeofenceEventCallbackV3ReportGeofenceOperateResult002, TestSize.Level0";
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceOperateResult002 begin");
-    sptr<GeofenceEventCallbackV3> geofenceCallbackV3 = new (std::nothrow) GeofenceEventCallbackV3();
-    EXPECT_NE(nullptr, geofenceCallbackV3);
-    int type = 2;
-    int result = -1;
-    int32_t fenceIndex = 10;
-    int32_t ret = geofenceCallbackV3->ReportGeofenceOperateResult(fenceIndex, type, result);
-    EXPECT_EQ(ERR_OK, ret);
-    LBSLOGI(GNSS, "[GeofenceEventCallbackTest] GeofenceEventCallbackV3ReportGeofenceOperateResult002 end");
 }
 
 }  // namespace Location
