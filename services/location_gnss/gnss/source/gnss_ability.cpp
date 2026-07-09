@@ -1178,6 +1178,8 @@ LocationErrCode GnssAbility::HandleDeleteGnssGeofence(std::shared_ptr<GeofenceRe
 #endif
     if (ExecuteFenceProcess(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE, request)) {
         return ERRCODE_SUCCESS;
+    }
+    return LOCATION_ERRCODE_NOT_SUPPORTED;
 }
 
 bool GnssAbility::UnregisterGnssGeofenceCallback(int fenceId)
