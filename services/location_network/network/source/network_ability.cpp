@@ -25,6 +25,7 @@
 #include "want_agent_helper.h"
 
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "location_config_manager.h"
 #include "location_dumper.h"
 #include "location_log.h"
@@ -299,7 +300,7 @@ void NetworkAbility::RequestRecord(WorkRecord &workRecord, bool isAdded)
             LBSLOGE(NETWORK, "get service name failed!");
             return;
         }
-        if (!CommonUtils::CheckAppInstalled(serviceName)) { // app is not installed
+        if (!BundleMgrHelper::CheckAppInstalled(serviceName)) { // app is not installed
             LBSLOGE(NETWORK, "nlp service is not available.");
             return;
         } else if (!ReConnectNlpService()) {

@@ -19,6 +19,7 @@
 #include "privacy_error.h"
 
 #include "common_utils.h"
+#include "bundle_mgr_helper.h"
 #include "constant_definition.h"
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_proxy.h"
@@ -538,7 +539,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     std::string bundleName = "";
     pid_t uid = request->GetUid();
     pid_t pid = request->GetPid();
-    if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
+    if (!BundleMgrHelper::GetBundleNameByUid(uid, bundleName)) {
         LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
     }
     auto requestConfig = request->GetRequestConfig();

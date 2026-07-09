@@ -47,7 +47,9 @@ local_base_sources = [
   "$SUBSYSTEM_DIR/location_locator/locator/source/subability_common.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/work_record.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/app_background_status_manager.cpp",
+  "$SUBSYSTEM_DIR/location_locator/locator/source/bluetooth_search_manager.cpp",
   "$SUBSYSTEM_DIR/location_locator/locator/source/location_account_manager.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/location_common/common/source/bundle_mgr_helper.cpp",
 ]
 
 ohos_shared_library("lbsservice_locator") {

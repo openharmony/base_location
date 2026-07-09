@@ -54,6 +54,7 @@ ohos_shared_library("cj_geolocationmanager_ffi") {
 
   external_deps = [
     "ability_base:configuration",
+    "bundle_framework:appexecfwk_core",
     "hilog:libhilog",
     "ipc:ipc_single",
     "napi:ace_napi",

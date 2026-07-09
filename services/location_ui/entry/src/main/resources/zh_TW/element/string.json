@@ -201,83 +201,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_title",
-            "value":"藍牙分享檔案",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"拒絕",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"接收",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"藍牙分享：已接收的檔案",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s，%2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s，%2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"藍牙分享",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"接收中",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_title",
-            "value":"藍牙分享：已傳送的檔案",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_send_text",
-            "value":"傳送中",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"share_name",
-            "value":"藍牙",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_text",
             "value":"是否連線「%s」？",
             "attr":{
@@ -301,20 +224,6 @@
         {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"拒絕",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"藍牙共享：正在傳送 %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"藍牙共享：正在接收 %1$d/%2$d",
             "attr":{
                 "priority":"LT"
             }

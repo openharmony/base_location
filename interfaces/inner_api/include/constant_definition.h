@@ -62,6 +62,8 @@ const int MODE_MS_BASED = 2;
 const int MODE_MS_ASSISTED = 3;
 const int DEFAULT_CALLBACK_WAIT_TIME = 10000;
 const int COORDINATE_SYSTEM_TYPE_SIZE = 2;
+const int32_t MAX_BLUETOOTH_SEARCH_CALLBACK_NUM = 1000;
+const int32_t DEFAULT_RSSI_THRESHOLD = -128;
 // fence extension const start
 constexpr const char *EXTENSION_SURVIVE_TIME = "EXTENSION_SURVIVE_TIME";
 constexpr const char *EXTENSION_PARAM_KEY_FENCE_ID = "FENCE_ID";

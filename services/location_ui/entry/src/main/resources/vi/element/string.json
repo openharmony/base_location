@@ -85,24 +85,10 @@
             }
         },
         {
-            "name":"bluetooth_send_finish_title",
-            "value":"Quá trình truyền qua Bluetooth đã hoàn tất",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_title",
             "value":"Mạng WLAN này không có quyền truy cập Internet. Vẫn kết nối?",
             "attr":{
                 "priority":"translate"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_receive_text",
-            "value":"Đang nhận…",
-            "attr":{
-                "priority":"LT"
             }
         },
         {
@@ -134,13 +120,6 @@
             }
         },
         {
-            "name":"bluetooth_transfer_send_text",
-            "value":"Đang gửi…",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_three_vap_notify_no_button",
             "value":"Hủy",
             "attr":{
@@ -150,13 +129,6 @@
         {
             "name":"wifipro_better_network_pop_up_title",
             "value":"Đã tìm thấy mạng WLAN tốt hơn",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_finish_title",
-            "value":"Quá trình truyền qua Bluetooth đã hoàn tất",
             "attr":{
                 "priority":"LT"
             }
@@ -190,20 +162,6 @@
             }
         },
         {
-            "name":"bluetooth_receive_notification_button_accept",
-            "value":"Chấp nhận",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_title",
-            "value":"Truyền tệp tin qua Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"wifi_cdd_notify_no_button",
             "value":"Hủy",
             "attr":{
@@ -211,22 +169,8 @@
             }
         },
         {
-            "name":"share_name",
-            "value":"Bluetooth",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_title",
             "value":"Yêu cầu kết nối",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_notification_button_reject",
-            "value":"Từ chối",
             "attr":{
                 "priority":"LT"
             }
@@ -267,29 +211,8 @@
             }
         },
         {
-            "name":"bluetooth_receive_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_finish_text",
-            "value":"%1$s, %2$s",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
             "name":"p2p_wsc_pbc_dialog_no_button",
             "value":"Từ chối",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_transfer_notification_title",
-            "value":"Truyền tệp tin qua Bluetooth",
             "attr":{
                 "priority":"LT"
             }
@@ -304,20 +227,6 @@
         {
             "name":"location_target_statement_content",
             "value":"Dịch vụ Vị trí yêu cầu kết nối Internet và sử dụng GNSS hoặc thông tin mạng (WLAN, mạng di động, Bluetooth, IP) để cung cấp cho bạn các dịch vụ dựa trên vị trí. Khi bật dịch vụ này, thông tin vị trí của thiết bị của bạn sẽ được chia sẻ với các dịch vụ đã được cấp quyền truy cập vị trí. Thông tin vị trí của bạn cũng sẽ được các dịch vụ hệ thống sử dụng cho các mục đích như cập nhật múi giờ và các cuộc gọi khẩn cấp. Để biết thêm thông tin về Dịch vụ Vị trí, hãy tham khảo <a>Tuyên bố về Dịch vụ Vị trí và Quyền riêng tư</a>.",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_send_count_text",
-            "value":"Bluetooth: Đang gửi %1$d/%2$d",
-            "attr":{
-                "priority":"LT"
-            }
-        },
-        {
-            "name":"bluetooth_receive_count_text",
-            "value":"Bluetooth: Đang nhận %1$d/%2$d",
             "attr":{
                 "priority":"LT"
             }

@@ -64,6 +64,7 @@ if (location_feature_with_gnss) {
       "ability_base:want",
       "ability_runtime:ability_connect_callback_stub",
       "ability_runtime:app_manager",
+      "bundle_framework:appexecfwk_core",
       "cJSON:cjson",
       "eventhandler:libeventhandler",
       "ffrt:libffrt",

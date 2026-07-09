@@ -101,6 +101,18 @@ Location_ResultCode OH_Location_StopLocating(const Location_RequestConfig* reque
     return LOCATION_SUCCESS;
 }
 
+bool OH_Location_IsFromMock(Location_Info* location)
+{
+    if (location == nullptr) {
+        return false;
+    }
+    if (location->isFromMock) {
+        LBSLOGI(OHOS::Location::LOCATION_CAPI, "%{public}s location is from mock.", __func__);
+        return true;
+    }
+    return false;
+}
+
 Location_BasicInfo OH_LocationInfo_GetBasicInfo(Location_Info* location)
 {
     Location_BasicInfo location_Basic;

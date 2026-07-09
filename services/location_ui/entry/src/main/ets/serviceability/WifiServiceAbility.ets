@@ -61,11 +61,12 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
             let status : number = want.parameters?.['status'] as number;
             let ssid : string = want.parameters?.['ssid'] as string;
             try {
-                let file = fs.openSync('/system/etc/wifi/portal_notification.png', fs.OpenMode.READ_ONLY);
-                const imageSourceApi: image.ImageSource = image.createImageSource(file.fd);
+                file = fs.openSync('/system/etc/wifi/portal_notification.png', fs.OpenMode.READ_ONLY);
+                imageSourceApi = image.createImageSource(file.fd);
                 imageSourceApi.createPixelMap()
-                .then((pixelmap: image.PixelMap) => {
+                .then((resultPixelmap: image.PixelMap) => {
                     console.info(TAG, `Create pixelMap success.`);
+                    pixelmap = resultPixelmap;
                     this.publishWantAgentCommonEvent(pixelmap, notificationId, status, ssid);
                 })
                 .catch((error: string) => {
@@ -77,8 +78,12 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 if (file) {
                     fs.closeSync(file);
                 }
-                imageSourceApi?.release();
-                pixelmap?.release();
+                if (imageSourceApi) {
+                    imageSourceApi.release();
+                }
+                if (pixelmap) {
+                    pixelmap.release();
+                }
             }
         } else {
             this.willPublish = false;
@@ -116,29 +121,34 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         let templateText: string = '';
         let wantAgentConnect: WantAgent | undefined;
         let wantAgentNoShow: WantAgent | undefined;
-        switch (status) {
-          case this.WIFI_PORTAL_CONNECTED:
-            templateTitle = this.getFormatString($r('app.string.wifi_portal_connected_notify_title'), ssid);
-            templateText = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connected_notify_text').id);
-            break;
-          case this.WIFI_PORTAL_TIMEOUT:
-            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connect_timeout_notify_title').id);
-            templateText = this.getFormatString($r('app.string.wifi_portal_connect_timeout_notify_text'), ssid);
-            break;
-          case this.WIFI_PORTAL_FOUND:
-            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_found_notify_title').id);
-            templateText = this.getFormatString($r('app.string.wifi_portal_found_notify_text'), ssid);
-            break;
-          case this.WIFI_5G_AUTO_IDENTIFY_CONN_FOUND:
-            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifipro_better_network_pop_up_title').id);
-            templateText = this.getFormatString($r('app.string.wifipro_better_network_notify_text'), ssid);
-            break;
-          case this.WIFI_TRIBAND_CONN_FOUND:
-            templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_pop_up_title').id);
-            templateText = this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_notify_text').id);
-            break;
-          default:
-            break;
+        try {
+            switch (status) {
+              case this.WIFI_PORTAL_CONNECTED:
+                templateTitle = this.getFormatString($r('app.string.wifi_portal_connected_notify_title'), ssid);
+                templateText = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connected_notify_text').id);
+                break;
+              case this.WIFI_PORTAL_TIMEOUT:
+                templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_connect_timeout_notify_title').id);
+                templateText = this.getFormatString($r('app.string.wifi_portal_connect_timeout_notify_text'), ssid);
+                break;
+              case this.WIFI_PORTAL_FOUND:
+                templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_portal_found_notify_title').id);
+                templateText = this.getFormatString($r('app.string.wifi_portal_found_notify_text'), ssid);
+                break;
+              case this.WIFI_5G_AUTO_IDENTIFY_CONN_FOUND:
+                templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifipro_better_network_pop_up_title').id);
+                templateText = this.getFormatString($r('app.string.wifipro_better_network_notify_text'), ssid);
+                break;
+              case this.WIFI_TRIBAND_CONN_FOUND:
+                templateTitle = this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_pop_up_title').id);
+                templateText = this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_notify_text').id);
+                break;
+              default:
+                break;
+            }
+        } catch (err) {
+            console.error(TAG, 'Get string resource failed: ' + JSON.stringify(err));
+            return;
         }
 
         if (status === this.WIFI_TRIBAND_CONN_FOUND) {
@@ -193,37 +203,54 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         };
 
         if (status === this.WIFI_TRIBAND_CONN_FOUND && wantAgentConnect && wantAgentNoShow) {
-            notificationRequest.actionButtons = [
-                {
-                    title: this.context.resourceManager.getStringSync($r('app.string.wifipro_auto_connect_notify_no_button').id),
-                    wantAgent: wantAgentNoShow
-                },
-                {
-                    title: this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_notify_ok_button').id),
-                    wantAgent: wantAgentConnect
-                }
-            ];
+            try {
+                notificationRequest.actionButtons = [
+                    {
+                        title: this.context.resourceManager.getStringSync($r('app.string.wifipro_auto_connect_notify_no_button').id),
+                        wantAgent: wantAgentNoShow
+                    },
+                    {
+                        title: this.context.resourceManager.getStringSync($r('app.string.wifi_triband_network_notify_ok_button').id),
+                        wantAgent: wantAgentConnect
+                    }
+                ];
+            } catch (err) {
+                console.error(TAG, 'Get action button string resource failed: ' + JSON.stringify(err));
+            }
         }
         if (this.willPublish) {
-            NotificationManager.publish(notificationRequest).then(() => {
-                console.info(TAG, 'Publish wifi notification success');
-            }).catch((err: Base.BusinessError) => {
-                console.error(TAG, 'Publish wifi notification fail');
-            });
+            try {
+                NotificationManager.publish(notificationRequest).then(() => {
+                    console.info(TAG, 'Publish wifi notification success');
+                }).catch((err: Base.BusinessError) => {
+                    console.error(TAG, 'Publish wifi notification fail');
+                });
+            } catch (err) {
+                console.error(TAG, 'Publish notification failed: ' + JSON.stringify(err));
+            }
         }
     }
 
     cancelNotification = async (id: number) => {
-        NotificationManager.cancel(id).then(() => {
-            console.info(TAG, 'Cancel wifi notification success');
-        }).catch((err: Base.BusinessError) => {
-            console.error(TAG, 'Cancel wifi notification fail');
-        });
+        try {
+            NotificationManager.cancel(id).then(() => {
+                console.info(TAG, 'Cancel wifi notification success');
+            }).catch((err: Base.BusinessError) => {
+                console.error(TAG, 'Cancel wifi notification fail');
+            });
+        } catch (err) {
+            console.error(TAG, 'Cancel notification failed: ' + JSON.stringify(err));
+        }
     }
 
     getFormatString(resource: Resource, subStr: string): string {
-        let result = this.context.resourceManager.getStringSync(resource.id);
-        return result.replace(new RegExp('%s', 'gm'), subStr);
+        try {
+            let result = this.context.resourceManager.getStringSync(resource.id);
+            return result.replace(new RegExp('%s', 'gm'), subStr);
+        } catch (err) {
+            console.error(TAG, 'Get format string failed: ' + JSON.stringify(err));
+            return '';
+        }
     }
 
     maskSSID(ssid: string): string {

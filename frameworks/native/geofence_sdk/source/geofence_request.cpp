@@ -506,7 +506,7 @@ void GeofenceRequest::ConvertGeofenceRequestInfo(std::shared_ptr<GeofenceRequest
         request->fenceId_ = jsonObject.at("fenceId").get<int>();
     }
     if (jsonObject.find("uid") != jsonObject.cend() && jsonObject.at("uid").is_number()) {
-        request->uid_ = jsonObject.at("uid").get<int>();
+        request->uid_ = jsonObject.at("uid").get<int32_t>();
     }
     if (jsonObject.find("bundleName") != jsonObject.cend() && jsonObject.at("bundleName").is_string()) {
         request->bundleName_ = jsonObject.at("bundleName").get<std::string>();
@@ -529,16 +529,16 @@ void GeofenceRequest::ConvertGeofenceRequestInfoExt(std::shared_ptr<GeofenceRequ
     const nlohmann::json &jsonObject)
 {
     if (jsonObject.find("pid") != jsonObject.cend() && jsonObject.at("pid").is_number()) {
-        request->pid_ = jsonObject.at("pid").get<int>();
+        request->pid_ = jsonObject.at("pid").get<int32_t>();
     }
     if (jsonObject.find("tokenId") != jsonObject.cend() && jsonObject.at("tokenId").is_number()) {
-        request->tokenId_ = jsonObject.at("tokenId").get<int>();
+        request->tokenId_ = jsonObject.at("tokenId").get<uint32_t>();
     }
     if (jsonObject.find("tokenIdEx") != jsonObject.cend() && jsonObject.at("tokenIdEx").is_number()) {
-        request->tokenIdEx_ = jsonObject.at("tokenIdEx").get<int>();
+        request->tokenIdEx_ = jsonObject.at("tokenIdEx").get<uint32_t>();
     }
     if (jsonObject.find("firstTokenId") != jsonObject.cend() && jsonObject.at("firstTokenId").is_number()) {
-        request->firstTokenId_ = jsonObject.at("firstTokenId").get<int>();
+        request->firstTokenId_ = jsonObject.at("firstTokenId").get<uint32_t>();
     }
 }
 

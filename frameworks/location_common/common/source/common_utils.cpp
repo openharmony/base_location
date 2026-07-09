@@ -22,9 +22,6 @@
 #include <fstream>
 
 #include "common_utils.h"
-#include "bundle_mgr_client.h"
-#include "bundle_mgr_interface.h"
-#include "bundle_mgr_proxy.h"
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
@@ -293,53 +290,6 @@ int CommonUtils::IntRandom(int min, int max)
     return param;
 }
 
-bool CommonUtils::GetBundleNameByUid(int32_t uid, std::string& bundleName)
-{
-    AppExecFwk::BundleMgrClient bundleMgrClient;
-    int32_t error = bundleMgrClient.GetNameForUid(uid, bundleName);
-    if (error != ERR_OK) {
-        return false;
-    }
-    return true;
-}
-
-/*
- * Check whether the application is installed by bundleName
- * @param bundleName
- * @return true if app is installed
- * @return false if app is not installed
- */
-bool CommonUtils::CheckAppInstalled(const std::string& bundleName)
-{
-    int userId = 0;
-    bool ret = GetCurrentUserId(userId);
-    if (!ret) {
-        LBSLOGE(COMMON_UTILS, "GetCurrentUserId failed");
-        return false;
-    }
-    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemManager == nullptr) {
-        LBSLOGE(COMMON_UTILS, "fail to get system ability manager!");
-        return false;
-    }
-    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleMgrSa == nullptr) {
-        LBSLOGE(COMMON_UTILS, "fail to get bundle manager system ability!");
-        return false;
-    }
-    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
-    if (bundleMgr == nullptr) {
-        LBSLOGE(COMMON_UTILS, "Bundle mgr is nullptr.");
-        return false;
-    }
-    AppExecFwk::ApplicationInfo info;
-    bundleMgr->GetApplicationInfoV9(bundleName, 0, userId, info);
-    if (info.name.empty() || info.bundleName.empty()) {
-        return false;
-    }
-    return true;
-}
-
 int64_t CommonUtils::GetCurrentTime()
 {
     struct timespec times = {0, 0};
@@ -495,14 +445,6 @@ bool CommonUtils::CheckAppForUsers(int32_t uid, std::vector<int> activeIds, std:
     AccountSA::OsAccountManager::GetOsAccountLocalIdFromUid(uid, userId);
     bool containsActiveId = std::find(activeIds.begin(), activeIds.end(), userId) != activeIds.end();
     if (containsActiveId || userId == 0) {
-        return true;
-    }
-    if (bundleName.length() == 0) {
-        if (!CommonUtils::GetBundleNameByUid(uid, bundleName)) {
-            LBSLOGE(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
-        }
-    }
-    if (bundleName.length() > 0 && HookUtils::ExecuteHookWhenCheckAppForUser(bundleName)) {
         return true;
     }
     return false;

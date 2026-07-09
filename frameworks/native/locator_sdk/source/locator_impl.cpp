@@ -31,6 +31,7 @@
 #include "permission_manager.h"
 #include "geocode_convert_address_request.h"
 #include "geocode_convert_location_request.h"
+#include "bluetooth_search_request_params.h"
 
 namespace OHOS {
 namespace Location {
@@ -302,11 +303,6 @@ bool LocatorImpl::RegisterCountryCodeCallback(const sptr<IRemoteObject>& callbac
     identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
     identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
-    std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
-        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
-    }
-    identity.SetBundleName(bundleName);
     countryCodeManager->RegisterCountryCodeCallback(callback, identity);
     return true;
 }
@@ -944,11 +940,6 @@ LocationErrCode LocatorImpl::RegisterCountryCodeCallbackV9(const sptr<IRemoteObj
     identity.SetTokenId(IPCSkeleton::GetCallingTokenID());
     identity.SetTokenIdEx(IPCSkeleton::GetCallingFullTokenID());
     identity.SetFirstTokenId(IPCSkeleton::GetFirstTokenID());
-    std::string bundleName = "";
-    if (!CommonUtils::GetBundleNameByUid(identity.GetUid(), bundleName)) {
-        LBSLOGD(LOCATOR, "Fail to Get bundle name: uid = %{public}d.", identity.GetUid());
-    }
-    identity.SetBundleName(bundleName);
     countryCodeManager->RegisterCountryCodeCallback(callback, identity);
     return ERRCODE_SUCCESS;
 }
@@ -1428,6 +1419,47 @@ LocationErrCode LocatorImpl::UnSubscribeBluetoothScanResultChange(sptr<IBluetoot
     ErrCode errorCodeValue = proxy->UnSubscribeBluetoothScanResultChange(callback);
     if (errorCodeValue != ERRCODE_SUCCESS) {
         LBSLOGE(LOCATOR_STANDARD, "UnSubscribeBluetoothScanResultChange failed.");
+    }
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+LocationErrCode LocatorImpl::StartBluetoothSearch(const BluetoothSearchRequestParams& params,
+    sptr<IBluetoothScanResultCallback>& callback)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (callback == nullptr) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->StartBluetoothSearch(params, callback);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+LocationErrCode LocatorImpl::StopBluetoothSearch(sptr<IBluetoothScanResultCallback>& callback)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    LBSLOGD(LOCATOR_STANDARD, "LocatorImpl::StopBluetoothSearch()");
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (callback == nullptr) {
+        LBSLOGE(LOCATOR_STANDARD, "StopBluetoothSearch callback is nullptr");
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    ErrCode errorCodeValue = proxy->StopBluetoothSearch(callback);
+    if (errorCodeValue != ERRCODE_SUCCESS) {
+        LBSLOGE(LOCATOR_STANDARD, "StopBluetoothSearch failed.");
     }
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;

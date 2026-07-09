@@ -36,8 +36,10 @@
 #include "request_config.h"
 #include "satellite_status.h"
 #include "location_gnss_geofence_callback_napi.h"
+#include "bluetooth_search_request_params.h"
 #include "bluetooth_scan_result.h"
 #include "poi_info_callback_napi.h"
+
 
 namespace OHOS {
 namespace Location {

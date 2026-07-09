@@ -68,6 +68,7 @@ idl_gen_interface("locator_interface") {
     "ability_base:configuration",
     "ability_base:want",
     "ability_runtime:wantagent_innerkits",
+    "bundle_framework:appexecfwk_core",
   ]
   log_domainid = "0xD002300"
   log_tag = "Locator"
@@ -120,6 +121,10 @@ ohos_shared_library("locator_sdk") {
     "data_share:datashare_consumer",
     "hilog:libhilog",
     "init:libbeget_proxy",
+  ]
+
+  external_deps = [
+    "bundle_framework:appexecfwk_core",
   ]
 
   defines = []

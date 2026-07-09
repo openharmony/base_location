@@ -17,6 +17,7 @@ import("//build/ohos.gni")
 local_base_sources = [
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/beacon_fence_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/bluetooth_scan_result_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/bluetooth_search_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/cached_locations_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/country_code_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/geofence_napi.cpp",
@@ -83,7 +84,10 @@ ohos_shared_library("geolocation") {
 
   external_deps = [
     "ability_base:configuration",
+    "bundle_framework:appexecfwk_core",
+    "form_fwk:fmskit_native",
     "hilog:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_single",
     "napi:ace_napi",
     "window_manager:libwm",
@@ -171,9 +175,12 @@ ohos_shared_library("geolocationmanager") {
   ]
 
   defines = [ "ENABLE_NAPI_MANAGER" ]
-
+  
   external_deps = [
+    "bundle_framework:appexecfwk_core",
+    "form_fwk:fmskit_native",
     "hilog:libhilog",
+    "input:libmmi-client",
     "ipc:ipc_single",
     "napi:ace_napi",
     "window_manager:libwm",

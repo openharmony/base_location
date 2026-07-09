@@ -31,44 +31,6 @@
             ]
           }
         ]
-      },
-      {
-        "name": "BluetoothReceiveUIAbility",
-        "srcEntry": "./ets/bluetoothability/BluetoothReceiveUIAbility.ets",
-        "launchType": "singleton",
-        "icon": "$media:app_icon",
-        "label": "BluetoothReceiveUIAbility",
-        "description": "service",
-        "metadata": [],
-        "exported": true,
-        "permissions": ["ohos.permission.MANAGE_BLUETOOTH"],
-        "continuable": false,
-        "skills": [],
-        "backgroundModes": [
-          "bluetoothInteraction"
-        ],
-        "startWindowIcon": "$media:app_icon",
-        "startWindowBackground": "$color:start_window_background",
-        "removeMissionAfterTerminate": true
-      },
-      {
-        "name": "BluetoothSendUIAbility",
-        "srcEntry": "./ets/bluetoothability/BluetoothSendUIAbility.ets",
-        "launchType": "singleton",
-        "icon": "$media:app_icon",
-        "label": "BluetoothSendUIAbility",
-        "description": "service",
-        "metadata": [],
-        "exported": true,
-        "permissions": ["ohos.permission.MANAGE_BLUETOOTH"],
-        "continuable": false,
-        "skills": [],
-        "backgroundModes": [
-          "bluetoothInteraction"
-        ],
-        "startWindowIcon": "$media:app_icon",
-        "startWindowBackground": "$color:start_window_background",
-        "removeMissionAfterTerminate": true
       }
     ],
     "extensionAbilities": [
@@ -126,45 +88,6 @@
           "ohos.permission.START_ABILITIES_FROM_BACKGROUND",
           "ohos.permission.SET_WIFI_CONFIG"
         ]
-      },
-      {
-        "name": "BluetoothServiceAbility",
-        "icon": "$media:app_icon",
-        "label": "$string:share_name",
-        "description": "UIExtAbility",
-        "srcEntry": "./ets/bluetoothability/BluetoothServiceAbility.ets",
-        "type": "share",
-        "extensionProcessMode": "instance",
-        "exported": true,
-        "permissions": ["ohos.permission.KEEP_BACKGROUND_RUNNING"],
-        "skills": [
-          {
-            "actions": [
-              "ohos.want.action.sendData"
-            ],
-            "uris": [
-              {
-                "scheme": "file",
-                "utd": "general.object",
-                "maxFileSupported": 300
-              },
-              {
-                "scheme": "file",
-                "utd": "general.entity",
-                "maxFileSupported": 300
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "BluetoothReceiveServiceUIAbility",
-        "srcEntry": "./ets/bluetoothability/BluetoothReceiveServiceUIAbility.ets",
-        "description": "BluetoothReceiveServiceUIAbility",
-        "label": "BluetoothReceiveServiceUIAbility",
-        "exported": true,
-        "permissions": ["ohos.permission.MANAGE_BLUETOOTH"],
-        "type": "sysDialog/common"
       }
     ],
     "requestPermissions": [
@@ -179,44 +102,6 @@
       },
       {
         "name":"ohos.permission.INTERACT_ACROSS_LOCAL_ACCOUNTS"
-      },
-      {
-        "name": "ohos.permission.ACCESS_BLUETOOTH",
-        "reason": "use at bluetooth app",
-        "usedScene": {
-          "abilities": [
-            "BluetoothReceiveServiceUIAbility",
-            "BluetoothReceiveUIAbility",
-            "BluetoothSendUIAbility",
-            "BluetoothServiceAbility"
-          ]
-        }
-      },
-      {
-        "name": "ohos.permission.USE_BLUETOOTH",
-        "reason": "use at bluetooth app"
-      },
-      {
-        "name": "ohos.permission.MANAGE_BLUETOOTH",
-        "reason": "use at bluetooth app"
-      },
-      {
-        "name": "ohos.permission.ACCESS_SYSTEM_SETTINGS",
-        "reason": "use at bluetooth app"
-      },
-      {
-        "name": "ohos.permission.WRITE_IMAGEVIDEO",
-        "reason": "use at bluetooth app",
-        "usedScene": {
-          "abilities": [
-            "BluetoothReceiveServiceUIAbility",
-            "BluetoothReceiveUIAbility"
-          ]
-        }
-      },
-      {
-        "name": "ohos.permission.KEEP_BACKGROUND_RUNNING",
-        "reason": "use at bluetooth app"
       }
     ]
   }

@@ -125,6 +125,8 @@ LocationErrCode UnSubscribeLocationError(sptr<ILocatorCallback>& callback);
 napi_value RequestLocationOnceV9(const napi_env& env, const size_t argc, const napi_value* argv);
 LocationErrCode CheckLocationSwitchEnable();
 napi_value RequestPoiInfoOnce(const napi_env& env, const size_t argc, const napi_value* argv);
+napi_value OnLocationChange(napi_env env, napi_callback_info cbinfo);
+napi_value OffLocationChange(napi_env env, napi_callback_info cbinfo);
 #endif
 
 #define DECLARE_WRITABLE_NAPI_FUNCTION(name, func)                                 \
