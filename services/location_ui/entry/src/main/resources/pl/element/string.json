@@ -11,7 +11,7 @@
             "name":"ni_notify_title",
             "value":"Prośba o dostęp do lokalizacji",
             "attr":{
-                "priority":"translate"
+                "priority":"Proszę o lokalizację"
             }
         },
         {
