@@ -9,9 +9,9 @@
         },
         {
             "name":"ni_notify_title",
-            "value":"Prośba o dostęp do lokalizacji",
+            "value":"Prośba o lokalizację",
             "attr":{
-                "priority":"Proszę o lokalizację"
+                "priority":"translate"
             }
         },
         {
