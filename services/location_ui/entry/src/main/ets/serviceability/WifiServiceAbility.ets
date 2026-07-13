@@ -94,7 +94,7 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         }
     }
 
-    publishWantAgentCommonEvent = async (pixelmap: image.PixelMap, id: number, status: number, ssid: string,
+    private publishWantAgentCommonEvent = async (pixelmap: image.PixelMap, id: number, status: number, ssid: string,
         networkid: number , backPortalConnect: boolean) => {
         let wantAgentObj: WantAgent;
         let wantAgentInfo: wantAgent.WantAgentInfo = {
