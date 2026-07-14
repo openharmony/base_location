@@ -24,6 +24,7 @@ const TAG = '[WIFI-NI:WifiDialog]==>';
 const WIFI_NI_ACCEPT_EVENT: string = 'ohos.event.wifi.DIALOG_ACCEPT';
 const WIFI_NI_REJECT_EVENT: string = 'ohos.event.wifi.DIALOG_REJECT';
 const DIALOG_TIMEOUT_SECONDS = 30 * 1000;
+const UNTRUST_DURATION_MINUTES: number = 10;
  
 @Entry
 @Component
@@ -88,8 +89,7 @@ struct dialogPlusPage {
   aboutToAppear() {
     console.info(TAG, 'aboutToAppear');
  
-    let untrustDuration : string = AppStorage.get('untrustDuration') as string;
- 	this.text = this.getFormatString($r('app.string.p2p_untrust_invite_dialog_text'), untrustDuration);
+    this.text = this.getFormatString($r('app.string.p2p_untrust_invite_dialog_text'), UNTRUST_DURATION_MINUTES);
     this.dialogType = AppStorage.get('wifiDialogType') as number;
     promptAction.openCustomDialog({
       builder: () => this.buildDialog(),
@@ -117,9 +117,9 @@ struct dialogPlusPage {
     }
   }
  
-  getFormatString(resource: Resource, subStr: string): string {
-      let result = getContext().resourceManager.getStringSync(resource.id);
-      return result.replace(new RegExp('%s', 'gm'), subStr);
+  getFormatString(resource: Resource, subVal: number): string {
+    let result = getContext().resourceManager.getStringSync(resource.id);
+    return result.replace(new RegExp('%d', 'gm'), String(subVal));
   }
  
   private async setAcceptResult(dialogType : number, isAccept : boolean): Promise<void> {
