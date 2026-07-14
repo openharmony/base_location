@@ -23,6 +23,8 @@ ohos_shared_library("cj_geolocationmanager_ffi") {
     debug = false
   }
 
+  branch_protector_ret = "pac_ret"
+
   include_dirs = [
     "include",
     "$LOCATION_ROOT_DIR/frameworks/js/napi/include",
