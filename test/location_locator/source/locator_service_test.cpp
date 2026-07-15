@@ -64,6 +64,11 @@
 #include "location_data_rdb_manager.h"
 #include "mock_i_remote_object.h"
 #include "proxy_freeze_manager.h"
+#ifdef BLUETOOTH_ENABLE
+#include "bluetooth_scan_result_callback_napi.h"
+#include "bluetooth_search_manager.h"
+#include "bluetooth_search_request_params.h"
+#endif
 
 using namespace testing::ext;
 
