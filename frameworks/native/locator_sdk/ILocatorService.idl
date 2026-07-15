@@ -24,6 +24,7 @@ sequenceable OHOS.Location.GeocodeConvertAddressRequest;
 sequenceable OHOS.Location.GeocodeConvertLocationRequest;
 sequenceable OHOS.Location.GeocodingMockInfo;
 sequenceable OHOS.Location.GeofenceRequest;
+sequenceable OHOS.Location.FusionFenceRequest;
 sequenceable OHOS.Location.BeaconFenceRequest;
 sequenceable OHOS.Location.BeaconFence;
 sequenceable OHOS.Location.Geofence;
@@ -91,4 +92,7 @@ interface OHOS.Location.ILocatorService {
     [ipccode 64] void IsCachedGnssServiceSupported([out] boolean isCachedGnssSupported);
     [ipccode 66] void StartBluetoothSearch([in] BluetoothSearchRequestParams params, [in] IBluetoothScanResultCallback cb);
     [ipccode 67] void StopBluetoothSearch([in] IBluetoothScanResultCallback cb);
+    [ipccode 68] void AddFusionFence([in] FusionFenceRequest request);
+    [ipccode 69] void RemoveFusionFence([in] FusionFenceRequest request);
+    [ipccode 70] void IsFusionFenceSupported([out] boolean isFusionFenceSupported);
 }

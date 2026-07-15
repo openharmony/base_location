@@ -20,6 +20,9 @@
 #include "geofence_sdk.h"
 #include "geofence_napi.h"
 #include "geofence_async_context.h"
+#include "fusion_fence_async_context.h"
+#include "fusion_fence_napi.h"
+#include "fusion_fence_callback_napi.h"
 #include "beacon_fence_request.h"
 #include "beacon_fence_napi.h"
 #include "location_hiappevent.h"
@@ -2314,6 +2317,177 @@ static bool CreateBluetoothSearchCallback(napi_env env, napi_value handler,
     callback->SetEnv(env);
     callback->SetHandleCb(callbackRef);
     return true;
+}
+
+napi_value AddFusionFence(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_geofenceClient != nullptr, "get geofence client failed");
+    if (argc != PARAM1) {
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    std::shared_ptr<FusionFenceRequest> fusionRequest = std::make_shared<FusionFenceRequest>();
+    bool isValidParameter = ParseFusionFenceRequest(env, argv[0], fusionRequest);
+    if (!isValidParameter) {
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto fusionFenceCallbackHost = sptr<FusionFenceCallbackNapi>(new FusionFenceCallbackNapi());
+    if (!ParseFusionFenceTransitionCallback(env, argv[0], fusionFenceCallbackHost)) {
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto callbackPtr = sptr<IFusionFenceCallback>(fusionFenceCallbackHost);
+    fusionRequest->SetTransitionCallback(callbackPtr->AsObject());
+    auto asyncContext = new FusionFenceAsyncContext(env);
+    if (napi_create_string_latin1(env, "addFusionFence",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        fusionFenceCallbackHost->DeleteHandler();
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->callbackHost_ = fusionFenceCallbackHost;
+    asyncContext->fusionRequest_ = fusionRequest;
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    SetExecuteFuncForAddFusionFenceContext(asyncContext);
+    SetCompleteFuncForAddFusionFenceContext(asyncContext);
+    return DoAsyncWork(env, asyncContext, argc, argv, 1);
+}
+ 
+void SetExecuteFuncForAddFusionFenceContext(FusionFenceAsyncContext* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<FusionFenceAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        auto fusionRequest = context->fusionRequest_;
+        if (callbackHost != nullptr && fusionRequest != nullptr) {
+            context->errCode = g_geofenceClient->AddFusionFence(fusionRequest);
+            if (context->errCode == ERRCODE_SUCCESS) {
+                callbackHost->Wait(DEFAULT_CALLBACK_WAIT_TIME);
+                context->errCode = callbackHost->GetLastOperationErrorCode();
+            }
+        }
+    };
+}
+ 
+void SetCompleteFuncForAddFusionFenceContext(FusionFenceAsyncContext* asyncContext)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s SetCompleteFuncForAddFusionFenceContext.", __func__);
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<FusionFenceAsyncContext*>(data);
+        LBSLOGI(LOCATOR_STANDARD, "completeFunc errCode: %{public}d", context->errCode);
+        if (context->errCode == ERRCODE_SUCCESS) {
+            napi_status status = napi_get_undefined(context->env, &context->result[PARAM1]);
+            if (status != napi_ok) {
+                LBSLOGE(LOCATOR_STANDARD, "napi_get_undefined failed, status=%{public}d", status);
+            }
+        }
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "addFusionFence");
+    };
+}
+ 
+napi_value RemoveFusionFence(napi_env env, napi_callback_info info)
+{
+    LBSLOGI(LOCATOR_STANDARD, "%{public}s called.", __func__);
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_geofenceClient != nullptr, "get geofence client failed");
+    if (argc != PARAM1) {
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    std::string identifier;
+    if (!GetStringFromValue(env, argv[0], identifier)) {
+        ThrowBusinessError(env, ERRCODE_INVALID_PARAM);
+        return UndefinedNapiValue(env);
+    }
+    auto fusionRequest = std::make_shared<FusionFenceRequest>();
+    fusionRequest->SetIdentifier(identifier);
+    sptr<FusionFenceCallbackNapi> fusionFenceCallbackHost = new FusionFenceCallbackNapi();
+    fusionFenceCallbackHost->SetEnv(env);
+    fusionRequest->SetTransitionCallback(fusionFenceCallbackHost->AsObject());
+    auto asyncContext = new FusionFenceAsyncContext(env);
+    if (napi_create_string_latin1(env, "removeFusionFence",
+        NAPI_AUTO_LENGTH, &asyncContext->resourceName) != napi_ok) {
+        GET_AND_THROW_LAST_ERROR(env);
+        delete asyncContext;
+        return nullptr;
+    }
+    asyncContext->identifier_ = identifier;
+    asyncContext->callbackHost_ = fusionFenceCallbackHost;
+    asyncContext->fusionRequest_ = fusionRequest;
+    asyncContext->beginTime = CommonUtils::GetCurrentTimeMilSec();
+    SetExecuteFuncForRemoveFusionFenceContext(asyncContext);
+    SetCompleteFuncForRemoveFusionFenceContext(asyncContext);
+    size_t objectArgsNum = 1;
+    return DoAsyncWork(env, asyncContext, argc, argv, objectArgsNum);
+}
+ 
+void SetExecuteFuncForRemoveFusionFenceContext(FusionFenceAsyncContext* asyncContext)
+{
+    asyncContext->executeFunc = [&](void* data) -> void {
+        auto context = static_cast<FusionFenceAsyncContext*>(data);
+        auto callbackHost = context->callbackHost_;
+        auto fusionRequest = context->fusionRequest_;
+        context->errCode = g_geofenceClient->RemoveFusionFence(fusionRequest);
+        if (callbackHost != nullptr && context->errCode == ERRCODE_SUCCESS) {
+            callbackHost->Wait(DEFAULT_CALLBACK_WAIT_TIME);
+            context->errCode = callbackHost->GetLastOperationErrorCode();
+        }
+    };
+}
+ 
+void SetCompleteFuncForRemoveFusionFenceContext(FusionFenceAsyncContext* asyncContext)
+{
+    asyncContext->completeFunc = [&](void* data) -> void {
+        if (data == nullptr) {
+            return;
+        }
+        auto context = static_cast<FusionFenceAsyncContext*>(data);
+        if (context->errCode == ERRCODE_SUCCESS) {
+            napi_status status = napi_get_undefined(context->env, &context->result[PARAM1]);
+            if (status != napi_ok) {
+                LBSLOGE(LOCATOR_STANDARD, "napi_get_undefined failed, status=%{public}d", status);
+            }
+        }
+        g_hiAppEventClient->WriteEndEvent(
+            context->beginTime, context->errCode == ERRCODE_SUCCESS ? 0 : 1, context->errCode, "removeFusionFence");
+        LBSLOGD(LOCATOR_STANDARD, "Push RemoveFusionFence result to client");
+    };
+}
+ 
+napi_value IsFusionFenceSupported(napi_env env, napi_callback_info info)
+{
+    size_t argc = MAXIMUM_JS_PARAMS;
+    napi_value argv[MAXIMUM_JS_PARAMS];
+    napi_value thisVar = nullptr;
+    void* data = nullptr;
+    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, argv, &thisVar, &data));
+    NAPI_ASSERT(env, g_geofenceClient != nullptr, "get geofence client failed");
+    napi_value res;
+    int64_t beginTime = CommonUtils::GetCurrentTimeMilSec();
+    bool isSupported = g_geofenceClient->IsFusionFenceSupported();
+    g_hiAppEventClient->WriteEndEvent(
+            beginTime, 0, ERRCODE_SUCCESS, "isFusionFenceSupported");
+    NAPI_CALL(env, napi_get_boolean(env, isSupported, &res));
+    return res;
 }
 
 napi_value StartBluetoothSearch(napi_env env, napi_callback_info info)
