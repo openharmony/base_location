@@ -58,6 +58,7 @@
 #include "hookmgr.h"
 #include "permission_manager.h"
 #include "lbs_res_loader.h"
+#include "location_log_event_ids.h"
 
 using namespace testing::ext;
 namespace OHOS {
@@ -1194,6 +1195,423 @@ HWTEST_F(LocationCommonTest, LocationDataRdbManagerTest002, TestSize.Level1)
         LocationDataRdbManager::SetGnssSessionState(0, "testuri", "testColName");
     EXPECT_EQ(false, ret);
     LBSLOGI(LOCATOR, "[LocationCommonTest] LocationDataRdbManagerTest002 end");
+}
+
+/*
+ * @tc.name: WriteGnssStateEventTest001
+ * @tc.desc: test WriteGnssStateEvent with normal params
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteGnssStateEventTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteGnssStateEventTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteGnssStateEventTest001 begin");
+    WriteGnssStateEvent("start", 1000, 1000);
+    WriteGnssStateEvent("stop", 2000, 2000);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteGnssStateEventTest001 end");
+}
+
+/*
+ * @tc.name: WriteAppLocatingStateEventTest001
+ * @tc.desc: test WriteAppLocatingStateEvent with normal params
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteAppLocatingStateEventTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteAppLocatingStateEventTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteAppLocatingStateEventTest001 begin");
+    WriteAppLocatingStateEvent("start", 1000, 1000);
+    WriteAppLocatingStateEvent("stop", 2000, 2000);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteAppLocatingStateEventTest001 end");
+}
+
+/*
+ * @tc.name: WriteLocationSwitchStateEventTest001
+ * @tc.desc: test WriteLocationSwitchStateEvent with normal params
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationSwitchStateEventTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationSwitchStateEventTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationSwitchStateEventTest001 begin");
+    WriteLocationSwitchStateEvent("on", "com.example.app", 100);
+    WriteLocationSwitchStateEvent("off", "com.example.app", 100);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationSwitchStateEventTest001 end");
+}
+
+/*
+ * @tc.name: WriteLocationInnerEventTest001
+ * @tc.desc: test WriteLocationInnerEvent with initializer_list, even number of params
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationInnerEventTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationInnerEventTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest001 begin");
+    WriteLocationInnerEvent(SA_LOAD, {"saId", "1", "type", "load", "ret", "1"});
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest001 end");
+}
+
+/*
+ * @tc.name: WriteLocationInnerEventTest002
+ * @tc.desc: test WriteLocationInnerEvent with initializer_list, odd number of params
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationInnerEventTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationInnerEventTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest002 begin");
+    WriteLocationInnerEvent(SA_LOAD, {"saId", "1", "type"});
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest002 end");
+}
+
+/*
+ * @tc.name: WriteLocationInnerEventTest003
+ * @tc.desc: test WriteLocationInnerEvent with initializer_list, empty params
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationInnerEventTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationInnerEventTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest003 begin");
+    WriteLocationInnerEvent(SA_LOAD, {});
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest003 end");
+}
+
+/*
+ * @tc.name: WriteLocationInnerEventTest004
+ * @tc.desc: test WriteLocationInnerEvent with vectors overload
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationInnerEventTest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationInnerEventTest004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest004 begin");
+    std::vector<std::string> names = {"saId", "type", "ret"};
+    std::vector<std::string> values = {"1", "load", "1"};
+    WriteLocationInnerEvent(SA_LOAD, names, values);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest004 end");
+}
+
+/*
+ * @tc.name: WriteLocationInnerEventTest005
+ * @tc.desc: test WriteLocationInnerEvent with vectors overload, empty vectors
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationInnerEventTest005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationInnerEventTest005, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest005 begin");
+    std::vector<std::string> names;
+    std::vector<std::string> values;
+    WriteLocationInnerEvent(SA_LOAD, names, values);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationInnerEventTest005 end");
+}
+
+/*
+ * @tc.name: WriteLocationRequestEventTest001
+ * @tc.desc: test WriteLocationRequestEvent with empty packageName
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationRequestEventTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationRequestEventTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest001 begin");
+    WriteLocationRequestEvent("", "gps");
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest001 end");
+}
+
+/*
+ * @tc.name: WriteLocationRequestEventTest002
+ * @tc.desc: test WriteLocationRequestEvent with valid packageName and gps ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationRequestEventTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationRequestEventTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest002 begin");
+    WriteLocationRequestEvent("com.example.app", "gps");
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest002 end");
+}
+
+/*
+ * @tc.name: WriteLocationRequestEventTest003
+ * @tc.desc: test WriteLocationRequestEvent with valid packageName and passive ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationRequestEventTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationRequestEventTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest003 begin");
+    WriteLocationRequestEvent("com.example.app", "passive");
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest003 end");
+}
+
+/*
+ * @tc.name: WriteLocationRequestEventTest004
+ * @tc.desc: test WriteLocationRequestEvent with valid packageName and network ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationRequestEventTest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationRequestEventTest004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest004 begin");
+    WriteLocationRequestEvent("com.example.app", "network");
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest004 end");
+}
+
+/*
+ * @tc.name: WriteLocationRequestEventTest005
+ * @tc.desc: test WriteLocationRequestEvent with valid packageName and unknown ability
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, WriteLocationRequestEventTest005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, WriteLocationRequestEventTest005, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest005 begin");
+    WriteLocationRequestEvent("com.example.app", "unknown_ability");
+    LBSLOGI(LOCATOR, "[LocationCommonTest] WriteLocationRequestEventTest005 end");
+}
+
+/*
+ * @tc.name: AppIdentityTest003
+ * @tc.desc: test parameterized constructor sets all fields correctly
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, AppIdentityTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest003 begin");
+    AppIdentity identity(100, 200, 300, 400, 500);
+    EXPECT_EQ(100, identity.GetUid());
+    EXPECT_EQ(200, identity.GetPid());
+    EXPECT_EQ(300u, identity.GetTokenId());
+    EXPECT_EQ(400u, identity.GetTokenIdEx());
+    EXPECT_EQ(500u, identity.GetFirstTokenId());
+    EXPECT_EQ("", identity.GetBundleName());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest003 end");
+}
+
+/*
+ * @tc.name: AppIdentityTest004
+ * @tc.desc: test default constructor initializes all fields to zero/empty
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, AppIdentityTest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest004 begin");
+    AppIdentity identity;
+    EXPECT_EQ(0, identity.GetUid());
+    EXPECT_EQ(0, identity.GetPid());
+    EXPECT_EQ(0u, identity.GetTokenId());
+    EXPECT_EQ(0u, identity.GetTokenIdEx());
+    EXPECT_EQ(0u, identity.GetFirstTokenId());
+    EXPECT_EQ("", identity.GetBundleName());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest004 end");
+}
+
+/*
+ * @tc.name: AppIdentityTest005
+ * @tc.desc: test SetTokenIdEx and GetTokenIdEx
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, AppIdentityTest005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest005, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest005 begin");
+    AppIdentity identity;
+    identity.SetTokenIdEx(12345678);
+    EXPECT_EQ(12345678u, identity.GetTokenIdEx());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest005 end");
+}
+
+/*
+ * @tc.name: AppIdentityTest006
+ * @tc.desc: test ReadFromParcel and Marshalling round-trip
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, AppIdentityTest006, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest006, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest006 begin");
+    AppIdentity identity(100, 200, 300, 400, 500);
+    identity.SetBundleName("com.test.bundle");
+    MessageParcel parcel;
+    EXPECT_EQ(true, identity.Marshalling(parcel));
+
+    AppIdentity identity2;
+    identity2.ReadFromParcel(parcel);
+    EXPECT_EQ(100, identity2.GetUid());
+    EXPECT_EQ(200, identity2.GetPid());
+    EXPECT_EQ(300u, identity2.GetTokenId());
+    EXPECT_EQ(400u, identity2.GetTokenIdEx());
+    EXPECT_EQ(500u, identity2.GetFirstTokenId());
+    EXPECT_EQ("com.test.bundle", identity2.GetBundleName());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest006 end");
+}
+
+/*
+ * @tc.name: AppIdentityTest007
+ * @tc.desc: test Unmarshalling static method
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, AppIdentityTest007, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest007, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest007 begin");
+    AppIdentity identity(100, 200, 300, 400, 500);
+    identity.SetBundleName("com.test.unmarshalling");
+    MessageParcel parcel;
+    identity.Marshalling(parcel);
+
+    AppIdentity* identityPtr = AppIdentity::Unmarshalling(parcel);
+    ASSERT_TRUE(identityPtr != nullptr);
+    EXPECT_EQ(100, identityPtr->GetUid());
+    EXPECT_EQ(200, identityPtr->GetPid());
+    EXPECT_EQ(300u, identityPtr->GetTokenId());
+    EXPECT_EQ(400u, identityPtr->GetTokenIdEx());
+    EXPECT_EQ(500u, identityPtr->GetFirstTokenId());
+    EXPECT_EQ("com.test.unmarshalling", identityPtr->GetBundleName());
+    delete identityPtr;
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest007 end");
+}
+
+/*
+ * @tc.name: AppIdentityTest008
+ * @tc.desc: test UnmarshallingShared static method
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, AppIdentityTest008, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest008, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest008 begin");
+    AppIdentity identity(100, 200, 300, 400, 500);
+    identity.SetBundleName("com.test.unmarshallingshared");
+    MessageParcel parcel;
+    identity.Marshalling(parcel);
+
+    std::shared_ptr<AppIdentity> identityShared = AppIdentity::UnmarshallingShared(parcel);
+    ASSERT_TRUE(identityShared != nullptr);
+    EXPECT_EQ(100, identityShared->GetUid());
+    EXPECT_EQ(200, identityShared->GetPid());
+    EXPECT_EQ(300u, identityShared->GetTokenId());
+    EXPECT_EQ(400u, identityShared->GetTokenIdEx());
+    EXPECT_EQ(500u, identityShared->GetFirstTokenId());
+    EXPECT_EQ("com.test.unmarshallingshared", identityShared->GetBundleName());
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest008 end");
+}
+
+/*
+ * @tc.name: AppIdentityTest009
+ * @tc.desc: test ToString with parameterized constructor
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, AppIdentityTest009, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, AppIdentityTest009, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest009 begin");
+    AppIdentity identity(100, 200, 300, 400, 500);
+    std::string str = identity.ToString();
+    EXPECT_NE(std::string::npos, str.find("uid : 100"));
+    EXPECT_NE(std::string::npos, str.find("pid : 200"));
+    EXPECT_NE(std::string::npos, str.find("bundleName : "));
+    LBSLOGI(LOCATOR, "[LocationCommonTest] AppIdentityTest009 end");
+}
+
+/*
+ * @tc.name: SaLoadWithStatisticTest001
+ * @tc.desc: test SaLoadWithStatistic constructor and destructor
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, SaLoadWithStatisticTest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, SaLoadWithStatisticTest001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest001 begin");
+    SaLoadWithStatistic saLoader;
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest001 end");
+}
+
+/*
+ * @tc.name: SaLoadWithStatisticTest002
+ * @tc.desc: test SaLoadWithStatistic::InitLocationSa with invalid saId
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, SaLoadWithStatisticTest002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, SaLoadWithStatisticTest002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest002 begin");
+    bool ret = SaLoadWithStatistic::InitLocationSa(UN_SAID);
+    EXPECT_EQ(false, ret);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest002 end");
+}
+
+/*
+ * @tc.name: SaLoadWithStatisticTest003
+ * @tc.desc: test SaLoadWithStatistic::UnInitLocationSa with invalid saId (already unloaded)
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, SaLoadWithStatisticTest003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, SaLoadWithStatisticTest003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest003 begin");
+    bool ret = SaLoadWithStatistic::UnInitLocationSa(UN_SAID);
+    EXPECT_EQ(true, ret);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest003 end");
+}
+
+/*
+ * @tc.name: SaLoadWithStatisticTest004
+ * @tc.desc: test SaLoadWithStatistic::InitLocationSa with LOCATION_LOCATOR_SA_ID
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, SaLoadWithStatisticTest004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, SaLoadWithStatisticTest004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest004 begin");
+    bool ret = SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID);
+	EXPECT_EQ(true, ret);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest004 end");
+}
+
+/*
+ * @tc.name: SaLoadWithStatisticTest005
+ * @tc.desc: test SaLoadWithStatistic::InitLocationSa called twice (already loaded branch)
+ * @tc.type: FUNC
+ */
+HWTEST_F(LocationCommonTest, SaLoadWithStatisticTest005, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocationCommonTest, SaLoadWithStatisticTest005, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest005 begin");
+    SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID);
+    bool ret = SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID);
+    EXPECT_EQ(true, ret);
+    LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest005 end");
 }
 } // namespace Location
 } // namespace OHOS
