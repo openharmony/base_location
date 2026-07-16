@@ -112,6 +112,10 @@ private:
         bool &isMessageRequest);
     int RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
         bool &isMessageRequest);
+    int AddFusionFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
+    int RemoveFusionFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+        bool &isMessageRequest);
     int QuerySupportCoordinateSystemTypeInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
         bool &isMessageRequest);
     int SendNetworkLocationInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,

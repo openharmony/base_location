@@ -25,6 +25,8 @@
 #include "location_gnss_geofence_callback_napi.h"
 #include "geofence_async_context.h"
 #include "beacon_fence_request.h"
+#include "fusion_fence_async_context.h"
+#include "fusion_fence_napi.h"
 
 namespace OHOS {
 namespace Location {
@@ -84,6 +86,13 @@ napi_value GetDistanceBetweenLocations(napi_env env, napi_callback_info info);
 napi_value AddBeaconFence(napi_env env, napi_callback_info info);
 napi_value RemoveBeaconFence(napi_env env, napi_callback_info info);
 napi_value IsBeaconFenceSupported(napi_env env, napi_callback_info info);
+napi_value AddFusionFence(napi_env env, napi_callback_info info);
+void SetExecuteFuncForAddFusionFenceContext(FusionFenceAsyncContext* asyncContext);
+void SetCompleteFuncForAddFusionFenceContext(FusionFenceAsyncContext* asyncContext);
+napi_value RemoveFusionFence(napi_env env, napi_callback_info info);
+void SetExecuteFuncForRemoveFusionFenceContext(FusionFenceAsyncContext* asyncContext);
+void SetCompleteFuncForRemoveFusionFenceContext(FusionFenceAsyncContext* asyncContext);
+napi_value IsFusionFenceSupported(napi_env env, napi_callback_info info);
 void CreateAsyncContextForAddBeaconFence(GnssGeofenceAsyncContext* asyncContext);
 void CreateAsyncContextForRemoveBeaconFence(GnssGeofenceAsyncContext* asyncContext);
 void RemoveCallbackToBeaconFenceCallbackHostMap(std::shared_ptr<BeaconFence>& beaconFence);

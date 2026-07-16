@@ -21,6 +21,7 @@
 #include "location_napi_system.h"
 #include "geofence_definition.h"
 #include "beacon_fence.h"
+#include "fusion_fence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -248,6 +249,46 @@ napi_value BeaconFenceInfoTypeConstructor(napi_env env)
     return beaconFenceInfoType;
 }
 
+napi_value FusionFenceSceneConstructor(napi_env env)
+{
+    napi_value fusionFenceScene = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &fusionFenceScene));
+    SetEnumPropertyByInteger(env, fusionFenceScene, FusionFenceScene::AIRPORT, "AIRPORT");
+    SetEnumPropertyByInteger(env, fusionFenceScene, FusionFenceScene::TRAIN_STATION, "TRAIN_STATION");
+    SetEnumPropertyByInteger(env, fusionFenceScene, FusionFenceScene::SUBWAY, "SUBWAY");
+    SetEnumPropertyByInteger(env, fusionFenceScene, FusionFenceScene::SHOP, "SHOP");
+    return fusionFenceScene;
+}
+ 
+napi_value FusionFenceTypeConstructor(napi_env env)
+{
+    napi_value fusionFenceType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &fusionFenceType));
+    SetEnumPropertyByInteger(env, fusionFenceType, FusionFenceType::FUSION_FENCE_GNSS, "GNSS");
+    SetEnumPropertyByInteger(env, fusionFenceType, FusionFenceType::FUSION_FENCE_CELLULAR, "CELLULAR");
+    SetEnumPropertyByInteger(env, fusionFenceType, FusionFenceType::FUSION_FENCE_WIFI, "WIFI");
+    SetEnumPropertyByInteger(env, fusionFenceType, FusionFenceType::FUSION_FENCE_BLUETOOTH, "BLUETOOTH");
+    return fusionFenceType;
+}
+ 
+napi_value GnssFenceTypeConstructor(napi_env env)
+{
+    napi_value gnssFenceType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &gnssFenceType));
+    SetEnumPropertyByInteger(env, gnssFenceType, GnssFenceType::GNSS_FENCE_POLYGON, "POLYGON");
+    SetEnumPropertyByInteger(env, gnssFenceType, GnssFenceType::GNSS_FENCE_CIRCULAR, "CIRCULAR");
+    return gnssFenceType;
+}
+ 
+napi_value WifiFingerprintTypeConstructor(napi_env env)
+{
+    napi_value wifiFingerprintType = nullptr;
+    NAPI_CALL(env, napi_create_object(env, &wifiFingerprintType));
+    SetEnumPropertyByInteger(env, wifiFingerprintType, WifiFingerprintType::WIFI_FINGERPRINT_SEMANTIC, "SEMANTIC");
+    SetEnumPropertyByInteger(env, wifiFingerprintType, WifiFingerprintType::WIFI_FINGERPRINT_LOCATION, "LOCATION");
+    return wifiFingerprintType;
+}
+
 #ifndef ENABLE_NAPI_MANAGER
 /*
  * Module initialization function
@@ -372,6 +413,10 @@ static napi_value InitManager(napi_env env, napi_value exports)
         DECLARE_NAPI_PROPERTY("LocationError", LocationErrorConstructor(env)),
         DECLARE_NAPI_PROPERTY("SportsType", SportsTypeConstructor(env)),
         DECLARE_NAPI_PROPERTY("BeaconFenceInfoType", BeaconFenceInfoTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("FusionFenceScene", FusionFenceSceneConstructor(env)),
+        DECLARE_NAPI_PROPERTY("FusionFenceType", FusionFenceTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("GnssFenceType", GnssFenceTypeConstructor(env)),
+        DECLARE_NAPI_PROPERTY("WifiFingerprintType", WifiFingerprintTypeConstructor(env)),
     };
 
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(napi_property_descriptor), desc));

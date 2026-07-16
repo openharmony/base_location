@@ -27,6 +27,7 @@ local_base_sources = [
   "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence.cpp",
   "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_request.cpp",
   "$LOCATION_NATIVE_DIR/geofence_sdk/source/geofence_sdk.cpp",
+  "$LOCATION_NATIVE_DIR/geofence_sdk/source/fusion_fence_request.cpp",
 ]
 
 ohos_shared_library("geofence_sdk") {

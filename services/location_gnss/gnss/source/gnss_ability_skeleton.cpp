@@ -20,6 +20,7 @@
 
 #include "common_utils.h"
 #include "constant_definition.h"
+#include "fusion_fence_ability.h"
 #include "gnss_ability.h"
 #include "locationhub_ipc_interface_code.h"
 #include "permission_manager.h"
@@ -80,50 +81,26 @@ void GnssAbilityStub::InitGnssMsgHandleMap()
 
 void GnssAbilityStub::InitGnssEnhanceMsgHandleMap()
 {
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_COMMANDS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return SendCommandInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SET_MOCKED_LOCATIONS)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return SetMockLocationsInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ENABLE_LOCATION_MOCK)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return EnableMockInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::DISABLE_LOCATION_MOCK)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return DisableMockInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ADD_FENCE_INFO)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return AddFenceInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_FENCE_INFO)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return RemoveFenceInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::ADD_GNSS_GEOFENCE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return AddGnssGeofenceInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return RemoveGnssGeofenceInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return QuerySupportCoordinateSystemTypeInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return SendNetworkLocationInner(data, reply, identity, isMessageRequest);
-        };
-    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::GET_ACTIVE_FENCES)] =
-        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
-        return GetActiveGeoFencesInner(data, reply, identity, isMessageRequest);
-        };
+    auto RegisterHandler = [this](GnssInterfaceCode code, auto Fn) {
+        GnssMsgHandleMap_[static_cast<uint32_t>(code)] =
+            [this, Fn](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+            return (this->*Fn)(data, reply, identity, isMessageRequest);
+            };
+    };
+    RegisterHandler(GnssInterfaceCode::SEND_COMMANDS, &GnssAbilityStub::SendCommandInner);
+    RegisterHandler(GnssInterfaceCode::SET_MOCKED_LOCATIONS, &GnssAbilityStub::SetMockLocationsInner);
+    RegisterHandler(GnssInterfaceCode::ENABLE_LOCATION_MOCK, &GnssAbilityStub::EnableMockInner);
+    RegisterHandler(GnssInterfaceCode::DISABLE_LOCATION_MOCK, &GnssAbilityStub::DisableMockInner);
+    RegisterHandler(GnssInterfaceCode::ADD_FENCE_INFO, &GnssAbilityStub::AddFenceInner);
+    RegisterHandler(GnssInterfaceCode::REMOVE_FENCE_INFO, &GnssAbilityStub::RemoveFenceInner);
+    RegisterHandler(GnssInterfaceCode::ADD_GNSS_GEOFENCE, &GnssAbilityStub::AddGnssGeofenceInner);
+    RegisterHandler(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE, &GnssAbilityStub::RemoveGnssGeofenceInner);
+    RegisterHandler(GnssInterfaceCode::GET_GEOFENCE_SUPPORT_COORDINATE_SYSTEM_TYPE,
+        &GnssAbilityStub::QuerySupportCoordinateSystemTypeInner);
+    RegisterHandler(GnssInterfaceCode::SEND_NETWORK_LOCATION, &GnssAbilityStub::SendNetworkLocationInner);
+    RegisterHandler(GnssInterfaceCode::GET_ACTIVE_FENCES, &GnssAbilityStub::GetActiveGeoFencesInner);
+    RegisterHandler(GnssInterfaceCode::ADD_FUSION_FENCE, &GnssAbilityStub::AddFusionFenceInner);
+    RegisterHandler(GnssInterfaceCode::REMOVE_FUSION_FENCE, &GnssAbilityStub::RemoveFusionFenceInner);
 }
 
 void GnssAbilityStub::InitGnssSupportMsgHandleMap()
@@ -144,6 +121,12 @@ void GnssAbilityStub::InitGnssSupportMsgHandleMap()
         [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
             reply.WriteInt32(ERRCODE_SUCCESS);
             reply.WriteBool(GnssAbility::GetInstance()->IsSupportBatching());
+            return ERR_OK;
+        };
+    GnssMsgHandleMap_[static_cast<uint32_t>(GnssInterfaceCode::IS_FUSION_FENCE_SUPPORTED)] =
+        [this](MessageParcel &data, MessageParcel &reply, AppIdentity &identity, bool &isMessageRequest) {
+            reply.WriteInt32(ERRCODE_SUCCESS);
+            reply.WriteBool(FusionFenceAbility::GetInstance()->IsFusionFenceSupported());
             return ERR_OK;
         };
 }
@@ -367,6 +350,28 @@ int GnssAbilityStub::RemoveGnssGeofenceInner(MessageParcel &data, MessageParcel 
         return LOCATION_ERRCODE_PERMISSION_DENIED;
     }
     SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE), data, reply);
+    isMessageRequest = true;
+    return ERRCODE_SUCCESS;
+}
+ 
+int GnssAbilityStub::AddFusionFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FUSION_FENCE), data, reply);
+    isMessageRequest = true;
+    return ERRCODE_SUCCESS;
+}
+
+int GnssAbilityStub::RemoveFusionFenceInner(MessageParcel &data, MessageParcel &reply, AppIdentity &identity,
+    bool &isMessageRequest)
+{
+    if (!PermissionManager::CheckCallingPermission(identity.GetUid(), identity.GetPid(), reply)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    SendMessage(static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FUSION_FENCE), data, reply);
     isMessageRequest = true;
     return ERRCODE_SUCCESS;
 }

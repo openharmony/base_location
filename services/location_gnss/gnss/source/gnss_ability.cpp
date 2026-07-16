@@ -33,6 +33,7 @@
 #endif
 #include "common_hisysevent.h"
 #include "common_utils.h"
+#include "fusion_fence_ability.h"
 #include "gnss_event_callback.h"
 #include "i_cached_locations_callback.h"
 #include "location_config_manager.h"
@@ -871,11 +872,11 @@ LocationErrCode GnssAbility::AddFence(std::shared_ptr<GeofenceRequest>& request)
         LBSLOGI(GNSS, "Is Not Support Geofence");
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
-    if ((GetGnssGeofenceRequestMapSize()) >= MAX_GNSS_GEOFENCE_REQUEST_NUM) {
+    if (GetTotalGnssFenceCount() >= MAX_GNSS_GEOFENCE_REQUEST_NUM) {
         LBSLOGE(GNSS, "Exceeded the limit of the fence request");
         return ERRCODE_GEOFENCE_EXCEED_MAXIMUM;
     }
-    if (CheckIfExceedsLimitForOneApp(request->GetBundleName())) {
+    if (GetGnssFenceCountForOneApp(request->GetBundleName()) >= MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP) {
         LBSLOGE(GNSS, "Exceeded the limit of the fence request for one app");
         DeleteMinExpirationGeofenceRequest(request->GetBundleName());
     }
@@ -1270,6 +1271,28 @@ size_t GnssAbility::GetGnssGeofenceRequestMapSize()
 {
     std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
     return gnssGeofenceRequestList_.size();
+}
+
+size_t GnssAbility::GetTotalGnssFenceCount()
+{
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
+    return gnssGeofenceRequestList_.size() + FusionFenceAbility::GetInstance()->GetGnssFenceCount();
+}
+ 
+int GnssAbility::GetGnssFenceCountForOneApp(const std::string& bundleName)
+{
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
+    auto it = gnssGeofenceRequestCountMap_.find(bundleName);
+    int gnssCount = (it != gnssGeofenceRequestCountMap_.end()) ? it->second : 0;
+    int fusionGnssCount = FusionFenceAbility::GetInstance()->GetGnssFenceCountForOneApp(bundleName);
+    return gnssCount + fusionGnssCount;
+}
+ 
+int GnssAbility::GetGnssGeofenceCountForOneAppOnly(const std::string& bundleName)
+{
+    std::unique_lock<ffrt::mutex> lock(gnssGeofenceRequestListMutex_);
+    auto it = gnssGeofenceRequestCountMap_.find(bundleName);
+    return (it != gnssGeofenceRequestCountMap_.end()) ? it->second : 0;
 }
 
 bool GnssAbility::CheckIfExceedsLimitForOneApp(const std::string& bundleName)
@@ -2477,28 +2500,23 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
             break;
         }
 #ifdef NOTIFICATION_ENABLE
-        case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE): {
-            auto request = GeofenceRequest::UnmarshallingShared(data);
-            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
-            SendEvent(event, reply);
-            break;
-        }
-        case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE): {
-            auto request = GeofenceRequest::UnmarshallingShared(data);
-            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
-            SendEvent(event, reply);
-            break;
-        }
-        case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE): {
-            auto request = GeofenceRequest::UnmarshallingShared(data);
-            AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
-            SendEvent(event, reply);
-            break;
-        }
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FENCE):
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE):
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE):
         case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE): {
             auto request = GeofenceRequest::UnmarshallingShared(data);
+            if (request == nullptr) {
+                LBSLOGE(GNSS, "unmarshalling failed, code=%{public}d", code);
+                reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
+                return;
+            }
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
             SendEvent(event, reply);
+            break;
+        }
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FUSION_FENCE):
+        case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FUSION_FENCE): {
+            SendFusionFenceMessage(code, data, reply);
             break;
         }
 #endif
@@ -2512,6 +2530,18 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
         default:
             break;
     }
+}
+
+void GnssAbility::SendFusionFenceMessage(uint32_t code, MessageParcel &data, MessageParcel &reply)
+{
+    auto request = std::shared_ptr<FusionFenceRequest>(FusionFenceRequest::Unmarshalling(data));
+    if (request == nullptr) {
+        LBSLOGE(GNSS, "FUSION_FENCE: unmarshalling failed, code=%{public}d", code);
+        reply.WriteInt32(ERRCODE_INVALID_PARAM);
+        return;
+    }
+    AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
+    SendEvent(event, reply);
 }
 
 void GnssAbility::SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply)
@@ -2608,6 +2638,10 @@ void GnssHandler::InitGnssEventProcessMap()
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleAddGeofence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE)] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRemoveGeofence(event); };
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_FUSION_FENCE)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleAddFusionFence(event); };
+    gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FUSION_FENCE)] =
+        [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleRemoveFusionFence(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssInterfaceCode::SEND_NETWORK_LOCATION)] =
         [this](const AppExecFwk::InnerEvent::Pointer& event) { HandleSendNetworkLocation(event); };
     gnssEventProcessMap_[static_cast<uint32_t>(GnssAbilityInterfaceCode::RESTORE_GEOFENCE_REQUEST)] =
@@ -2788,6 +2822,39 @@ void GnssHandler::HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& ev
                 GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE, code);
         }
     }
+}
+
+void GnssHandler::HandleAddFusionFence(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    LBSLOGI(GNSS, "HandleAddFusionFence");
+    auto gnssAbility = GnssAbility::GetInstance();
+    std::shared_ptr<FusionFenceRequest> request = event->GetSharedObject<FusionFenceRequest>();
+    if (request != nullptr) {
+        LocationErrCode errCode = gnssAbility->AddFusionFence(request);
+        FusionFenceAbility::GetInstance()->ReportOperateResult(
+            request, GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_ADD, errCode);
+    }
+}
+ 
+void GnssHandler::HandleRemoveFusionFence(const AppExecFwk::InnerEvent::Pointer& event)
+{
+    auto gnssAbility = GnssAbility::GetInstance();
+    std::shared_ptr<FusionFenceRequest> request = event->GetSharedObject<FusionFenceRequest>();
+    if (request != nullptr) {
+        LocationErrCode errCode = gnssAbility->RemoveFusionFence(request);
+        FusionFenceAbility::GetInstance()->ReportOperateResult(
+            request, GnssGeofenceOperateType::GNSS_GEOFENCE_OPT_TYPE_DELETE, errCode);
+    }
+}
+ 
+LocationErrCode GnssAbility::AddFusionFence(std::shared_ptr<FusionFenceRequest>& request)
+{
+    return FusionFenceAbility::GetInstance()->AddFusionFence(request);
+}
+ 
+LocationErrCode GnssAbility::RemoveFusionFence(std::shared_ptr<FusionFenceRequest>& request)
+{
+    return FusionFenceAbility::GetInstance()->RemoveFusionFence(request);
 }
 
 void GnssHandler::HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event)

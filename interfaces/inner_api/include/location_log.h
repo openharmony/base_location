@@ -134,6 +134,12 @@ static constexpr OHOS::HiviewDFX::HiLogLabel PROXY_FREEZE_MANAGER = {
 static constexpr OHOS::HiviewDFX::HiLogLabel COMMON_EVENT_HELPER = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "CommonEventHelper"
 };
+static constexpr OHOS::HiviewDFX::HiLogLabel FUSION_FENCE_CALLBACK = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "FusionFenceCallback"
+};
+static constexpr OHOS::HiviewDFX::HiLogLabel FUSION_FENCE = {
+    LOG_CORE, LOCATION_LOG_DOMAIN, "FusionFence"
+};
 static constexpr OHOS::HiviewDFX::HiLogLabel BEACON_FENCE_MANAGER = {
     LOG_CORE, LOCATION_LOG_DOMAIN, "BeaconFenceManager"
 };
