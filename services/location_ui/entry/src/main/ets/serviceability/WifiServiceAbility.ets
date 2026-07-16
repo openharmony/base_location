@@ -60,6 +60,8 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
             this.willPublish = true;
             let status : number = want.parameters?.['status'] as number;
             let ssid : string = want.parameters?.['ssid'] as string;
+            let backPortalConnect : boolean = want.parameters?.['backPortalConnect'] as boolean;
+            let networkid : number = want.parameters?.['networkid'] as number;
             try {
                 file = fs.openSync('/system/etc/wifi/portal_notification.png', fs.OpenMode.READ_ONLY);
                 imageSourceApi = image.createImageSource(file.fd);
@@ -67,7 +69,8 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                 .then((resultPixelmap: image.PixelMap) => {
                     console.info(TAG, `Create pixelMap success.`);
                     pixelmap = resultPixelmap;
-                    this.publishWantAgentCommonEvent(pixelmap, notificationId, status, ssid);
+                    this.publishWantAgentCommonEvent(pixelmap, notificationId, status,
+                        ssid, networkid, backPortalConnect);
                 })
                 .catch((error: string) => {
                     console.info(TAG, `Create pixelMap failed`);
@@ -91,13 +94,17 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
         }
     }
 
-    publishWantAgentCommonEvent = async (pixelmap: image.PixelMap, id: number, status: number, ssid: string) => {
+    private publishWantAgentCommonEvent = async (pixelmap: image.PixelMap, id: number, status: number, ssid: string,
+        networkid: number , backPortalConnect: boolean) => {
         let wantAgentObj: WantAgent;
         let wantAgentInfo: wantAgent.WantAgentInfo = {
             wants: [
                 {
                     action: 'ohos.event.notification.wifi.TAP_NOTIFICATION',
-                    parameters: { 'notificationId': id },
+                    parameters: { 'notificationId': id,
+                                  'networkid': networkid,
+                                  'backPortalConnect': backPortalConnect 
+                                },
                 }
             ],
             actionType: wantAgent.OperationType.SEND_COMMON_EVENT,

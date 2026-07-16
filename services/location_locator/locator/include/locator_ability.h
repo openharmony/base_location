@@ -248,6 +248,9 @@ public:
     ErrCode IsPoiServiceSupported(bool& poiServiceSupportState) override;
     ErrCode GetPoiInfo(const sptr<IRemoteObject>& cb) override;
     ErrCode GetActiveGeoFences(std::map<int, Geofence>& fenceMap) override;
+    ErrCode AddFusionFence(const FusionFenceRequest& request) override;
+    ErrCode RemoveFusionFence(const FusionFenceRequest& request) override;
+    ErrCode IsFusionFenceSupported(bool& isSupported) override;
     ErrCode IsGnssServiceSupported(bool& isGnssSupported) override;
     ErrCode IsGnssFenceServiceSupported(bool& isGnssFenceSupported) override;
     ErrCode IsCachedGnssServiceSupported(bool& isCachedGnssSupported) override;

@@ -1042,7 +1042,9 @@ HWTEST_F(LocatorAbilityTest, ReportSingleCacheLocation_Test_001, TestSize.Level1
     
     auto cacheLocation = locatorAbility->reportManager_->GetCacheLocation(request);
     // Act
-    ErrCode result = locatorAbility->ReportSingleCacheLocation(request, callbackStub, cacheLocation);
+    if (cacheLocation != nullptr) {
+        locatorAbility->ReportSingleCacheLocation(request, callbackStub, cacheLocation);
+    }
     
     // Assert
     LBSLOGI(LOCATOR, "[LocatorAbilityTest] ReportSingleCacheLocation_Test_001 end");

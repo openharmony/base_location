@@ -307,6 +307,34 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_ok_button",
+            "value":"確定",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_text",
+            "value":"%d 分鐘內不再允許陌生裝置發起連接請求？",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_title",
+            "value":"注意",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_no_button",
+            "value":"取消",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

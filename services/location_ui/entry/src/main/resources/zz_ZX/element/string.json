@@ -211,6 +211,22 @@
         {
             "name":"wifipro_auto_connect_dialog_save_context",
             "value":"[TS_1188468]_Allow connection to better networks like \"%s\" using the password for the current Wi-Fi network?"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_ok_button",
+            "value":"[TS_1221805]_OK"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_text",
+            "value":"[TS_1221802]_Block connection requests from unknown devices for the next %d minutes?"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_title",
+            "value":"[TS_1221803]_Note"
+        },
+        {
+            "name":"p2p_untrust_invite_dialog_no_button",
+            "value":"[TS_1221804]_Cancel"
         }
     ]
 }

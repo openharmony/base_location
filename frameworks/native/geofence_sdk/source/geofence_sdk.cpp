@@ -197,5 +197,60 @@ LocationErrCode GeofenceManager::GetActiveGeoFences(std::map<int, Geofence>& fen
     LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
     return locationErrCode;
 }
+
+LocationErrCode GeofenceManager::AddFusionFence(std::shared_ptr<FusionFenceRequest>& request)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (request == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->AddFusionFence(*request);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+LocationErrCode GeofenceManager::RemoveFusionFence(std::shared_ptr<FusionFenceRequest>& request)
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (request == nullptr) {
+        return ERRCODE_INVALID_PARAM;
+    }
+    ErrCode errorCodeValue = proxy->RemoveFusionFence(*request);
+    LocationErrCode locationErrCode = CommonUtils::ErrCodeToLocationErrCode(errorCodeValue);
+    return locationErrCode;
+}
+
+bool GeofenceManager::IsFusionFenceSupported()
+{
+    if (!SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID)) {
+        return false;
+    }
+    sptr<ILocatorService> proxy = GetProxy();
+    if (proxy == nullptr) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s get proxy failed.", __func__);
+        return false;
+    }
+    bool isSupported = false;
+    ErrCode errorCode = proxy->IsFusionFenceSupported(isSupported);
+    if (errorCode != ERRCODE_SUCCESS) {
+        LBSLOGE(GEOFENCE_SDK, "%{public}s failed, errorCode=%{public}d", __func__, errorCode);
+        return false;
+    }
+    return isSupported;
+}
 }
 }
