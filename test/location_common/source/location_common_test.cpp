@@ -1594,7 +1594,7 @@ HWTEST_F(LocationCommonTest, SaLoadWithStatisticTest004, TestSize.Level1)
         << "LocationCommonTest, SaLoadWithStatisticTest004, TestSize.Level1";
     LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest004 begin");
     bool ret = SaLoadWithStatistic::InitLocationSa(LOCATION_LOCATOR_SA_ID);
-	EXPECT_EQ(true, ret);
+    EXPECT_EQ(true, ret);
     LBSLOGI(LOCATOR, "[LocationCommonTest] SaLoadWithStatisticTest004 end");
 }
 
