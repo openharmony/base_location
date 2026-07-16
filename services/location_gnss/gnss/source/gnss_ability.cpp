@@ -2504,12 +2504,12 @@ void GnssAbility::SendMessage(uint32_t code, MessageParcel &data, MessageParcel 
         case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_FENCE):
         case static_cast<uint32_t>(GnssAbilityInterfaceCode::ADD_GEOFENCE):
         case static_cast<uint32_t>(GnssAbilityInterfaceCode::REMOVE_GEOFENCE): {
+            auto request = GeofenceRequest::UnmarshallingShared(data);
             if (request == nullptr) {
                 LBSLOGE(GNSS, "unmarshalling failed, code=%{public}d", code);
                 reply.WriteInt32(ERRCODE_SERVICE_UNAVAILABLE);
                 return;
             }
-            auto request = GeofenceRequest::UnmarshallingShared(data);
             AppExecFwk::InnerEvent::Pointer event = AppExecFwk::InnerEvent::Get(code, request);
             SendEvent(event, reply);
             break;
