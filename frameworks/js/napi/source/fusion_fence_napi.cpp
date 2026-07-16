@@ -161,9 +161,9 @@ static bool ParsePolygonPoints(napi_env env, napi_value polygonArray, std::vecto
             }
         }
     }
-    if (polygon.size() < MIN_POLYGON_POINTS_COUNT) {
+    if (polygon.size() < minPolygonPointsCount) {
         LBSLOGE(FUSION_FENCE, "polygon must have at least %{public}u valid points, got: %{public}zu",
-            MIN_POLYGON_POINTS_COUNT, polygon.size());
+            minPolygonPointsCount, polygon.size());
         return false;
     }
     return true;
@@ -756,7 +756,7 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         return false;
     }
     if (loiterTimeMs < 0) {
-        LBSLOGE(FUSION_FENCE, "invalid loiterTimeMs: %{public}ld", loiterTimeMs);
+        LBSLOGE(FUSION_FENCE, "invalid loiterTimeMs: %{public}lld", loiterTimeMs);
         return false;
     }
     int64_t expirationMs = 0;
@@ -765,7 +765,7 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         return false;
     }
     if (expirationMs <= 0) {
-        LBSLOGE(FUSION_FENCE, "invalid expirationMs: %{public}ld", expirationMs);
+        LBSLOGE(FUSION_FENCE, "invalid expirationMs: %{public}lld", expirationMs);
         return false;
     }
     fusionRequest->SetMonitorTransitionEvents(monitorTransitionEvents);
