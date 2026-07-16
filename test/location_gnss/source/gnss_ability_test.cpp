@@ -3116,6 +3116,203 @@ HWTEST_F(GnssAbilityTest, GetGeofenceRequestByFenceIdTest001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[GnssAbilityTest] GetGeofenceRequestByFenceIdTest001 end");
 }
 
+HWTEST_F(GnssAbilityTest, CheckIfGnssConnecting001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, CheckIfGnssConnecting001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] CheckIfGnssConnecting001 begin");
+    bool result = ability_->CheckIfGnssConnecting();
+    EXPECT_EQ(false, result);
+    result = ability_->IsGnssfenceRequestExist();
+    EXPECT_EQ(false, result);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] CheckIfGnssConnecting001 end");
+}
+
+HWTEST_F(GnssAbilityTest, IsGnssfenceRequestExist001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, IsGnssfenceRequestExist001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsGnssfenceRequestExist001 begin");
+    bool result = ability_->IsGnssfenceRequestExist();
+    EXPECT_EQ(false, result);
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetBundleName("test_bundle_name");
+    request->SetFenceId(ability_->GenerateFenceId());
+    GeoFence fence;
+    fence.latitude = 1.0;
+    fence.longitude = 1.0;
+    fence.radius = 100.0;
+    fence.expiration = 1000;
+    request->SetGeofence(fence);
+    sptr<LocationGnssGeofenceCallbackNapi> callbackHost = new LocationGnssGeofenceCallbackNapi();
+    ability_->RegisterGnssGeofenceCallback(request, callbackHost->AsObject());
+    result = ability_->IsGnssfenceRequestExist();
+    EXPECT_EQ(true, result);
+    ability_->gnssGeofenceRequestList_.clear();
+    ability_->gnssGeofenceRequestCountMap_.clear();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsGnssfenceRequestExist001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfo001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SaveFenceWantAgentInfo001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfo001 begin");
+    std::shared_ptr<GeofenceRequest> request = nullptr;
+    bool result = ability_->SaveFenceWantAgentInfo(request);
+    EXPECT_EQ(false, result);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfo001 end");
+}
+
+HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfo002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SaveFenceWantAgentInfo002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfo002 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetBundleName("test_bundle_name");
+    bool result = ability_->SaveFenceWantAgentInfo(request);
+    EXPECT_EQ(false, result);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfo002 end");
+}
+
+HWTEST_F(GnssAbilityTest, SaveFenceWantAgentInfo003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, SaveFenceWantAgentInfo003, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfo003 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetBundleName("test_bundle_name");
+    GeoFence fence;
+    fence.latitude = 1.0;
+    fence.longitude = 1.0;
+    fence.radius = 100.0;
+    fence.expiration = 1000;
+    request->SetGeofence(fence);
+    bool result = ability_->SaveFenceWantAgentInfo(request);
+    EXPECT_EQ(false, result);
+    ability_->gnssGeofenceRequestList_.clear();
+    ability_->gnssGeofenceRequestCountMap_.clear();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] SaveFenceWantAgentInfo003 end");
+}
+
+HWTEST_F(GnssAbilityTest, IsSameGeofence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, IsSameGeofence001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSameGeofence001 begin");
+    GeoFence geoFence1;
+    geoFence1.latitude = 1.0;
+    geoFence1.longitude = 1.0;
+    geoFence1.radius = 100.0;
+    geoFence1.expiration = 1000;
+    GeoFence geoFence2;
+    geoFence2.latitude = 1.0;
+    geoFence2.longitude = 1.0;
+    geoFence2.radius = 100.0;
+    geoFence2.expiration = 1000;
+    bool result = ability_->IsSameGeofence(geoFence1, geoFence2);
+    EXPECT_EQ(true, result);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSameGeofence001 end");
+}
+
+HWTEST_F(GnssAbilityTest, IsSameGeofence002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, IsSameGeofence002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSameGeofence002 begin");
+    GeoFence geoFence1;
+    geoFence1.latitude = 1.0;
+    geoFence1.longitude = 1.0;
+    geoFence1.radius = 100.0;
+    geoFence1.expiration = 1000;
+    GeoFence geoFence2;
+    geoFence2.latitude = 2.0;
+    geoFence2.longitude = 2.0;
+    geoFence2.radius = 200.0;
+    geoFence2.expiration = 2000;
+    bool result = ability_->IsSameGeofence(geoFence1, geoFence2);
+    EXPECT_EQ(false, result);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] IsSameGeofence002 end");
+}
+
+HWTEST_F(GnssAbilityTest, ReducedGeoFencesCount001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, ReducedGeoFencesCount001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] ReducedGeoFencesCount001 begin");
+    ability_->ReducedGeoFencesCount("test_bundle_name");
+    ability_->gnssGeofenceRequestCountMap_["test_bundle_name"] = 1;
+    ability_->ReducedGeoFencesCount("test_bundle_name");
+    EXPECT_EQ(0, ability_->gnssGeofenceRequestCountMap_["test_bundle_name"]);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] ReducedGeoFencesCount001 end");
+}
+
+HWTEST_F(GnssAbilityTest, ReducedGeoFencesCount002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, ReducedGeoFencesCount002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] ReducedGeoFencesCount002 begin");
+    ability_->gnssGeofenceRequestCountMap_["test_bundle_name"] = 2;
+    ability_->ReducedGeoFencesCount("test_bundle_name");
+    EXPECT_EQ(1, ability_->gnssGeofenceRequestCountMap_["test_bundle_name"]);
+    ability_->gnssGeofenceRequestCountMap_.clear();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] ReducedGeoFencesCount002 end");
+}
+
+HWTEST_F(GnssAbilityTest, DeleteMinExpirationGeofenceRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, DeleteMinExpirationGeofenceRequest001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] DeleteMinExpirationGeofenceRequest001 begin");
+    ability_->DeleteMinExpirationGeofenceRequest("test_bundle_name");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    request->SetBundleName("test_bundle_name");
+    request->SetRequestExpirationTimeStamp(LLONG_MAX);
+    ability_->gnssGeofenceRequestList_.push_back(request);
+    ability_->DeleteMinExpirationGeofenceRequest("test_bundle_name");
+    ability_->gnssGeofenceRequestList_.clear();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] DeleteMinExpirationGeofenceRequest001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetGnssGeofenceRequestMapSize001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetGnssGeofenceRequestMapSize001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetGnssGeofenceRequestMapSize001 begin");
+    size_t result = ability_->GetGnssGeofenceRequestMapSize();
+    EXPECT_EQ(0, result);
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetGnssGeofenceRequestMapSize001 end");
+}
+
+HWTEST_F(GnssAbilityTest, GetGnssGeofenceRequestMapSize002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, GetGnssGeofenceRequestMapSize002, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetGnssGeofenceRequestMapSize002 begin");
+    std::shared_ptr<GeofenceRequest> request = std::make_shared<GeofenceRequest>();
+    ability_->gnssGeofenceRequestList_.push_back(request);
+    size_t result = ability_->GetGnssGeofenceRequestMapSize();
+    EXPECT_EQ(1, result);
+    ability_->gnssGeofenceRequestList_.clear();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] GetGnssGeofenceRequestMapSize002 end");
+}
+
+HWTEST_F(GnssAbilityTest, CheckIfExceedsLimitForOneApp001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "GnssAbilityTest, CheckIfExceedsLimitForOneApp001, TestSize.Level1";
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] CheckIfExceedsLimitForOneApp001 begin");
+    bool result = ability_->CheckIfExceedsLimitForOneApp("test_bundle_name");
+    EXPECT_EQ(false, result);
+    int MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP = 100;
+    ability_->gnssGeofenceRequestCountMap_["test_bundle_name"] = MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP;
+    result = ability_->CheckIfExceedsLimitForOneApp("test_bundle_name");
+    EXPECT_EQ(true, result);
+    ability_->gnssGeofenceRequestCountMap_.clear();
+    LBSLOGI(GNSS_TEST, "[GnssAbilityTest] CheckIfExceedsLimitForOneApp001 end");
+}
+
 HWTEST_F(GnssAbilityTest, IsGnssBatchingEnabledTest001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
