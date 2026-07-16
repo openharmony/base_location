@@ -409,7 +409,7 @@ void FusionFenceHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer& eve
         std::string moduleName = "FusionFenceHandler";
         XCollieCallback callbackFunc = [moduleName, eventId, tid](void *) {
             LBSLOGE(
-                FUSION_FENCE,"TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
+                FUSION_FENCE, "TimeoutCallback tid:%{public}d moduleName:%{public}s excute eventId:%{public}u timeout.",
                 tid, moduleName.c_str(), eventId);
         };
         std::string dfxInfo = moduleName + "_" + std::to_string(eventId) + "_" + std::to_string(tid);

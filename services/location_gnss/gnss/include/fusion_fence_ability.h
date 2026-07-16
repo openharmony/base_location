@@ -36,7 +36,7 @@
 namespace OHOS {
 namespace Location {
 
-struct FusionFenceStruct{
+struct FusionFenceStruct {
     std::shared_ptr<FusionFenceRequest> request;
     sptr<IRemoteObject> callback;
     int requestCode;

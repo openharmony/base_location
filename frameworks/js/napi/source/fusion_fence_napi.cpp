@@ -132,16 +132,16 @@ static bool ParsePolygonPoints(napi_env env, napi_value polygonArray, std::vecto
     if (!ValidatePolygonArrayLength(env, polygonArray, arrayLen)) {
         return false;
     }
-    constexpr uint32_t MAX_POLYGON_POINTS_COUNT = 10;
-    constexpr uint32_t MIN_POLYGON_POINTS_COUNT = 3;
-    if (arrayLen > MAX_POLYGON_POINTS_COUNT) {
+    constexpr uint32_t maxPolygonPointsCount = 10;
+    constexpr uint32_t minPolygonPointsCount = 3;
+    if (arrayLen > maxPolygonPointsCount) {
         LBSLOGI(FUSION_FENCE, "polygon array length=%{public}u exceeds max=%{public}u, truncating to %{public}u",
-            arrayLen, MAX_POLYGON_POINTS_COUNT, MAX_POLYGON_POINTS_COUNT);
-        arrayLen = MAX_POLYGON_POINTS_COUNT;
+            arrayLen, maxPolygonPointsCount, maxPolygonPointsCount);
+        arrayLen = maxPolygonPointsCount;
     }
-    if (arrayLen < MIN_POLYGON_POINTS_COUNT) {
+    if (arrayLen < minPolygonPointsCount) {
         LBSLOGE(FUSION_FENCE, "polygon array must have at least %{public}u points, got: %{public}u",
-            MIN_POLYGON_POINTS_COUNT, arrayLen);
+            minPolygonPointsCount, arrayLen);
         return false;
     }
     for (uint32_t i = 0; i < arrayLen; i++) {
@@ -337,11 +337,11 @@ static bool ParseWifiFeatures(napi_env env, napi_value featuresArray, std::vecto
     if (!ValidateWifiFeaturesArray(env, featuresArray, arrayLen)) {
         return false;
     }
-    constexpr uint32_t MAX_WIFI_FEATURES_COUNT = 150;
-    if (arrayLen > MAX_WIFI_FEATURES_COUNT) {
+    constexpr uint32_t maxWifiFeaturesCount = 150;
+    if (arrayLen > maxWifiFeaturesCount) {
         LBSLOGI(FUSION_FENCE, "wifiFeatures array length=%{public}u exceeds max=%{public}u, truncating to %{public}u",
-            arrayLen, MAX_WIFI_FEATURES_COUNT, MAX_WIFI_FEATURES_COUNT);
-        arrayLen = MAX_WIFI_FEATURES_COUNT;
+            arrayLen, maxWifiFeaturesCount, maxWifiFeaturesCount);
+        arrayLen = maxWifiFeaturesCount;
     }
     for (uint32_t i = 0; i < arrayLen; i++) {
         napi_value featureValue = nullptr;
@@ -417,11 +417,11 @@ static bool ParseCellInfos(napi_env env, napi_value cellInfosArray, std::vector<
         LBSLOGE(FUSION_FENCE, "get array length failed");
         return false;
     }
-    const uint32_t MAX_CELL_INFOS_COUNT = 1000;
-    if (arrayLen > MAX_CELL_INFOS_COUNT) {
+    const uint32_t maxCellInfosCount = 1000;
+    if (arrayLen > maxCellInfosCount) {
         LBSLOGI(FUSION_FENCE, "cellInfos array length=%{public}u exceeds max=%{public}u, truncating to %{public}u",
-            arrayLen, MAX_CELL_INFOS_COUNT, MAX_CELL_INFOS_COUNT);
-        arrayLen = MAX_CELL_INFOS_COUNT;
+            arrayLen, maxCellInfosCount, maxCellInfosCount);
+        arrayLen = maxCellInfosCount;
     }
     for (uint32_t i = 0; i < arrayLen; i++) {
         napi_value cellInfoValue = nullptr;
@@ -484,11 +484,11 @@ static bool ParseGnssFencesArray(
         LBSLOGE(FUSION_FENCE, "get array length failed");
         return false;
     }
-    const uint32_t MAX_GNSS_FENCES_COUNT = 30;
-    if (arrayLen > MAX_GNSS_FENCES_COUNT) {
+    const uint32_t maxGnssFencesCount = 30;
+    if (arrayLen > maxGnssFencesCount) {
         LBSLOGI(FUSION_FENCE, "gnssFences array length=%{public}u exceeds max=%{public}u, truncating to %{public}u",
-            arrayLen, MAX_GNSS_FENCES_COUNT, MAX_GNSS_FENCES_COUNT);
-        arrayLen = MAX_GNSS_FENCES_COUNT;
+            arrayLen, maxGnssFencesCount, maxGnssFencesCount);
+        arrayLen = maxGnssFencesCount;
     }
     for (uint32_t i = 0; i < arrayLen; i++) {
         napi_value gnssFenceValue = nullptr;
@@ -524,11 +524,11 @@ static bool ParseCellFencesArray(
         LBSLOGE(FUSION_FENCE, "get array length failed");
         return false;
     }
-    const uint32_t MAX_CELL_FENCES_COUNT = 30;
-    if (arrayLen > MAX_CELL_FENCES_COUNT) {
+    const uint32_t maxCellFencesCount = 30;
+    if (arrayLen > maxCellFencesCount) {
         LBSLOGI(FUSION_FENCE, "cellFences array length=%{public}u exceeds max=%{public}u, truncating to %{public}u",
-            arrayLen, MAX_CELL_FENCES_COUNT, MAX_CELL_FENCES_COUNT);
-        arrayLen = MAX_CELL_FENCES_COUNT;
+            arrayLen, maxCellFencesCount, maxCellFencesCount);
+        arrayLen = maxCellFencesCount;
     }
     for (uint32_t i = 0; i < arrayLen; i++) {
         napi_value cellFenceValue = nullptr;
@@ -565,11 +565,11 @@ static bool ParseWifiFencesArray(
         LBSLOGE(FUSION_FENCE, "get array length failed");
         return false;
     }
-    const uint32_t MAX_WIFI_FENCES_COUNT = 30;
-    if (arrayLen > MAX_WIFI_FENCES_COUNT) {
+    const uint32_t maxWifiFencesCount = 30;
+    if (arrayLen > maxWifiFencesCount) {
         LBSLOGI(FUSION_FENCE, "wifiFences array length=%{public}u exceeds max=%{public}u, truncating to %{public}u",
-            arrayLen, MAX_WIFI_FENCES_COUNT, MAX_WIFI_FENCES_COUNT);
-        arrayLen = MAX_WIFI_FENCES_COUNT;
+            arrayLen, maxWifiFencesCount, maxWifiFencesCount);
+        arrayLen = maxWifiFencesCount;
     }
     for (uint32_t i = 0; i < arrayLen; i++) {
         napi_value wifiFenceValue = nullptr;
@@ -720,11 +720,11 @@ static bool ParseAndValidateSceneAndFenceType(napi_env env, napi_value object, i
         LBSLOGE(FUSION_FENCE, "fenceType is required");
         return false;
     }
-    constexpr int32_t VALID_FENCE_TYPE_MASK = static_cast<int32_t>(FusionFenceType::FUSION_FENCE_GNSS) |
+    constexpr int32_t validFenceTypeMask = static_cast<int32_t>(FusionFenceType::FUSION_FENCE_GNSS) |
         static_cast<int32_t>(FusionFenceType::FUSION_FENCE_CELLULAR) |
         static_cast<int32_t>(FusionFenceType::FUSION_FENCE_WIFI) |
         static_cast<int32_t>(FusionFenceType::FUSION_FENCE_BLUETOOTH);
-    if (fenceType <= 0 || (fenceType & ~VALID_FENCE_TYPE_MASK) != 0) {
+    if (fenceType <= 0 || (fenceType & ~validFenceTypeMask) != 0) {
         LBSLOGE(FUSION_FENCE, "invalid fenceType: %{public}d", fenceType);
         return false;
     }
@@ -738,7 +738,7 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         LBSLOGE(FUSION_FENCE, "monitorTransitionEvents is required");
         return false;
     }
-    constexpr int32_t VALID_TRANSITION_MASK =
+    constexpr int32_t validTransitionMask =
         static_cast<int32_t>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER) |
         static_cast<int32_t>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT) |
         static_cast<int32_t>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_DWELL) |
@@ -746,7 +746,7 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         static_cast<int32_t>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_LEAVING_GEOFENCE) |
         static_cast<int32_t>(GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_NEAR_WANDER);
     if (monitorTransitionEvents <= 0 ||
-        (monitorTransitionEvents & VALID_TRANSITION_MASK) != monitorTransitionEvents) {
+        (monitorTransitionEvents & validTransitionMask) != monitorTransitionEvents) {
         LBSLOGE(FUSION_FENCE, "invalid monitorTransitionEvents: %{public}d", monitorTransitionEvents);
         return false;
     }
