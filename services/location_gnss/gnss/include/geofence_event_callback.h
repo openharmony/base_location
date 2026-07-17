@@ -19,7 +19,6 @@
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 
 #include <v2_0/igeofence_callback.h>
-#include <v3_0/igeofence_callback.h>
 
 namespace OHOS {
 namespace Location {
@@ -39,16 +38,6 @@ public:
         const HDI::Location::Geofence::V2_0::LocationInfo& location, GeofenceEvent event, int64_t timestamp) override;
     int32_t ReportGeofenceOperateResult(
         int32_t fenceIndex, GeofenceOperateType type, GeofenceOperateResult result) override;
-};
-
-class GeofenceEventCallbackV3 : public HDI::Location::Geofence::V3_0::IGeofenceCallback {
-public:
-    ~GeofenceEventCallbackV3() override {}
-    int32_t ReportGeofenceAvailability(bool isAvailable) override;
-    int32_t ReportGeofenceEvent(int32_t fenceIndex,
-        const HDI::Location::Geofence::V3_0::LocationInfo& location, int event, int64_t timestamp) override;
-    int32_t ReportGeofenceOperateResult(
-        int32_t fenceIndex, int type, int result) override;
 };
 }  // namespace Location
 }  // namespace OHOS
