@@ -744,7 +744,8 @@ HWTEST_F(BeaconFenceManagerTest, AddBeaconFenceTest003, TestSize.Level0)
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    manufactureData.manufactureData = {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
+    manufactureData.manufactureData =
+        {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
     beaconFence->SetIdentifier("AddBeaconFenceTest003");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
@@ -766,7 +767,8 @@ HWTEST_F(BeaconFenceManagerTest, RemoveBeaconFenceTest002, TestSize.Level0)
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    manufactureData.manufactureData = {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
+    manufactureData.manufactureData =
+        {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
     beaconFence->SetIdentifier("RemoveBeaconFenceTest002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
@@ -789,7 +791,8 @@ HWTEST_F(BeaconFenceManagerTest, RemoveBeaconFenceTest003, TestSize.Level0)
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    manufactureData.manufactureData = {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
+    manufactureData.manufactureData =
+        {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
     beaconFence->SetIdentifier("RemoveBeaconFenceTest003");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
@@ -858,7 +861,8 @@ HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByServiceUuidTest002, Test
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    manufactureData.manufactureData = {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
+    manufactureData.manufactureData =
+        {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
     beaconFence->SetIdentifier("GetBeaconFenceRequestByServiceUuidTest002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
@@ -885,7 +889,8 @@ HWTEST_F(BeaconFenceManagerTest, GetAppIdentityByBeaconFenceRequestTest003, Test
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    manufactureData.manufactureData = {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
+    manufactureData.manufactureData =
+        {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
     beaconFence->SetIdentifier("GetAppIdentityByBeaconFenceRequestTest003");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
@@ -935,7 +940,8 @@ HWTEST_F(BeaconFenceManagerTest, GetBeaconManufactureDataForFilterTest002, TestS
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    manufactureData.manufactureData = {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
+    manufactureData.manufactureData =
+        {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
     beaconFence->SetIdentifier("GetBeaconManufactureDataForFilterTest002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);
