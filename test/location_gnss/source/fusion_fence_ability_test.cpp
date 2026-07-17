@@ -98,7 +98,8 @@ std::shared_ptr<FusionFenceRequest> CreateFusionFenceRequest(
     request->SetFenceType(fenceType);
     request->SetScene(FusionFenceScene::AIRPORT);
     request->SetMonitorTransitionEvents(1);
-    request->SetExpirationMs(1000);
+    int64_t expirationMs = 1000;
+    request->SetExpirationMs(expirationMs);
     return request;
 }
 
@@ -337,7 +338,6 @@ HWTEST_F(FusionFenceAbilityTest, ExecuteFusionFenceProcess_NullRequest, TestSize
     std::shared_ptr<FusionFenceRequest> request = nullptr;
     auto result = FusionFenceAbility::GetInstance()->ExecuteFusionFenceProcess(
         request, static_cast<int>(GnssInterfaceCode::ADD_FUSION_FENCE));
-    LBSLOGI(FUSION_FENCE, "[FusionFenceAbilityTest] ExecuteFusionFenceProcess_NullRequest result=%{public}d", result);
     LBSLOGI(FUSION_FENCE, "[FusionFenceAbilityTest] ExecuteFusionFenceProcess_NullRequest end");
 }
 
@@ -348,7 +348,6 @@ HWTEST_F(FusionFenceAbilityTest, ExecuteFusionFenceProcess_AddFusionFence, TestS
     auto request = CreateFusionFenceRequest(TEST_IDENTIFIER, TEST_BUNDLE_NAME, FUSION_FENCE_GNSS);
     auto result = FusionFenceAbility::GetInstance()->ExecuteFusionFenceProcess(
         request, static_cast<int>(GnssInterfaceCode::ADD_FUSION_FENCE));
-    LBSLOGI(FUSION_FENCE, "[FusionFenceAbilityTest] ExecuteFusionFenceProcess_AddFusionFence result=%{public}d", result);
     LBSLOGI(FUSION_FENCE, "[FusionFenceAbilityTest] ExecuteFusionFenceProcess_AddFusionFence end");
 }
 
@@ -359,7 +358,6 @@ HWTEST_F(FusionFenceAbilityTest, ExecuteFusionFenceProcess_RemoveFusionFence, Te
     auto request = CreateFusionFenceRequest(TEST_IDENTIFIER, TEST_BUNDLE_NAME, FUSION_FENCE_GNSS);
     auto result = FusionFenceAbility::GetInstance()->ExecuteFusionFenceProcess(
         request, static_cast<int>(GnssInterfaceCode::REMOVE_FUSION_FENCE));
-    LBSLOGI(FUSION_FENCE, "[FusionFenceAbilityTest] ExecuteFusionFenceProcess_RemoveFusionFence result=%{public}d", result);
     LBSLOGI(FUSION_FENCE, "[FusionFenceAbilityTest] ExecuteFusionFenceProcess_RemoveFusionFence end");
 }
 

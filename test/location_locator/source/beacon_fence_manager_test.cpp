@@ -719,7 +719,8 @@ HWTEST_F(BeaconFenceManagerTest, IsBeaconFenceRequestExists002, TestSize.Level0)
     std::shared_ptr<BeaconFence> beaconFence = std::make_shared<BeaconFence>();
     BeaconManufactureData manufactureData;
     manufactureData.manufactureId = 76;
-    manufactureData.manufactureData = {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
+    manufactureData.manufactureData =
+        {0x4C, 0x00, 0x12, 0xFB, 0x5B, 0xBF, 0x8D, 0x9E, 0x4E, 0x14, 0x9F, 0xBB, 0x62, 0x00, 0x00, 0x00, 0x00, 0xC5};
     beaconFence->SetIdentifier("IsBeaconFenceRequestExists002");
     beaconFence->SetBeaconFenceInfoType(BeaconFenceInfoType::BEACON_MANUFACTURE_DATA);
     beaconFence->SetBeaconManufactureData(manufactureData);

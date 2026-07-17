@@ -502,7 +502,6 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerCheckIfLastBestPoiValid001, TestSize.
     poiInfoManager_->SetLatestPoiInfo(poiInfos);
     poiInfoManager_->SetLatestPoiInfoTime(CommonUtils::GetCurrentTimeMilSec());
     bool result = poiInfoManager_->CheckIfLastBestPoiValid(location);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerCheckIfLastBestPoiValid001 result = %{public}d", result);
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerCheckIfLastBestPoiValid001 end");
 }
 
