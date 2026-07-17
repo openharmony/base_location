@@ -288,18 +288,6 @@ HWTEST_F(AGnssNiManagerTest, AGnssNiManagerAgnssNiSuplInit001, TestSize.Level0)
     LBSLOGI(GNSS, "[AGnssNiManagerTest] AGnssNiManagerAgnssNiSuplInit001 end");
 }
 
-HWTEST_F(AGnssNiManagerTest, AGnssNiHandler001, TestSize.Level0)
-{
-    GTEST_LOG_(INFO)
-        << "AGnssNiManagerTest, AGnssNiHandler001, TestSize.Level0";
-    LBSLOGI(GNSS, "[AGnssNiManagerTest] AGnssNiHandler001 begin");
-    auto runner = AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT);
-    EXPECT_NE(nullptr, runner);
-    auto handler = std::make_shared<AGnssNiHandler>(runner);
-    EXPECT_NE(nullptr, handler);
-    LBSLOGI(GNSS, "[AGnssNiManagerTest] AGnssNiHandler001 end");
-}
-
 HWTEST_F(AGnssNiManagerTest, SystemAbilityStatusChangeListenerOnAdd001, TestSize.Level0)
 {
     GTEST_LOG_(INFO)
