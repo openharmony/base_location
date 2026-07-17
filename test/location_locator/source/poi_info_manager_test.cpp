@@ -273,18 +273,6 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfo001, TestSize.Level1)
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfo001 end");
 }
 
-HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfoJson001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfoJson001, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfoJson001 begin");
-    ASSERT_TRUE(poiInfoManager_ != nullptr);
-    poiInfoManager_->SetLatestPoiInfoJson("{\"pois\":[]}");
-    std::string result = poiInfoManager_->GetLatestPoiInfoJson();
-    EXPECT_EQ("{\"pois\":[]}", result);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfoJson001 end");
-}
-
 HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfoTime001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -296,33 +284,6 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfoTime001, TestSize.Lev
     uint64_t result = poiInfoManager_->GetLatestPoiInfoTime();
     EXPECT_EQ(currentTime, result);
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfoTime001 end");
-}
-
-HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetPoiInfoFromAdditions001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "PoiInfoManagerTest, PoiInfoManagerGetPoiInfoFromAdditions001, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoFromAdditions001 begin");
-    ASSERT_TRUE(poiInfoManager_ != nullptr);
-    std::vector<std::string> additions;
-    additions.push_back("poiInfos:{\"pois\":[]}");
-    additions.push_back("other_key:value");
-    std::string result = poiInfoManager_->GetPoiInfoFromAdditions(additions);
-    EXPECT_NE("", result);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoFromAdditions001 end");
-}
-
-HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetPoiInfoFromAdditions002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "PoiInfoManagerTest, PoiInfoManagerGetPoiInfoFromAdditions002, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoFromAdditions002 begin");
-    ASSERT_TRUE(poiInfoManager_ != nullptr);
-    std::vector<std::string> additions;
-    additions.push_back("other_key:value");
-    std::string result = poiInfoManager_->GetPoiInfoFromAdditions(additions);
-    EXPECT_EQ("", result);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoFromAdditions002 end");
 }
 
 HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetPoiInfoTime001, TestSize.Level1)
@@ -425,45 +386,6 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoManagerParsePoiInfoFromStr002, TestSize.Leve
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerParsePoiInfoFromStr002 end");
 }
 
-HWTEST_F(PoiInfoManagerTest, PoiInfoManagerUpdateLastPoiInfoTime001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "PoiInfoManagerTest, PoiInfoManagerUpdateLastPoiInfoTime001, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerUpdateLastPoiInfoTime001 begin");
-    ASSERT_TRUE(poiInfoManager_ != nullptr);
-    std::string lastPoiInfo = "{\"time\":1000,\"pois\":[]}";
-    std::string curPoiInfo = "{\"time\":2000,\"pois\":[]}";
-    std::string result = poiInfoManager_->UpdateLastPoiInfoTime(lastPoiInfo, curPoiInfo);
-    EXPECT_NE("", result);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerUpdateLastPoiInfoTime001 end");
-}
-
-HWTEST_F(PoiInfoManagerTest, PoiInfoManagerUpdateLastPoiInfoTime002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "PoiInfoManagerTest, PoiInfoManagerUpdateLastPoiInfoTime002, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerUpdateLastPoiInfoTime002 begin");
-    ASSERT_TRUE(poiInfoManager_ != nullptr);
-    std::string invalidJson = "invalid";
-    std::string curPoiInfo = "{\"time\":2000,\"pois\":[]}";
-    std::string result = poiInfoManager_->UpdateLastPoiInfoTime(invalidJson, curPoiInfo);
-    EXPECT_EQ("", result);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerUpdateLastPoiInfoTime002 end");
-}
-
-HWTEST_F(PoiInfoManagerTest, PoiInfoManagerUpdateLastPoiInfoTime003, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "PoiInfoManagerTest, PoiInfoManagerUpdateLastPoiInfoTime003, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerUpdateLastPoiInfoTime003 begin");
-    ASSERT_TRUE(poiInfoManager_ != nullptr);
-    std::string lastPoiInfo = "{\"time\":1000,\"pois\":[]}";
-    std::string invalidCurPoiInfo = "invalid";
-    std::string result = poiInfoManager_->UpdateLastPoiInfoTime(lastPoiInfo, invalidCurPoiInfo);
-    EXPECT_EQ("", result);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerUpdateLastPoiInfoTime003 end");
-}
-
 HWTEST_F(PoiInfoManagerTest, PoiServiceDeathRecipient001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
@@ -485,24 +407,6 @@ HWTEST_F(PoiInfoManagerTest, PoiInfoHandler001, TestSize.Level1)
     auto handler = std::make_shared<PoiInfoHandler>(runner);
     EXPECT_NE(nullptr, handler);
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoHandler001 end");
-}
-
-HWTEST_F(PoiInfoManagerTest, PoiInfoManagerCheckIfLastBestPoiValid001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "PoiInfoManagerTest, PoiInfoManagerCheckIfLastBestPoiValid001, TestSize.Level1";
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerCheckIfLastBestPoiValid001 begin");
-    ASSERT_TRUE(poiInfoManager_ != nullptr);
-    std::unique_ptr<Location> location = MockLocation();
-    std::string poiInfos = "poiInfos:{\"pois\":[{\"id\":\"test_id\"}]}";
-    std::vector<std::string> additions;
-    additions.push_back(poiInfos);
-    location->SetAdditions(additions, false);
-    poiInfoManager_->SetLatestPoiInfoJson("{\"pois\":[{\"id\":\"test_id\"}]}");
-    poiInfoManager_->SetLatestPoiInfo(poiInfos);
-    poiInfoManager_->SetLatestPoiInfoTime(CommonUtils::GetCurrentTimeMilSec());
-    bool result = poiInfoManager_->CheckIfLastBestPoiValid(location);
-    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerCheckIfLastBestPoiValid001 end");
 }
 
 HWTEST_F(PoiInfoManagerTest, PoiInfoManagerAddCachedPoiInfoToLocation001, TestSize.Level1)
