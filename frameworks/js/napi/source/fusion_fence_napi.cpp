@@ -756,7 +756,7 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         return false;
     }
     if (loiterTimeMs < 0) {
-        LBSLOGE(FUSION_FENCE, "invalid loiterTimeMs: %{public}lld", loiterTimeMs);
+        LBSLOGE(FUSION_FENCE, "invalid loiterTimeMs.d");
         return false;
     }
     int64_t expirationMs = 0;
@@ -765,7 +765,7 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         return false;
     }
     if (expirationMs <= 0) {
-        LBSLOGE(FUSION_FENCE, "invalid expirationMs: %{public}lld", expirationMs);
+        LBSLOGE(FUSION_FENCE, "invalid expirationMs.");
         return false;
     }
     fusionRequest->SetMonitorTransitionEvents(monitorTransitionEvents);
