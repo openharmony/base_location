@@ -756,7 +756,7 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         return false;
     }
     if (loiterTimeMs < 0) {
-        LBSLOGE(FUSION_FENCE, "invalid loiterTimeMs.d");
+        LBSLOGE(FUSION_FENCE, "invalid loiterTimeMs.");
         return false;
     }
     int64_t expirationMs = 0;
