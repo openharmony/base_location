@@ -64,6 +64,11 @@
 #include "location_data_rdb_manager.h"
 #include "mock_i_remote_object.h"
 #include "proxy_freeze_manager.h"
+#ifdef BLUETOOTH_ENABLE
+#include "bluetooth_scan_result_callback_napi.h"
+#include "bluetooth_search_manager.h"
+#include "bluetooth_search_request_params.h"
+#endif
 
 using namespace testing::ext;
 
@@ -1069,5 +1074,144 @@ HWTEST_F(LocatorServiceTest, IsCachedGnssServiceSupported, TestSize.Level1)
     EXPECT_EQ(ERRCODE_SUCCESS, result);
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCachedGnssServiceSupported end");
 }
+
+#ifdef BLUETOOTH_ENABLE
+HWTEST_F(LocatorServiceTest, StartBluetoothSearch001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, StartBluetoothSearch001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StartBluetoothSearch001 begin");
+    auto& bluetoothSearchManager = BluetoothSearchManager::GetInstance();
+    sptr<IBluetoothScanResultCallback> callback = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    EXPECT_NE(nullptr, callback);
+    AppIdentity identity;
+    BluetoothSearchRequestParams params;
+    params.rssiThreshold = -50;
+    bluetoothSearchManager.StartBluetoothSearch(callback, identity, params);
+    sptr<IRemoteObject> callbackObj = callback->AsObject();
+    if (callbackObj != nullptr) {
+        bluetoothSearchManager.StopBluetoothSearch(callbackObj.GetRefPtr());
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StartBluetoothSearch001 end");
+}
+
+HWTEST_F(LocatorServiceTest, StartBluetoothSearch002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, StartBluetoothSearch002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StartBluetoothSearch002 begin");
+    auto& bluetoothSearchManager = BluetoothSearchManager::GetInstance();
+    sptr<IBluetoothScanResultCallback> callback = nullptr;
+    AppIdentity identity;
+    BluetoothSearchRequestParams params;
+    bluetoothSearchManager.StartBluetoothSearch(callback, identity, params);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StartBluetoothSearch002 end");
+}
+
+HWTEST_F(LocatorServiceTest, StartBluetoothSearch003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, StartBluetoothSearch003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StartBluetoothSearch003 begin");
+    auto& bluetoothSearchManager = BluetoothSearchManager::GetInstance();
+    sptr<IBluetoothScanResultCallback> callback = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    EXPECT_NE(nullptr, callback);
+    AppIdentity identity;
+    identity.SetUid(100);
+    identity.SetPid(100);
+    BluetoothSearchRequestParams params;
+    params.rssiThreshold = -100;
+    params.deviceIdArray.push_back("00:11:22:33:44:55");
+    bluetoothSearchManager.StartBluetoothSearch(callback, identity, params);
+    sptr<IRemoteObject> callbackObj = callback->AsObject();
+    if (callbackObj != nullptr) {
+        bluetoothSearchManager.StopBluetoothSearch(callbackObj.GetRefPtr());
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StartBluetoothSearch003 end");
+}
+
+HWTEST_F(LocatorServiceTest, StopBluetoothSearch001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, StopBluetoothSearch001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch001 begin");
+    auto& bluetoothSearchManager = BluetoothSearchManager::GetInstance();
+    sptr<IBluetoothScanResultCallback> callback = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    EXPECT_NE(nullptr, callback);
+    AppIdentity identity;
+    BluetoothSearchRequestParams params;
+    params.rssiThreshold = -50;
+    bluetoothSearchManager.StartBluetoothSearch(callback, identity, params);
+    sptr<IRemoteObject> callbackObj = callback->AsObject();
+    if (callbackObj != nullptr) {
+        bluetoothSearchManager.StopBluetoothSearch(callbackObj.GetRefPtr());
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch001 end");
+}
+
+HWTEST_F(LocatorServiceTest, StopBluetoothSearch002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, StopBluetoothSearch002, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch002 begin");
+    BluetoothSearchManager::GetInstance().StopBluetoothSearch(nullptr);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch002 end");
+}
+
+HWTEST_F(LocatorServiceTest, StopBluetoothSearch003, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, StopBluetoothSearch003, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch003 begin");
+    auto& bluetoothSearchManager = BluetoothSearchManager::GetInstance();
+    sptr<IBluetoothScanResultCallback> callback = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    EXPECT_NE(nullptr, callback);
+    sptr<IRemoteObject> callbackObj = callback->AsObject();
+    if (callbackObj != nullptr) {
+        bluetoothSearchManager.StopBluetoothSearch(callbackObj.GetRefPtr());
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch003 end");
+}
+
+HWTEST_F(LocatorServiceTest, StopBluetoothSearch004, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, StopBluetoothSearch004, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch004 begin");
+    auto& bluetoothSearchManager = BluetoothSearchManager::GetInstance();
+    sptr<IBluetoothScanResultCallback> callback1 = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    sptr<IBluetoothScanResultCallback> callback2 = new (std::nothrow) BluetoothScanResultCallbackNapi();
+    EXPECT_NE(nullptr, callback1);
+    EXPECT_NE(nullptr, callback2);
+    AppIdentity identity;
+    BluetoothSearchRequestParams params;
+    params.rssiThreshold = -50;
+    bluetoothSearchManager.StartBluetoothSearch(callback1, identity, params);
+    bluetoothSearchManager.StartBluetoothSearch(callback2, identity, params);
+    sptr<IRemoteObject> callbackObj1 = callback1->AsObject();
+    sptr<IRemoteObject> callbackObj2 = callback2->AsObject();
+    if (callbackObj1 != nullptr && callbackObj2 != nullptr) {
+        bluetoothSearchManager.StopBluetoothSearch(callbackObj1.GetRefPtr());
+        bluetoothSearchManager.StopBluetoothSearch(callbackObj2.GetRefPtr());
+    }
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] StopBluetoothSearch004 end");
+}
+
+HWTEST_F(LocatorServiceTest, ReportBluetoothScanResult001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, ReportBluetoothScanResult001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] ReportBluetoothScanResult001 begin");
+    auto bluetoothScanResult = std::make_unique<BluetoothScanResult>();
+    EXPECT_NE(nullptr, bluetoothScanResult);
+    bluetoothScanResult->SetDeviceId("00:11:22:33:44:55");
+    bluetoothScanResult->SetDeviceName("TestDevice");
+    bluetoothScanResult->SetRssi(-50);
+    bluetoothScanResult->SetConnectable(true);
+    BluetoothSearchManager::GetInstance().ReportBluetoothScanResult(bluetoothScanResult);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] ReportBluetoothScanResult001 end");
+}
+#endif
+
 }  // namespace Location
 }  // namespace OHOS
