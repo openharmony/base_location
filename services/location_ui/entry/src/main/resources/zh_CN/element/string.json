@@ -363,6 +363,14 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"hotspot_sta_join_notify_title",
+            "value":"个人热点"
+        },
+        {
+            "name":"hotspot_sta_join_notify_text",
+            "value":"有设备连接到您的热点"
         }
     ]
 }

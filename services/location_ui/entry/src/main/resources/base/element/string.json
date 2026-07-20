@@ -359,6 +359,14 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"hotspot_sta_join_notify_title",
+            "value":"Personal Hotspot"
+        },
+        {
+            "name":"hotspot_sta_join_notify_text",
+            "value":"Device connected to your hotspot"
         }
     ]
 }

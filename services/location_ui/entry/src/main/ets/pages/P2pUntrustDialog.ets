@@ -38,7 +38,7 @@ struct dialogPlusPage {
   @Builder
   buildDialog() {
     Column() {
-      Text(getContext().resourceManager.getStringSync($r('app.string.p2p_untrust_invite_dialog_title').id))
+      Text(this.getDialogResourceString($r('app.string.p2p_untrust_invite_dialog_title').id))
         .fontColor($r('app.color.tv_dialog_font_color'))
         .fontSize($r('app.float.value_vp_20'))
         .lineHeight($r('app.float.value_vp_23'))
@@ -52,7 +52,7 @@ struct dialogPlusPage {
         .lineHeight($r('app.float.value_vp_19'))
         .textAlign(TextAlign.Center)
       Row({ space: $r('app.float.value_vp_24') }) {
-        Button(getContext().resourceManager.getStringSync($r('app.string.p2p_untrust_invite_dialog_no_button').id))
+        Button(this.getDialogResourceString($r('app.string.p2p_untrust_invite_dialog_no_button').id))
           .backgroundColor($r('app.color.tv_dialog_button_background_color'))
           .layoutWeight(1)
           .fontColor($r('app.color.tv_dialog_font_color'))
@@ -63,7 +63,7 @@ struct dialogPlusPage {
             console.info(TAG, 'user click cancel');
             this.setAcceptResult(this.dialogType, false);
           })
-        Button(getContext().resourceManager.getStringSync($r('app.string.p2p_untrust_invite_dialog_ok_button').id))
+        Button(this.getDialogResourceString($r('app.string.p2p_untrust_invite_dialog_ok_button').id))
           .layoutWeight(1)
           .backgroundColor($r('app.color.tv_dialog_button_background_color'))
           .fontColor($r('app.color.tv_dialog_font_color'))
@@ -116,10 +116,27 @@ struct dialogPlusPage {
       session.terminateSelf();
     }
   }
+
+  getDialogResourceString(resourceId: number): string {
+    try {
+      let context = getContext();
+      if (context && context.resourceManager) {
+        return context.resourceManager.getStringSync(resourceId);
+      }
+    } catch (err) {
+      console.error(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
+    }
+    return '';
+  }
  
   getFormatString(resource: Resource, subVal: number): string {
-    let result = getContext().resourceManager.getStringSync(resource.id);
-    return result.replace(new RegExp('%d', 'gm'), String(subVal));
+    try {
+      let result = this.getDialogResourceString(resource.id);
+      return result.replace(new RegExp('%d', 'gm'), String(subVal));
+    } catch (err) {
+      console.error(TAG, `Failed to format string: ${JSON.stringify(err)}`);
+      return '';
+    }
   }
  
   private async setAcceptResult(dialogType : number, isAccept : boolean): Promise<void> {
