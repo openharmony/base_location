@@ -23,6 +23,7 @@
 #include "locationhub_ipc_interface_code.h"
 #include "ilocator_service.h"
 #include "want_agent.h"
+#include "fusion_fence_request.h"
 
 namespace OHOS {
 namespace Location {
@@ -51,6 +52,9 @@ public:
     LocationErrCode GetGeofenceSupportedCoordTypes(
         std::vector<CoordinateSystemType>& coordinateSystemTypes);
     void ResetGeofenceSdkProxy(const wptr<IRemoteObject> &remote);
+    LocationErrCode AddFusionFence(std::shared_ptr<FusionFenceRequest>& request);
+    LocationErrCode RemoveFusionFence(std::shared_ptr<FusionFenceRequest>& request);
+    bool IsFusionFenceSupported();
     /**
      * @brief Get all active geofence list.
      *

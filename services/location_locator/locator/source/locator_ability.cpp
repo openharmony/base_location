@@ -34,6 +34,7 @@
 #endif
 #ifdef FEATURE_GNSS_SUPPORT
 #include "gnss_ability_proxy.h"
+#include "fusion_fence_ability.h"
 #endif
 #include "hook_utils.h"
 #include "locator_background_proxy.h"
@@ -1086,6 +1087,96 @@ ErrCode LocatorAbility::RemoveGnssGeofence(const GeofenceRequest& request)
     return SendGnssRequest(
         static_cast<int>(GnssInterfaceCode::REMOVE_GNSS_GEOFENCE), dataToStub, replyToStub);
 #else
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
+}
+
+ErrCode LocatorAbility::AddFusionFence(const FusionFenceRequest& request)
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::ADD_FUSION_FENCE, identity)) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!CheckLocationSwitchState()) {
+        return ERRCODE_SWITCH_OFF;
+    }
+    if (!CheckPreciseLocationPermissions(identity.GetTokenId(), identity.GetFirstTokenId())) {
+        return LOCATION_ERRCODE_PERMISSION_DENIED;
+    }
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    std::shared_ptr<FusionFenceRequest> fusionRequest =
+        std::make_shared<FusionFenceRequest>(const_cast<FusionFenceRequest&>(request));
+    fusionRequest->SetBundleName(identity.GetBundleName());
+    fusionRequest->SetUid(identity.GetUid());
+    fusionRequest->SetPid(identity.GetPid());
+    fusionRequest->SetTokenId(identity.GetTokenId());
+    fusionRequest->SetTokenIdEx(identity.GetTokenIdEx());
+    fusionRequest->SetFirstTokenId(identity.GetFirstTokenId());
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    fusionRequest->Marshalling(dataToStub);
+    return SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::ADD_FUSION_FENCE), dataToStub, replyToStub);
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
+}
+
+ErrCode LocatorAbility::RemoveFusionFence(const FusionFenceRequest& request)
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    AppIdentity identity;
+    GetAppIdentityInfo(identity);
+    if (!CheckRequestAvailable(LocatorInterfaceCode::REMOVE_FUSION_FENCE, identity)) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    if (!PermissionManager::CheckSystemPermission(identity.GetTokenId(), identity.GetTokenIdEx())) {
+        return LOCATION_ERRCODE_SYSTEM_PERMISSION_DENIED;
+    }
+    std::shared_ptr<FusionFenceRequest> fusionRequest =
+        std::make_shared<FusionFenceRequest>(const_cast<FusionFenceRequest&>(request));
+    fusionRequest->SetBundleName(identity.GetBundleName());
+    fusionRequest->SetUid(identity.GetUid());
+    fusionRequest->SetPid(identity.GetPid());
+    fusionRequest->SetTokenId(identity.GetTokenId());
+    fusionRequest->SetTokenIdEx(identity.GetTokenIdEx());
+    fusionRequest->SetFirstTokenId(identity.GetFirstTokenId());
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    fusionRequest->Marshalling(dataToStub);
+    return SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::REMOVE_FUSION_FENCE), dataToStub, replyToStub);
+#else
+    return ERRCODE_SERVICE_UNAVAILABLE;
+#endif
+}
+
+ErrCode LocatorAbility::IsFusionFenceSupported(bool& isSupported)
+{
+#ifdef FEATURE_GNSS_SUPPORT
+    MessageParcel dataToStub;
+    MessageParcel replyToStub;
+    if (!dataToStub.WriteInterfaceToken(GnssAbilityProxy::GetDescriptor())) {
+        return ERRCODE_SERVICE_UNAVAILABLE;
+    }
+    auto errCode = SendGnssRequest(
+        static_cast<int>(GnssInterfaceCode::IS_FUSION_FENCE_SUPPORTED), dataToStub, replyToStub);
+    if (errCode == ERRCODE_SUCCESS) {
+        isSupported = replyToStub.ReadBool();
+    }
+    return errCode;
+#else
+    isSupported = false;
     return ERRCODE_SERVICE_UNAVAILABLE;
 #endif
 }

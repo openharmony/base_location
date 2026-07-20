@@ -28,7 +28,7 @@
 
 namespace OHOS {
 namespace Location {
-const int MAX_TRANSITION_ARRAY_SIZE = 3;
+const int MAX_TRANSITION_ARRAY_SIZE = 6;
 static constexpr int MAX_BUF_LEN = 100;
 
 bool ParseGnssGeofenceRequest(

@@ -22,6 +22,7 @@
 #include <v2_0/ignss_interface.h>
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
 #include <v2_0/igeofence_interface.h>
+#include <v3_0/igeofence_interface.h>
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
 #include <v2_0/ia_gnss_interface.h>
@@ -41,6 +42,7 @@
 #include "subability_common.h"
 #include "i_gnss_geofence_callback.h"
 #include "geofence_request.h"
+#include "fusion_fence_request.h"
 #include "locationhub_ipc_interface_code.h"
 #include "geofence_event_callback.h"
 #include "ipc_skeleton.h"
@@ -103,6 +105,9 @@ enum class GnssAbilityInterfaceCode {
     REMOVE_GEOFENCE = 0x0108,
     RESTORE_GEOFENCE_REQUEST = 0x0109,
     CONNECT_HDI = 0x010A,
+    ADD_FUSION_FENCE = 0x010B,
+    REMOVE_FUSION_FENCE = 0x010C,
+    IS_FUSION_FENCE_SUPPORTED = 0x010D,
 };
 
 enum GnssBatchingWorkStatus {
@@ -117,6 +122,7 @@ typedef struct {
     std::shared_ptr<GeofenceRequest> request;
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     sptr<IGeofenceCallback> callback;
+    sptr<HDI::Location::Geofence::V3_0::IGeofenceCallback> callbackV3;
 #endif
     int transitionEvent;
     int requestCode;
@@ -147,6 +153,9 @@ private:
     void HandleRemoveFence(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleAddGeofence(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleRemoveGeofence(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleAddFusionFence(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleRemoveFusionFence(const AppExecFwk::InnerEvent::Pointer& event);
+    void HandleIsFusionFenceSupported(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleSendNetworkLocation(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleRestoreGeofenceRequest(const AppExecFwk::InnerEvent::Pointer& event);
     void HandleConnectHdi(const AppExecFwk::InnerEvent::Pointer& event);
@@ -185,10 +194,17 @@ public:
     LocationErrCode GetCachedGnssLocationsSize(int &size) override;
     LocationErrCode FlushCachedGnssLocations() override;
     LocationErrCode SendCommand(std::unique_ptr<LocationCommand>& commands) override;
+    LocationErrCode AddFusionFence(std::shared_ptr<FusionFenceRequest>& request);
+    LocationErrCode RemoveFusionFence(std::shared_ptr<FusionFenceRequest>& request);
     LocationErrCode AddFence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode RemoveFence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode AddGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
     LocationErrCode RemoveGnssGeofence(std::shared_ptr<GeofenceRequest>& request) override;
+    LocationErrCode ValidateGeofenceRequest(std::shared_ptr<GeofenceRequest>& request);
+    int ProcessFenceId(std::shared_ptr<GeofenceRequest>& request);
+    LocationErrCode AddGnssGeofenceToHdi(std::shared_ptr<GeofenceRequest>& request, int fenceId, uint32_t monitorEvent);
+    LocationErrCode AddGeofenceV3(std::shared_ptr<GeofenceRequest>& request, int fenceId, uint32_t monitorEvent);
+    LocationErrCode AddGeofenceV2(std::shared_ptr<GeofenceRequest>& request, int fenceId, uint32_t monitorEvent);
     bool IsSupportGps() override;
     bool IsSupportGeofence() override;
     bool IsSupportBatching() override;
@@ -233,17 +249,16 @@ public:
     bool UnregisterGnssGeofenceCallback(int fenceId);
     std::shared_ptr<GeofenceRequest> GetGeofenceRequestByFenceId(int fenceId);
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
-    void ReportGeofenceEvent(int fenceId, GeofenceEvent event);
-    bool NotifyGnssfenceStatusByWantAgent(const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
-    void NotifyGnssfenceStatusByNotification(const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
-    void NotifyGnssfenceStatusByFenceExtension(const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
-    void NotifyGnssfenceStatusByCallback(const std::shared_ptr<GeofenceRequest> &request, GeofenceEvent event);
+    void ReportGeofenceEvent(int fenceId, int event);
+    bool NotifyGnssfenceStatusByWantAgent(const std::shared_ptr<GeofenceRequest> &request, int event);
+    void NotifyGnssfenceStatusByNotification(const std::shared_ptr<GeofenceRequest> &request, int event);
+    void NotifyGnssfenceStatusByFenceExtension(const std::shared_ptr<GeofenceRequest> &request, int event);
+    void NotifyGnssfenceStatusByCallback(const std::shared_ptr<GeofenceRequest> &request, int event);
     bool IsAppBackground(std::string bundleName, uint32_t tokenId, uint64_t tokenIdEx, pid_t uid, pid_t pid);
     void SaveGeoFenceRequestToFile();
     std::vector<std::shared_ptr<GeofenceRequest>> ReadGeoFenceRequestFromFile();
     std::string ReadFileContent();
-    void ReportGeofenceOperationResult(
-        int fenceId, GeofenceOperateType type, GeofenceOperateResult result);
+    void ReportGeofenceOperationResult(int fenceId, int type, int result);
 #endif
     bool RemoveGnssGeofenceByCallbackWhenAppDie(sptr<IRemoteObject> callbackObj);
     LocationErrCode QuerySupportCoordinateSystemType(
@@ -257,6 +272,9 @@ public:
     void PreRestoreGeofenceRequest();
     void RestoreGeofenceRequest();
     size_t GetGnssGeofenceRequestMapSize();
+    size_t GetTotalGnssFenceCount();
+    int GetGnssFenceCountForOneApp(const std::string& bundleName);
+    int GetGnssGeofenceCountForOneAppOnly(const std::string& bundleName);
     bool SaveFenceWantAgentInfo(std::shared_ptr<GeofenceRequest> &request);
     void MonitorNetwork();
     void ReportFailedOperationResult(std::shared_ptr<GeofenceRequest> &request, GnssGeofenceOperateType type,
@@ -279,6 +297,7 @@ private:
     LocationErrCode SetPositionMode();
     LocationErrCode SetCachePositionMode(int reportingPeriodSec, bool wakeUpCacheQueueFull);
     void SendEvent(AppExecFwk::InnerEvent::Pointer& event, MessageParcel &reply);
+    void SendFusionFenceMessage(uint32_t code, MessageParcel &data, MessageParcel &reply);
     bool ExecuteFenceProcess(
         GnssInterfaceCode code, std::shared_ptr<GeofenceRequest>& request);
     int32_t GenerateFenceId();
@@ -305,6 +324,8 @@ private:
     bool ConnectGeofenceHdi();
 #endif
     bool IsDeviceLoaded(const std::string &servName);
+    bool IsGeofenceHdiV3Supported();
+    void SetGeofenceHdiVersion(bool isV3);
 
     size_t mockLocationIndex_ = 0;
     bool registerToAbility_ = false;
@@ -336,6 +357,8 @@ private:
 #endif
 #ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
     sptr<IGeofenceCallback> geofenceCallback_;
+    sptr<HDI::Location::Geofence::V3_0::IGeofenceCallback> geofenceCallbackV3_;
+    bool isGeofenceHdiV3_;
 #endif
     int32_t fenceId_;
     ffrt::mutex fenceIdMutex_;

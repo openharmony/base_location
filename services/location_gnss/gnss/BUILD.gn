@@ -30,6 +30,8 @@ if (location_feature_with_gnss) {
     "$LOCATION_GNSS_ROOT/source/ntp/ntp_time_helper.cpp",
     "$LOCATION_GNSS_ROOT/source/ntp/time_manager.cpp",
     "$LOCATION_GNSS_ROOT/source/string_utils.cpp",
+    "$LOCATION_GNSS_ROOT/source/fusion_fence_ability.cpp",
+    "$LOCATION_GNSS_ROOT/source/fusion_fence_event_callback.cpp",
     "$LOCATION_LOCATOR_ROOT/source/app_background_status_manager.cpp",
     "$LOCATION_LOCATOR_ROOT/source/location_config_manager.cpp",
     "$LOCATION_LOCATOR_ROOT/source/subability_common.cpp",
@@ -148,6 +150,7 @@ if (location_feature_with_gnss) {
     if (hdf_drivers_interface_location_geofence_enable) {
       external_deps += [
         "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
+        "drivers_interface_location_geofence:liblocation_geofence_proxy_3.0",
       ]
       defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }
@@ -271,6 +274,7 @@ if (location_feature_with_gnss) {
     if (hdf_drivers_interface_location_geofence_enable) {
       external_deps += [
         "drivers_interface_location_geofence:liblocation_geofence_proxy_2.0",
+        "drivers_interface_location_geofence:liblocation_geofence_proxy_3.0",
       ]
       defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }

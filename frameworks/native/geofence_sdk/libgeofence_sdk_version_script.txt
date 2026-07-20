@@ -15,6 +15,7 @@
     "*JsObjToGeoFenceRequest*";
     "*Geofence*";
     "*GeofenceRequest*";
+    "*FusionFence*";
     "*JsObjToCachedLocationRequest*";
     "*JsObjToCurrentLocationRequest*";
     "*UndefinedNapiValue*";

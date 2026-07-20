@@ -20,6 +20,8 @@ local_base_sources = [
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/bluetooth_search_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/cached_locations_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/country_code_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/fusion_fence_callback_napi.cpp",
+  "$LOCATION_ROOT_DIR/frameworks/js/napi/source/fusion_fence_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/geofence_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/gnss_status_callback_napi.cpp",
   "$LOCATION_ROOT_DIR/frameworks/js/napi/source/locating_required_data_callback_napi.cpp",
