@@ -1075,6 +1075,126 @@ HWTEST_F(LocatorServiceTest, IsCachedGnssServiceSupported, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] IsCachedGnssServiceSupported end");
 }
 
+HWTEST_F(LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, GetCachedGnssLocationsSize001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetCachedGnssLocationsSize001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    int32_t size = -1;
+    locatorAbility->EnableAbility(true);
+    locatorAbility->GetCachedGnssLocationsSize(size);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] GetCachedGnssLocationsSize001 end");
+}
+
+HWTEST_F(LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterGnssStatusCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterGnssStatusCallback001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    sptr<IRemoteObject> callback = nullptr;
+    locatorAbility->RegisterGnssStatusCallback(callback);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterGnssStatusCallback001 end");
+}
+
+HWTEST_F(LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RegisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterNmeaMessageCallback001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    sptr<IRemoteObject> callback = nullptr;
+    locatorAbility->RegisterNmeaMessageCallback(callback);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RegisterNmeaMessageCallback001 end");
+}
+
+HWTEST_F(LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, UnregisterNmeaMessageCallback001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterNmeaMessageCallback001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    sptr<IRemoteObject> callback = nullptr;
+    locatorAbility->UnregisterNmeaMessageCallback(callback);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] UnregisterNmeaMessageCallback001 end");
+}
+
+HWTEST_F(LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, FlushCachedGnssLocations001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] FlushCachedGnssLocations001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    locatorAbility->EnableAbility(true);
+    locatorAbility->FlushCachedGnssLocations();
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] FlushCachedGnssLocations001 end");
+}
+
+HWTEST_F(LocatorServiceTest, AddFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, AddFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddFence001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    GeofenceRequest request;
+    request.geofence_.latitude = 0.0;
+    request.geofence_.longitude = 0.0;
+    request.geofence_.radius = 100.0;
+    request.geofence_.expiration = 1000;
+    locatorAbility->EnableAbility(true);
+    auto result = locatorAbility->AddFence(request);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddFence001 end");
+}
+
+HWTEST_F(LocatorServiceTest, RemoveFence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RemoveFence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    GeofenceRequest request;
+    request.geofence_.latitude = 0.0;
+    request.geofence_.longitude = 0.0;
+    request.geofence_.radius = 100.0;
+    request.geofence_.expiration = 1000;
+    locatorAbility->EnableAbility(true);
+    locatorAbility->RemoveFence(request);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveFence001 end");
+}
+
+HWTEST_F(LocatorServiceTest, AddGnssGeofence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, AddGnssGeofence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddGnssGeofence001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    GeofenceRequest request;
+    request.geofence_.latitude = 0.0;
+    request.geofence_.longitude = 0.0;
+    request.geofence_.radius = 100.0;
+    request.geofence_.expiration = 1000;
+    locatorAbility->EnableAbility(true);
+    locatorAbility->AddGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] AddGnssGeofence001 end");
+}
+
+HWTEST_F(LocatorServiceTest, RemoveGnssGeofence001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "LocatorServiceTest, RemoveGnssGeofence001, TestSize.Level1";
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveGnssGeofence001 begin");
+    auto locatorAbility = LocatorAbility::GetInstance();
+    GeofenceRequest request;
+    request.geofence_.latitude = 0.0;
+    request.geofence_.longitude = 0.0;
+    request.geofence_.radius = 100.0;
+    request.geofence_.expiration = 1000;
+    locatorAbility->EnableAbility(true);
+    locatorAbility->RemoveGnssGeofence(request);
+    LBSLOGI(LOCATOR, "[LocatorServiceTest] RemoveGnssGeofence001 end");
+}
+
 #ifdef BLUETOOTH_ENABLE
 HWTEST_F(LocatorServiceTest, StartBluetoothSearch001, TestSize.Level1)
 {
@@ -1212,6 +1332,5 @@ HWTEST_F(LocatorServiceTest, ReportBluetoothScanResult001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] ReportBluetoothScanResult001 end");
 }
 #endif
-
 }  // namespace Location
 }  // namespace OHOS

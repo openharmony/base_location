@@ -260,5 +260,208 @@ HWTEST_F(PoiInfoManagerTest, ResetServiceProxyTest001, TestSize.Level1)
     poiInfoManager_->ResetServiceProxy();
     LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] ResetServiceProxyTest001 end");
 }
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfo001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfo001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfo001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->SetLatestPoiInfo("test_poi_info");
+    std::string result = poiInfoManager_->GetLatestPoiInfo();
+    EXPECT_EQ("test_poi_info", result);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfo001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfoTime001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerGetLatestPoiInfoTime001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfoTime001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    uint64_t currentTime = CommonUtils::GetCurrentTimeMilSec();
+    poiInfoManager_->SetLatestPoiInfoTime(currentTime);
+    uint64_t result = poiInfoManager_->GetLatestPoiInfoTime();
+    EXPECT_EQ(currentTime, result);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetLatestPoiInfoTime001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetPoiInfoTime001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerGetPoiInfoTime001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoTime001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    std::string poiInfos = "{\"time\":1234567890,\"pois\":[]}";
+    uint64_t result = poiInfoManager_->GetPoiInfoTime(poiInfos);
+    EXPECT_EQ(1234567890, result);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoTime001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerGetPoiInfoTime002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerGetPoiInfoTime002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoTime002 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    std::string poiInfos = "{\"pois\":[]}";
+    uint64_t result = poiInfoManager_->GetPoiInfoTime(poiInfos);
+    EXPECT_EQ(0, result);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerGetPoiInfoTime002 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerIsConnect001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerIsConnect001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerIsConnect001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    bool result = poiInfoManager_->IsConnect();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerIsConnect001 result = %{public}d", result);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerIsConnect001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerDisconnectAbilityConnect001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerDisconnectAbilityConnect001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerDisconnectAbilityConnect001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->DisconnectAbilityConnect();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerDisconnectAbilityConnect001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerNotifyConnected001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerNotifyConnected001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerNotifyConnected001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    sptr<IRemoteObject> remoteObject = nullptr;
+    poiInfoManager_->NotifyConnected(remoteObject);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerNotifyConnected001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerNotifyDisConnected001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerNotifyDisConnected001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerNotifyDisConnected001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->NotifyDisConnected();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerNotifyDisConnected001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerResetServiceProxy001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerResetServiceProxy001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerResetServiceProxy001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    poiInfoManager_->ResetServiceProxy();
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerResetServiceProxy001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerParsePoiInfoFromStr001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerParsePoiInfoFromStr001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerParsePoiInfoFromStr001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    std::string jsonStr = MockPoiString(0);
+    PoiInfo poiInfo = poiInfoManager_->ParsePoiInfoFromStr(jsonStr);
+    EXPECT_TRUE(poiInfo.poiArray.size() > 0);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerParsePoiInfoFromStr001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerParsePoiInfoFromStr002, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerParsePoiInfoFromStr002, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerParsePoiInfoFromStr002 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    std::string invalidJson = "invalid json";
+    PoiInfo poiInfo = poiInfoManager_->ParsePoiInfoFromStr(invalidJson);
+    EXPECT_EQ(0, poiInfo.poiArray.size());
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerParsePoiInfoFromStr002 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiServiceDeathRecipient001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiServiceDeathRecipient001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiServiceDeathRecipient001 begin");
+    sptr<PoiServiceDeathRecipient> recipient = new (std::nothrow) PoiServiceDeathRecipient();
+    EXPECT_NE(nullptr, recipient);
+    recipient->OnRemoteDied(nullptr);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiServiceDeathRecipient001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoHandler001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoHandler001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoHandler001 begin");
+    auto runner = AppExecFwk::EventRunner::Create(true, AppExecFwk::ThreadMode::FFRT);
+    EXPECT_NE(nullptr, runner);
+    auto handler = std::make_shared<PoiInfoHandler>(runner);
+    EXPECT_NE(nullptr, handler);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoHandler001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerAddCachedPoiInfoToLocation001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerAddCachedPoiInfoToLocation001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerAddCachedPoiInfoToLocation001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    std::unique_ptr<Location> location = MockLocation();
+    poiInfoManager_->SetLatestPoiInfo("poiInfos:{\"pois\":[]}");
+    poiInfoManager_->AddCachedPoiInfoToLocation(location);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerAddCachedPoiInfoToLocation001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoManagerClearPoiInfos001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoManagerClearPoiInfos001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerClearPoiInfos001 begin");
+    ASSERT_TRUE(poiInfoManager_ != nullptr);
+    std::unique_ptr<Location> location = MockLocation();
+    std::vector<std::string> additions;
+    additions.push_back("poiInfos:{\"pois\":[]}");
+    additions.push_back("other_key:value");
+    location->SetAdditions(additions, false);
+    poiInfoManager_->ClearPoiInfos(location);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoManagerClearPoiInfos001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoCallback001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoCallback001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoCallback001 begin");
+    sptr<PoiInfoCallback> callback = new (std::nothrow) PoiInfoCallback();
+    EXPECT_NE(nullptr, callback);
+    std::shared_ptr<PoiInfo> nullPoiInfo = nullptr;
+    callback->OnPoiInfoChange(nullPoiInfo);
+    callback->OnErrorReport("test_error");
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoCallback001 end");
+}
+
+HWTEST_F(PoiInfoManagerTest, PoiInfoCallbackOnRemoteRequest001, TestSize.Level1)
+{
+    GTEST_LOG_(INFO)
+        << "PoiInfoManagerTest, PoiInfoCallbackOnRemoteRequest001, TestSize.Level1";
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoCallbackOnRemoteRequest001 begin");
+    sptr<PoiInfoCallback> callback = new (std::nothrow) PoiInfoCallback();
+    EXPECT_NE(nullptr, callback);
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    int32_t result = callback->OnRemoteRequest(0, data, reply, option);
+    EXPECT_EQ(-1, result);
+    LBSLOGI(REPORT_MANAGER, "[PoiInfoManagerTest] PoiInfoCallbackOnRemoteRequest001 end");
+}
 }  // namespace Location
 }  // namespace OHOS
