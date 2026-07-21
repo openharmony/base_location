@@ -103,7 +103,7 @@ struct dialogPlusPage {
         .lineHeight($r('app.float.value_vp_23'))
         .fontWeight(FontWeight.Medium)
         .textAlign(TextAlign.Center)
-      Text(getContext().resourceManager.getStringSync($r('app.string.p2p_wsc_display_to_message')) +
+      Text(this.getDialogResourceString($r('app.string.p2p_wsc_display_to_message').id) +
           this.deviceName)
         .margin({ top: $r('app.float.value_vp_24') })
         .fontColor($r('app.color.tv_dialog_font_color'))
@@ -111,7 +111,7 @@ struct dialogPlusPage {
         .fontWeight(FontWeight.Regular)
         .lineHeight($r('app.float.value_vp_19'))
         .textAlign(TextAlign.Center)
-      Text(getContext().resourceManager.getStringSync($r('app.string.p2p_wsc_display_show_pin_message')) +
+      Text(this.getDialogResourceString($r('app.string.p2p_wsc_display_show_pin_message').id) +
           this.pinCode)
         .margin({ top: $r('app.float.value_vp_18') })
         .fontColor($r('app.color.tv_dialog_font_color'))
@@ -415,9 +415,26 @@ struct dialogPlusPage {
     }
   }
 
+  getDialogResourceString(resourceId: number): string {
+    try {
+      let context = getContext();
+      if (context && context.resourceManager) {
+        return context.resourceManager.getStringSync(resourceId);
+      }
+    } catch (err) {
+      console.error(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
+    }
+    return '';
+  }
+
   getFormatString(resource: Resource, subStr: string): string {
-      let result = getContext().resourceManager.getStringSync(resource.id);
-      return result.replace(new RegExp('%s', 'gm'), subStr);
+      try {
+          let result = this.getDialogResourceString(resource.id);
+          return result.replace(new RegExp('%s', 'gm'), subStr);
+      } catch (err) {
+          console.error(TAG, `Failed to format string: ${JSON.stringify(err)}`);
+          return '';
+      }
   }
 
   private async setAcceptResult(dialogType : number, isAccept : boolean): Promise<void> {

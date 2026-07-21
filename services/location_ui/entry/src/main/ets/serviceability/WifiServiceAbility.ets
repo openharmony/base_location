@@ -43,6 +43,10 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
     }
 
     onRequest(want: Want, startId: number): void {
+        if (!want || !want.parameters) {
+            console.error(TAG, `Invalid want parameters`);
+            return;
+        }
         let logWant = { ...want };
         let originalSSID = want.parameters?.['ssid'] as string;
         delete logWant.parameters?.['ssid'];
@@ -72,20 +76,32 @@ export default class WifiServiceAbility extends ServiceExtensionAbility {
                     this.publishWantAgentCommonEvent(pixelmap, notificationId, status,
                         ssid, networkid, backPortalConnect);
                 })
-                .catch((error: string) => {
-                    console.info(TAG, `Create pixelMap failed`);
+                .catch((error: Error) => {
+                    console.error(TAG, `Create pixelMap failed: ${JSON.stringify(error)}`);
                 });
             } catch (err) {
                 console.info(TAG, `Create pixelMap error: ${JSON.stringify(err)}`);
             } finally {
-                if (file) {
-                    fs.closeSync(file);
+               if (file) {
+                    try {
+                        fs.closeSync(file);
+                    } catch (closeErr) {
+                        console.error(TAG, `Failed to close file: ${JSON.stringify(closeErr)}`);
+                    }
                 }
                 if (imageSourceApi) {
-                    imageSourceApi.release();
+                    try {
+                        imageSourceApi.release();
+                    } catch (releaseErr) {
+                        console.error(TAG, `Failed to release imageSource: ${JSON.stringify(releaseErr)}`);
+                    }
                 }
                 if (pixelmap) {
-                    pixelmap.release();
+                    try {
+                        pixelmap.release();
+                    } catch (releaseErr) {
+                        console.error(TAG, `Failed to release pixelmap: ${JSON.stringify(releaseErr)}`);
+                    }
                 }
             }
         } else {

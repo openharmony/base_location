@@ -46,40 +46,45 @@ struct dialogPlusPage {
     if (AppStorage.get('wifiDialogType') != null) {
       let type : number = AppStorage.get('wifiDialogType') as number
       this.clearNoActionTimer()
-      switch (type) {
-        case this.WIFI_DIALOG_CDD:
-            this.title = getContext().resourceManager.getStringSync($r('app.string.wifi_cdd_notify_title').id);
-            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_cdd_notify_no_button').id);
-            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_cdd_notify_yes_button').id);
-            break;
-        case this.WIFI_DIALOG_THREE_VAP:
-            this.title = getContext().resourceManager.getStringSync($r('app.string.wifi_three_vap_notify_title').id);
-            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_three_vap_notify_no_button').id);
-            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_three_vap_notify_yes_button').id);
-            break;
-        case this.WIFI_DIALOG_CANDIDATE_CONNECT:
-            let targetSsid : string = AppStorage.get('targetSsid') as string;
-            this.title = this.getFormatString($r('app.string.wifi_candidate_connect_notify_title'), targetSsid);
-            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_no_button').id);
-            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifi_candidate_connect_notify_yes_button').id);
-            this.setNoActionTimer()
-            break;
-        case this.WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN:
-        case this.WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN:
-        case this.WIFI_DIALOG_SETTINGS_5G_SAVE_SINGLE:
-            let ssid : string = AppStorage.get('wifi5gSsid') as string;
-            this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_context'), ssid);
-            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_no_button').id);
-            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_ok_button').id);
-            break;
-        case this.WIFI_DIALOG_SETTINGS_5G_SAVE:
-            let savessid : string = AppStorage.get('wifi5gSsid') as string;
-            this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_save_context'), savessid);
-            this.primaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_no_button').id);
-            this.secondaryButtonValue = getContext().resourceManager.getStringSync($r('app.string.wifipro_auto_connect_dialog_ok_button').id);
-            break;
-        default:
-            break;
+      try {
+        switch (type) {
+          case this.WIFI_DIALOG_CDD:
+              this.title = this.getDialogResourceString($r('app.string.wifi_cdd_notify_title').id);
+              this.primaryButtonValue = this.getDialogResourceString($r('app.string.wifi_cdd_notify_no_button').id);
+              this.secondaryButtonValue = this.getDialogResourceString($r('app.string.wifi_cdd_notify_yes_button').id);
+              break;
+          case this.WIFI_DIALOG_THREE_VAP:
+              this.title = this.getDialogResourceString($r('app.string.wifi_three_vap_notify_title').id);
+              this.primaryButtonValue = this.getDialogResourceString($r('app.string.wifi_three_vap_notify_no_button').id);
+              this.secondaryButtonValue = this.getDialogResourceString($r('app.string.wifi_three_vap_notify_yes_button').id);
+              break;
+          case this.WIFI_DIALOG_CANDIDATE_CONNECT:
+              let targetSsid : string = AppStorage.get('targetSsid') as string;
+              this.title = this.getFormatString($r('app.string.wifi_candidate_connect_notify_title'), targetSsid);
+              this.primaryButtonValue = this.getDialogResourceString($r('app.string.wifi_candidate_connect_notify_no_button').id);
+              this.secondaryButtonValue = this.getDialogResourceString($r('app.string.wifi_candidate_connect_notify_yes_button').id);
+              this.setNoActionTimer()
+              break;
+          case this.WIFI_DIALOG_5G_AUTO_IDENTIFY_CONN:
+          case this.WIFI_DIALOG_SETTINGS_5G_AUTO_IDENTIFY_CONN:
+          case this.WIFI_DIALOG_SETTINGS_5G_SAVE_SINGLE:
+              let ssid : string = AppStorage.get('wifi5gSsid') as string;
+              this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_context'), ssid);
+              this.primaryButtonValue = this.getDialogResourceString($r('app.string.wifipro_auto_connect_dialog_no_button').id);
+              this.secondaryButtonValue = this.getDialogResourceString($r('app.string.wifipro_auto_connect_dialog_ok_button').id);
+              break;
+          case this.WIFI_DIALOG_SETTINGS_5G_SAVE:
+              let savessid : string = AppStorage.get('wifi5gSsid') as string;
+              this.title = this.getFormatString($r('app.string.wifipro_auto_connect_dialog_save_context'), savessid);
+              this.primaryButtonValue = this.getDialogResourceString($r('app.string.wifipro_auto_connect_dialog_no_button').id);
+              this.secondaryButtonValue = this.getDialogResourceString($r('app.string.wifipro_auto_connect_dialog_ok_button').id);
+              break;
+          default:
+              break;
+        }
+      } catch (err) {
+        console.error(TAG, `Failed to get dialog resources: ${JSON.stringify(err)}`);
+        return;
       }
       AlertDialog.show(
         {
@@ -105,9 +110,26 @@ struct dialogPlusPage {
     }
   }
 
+  getDialogResourceString(resourceId: number): string {
+    try {
+      let context = getContext();
+      if (context && context.resourceManager) {
+        return context.resourceManager.getStringSync(resourceId);
+      }
+    } catch (err) {
+      console.error(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
+    }
+    return '';
+  }
+
   getFormatString(resource: Resource, subStr: string): string {
-      let result = getContext().resourceManager.getStringSync(resource.id);
-      return result.replace(new RegExp('%s', 'gm'), subStr);
+      try {
+          let result = this.getDialogResourceString(resource.id);
+          return result.replace(new RegExp('%s', 'gm'), subStr);
+      } catch (err) {
+          console.error(TAG, `Failed to format string: ${JSON.stringify(err)}`);
+          return '';
+      }
   }
  
   aboutToDisappear() {

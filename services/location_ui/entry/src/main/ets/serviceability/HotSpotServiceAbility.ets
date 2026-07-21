@@ -21,25 +21,37 @@ import image from '@ohos.multimedia.image';
 import fs from '@ohos.file.fs';
 import wantAgent from '@ohos.app.ability.wantAgent';
 import { WantAgent } from '@ohos.app.ability.wantAgent';
+import deviceInfo from '@ohos.deviceInfo';
 import LogUtils from '../common/Util';
 
 const TAG: string = '[HotSpotServiceAbility-In]==>'
 const HOTSPOT_IDLE_NOTIFICATION_ID: number = 101001;
 const THERMAL_STOP_AP_NOTIFICATION_ID: number = 101002;
+const HOTSPOT_STA_JOIN_NOTIFICATION_ID: number = 101003;
+const DEVICE_TYPE_PC: string = 'pc';
+const DEVICE_TYPE_PC_NEW: string = '2in1';
 
 export default class HotSpotServiceAbility extends ServiceExtensionAbility {
     private willPublish: boolean = false;
 
+    private isPC(): boolean {
+ 	    return deviceInfo.deviceType === DEVICE_TYPE_PC || deviceInfo.deviceType === DEVICE_TYPE_PC_NEW
+ 	}
+
     onCreate(want: Want): void {
         LogUtils.i(TAG, `HotSpotServiceAbility onCreate`);
     }
-    
+
     onDestroy(): void {
         LogUtils.i(TAG, `HotSpotServiceAbility onDestroy`);
     }
     
     onRequest(want: Want, startId: number): void {
         LogUtils.i(TAG, `onRequest`);
+        if (!want || !want.parameters) {
+            LogUtils.e(TAG, `Invalid want parameters`);
+            return;
+        }
         let operateType : number = want.parameters?.['operateType'] as number;
         let notificationId : number = want.parameters?.['notificationId'] as number;
         if (operateType == 1) {
@@ -54,28 +66,88 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
     }
 
     public hotSpsotNotificationStart(id: number) {
+        let filePath: string = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
+        if (id === HOTSPOT_STA_JOIN_NOTIFICATION_ID) {
+            if (!this.isPC()) {
+                return;
+            }
+            filePath = '/system/etc/wifi/ic_hotspot_sta_connection.png';
+        }
         let file: fs.File | undefined;
         let imageSourceApi: image.ImageSource | undefined;
         let pixelmap: image.PixelMap | undefined;
         try {
-            let file = fs.openSync('/system/etc/wifi/ic_connection_notify_hotspot_unusable.png', fs.OpenMode.READ_ONLY);
-            const imageSourceApi: image.ImageSource = image.createImageSource(file.fd);
+            file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
+            imageSourceApi = image.createImageSource(file.fd);
             imageSourceApi.createPixelMap()
-            .then((pixelmap: image.PixelMap) => {
+            .then((resultPixelmap: image.PixelMap) => {
                 LogUtils.i(TAG, `Create pixelMap success.`);
-                this.publishHotSpotWantAgentCommonEvent(pixelmap, id);
+                pixelmap = resultPixelmap;
+                if (id === HOTSPOT_STA_JOIN_NOTIFICATION_ID) {
+                    this.publishHotspotSimpleNotification(pixelmap, id);
+                } else {
+                    this.publishHotSpotWantAgentCommonEvent(pixelmap, id);
+                }
             })
-            .catch((error: string) => {
-                LogUtils.e(TAG, `Create pixelMap failed`);
+            .catch((error: Error) => {
+                LogUtils.e(TAG, `Create pixelMap failed: ${JSON.stringify(error)}`);
             });
         } catch (err) {
             LogUtils.e(TAG, `Create pixelMap error: ${JSON.stringify(err)}`);
         } finally {
             if (file) {
-                fs.closeSync(file);
+                try {
+                    fs.closeSync(file);
+                } catch (closeErr) {
+                    LogUtils.e(TAG, `Failed to close file: ${JSON.stringify(closeErr)}`);
+                }
             }
-            imageSourceApi?.release();
-            pixelmap?.release();
+            if (imageSourceApi) {
+                try {
+                    imageSourceApi.release();
+                } catch (releaseErr) {
+                    LogUtils.e(TAG, `Failed to release imageSource: ${JSON.stringify(releaseErr)}`);
+                }
+            }
+            if (pixelmap) {
+                try {
+                    pixelmap.release();
+                } catch (releaseErr) {
+                    LogUtils.e(TAG, `Failed to release pixelmap: ${JSON.stringify(releaseErr)}`);
+                }
+            }
+        }
+    }
+
+    public async publishHotspotSimpleNotification(pixelMap: image.PixelMap, id: number) {
+        let templateTitle: string = '';
+        let templateText: string = '';
+        try {
+            templateTitle = this.context.resourceManager.getStringSync($r('app.string.hotspot_sta_join_notify_title').id);
+            templateText = this.context.resourceManager.getStringSync($r('app.string.hotspot_sta_join_notify_text').id);
+        } catch (err) {
+            LogUtils.e(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
+            return;
+        }
+        let notificationRequest: notificationManager.NotificationRequest = {
+            id: id,
+            notificationSlotType: notificationManager.SlotType.SERVICE_INFORMATION,
+            content: {
+                notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
+                normal: {
+                    title: templateTitle,
+                    text: templateText
+                }
+            },
+            smallIcon: pixelMap
+        };
+        LogUtils.i(TAG, `publishHotspotSimpleNotification-${this.willPublish}`);
+        if (this.willPublish) {
+            notificationManager.publish(notificationRequest).then(() => {
+                LogUtils.i(TAG, `Publish hotspot sta join notification success`);
+            }).catch((err: Base.BusinessError) => {
+                LogUtils.i(TAG, `Publish hotspot sta join notification fail`);
+            });
         }
     }
 
@@ -104,25 +176,35 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
         return wantAgentObjUse;
     }
 
-    public async publishHotSpotWantAgent(wantAgentObj: WantAgent, pixelmap: image.PixelMap, id: number) {
-        let templateTitle: string = 
-            this.context.resourceManager.getStringSync($r('app.string.condition_netshare_hotspot_close').id);
-        let templateText: string;
-        switch (id) {
-          case HOTSPOT_IDLE_NOTIFICATION_ID: {
-            templateText = this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_message').id);
-            break;
-          }
-          case THERMAL_STOP_AP_NOTIFICATION_ID: {
-            templateText = this.context.resourceManager.getStringSync($r('app.string.thermal_stop_tether_notification_message').id);
-            break;
-          }
-          default: {
-            break;
-          }
+ public async publishHotSpotWantAgent(wantAgentObj: WantAgent, pixelmap: image.PixelMap, id: number) {
+        let templateTitle: string = '';
+        let templateText: string = '';
+        try {
+            templateTitle = this.context.resourceManager.getStringSync($r('app.string.condition_netshare_hotspot_close').id);
+            switch (id) {
+              case HOTSPOT_IDLE_NOTIFICATION_ID: {
+                templateText = this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_message').id);
+                break;
+              }
+              case THERMAL_STOP_AP_NOTIFICATION_ID: {
+                templateText = this.context.resourceManager.getStringSync($r('app.string.thermal_stop_tether_notification_message').id);
+                break;
+              }
+              default: {
+                break;
+              }
+            }
+        } catch (err) {
+            LogUtils.e(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
+            return;
         }
-        let buttonsTitle: string = 
-            this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_action_text').id);
+        let buttonsTitle: string = '';
+        try {
+            buttonsTitle = this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_action_text').id);
+        } catch (err) {
+            LogUtils.e(TAG, `Failed to get button title: ${JSON.stringify(err)}`);
+            return;
+        }
         let notificationRequest: notificationManager.NotificationRequest = {
             id: id,
             notificationSlotType: notificationManager.SlotType.SERVICE_INFORMATION,
