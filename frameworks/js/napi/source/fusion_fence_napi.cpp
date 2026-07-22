@@ -731,6 +731,30 @@ static bool ParseAndValidateSceneAndFenceType(napi_env env, napi_value object, i
     return true;
 }
 
+static int32_t ConvertJsTransitionEventsToNative(int32_t jsTransitionEvents)
+{
+    int32_t nativeEvents = 0;
+    if ((jsTransitionEvents & GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER) != 0) {
+        nativeEvents |= SensorGeofenceTransition::SENSOR_GEOFENCE_TRANSITION_ENTERED;
+    }
+    if ((jsTransitionEvents & GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT) != 0) {
+        nativeEvents |= SensorGeofenceTransition::SENSOR_GEOFENCE_TRANSITION_EXITED;
+    }
+    if ((jsTransitionEvents & GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_DWELL) != 0) {
+        nativeEvents |= SensorGeofenceTransition::SENSOR_GEOFENCE_TRANSITION_DWELL;
+    }
+    if ((jsTransitionEvents & GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_APPROACHING_GEOFENCE) != 0) {
+        nativeEvents |= SensorGeofenceTransition::SENSOR_GEOFENCE_TRANSITION_NEAR;
+    }
+    if ((jsTransitionEvents & GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_LEAVING_GEOFENCE) != 0) {
+        nativeEvents |= SensorGeofenceTransition::SENSOR_GEOFENCE_TRANSITION_FAR;
+    }
+    if ((jsTransitionEvents & GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_NEAR_WANDER) != 0) {
+        nativeEvents |= SensorGeofenceTransition::SENSOR_GEOFENCE_TRANSITION_NEAR_WANDER;
+    }
+    return nativeEvents;
+}
+
 static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<FusionFenceRequest>& fusionRequest)
 {
     int32_t monitorTransitionEvents = 0;
@@ -768,7 +792,8 @@ static bool ParseTimingFields(napi_env env, napi_value object, std::shared_ptr<F
         LBSLOGE(FUSION_FENCE, "invalid expirationMs.");
         return false;
     }
-    fusionRequest->SetMonitorTransitionEvents(monitorTransitionEvents);
+    int32_t nativeTransitionEvents = ConvertJsTransitionEventsToNative(monitorTransitionEvents);
+    fusionRequest->SetMonitorTransitionEvents(nativeTransitionEvents);
     fusionRequest->SetLoiterTimeMs(loiterTimeMs);
     fusionRequest->SetExpirationMs(expirationMs);
     return true;
