@@ -71,32 +71,32 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
         let textResId: string = '';
         let getActionButtons: (() => Promise<notificationManager.NotificationActionButton[]>) | undefined;
         switch (id) {
-            case HOTSPOT_STA_JOIN_NOTIFICATION_ID: {
-                if (!this.isPC()) {
-                    return;
-                }
-                filePath = '/system/etc/wifi/ic_hotspot_sta_connection.png';
-                titleResId = 'hotspot_sta_join_notify_title';
-                textResId = 'hotspot_sta_join_notify_text';
-                break;
-            }
-            case HOTSPOT_IDLE_NOTIFICATION_ID: {
-                filePath = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
-                titleResId = 'condition_netshare_hotspot_close';
-                textResId = 'stop_idle_tether_notification_message';
-                getActionButtons = () => this.getHotSpotActionButtons();
-                break;
-            }
-            case THERMAL_STOP_AP_NOTIFICATION_ID: {
-                filePath = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
-                titleResId = 'condition_netshare_hotspot_close';
-                textResId = 'thermal_stop_tether_notification_message';
-                getActionButtons = () => this.getHotSpotActionButtons();
-                break;
-            }
-            default: {
+          case HOTSPOT_STA_JOIN_NOTIFICATION_ID: {
+            if (!this.isPC()) {
                 return;
             }
+            filePath = '/system/etc/wifi/ic_hotspot_sta_connection.png';
+            titleResId = 'hotspot_sta_join_notify_title';
+            textResId = 'hotspot_sta_join_notify_text';
+            break;
+          }
+          case HOTSPOT_IDLE_NOTIFICATION_ID: {
+            filePath = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
+            titleResId = 'condition_netshare_hotspot_close';
+            textResId = 'stop_idle_tether_notification_message';
+            getActionButtons = () => this.getHotSpotActionButtons();
+            break;
+          }
+          case THERMAL_STOP_AP_NOTIFICATION_ID: {
+            filePath = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
+            titleResId = 'condition_netshare_hotspot_close';
+            textResId = 'thermal_stop_tether_notification_message';
+            getActionButtons = () => this.getHotSpotActionButtons();
+            break;
+          }
+          default: {
+            return;
+          }
         }
         let file: fs.File | undefined;
         let imageSourceApi: image.ImageSource | undefined;
@@ -105,14 +105,14 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
             file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
             imageSourceApi = image.createImageSource(file.fd);
             imageSourceApi.createPixelMap()
-            .then((resultPixelmap: image.PixelMap) => {
-                LogUtils.i(TAG, `Create pixelMap success.`);
-                pixelmap = resultPixelmap;
-                this.publishHotSpotNotification(pixelmap, id, titleResId, textResId, getActionButtons);
-            })
-            .catch((error: Error) => {
-                LogUtils.e(TAG, `Create pixelMap failed: ${JSON.stringify(error)}`);
-            });
+                .then((resultPixelmap: image.PixelMap) => {
+                    LogUtils.i(TAG, `Create pixelMap success.`);
+                    pixelmap = resultPixelmap;
+                    this.publishHotSpotNotification(pixelmap, id, titleResId, textResId, getActionButtons);
+                })
+                .catch((error: Error) => {
+                    LogUtils.e(TAG, `Create pixelMap failed: ${JSON.stringify(error)}`);
+                });
         } catch (err) {
             LogUtils.e(TAG, `Create pixelMap error: ${JSON.stringify(err)}`);
         } finally {
