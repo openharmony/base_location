@@ -227,6 +227,14 @@
         {
             "name":"p2p_untrust_invite_dialog_no_button",
             "value":"[TS_1221804]_Cancel"
+        },
+        {
+            "name":"hotspot_sta_join_notify_text",
+            "value":"[TS_1233712]_A device connected to your hotspot."
+        },
+        {
+            "name":"hotspot_sta_join_notify_title",
+            "value":"[TS_1233711]_Personal hotspot"
         }
     ]
 }
