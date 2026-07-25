@@ -154,7 +154,7 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
             wantAgentFlags: [wantAgent.WantAgentFlags.CONSTANT_FLAG],
         };
         wantAgentObj = await wantAgent.getWantAgent(wantAgentInfo);
-        let buttonsTitle: string = this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_action_text').id);
+        let buttonsTitle: string = this.context.resourceManager.getStringByNameSync('stop_idle_tether_notification_action_text');
         LogUtils.i(TAG, `getHotSpotActionButtons-success`);
         return [{ title: buttonsTitle, wantAgent: wantAgentObj }];
     }
@@ -168,8 +168,8 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
         let templateTitle: string = '';
         let templateText: string = '';
         try {
-            templateTitle = this.context.resourceManager.getStringSync($r('app.string.' + titleResId).id);
-            templateText = this.context.resourceManager.getStringSync($r('app.string.' + textResId).id);
+            templateTitle = this.context.resourceManager.getStringByNameSync(titleResId);
+            templateText = this.context.resourceManager.getStringByNameSync(textResId);
         } catch (err) {
             LogUtils.e(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
             return;
