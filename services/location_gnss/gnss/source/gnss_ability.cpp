@@ -375,12 +375,12 @@ LocationErrCode GnssAbility::UnregisterNmeaMessageCallback(const sptr<IRemoteObj
         LBSLOGE(GNSS, "unregister an invalid nmea callback");
         return LOCATION_ERRCODE_INVALID_PARAM;
     }
+    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto deathIter = nmeaDeathMap_.find(callback);
     if (deathIter != nmeaDeathMap_.end()) {
         callback->RemoveDeathRecipient(deathIter->second);
         nmeaDeathMap_.erase(deathIter);
     }
-    std::unique_lock<ffrt::mutex> lock(nmeaMutex_);
     auto iter = nmeaCallbackMap_.find(callback);
     if (iter != nmeaCallbackMap_.end()) {
         nmeaCallbackMap_.erase(iter);
