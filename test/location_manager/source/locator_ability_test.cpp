@@ -15,6 +15,8 @@
 
 #include "locator_ability_test.h"
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
 #define private public
 #include "request.h"
@@ -93,6 +95,16 @@ void LocatorAbilityTest::SetUp()
 
 void LocatorAbilityTest::TearDown()
 {
+    if (locatorAbility != nullptr) {
+        if (locatorAbility->QueryServiceState() == ServiceRunningState::STATE_RUNNING) {
+            locatorAbility->OnStop();
+        }
+        auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (samgr != nullptr) {
+            samgr->RemoveSystemAbility(LOCATION_LOCATOR_SA_ID);
+        }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     locatorAbility = nullptr;
 }
 
