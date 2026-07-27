@@ -15,6 +15,8 @@
 
 #include "locator_ability_test.h"
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 
 #define private public
 #include "request.h"
@@ -84,6 +86,7 @@ const std::string ARGS_HELP = "-h";
 const int REQUEST_MAX_NUM = 3;
 const int UNKNOWN_SERVICE_ID = -1;
 const int GET_SWITCH_STATE = 1;
+const int IPC_THREAD_EXIT_WAIT_MS = 500;
 void LocatorAbilityTest::SetUp()
 {
     LoadSystemAbility();
@@ -93,6 +96,16 @@ void LocatorAbilityTest::SetUp()
 
 void LocatorAbilityTest::TearDown()
 {
+    if (locatorAbility != nullptr) {
+        if (locatorAbility->QueryServiceState() == ServiceRunningState::STATE_RUNNING) {
+            locatorAbility->OnStop();
+        }
+        auto samgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+        if (samgr != nullptr) {
+            samgr->RemoveSystemAbility(LOCATION_LOCATOR_SA_ID);
+        }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(IPC_THREAD_EXIT_WAIT_MS));
     locatorAbility = nullptr;
 }
 
