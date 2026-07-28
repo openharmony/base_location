@@ -10,7 +10,8 @@
       "tablet",
       "2in1",
       "wearable",
-      "tv"
+      "tv",
+      "car"
     ],
     "apiType": "stageMode",
     "deliveryWithInstall": true,
