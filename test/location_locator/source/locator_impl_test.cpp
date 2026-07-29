@@ -170,6 +170,7 @@ HWTEST_F(LocatorImplTest, locatorImplEnableAbilityV9001, TestSize.Level1)
     auto switchCallbackHost =
         sptr<LocationSwitchCallbackNapi>(new (std::nothrow) LocationSwitchCallbackNapi());
     EXPECT_NE(nullptr, switchCallbackHost);
+    locatorImpl_->SetLocationPrivacyConfirmStatusV9(1, true);
     EXPECT_EQ(ERRCODE_SUCCESS, locatorImpl_->RegisterSwitchCallbackV9(switchCallbackHost->AsObject()));
     sleep(1);
 
