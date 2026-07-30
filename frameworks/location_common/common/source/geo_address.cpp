@@ -153,13 +153,16 @@ bool GeoAddress::Marshalling(Parcel& parcel) const
     parcel.WriteString16(Str8ToStr16(postalCode_));
     parcel.WriteString16(Str8ToStr16(phoneNumber_));
     parcel.WriteString16(Str8ToStr16(addressUrl_));
-    if (descriptions_.size() == 0) {
-        parcel.WriteInt32(0);
-    } else {
-        parcel.WriteInt32(descriptions_.size());
-        for (auto iter = descriptions_.begin(); iter != descriptions_.end(); iter++) {
-            parcel.WriteInt32(iter->first);
-            parcel.WriteString16(Str8ToStr16(iter->second));
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        if (descriptions_.size() == 0) {
+            parcel.WriteInt32(0);
+        } else {
+            parcel.WriteInt32(descriptions_.size());
+            for (auto iter = descriptions_.begin(); iter != descriptions_.end(); iter++) {
+                parcel.WriteInt32(iter->first);
+                parcel.WriteString16(Str8ToStr16(iter->second));
+            }
         }
     }
     parcel.WriteBool(isFromMock_);
