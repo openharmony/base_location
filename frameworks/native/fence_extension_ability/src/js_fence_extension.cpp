@@ -92,6 +92,7 @@ napi_value AttachFenceExtensionContext(napi_env env, void *value, void *)
         nullptr);
     if (retStatus != ::napi_status::napi_ok) {
         LBSLOGE(FENCE_EXTENSION, "Napi wrap context error");
+        delete workContext;
         return nullptr;
     }
     LBSLOGI(FENCE_EXTENSION, "AttachFenceExtensionContext end");
@@ -193,7 +194,7 @@ void JsFenceExtension::BindContext(const ::napi_env &env, const ::napi_value &ob
     context->Bind(jsRuntime_, shellContextRef_.release());
     napi_set_named_property(env, obj, "context", nativeObj);
 
-    napi_wrap(
+    auto retStatus = napi_wrap(
         env,
         nativeObj,
         workContext,
@@ -203,6 +204,10 @@ void JsFenceExtension::BindContext(const ::napi_env &env, const ::napi_value &ob
         },
         nullptr,
         nullptr);
+    if (retStatus != ::napi_status::napi_ok) {
+        delete workContext;
+        return;
+    }
     LBSLOGI(FENCE_EXTENSION, "BindContext end");
 }
 void JsFenceExtension::OnStart(const AAFwk::Want &want)
@@ -262,14 +267,15 @@ FenceExtensionErrCode JsFenceExtension::OnFenceStatusChange(std::map<std::string
         return FenceExtensionErrCode::EXTENSION_JS_OBJ_IS_NULL;
     }
 
-    auto task = [=]() {
-        LBSLOGI(FENCE_EXTENSION, "call js function start");
-        JsFenceExtension::CallToUiThread(extraData);
-    };
     if (handler_ == nullptr) {
-        LBSLOGE(FENCE_EXTENSION, "PostTask call js function start");
+        LBSLOGE(FENCE_EXTENSION, "handler_ is null, PostTask failed");
         return FenceExtensionErrCode::EXTENSION_JS_CALL_FAILED;
     }
+    std::shared_ptr<JsFenceExtension> self = std::static_pointer_cast<JsFenceExtension>(shared_from_this());
+    auto task = [self, extraData]() {
+        LBSLOGI(FENCE_EXTENSION, "call js function start");
+        self->CallToUiThread(extraData);
+    };
     handler_->PostTask(task, "FenceExtension OnFenceStatusChange Task");
     LBSLOGI(FENCE_EXTENSION, "PostTask call js function start");
     return FenceExtensionErrCode::EXTENSION_SUCCESS;
@@ -299,17 +305,47 @@ FenceExtensionErrCode JsFenceExtension::CallToUiThread(std::map<std::string, std
     }
     auto fenceId = std::atoi(GetAndDeleteFromMap(extraData, EXTENSION_PARAM_KEY_FENCE_ID).c_str());
     auto fenceEvent = std::atoi(GetAndDeleteFromMap(extraData, EXTENSION_PARAM_KEY_FENCE_EVENT).c_str());
-    ::napi_value transitionObj;
     ::napi_env env = jsRuntime_.GetNapiEnv();
-    napi_status retTransition = ::napi_create_object(env, &transitionObj);
-    if (retTransition != napi_ok) {
+    ::napi_value transitionObj;
+    auto errCode = CreateTransitionObj(env, fenceId, fenceEvent, transitionObj);
+    if (errCode != FenceExtensionErrCode::EXTENSION_SUCCESS) {
+        return errCode;
+    }
+    ::napi_value addtionsRecord = nullptr;
+    errCode = CreateAdditionsRecord(env, extraData, addtionsRecord);
+    if (errCode != FenceExtensionErrCode::EXTENSION_SUCCESS) {
+        return errCode;
+    }
+    ::napi_value argv[PARAM2] = { transitionObj, addtionsRecord };
+    ::napi_value abilityObj = jsObj_->GetNapiValue();
+    ::napi_value undefined;
+    ::napi_status callStatus = ::napi_call_function(env, abilityObj, method, ARGC_TWO, argv, &undefined);
+    if (callStatus != napi_ok) {
+        return FenceExtensionErrCode::EXTENSION_JS_CALL_FAILED;
+    }
+    return FenceExtensionErrCode::EXTENSION_SUCCESS;
+}
+
+FenceExtensionErrCode JsFenceExtension::CreateTransitionObj(
+    ::napi_env env, int fenceId, int fenceEvent, ::napi_value &transitionObj)
+{
+    napi_status ret = ::napi_create_object(env, &transitionObj);
+    if (ret != napi_ok) {
         return FenceExtensionErrCode::EXTENSION_JS_CREATE_PARAM_ERROR;
     }
     SetValueInt32(env, "geofenceId", fenceId, transitionObj);
     SetValueInt32(env, "transitionEvent", static_cast<int>(fenceEvent), transitionObj);
-    ::napi_value addtionsRecord;
+    return FenceExtensionErrCode::EXTENSION_SUCCESS;
+}
+
+FenceExtensionErrCode JsFenceExtension::CreateAdditionsRecord(
+    ::napi_env env, std::map<std::string, std::string> &extraData, ::napi_value &additionsRecord)
+{
     if (extraData.size() > 0) {
-        ::napi_status status = napi_create_object(env, &addtionsRecord);
+        napi_status status = napi_create_object(env, &additionsRecord);
+        if (status != napi_ok) {
+            return FenceExtensionErrCode::EXTENSION_JS_CREATE_PARAM_ERROR;
+        }
         for (const auto &pair : extraData) {
             napi_value key, value;
             status = napi_create_string_utf8(env, pair.first.c_str(), NAPI_AUTO_LENGTH, &key);
@@ -320,20 +356,17 @@ FenceExtensionErrCode JsFenceExtension::CallToUiThread(std::map<std::string, std
             if (status != napi_ok) {
                 break;
             }
-            status = napi_set_property(env, addtionsRecord, key, value);
+            status = napi_set_property(env, additionsRecord, key, value);
             if (status != napi_ok) {
                 break;
             }
         }
     } else {
-        ::napi_status status = napi_get_undefined(env, &addtionsRecord);
+        napi_status status = napi_get_undefined(env, &additionsRecord);
+        if (status != napi_ok) {
+            return FenceExtensionErrCode::EXTENSION_JS_CREATE_PARAM_ERROR;
+        }
     }
-    ::napi_value argv[PARAM2];
-    argv[PARAM0] = transitionObj;
-    argv[PARAM1] = addtionsRecord;
-    ::napi_value abilityObj = jsObj_->GetNapiValue();
-    ::napi_value undefined;
-    ::napi_status callStatus = ::napi_call_function(env, abilityObj, method, ARGC_TWO, argv, &undefined);
     return FenceExtensionErrCode::EXTENSION_SUCCESS;
 }
 

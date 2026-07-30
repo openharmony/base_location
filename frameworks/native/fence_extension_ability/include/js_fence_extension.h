@@ -120,6 +120,9 @@ private:
         AbilityRuntime::JsRuntime &jsRuntime, const std::unique_ptr<NativeReference> &jsObj, const std::string &name);
     napi_status SetValueUtf8String(const napi_env &env, const char *fieldStr, const char *str, napi_value &result);
     napi_status SetValueInt32(const napi_env &env, const char *fieldStr, const int intValue, napi_value &result);
+    FenceExtensionErrCode CreateTransitionObj(::napi_env env, int fenceId, int fenceEvent, ::napi_value &transitionObj);
+    FenceExtensionErrCode CreateAdditionsRecord(::napi_env env, std::map<std::string, std::string> &extraData,
+        ::napi_value &additionsRecord);
     FenceExtensionErrCode CallToUiThread(std::map<std::string, std::string> extraData);
 };
 }  // namespace Location
