@@ -274,7 +274,9 @@ FenceExtensionErrCode JsFenceExtension::OnFenceStatusChange(std::map<std::string
     std::shared_ptr<JsFenceExtension> self = std::static_pointer_cast<JsFenceExtension>(shared_from_this());
     auto task = [self, extraData]() {
         LBSLOGI(FENCE_EXTENSION, "call js function start");
-        self->CallToUiThread(extraData);
+        if (self != nullptr) {
+            self->CallToUiThread(extraData);
+        }
     };
     handler_->PostTask(task, "FenceExtension OnFenceStatusChange Task");
     LBSLOGI(FENCE_EXTENSION, "PostTask call js function start");
