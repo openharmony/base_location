@@ -53,7 +53,7 @@ public:
     std::string postalCode_;
     std::string phoneNumber_;
     std::string addressUrl_;
-    std::mutex mutex_;
+    mutable std::mutex mutex_;
     std::map<int, std::string> descriptions_;
     int descriptionsSize_ = 0;
     bool isFromMock_ = false;
