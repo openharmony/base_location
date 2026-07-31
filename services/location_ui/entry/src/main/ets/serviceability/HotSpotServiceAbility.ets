@@ -35,8 +35,8 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
     private willPublish: boolean = false;
 
     private isPC(): boolean {
- 	    return deviceInfo.deviceType === DEVICE_TYPE_PC || deviceInfo.deviceType === DEVICE_TYPE_PC_NEW
- 	}
+        return deviceInfo.deviceType === DEVICE_TYPE_PC || deviceInfo.deviceType === DEVICE_TYPE_PC_NEW
+    }
 
     onCreate(want: Want): void {
         LogUtils.i(TAG, `HotSpotServiceAbility onCreate`);
@@ -45,7 +45,7 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
     onDestroy(): void {
         LogUtils.i(TAG, `HotSpotServiceAbility onDestroy`);
     }
-    
+
     onRequest(want: Want, startId: number): void {
         LogUtils.i(TAG, `onRequest`);
         if (!want || !want.parameters) {
@@ -66,12 +66,37 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
     }
 
     public hotSpsotNotificationStart(id: number) {
-        let filePath: string = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
-        if (id === HOTSPOT_STA_JOIN_NOTIFICATION_ID) {
+        let filePath: string = '';
+        let titleResId: string = '';
+        let textResId: string = '';
+        let getActionButtons: (() => Promise<notificationManager.NotificationActionButton[]>) | undefined;
+        switch (id) {
+          case HOTSPOT_STA_JOIN_NOTIFICATION_ID: {
             if (!this.isPC()) {
                 return;
             }
             filePath = '/system/etc/wifi/ic_hotspot_sta_connection.png';
+            titleResId = 'hotspot_sta_join_notify_title';
+            textResId = 'hotspot_sta_join_notify_text';
+            break;
+          }
+          case HOTSPOT_IDLE_NOTIFICATION_ID: {
+            filePath = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
+            titleResId = 'condition_netshare_hotspot_close';
+            textResId = 'stop_idle_tether_notification_message';
+            getActionButtons = () => this.getHotSpotActionButtons();
+            break;
+          }
+          case THERMAL_STOP_AP_NOTIFICATION_ID: {
+            filePath = '/system/etc/wifi/ic_connection_notify_hotspot_unusable.png';
+            titleResId = 'condition_netshare_hotspot_close';
+            textResId = 'thermal_stop_tether_notification_message';
+            getActionButtons = () => this.getHotSpotActionButtons();
+            break;
+          }
+          default: {
+            return;
+          }
         }
         let file: fs.File | undefined;
         let imageSourceApi: image.ImageSource | undefined;
@@ -80,18 +105,14 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
             file = fs.openSync(filePath, fs.OpenMode.READ_ONLY);
             imageSourceApi = image.createImageSource(file.fd);
             imageSourceApi.createPixelMap()
-            .then((resultPixelmap: image.PixelMap) => {
-                LogUtils.i(TAG, `Create pixelMap success.`);
-                pixelmap = resultPixelmap;
-                if (id === HOTSPOT_STA_JOIN_NOTIFICATION_ID) {
-                    this.publishHotspotSimpleNotification(pixelmap, id);
-                } else {
-                    this.publishHotSpotWantAgentCommonEvent(pixelmap, id);
-                }
-            })
-            .catch((error: Error) => {
-                LogUtils.e(TAG, `Create pixelMap failed: ${JSON.stringify(error)}`);
-            });
+                .then((resultPixelmap: image.PixelMap) => {
+                    LogUtils.i(TAG, `Create pixelMap success.`);
+                    pixelmap = resultPixelmap;
+                    this.publishHotSpotNotification(pixelmap, id, titleResId, textResId, getActionButtons);
+                })
+                .catch((error: Error) => {
+                    LogUtils.e(TAG, `Create pixelMap failed: ${JSON.stringify(error)}`);
+                });
         } catch (err) {
             LogUtils.e(TAG, `Create pixelMap error: ${JSON.stringify(err)}`);
         } finally {
@@ -119,47 +140,8 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
         }
     }
 
-    public async publishHotspotSimpleNotification(pixelMap: image.PixelMap, id: number) {
-        let templateTitle: string = '';
-        let templateText: string = '';
-        try {
-            templateTitle = this.context.resourceManager.getStringSync($r('app.string.hotspot_sta_join_notify_title').id);
-            templateText = this.context.resourceManager.getStringSync($r('app.string.hotspot_sta_join_notify_text').id);
-        } catch (err) {
-            LogUtils.e(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
-            return;
-        }
-        let notificationRequest: notificationManager.NotificationRequest = {
-            id: id,
-            notificationSlotType: notificationManager.SlotType.SERVICE_INFORMATION,
-            content: {
-                notificationContentType: notificationManager.ContentType.NOTIFICATION_CONTENT_BASIC_TEXT,
-                normal: {
-                    title: templateTitle,
-                    text: templateText
-                }
-            },
-            smallIcon: pixelMap
-        };
-        LogUtils.i(TAG, `publishHotspotSimpleNotification-${this.willPublish}`);
-        if (this.willPublish) {
-            notificationManager.publish(notificationRequest).then(() => {
-                LogUtils.i(TAG, `Publish hotspot sta join notification success`);
-            }).catch((err: Base.BusinessError) => {
-                LogUtils.i(TAG, `Publish hotspot sta join notification fail`);
-            });
-        }
-    }
-
-    public async publishHotSpotWantAgentCommonEvent(pixelMap: image.PixelMap, id: number) {
+    public async getHotSpotActionButtons(): Promise<notificationManager.NotificationActionButton[]> {
         let wantAgentObj: WantAgent;
-        wantAgentObj = await this.getHotSpotWantAgent();
-        LogUtils.i(TAG, `publishHotSpotWantAgentCommonEvent-getWantAgentObj-success`);
-        await this.publishHotSpotWantAgent(wantAgentObj, pixelMap, id)
-    }
-
-    public async getHotSpotWantAgent(): Promise< WantAgent> {
-        let wantAgentObjUse: WantAgent;
         let wantAgentInfo: wantAgent.WantAgentInfo = {
             wants: [
                 {
@@ -171,38 +153,25 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
             requestCode: 0,
             wantAgentFlags: [wantAgent.WantAgentFlags.CONSTANT_FLAG],
         };
-        wantAgentObjUse = await wantAgent.getWantAgent(wantAgentInfo);
-        LogUtils.i(TAG, `getWantAgent-wantAgentObjUse-success`);
-        return wantAgentObjUse;
+        wantAgentObj = await wantAgent.getWantAgent(wantAgentInfo);
+        let buttonsTitle: string = this.context.resourceManager.getStringByNameSync('stop_idle_tether_notification_action_text');
+        LogUtils.i(TAG, `getHotSpotActionButtons-success`);
+        return [{ title: buttonsTitle, wantAgent: wantAgentObj }];
     }
 
- public async publishHotSpotWantAgent(wantAgentObj: WantAgent, pixelmap: image.PixelMap, id: number) {
+    public async publishHotSpotNotification(pixelmap: image.PixelMap, id: number, titleResId: string, textResId: string,
+        getActionButtons?: () => Promise<notificationManager.NotificationActionButton[]>) {
+        let actionButtons: notificationManager.NotificationActionButton[] | undefined;
+        if (getActionButtons) {
+            actionButtons = await getActionButtons();
+        }
         let templateTitle: string = '';
         let templateText: string = '';
         try {
-            templateTitle = this.context.resourceManager.getStringSync($r('app.string.condition_netshare_hotspot_close').id);
-            switch (id) {
-              case HOTSPOT_IDLE_NOTIFICATION_ID: {
-                templateText = this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_message').id);
-                break;
-              }
-              case THERMAL_STOP_AP_NOTIFICATION_ID: {
-                templateText = this.context.resourceManager.getStringSync($r('app.string.thermal_stop_tether_notification_message').id);
-                break;
-              }
-              default: {
-                break;
-              }
-            }
+            templateTitle = this.context.resourceManager.getStringByNameSync(titleResId);
+            templateText = this.context.resourceManager.getStringByNameSync(textResId);
         } catch (err) {
             LogUtils.e(TAG, `Failed to get resource string: ${JSON.stringify(err)}`);
-            return;
-        }
-        let buttonsTitle: string = '';
-        try {
-            buttonsTitle = this.context.resourceManager.getStringSync($r('app.string.stop_idle_tether_notification_action_text').id);
-        } catch (err) {
-            LogUtils.e(TAG, `Failed to get button title: ${JSON.stringify(err)}`);
             return;
         }
         let notificationRequest: notificationManager.NotificationRequest = {
@@ -218,20 +187,18 @@ export default class HotSpotServiceAbility extends ServiceExtensionAbility {
             extraInfo: {
                 hw_custom_appname: templateTitle
             },
-            notificationControlFlags: 2,
-            actionButtons: [
-                {
-                    title: buttonsTitle, wantAgent: wantAgentObj
-                }
-            ],
             smallIcon: pixelmap
         };
-        LogUtils.i(TAG, `publishHotSpotWantAgent-${this.willPublish}`);
+        if (actionButtons) {
+            notificationRequest.notificationControlFlags = 2;
+            notificationRequest.actionButtons = actionButtons;
+        }
+        LogUtils.i(TAG, `publishHotSpotNotification-${this.willPublish}`);
         if (this.willPublish) {
             notificationManager.publish(notificationRequest).then(() => {
-                LogUtils.i(TAG, `Publish wifi notification success`);
+                LogUtils.i(TAG, `Publish hotspot notification success`);
             }).catch((err: Base.BusinessError) => {
-                LogUtils.i(TAG, `Publish wifi notification fail`);
+                LogUtils.i(TAG, `Publish hotspot notification fail`);
             });
         }
     }

@@ -361,12 +361,18 @@
             }
         },
         {
-            "name":"hotspot_sta_join_notify_title",
-            "value":"Personal Hotspot"
+            "name":"hotspot_sta_join_notify_text",
+            "value":"A device connected to your hotspot.",
+            "attr":{
+                "priority":"translate"
+            }
         },
         {
-            "name":"hotspot_sta_join_notify_text",
-            "value":"Device connected to your hotspot"
+            "name":"hotspot_sta_join_notify_title",
+            "value":"Personal hotspot",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

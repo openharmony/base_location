@@ -335,6 +335,20 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"hotspot_sta_join_notify_text",
+            "value":"تور نۇقتىسىغا ئۈسكۈنە ئۇلانغان.",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"hotspot_sta_join_notify_title",
+            "value":"تور نۇقتىسى",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

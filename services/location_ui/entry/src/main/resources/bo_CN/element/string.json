@@ -335,6 +335,20 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"hotspot_sta_join_notify_text",
+            "value":"ཁྱེད་ཀྱི་ཚ་གནས་ལ་སྒྲིག་ཆས་སྦྲེལ་འདུག",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"hotspot_sta_join_notify_title",
+            "value":"མི་སྒེར་གྱི་ཚ་གནས།",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }

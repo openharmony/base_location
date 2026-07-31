@@ -335,6 +335,20 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"hotspot_sta_join_notify_text",
+            "value":"有裝置連線至您的熱點",
+            "attr":{
+                "priority":"translate"
+            }
+        },
+        {
+            "name":"hotspot_sta_join_notify_title",
+            "value":"個人熱點",
+            "attr":{
+                "priority":"translate"
+            }
         }
     ]
 }
