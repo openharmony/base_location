@@ -2889,6 +2889,7 @@ ErrCode LocatorAbility::StartLocatingProcess(const RequestConfig& requestConfig,
         LBSLOGI(LOCATOR, "report cache location to %{private}s", identity.GetBundleName().c_str());
         if (requestConfigUnique->GetScenario() != SCENE_NO_POWER &&
             requestConfigUnique->GetScenario() != LOCATION_SCENE_NO_POWER_CONSUMPTION) {
+            request->GetRequestConfig()->SetScenario(LOCATION_SCENE_DAILY_LIFE_SERVICE);
             SelfRequestManager::GetInstance()->StartSelfRequest(request);
         }
         cb->AsObject()->RemoveDeathRecipient(death);

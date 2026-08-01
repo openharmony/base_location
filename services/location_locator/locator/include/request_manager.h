@@ -75,6 +75,8 @@ public:
     static RequestManager* GetInstance();
     void IsStandby();
     void UpdateLocationError(std::shared_ptr<Request> request);
+    void RemoveRequestFromGnssListByUuid(const std::string& uuid);
+    bool IsGnssDelayEligible(std::shared_ptr<Request>& request, size_t requestCount);
 
 private:
     bool RestorRequest(std::shared_ptr<Request> request);

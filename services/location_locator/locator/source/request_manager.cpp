@@ -304,6 +304,31 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
         abilityName.c_str(), list->size());
 }
 
+void RequestManager::RemoveRequestFromGnssListByUuid(const std::string& uuid)
+{
+    std::unique_lock lock(requestMutex_);
+    auto locatorAbility = LocatorAbility::GetInstance();
+    auto requests = locatorAbility->GetRequests();
+    if (requests == nullptr) {
+        return;
+    }
+    auto gnssListIter = requests->find(GNSS_ABILITY);
+    if (gnssListIter == requests->end()) {
+        return;
+    }
+    auto& gnssList = gnssListIter->second;
+    for (auto iter = gnssList.begin(); iter != gnssList.end();) {
+        auto gnssRequest = *iter;
+        if (gnssRequest != nullptr && gnssRequest->GetUuid() == uuid) {
+            LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] remove same uuid from gnss list, uuid=%{public}s", uuid.c_str());
+            UpdateRunningUids(gnssRequest, GNSS_ABILITY, false);
+            iter = gnssList.erase(iter);
+        } else {
+            ++iter;
+        }
+    }
+}
+
 void RequestManager::HandleChrEvent(std::list<std::shared_ptr<Request>> requests)
 {
     if (requests.size() > LBS_REQUEST_MAX_SIZE) {

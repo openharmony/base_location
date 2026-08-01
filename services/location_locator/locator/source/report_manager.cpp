@@ -83,8 +83,9 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
         WriteNetWorkReportEvent(abilityName, request, location);
         if (abilityName == NETWORK_ABILITY) {
             if (request->GetUuid() == location->GetUuid() || location->GetIsFromMock()) {
+                RequestManager::GetInstance()->RemoveRequestFromGnssListByUuid(request->GetUuid());
                 ProcessRequestForReport(request, deadRequests, location, abilityName);
-                break;
+                                break;
             }
         } else if (abilityName == GNSS_ABILITY || abilityName == PASSIVE_ABILITY) {
             ProcessRequestForReport(request, deadRequests, location, abilityName);
