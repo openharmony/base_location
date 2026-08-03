@@ -451,8 +451,42 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
     }
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}zu) work record:%{public}s",
         abilityName.c_str(), list.size(), workRecord->ToString().c_str());
-
+    if (abilityName == GNSS_ABILITY && !list.empty()) {
+        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] check gnss delay condition");
+        if (IsGnssDelayEligible(list.front(), list.size())) {
+            LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] condition matched, send network first, delay gnss 2s");
+            ProxySendLocationRequest(NETWORK_ABILITY, *workRecord);
+            LocatorAbility::GetInstance()->ApplyRequests(2);
+            return;
+        }
+    }
     ProxySendLocationRequest(abilityName, *workRecord);
+}
+
+bool RequestManager::IsGnssDelayEligible(std::shared_ptr<Request>& request, size_t requestCount)
+{
+    auto requestConfig = request->GetRequestConfig();
+    if (requestConfig == nullptr) {
+        return false;
+    }
+    int64_t currentTime = CommonUtils::GetCurrentTime();
+    bool isTimeWithin2s = (currentTime - requestConfig->GetTimeStamp()) < 2;
+    if (!isTimeWithin2s) {
+        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] time diff >= 2s, not eligible");
+        return false;
+    }
+    bool isSpeedPrioritySingle = (requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) &&
+                                 (requestConfig->GetFixNumber() == 1);
+    if (!isSpeedPrioritySingle) {
+        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] not speed priority single, not eligible");
+        return false;
+    }
+    bool isSingleRequest = (requestCount == 1);
+    if (!isSingleRequest) {
+        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] not single request, not eligible");
+        return false;
+    }
+    return true;
 }
 
 bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& request)
