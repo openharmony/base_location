@@ -57,6 +57,7 @@ namespace OHOS {
 namespace Location {
 ffrt::mutex RequestManager::requestMutex_;
 const int MAX_LOCATION_ERROR_CALLBACK_NUM = 1000;
+const int64_t GNSS_DELAY_REPORT_INTERVAL = 24LL * 60 * 60 * 1000; // 24 hours
 
 RequestManager* RequestManager::GetInstance()
 {
@@ -307,6 +308,14 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
 void RequestManager::RemoveRequestFromGnssListByUuid(const std::string& uuid)
 {
     std::unique_lock lock(requestMutex_);
+    {
+        std::unique_lock delayLock(gnssDelayUuidsMutex_);
+        if (gnssDelayUuids_.find(uuid) == gnssDelayUuids_.end()) {
+            LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] uuid not in delay set, skip remove, uuid=%{public}s", uuid.c_str());
+            return;
+        }
+        gnssDelayUuids_.erase(uuid);
+    }
     auto locatorAbility = LocatorAbility::GetInstance();
     auto requests = locatorAbility->GetRequests();
     if (requests == nullptr) {
@@ -327,6 +336,20 @@ void RequestManager::RemoveRequestFromGnssListByUuid(const std::string& uuid)
             ++iter;
         }
     }
+}
+ 
+void RequestManager::AddGnssDelayUuid(const std::string& uuid)
+{
+    std::unique_lock lock(gnssDelayUuidsMutex_);
+    gnssDelayUuids_.insert(uuid);
+    LBSLOGD(REQUEST_MANAGER, "add gnss delay uuid=%{public}s", uuid.c_str());
+}
+ 
+void RequestManager::RemoveGnssDelayUuid(const std::string& uuid)
+{
+    std::unique_lock lock(gnssDelayUuidsMutex_);
+    gnssDelayUuids_.erase(uuid);
+    LBSLOGD(REQUEST_MANAGER, "remove gnss delay uuid=%{public}s", uuid.c_str());
 }
 
 void RequestManager::HandleChrEvent(std::list<std::shared_ptr<Request>> requests)
@@ -452,9 +475,8 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}zu) work record:%{public}s",
         abilityName.c_str(), list.size(), workRecord->ToString().c_str());
     if (abilityName == GNSS_ABILITY && !list.empty()) {
-        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] check gnss delay condition");
         if (IsGnssDelayEligible(list.front(), list.size())) {
-            LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] condition matched, send network first, delay gnss 2s");
+            AddGnssDelayUuid(list.front()->GetUuid());
             ProxySendLocationRequest(NETWORK_ABILITY, *workRecord);
             LocatorAbility::GetInstance()->ApplyRequests(2);
             return;
@@ -472,18 +494,18 @@ bool RequestManager::IsGnssDelayEligible(std::shared_ptr<Request>& request, size
     int64_t currentTime = CommonUtils::GetCurrentTime();
     bool isTimeWithin2s = (currentTime - requestConfig->GetTimeStamp()) < 2;
     if (!isTimeWithin2s) {
-        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] time diff >= 2s, not eligible");
+        LBSLOGI(REQUEST_MANAGER, "time diff >= 2s, not eligible");
         return false;
     }
     bool isSpeedPrioritySingle = (requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) &&
                                  (requestConfig->GetFixNumber() == 1);
     if (!isSpeedPrioritySingle) {
-        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] not speed priority single, not eligible");
+        LBSLOGI(REQUEST_MANAGER, "not speed priority single, not eligible");
         return false;
     }
     bool isSingleRequest = (requestCount == 1);
     if (!isSingleRequest) {
-        LBSLOGI(REQUEST_MANAGER, "[PASSIVE_OPT] not single request, not eligible");
+        LBSLOGI(REQUEST_MANAGER, "not single request, not eligible");
         return false;
     }
     return true;

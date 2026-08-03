@@ -28,6 +28,7 @@
 #include "i_locator_callback.h"
 #include "request.h"
 #include "work_record.h"
+#include <set>
 
 namespace OHOS {
 namespace Location {
@@ -77,6 +78,8 @@ public:
     void UpdateLocationError(std::shared_ptr<Request> request);
     void RemoveRequestFromGnssListByUuid(const std::string& uuid);
     bool IsGnssDelayEligible(std::shared_ptr<Request>& request, size_t requestCount);
+    void AddGnssDelayUuid(const std::string& uuid);
+    void RemoveGnssDelayUuid(const std::string& uuid);
 
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
@@ -103,7 +106,10 @@ private:
     std::atomic_bool isDeviceIdleMode_;
     std::atomic_bool isDeviceStillState_;
     ffrt::mutex workingPidsCountMutex_;
+    ffrt::mutex gnssDelayUuidsMutex_;
+    ffrt::mutex gnssDelayStatsMutex_;
     std::map<pid_t, int32_t> workingPidsCountMap_;
+    std::set<std::string> gnssDelayUuids_;
 };
 
 class LocatorErrCallbackDeathRecipient : public IRemoteObject::DeathRecipient {

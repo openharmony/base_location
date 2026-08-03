@@ -88,6 +88,7 @@ bool ReportManager::OnReportLocation(const std::unique_ptr<Location>& location, 
                                 break;
             }
         } else if (abilityName == GNSS_ABILITY || abilityName == PASSIVE_ABILITY) {
+            RequestManager::GetInstance()->RemoveGnssDelayUuid(request->GetUuid());
             ProcessRequestForReport(request, deadRequests, location, abilityName);
         }
     }
