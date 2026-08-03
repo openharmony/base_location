@@ -283,19 +283,19 @@ struct DistrictInfoRequest {
 }
 
 function IsLocationEnabled(): bool;
-@gen_async("getAddressesFromLocation")
-@gen_promise("getAddressesFromLocation")
+@async("getAddressesFromLocation")
+@promise("getAddressesFromLocation")
 function GetAddressesFromLocationSync(request: ReverseGeoCodeRequest): Array<GeoAddress>;
 
-@gen_async("getCurrentLocation")
-@gen_promise("getCurrentLocation")
+@async("getCurrentLocation")
+@promise("getCurrentLocation")
 function GetCurrentLocationSync(request: Optional<CurrentRequest>): Location;
 
-@gen_async("getCurrentLocation")
+@async("getCurrentLocation")
 function GetCurrentLocationSyncNoRequest(): Location;
 
-@gen_async("enableLocation")
-@gen_promise("enableLocation")
+@async("enableLocation")
+@promise("enableLocation")
 function EnableLocationSync(): void;
 
 function DisableLocation(): void;
@@ -312,26 +312,26 @@ function DisableLocationMock(): void;
 function SetMockedLocations(config: LocationMockConfig): void;
 function SetLocationPrivacyConfirmStatus(type: LocationPrivacyType, isConfirmed: bool): void;
 
-@gen_async("getCountryCode")
-@gen_promise("getCountryCode")
+@async("getCountryCode")
+@promise("getCountryCode")
 function GetCountryCodeSync(): CountryCode;
 
-@gen_async("sendCommand")
-@gen_promise("sendCommand")
+@async("sendCommand")
+@promise("sendCommand")
 function SendCommandSync(command: LocationCommand): void;
 
-@gen_async("flushCachedGnssLocations")
-@gen_promise("flushCachedGnssLocations")
+@async("flushCachedGnssLocations")
+@promise("flushCachedGnssLocations")
 function FlushCachedGnssLocationsSync(): void;
 
-@gen_async("getCachedGnssLocationsSize")
-@gen_promise("getCachedGnssLocationsSize")
+@async("getCachedGnssLocationsSize")
+@promise("getCachedGnssLocationsSize")
 function GetCachedGnssLocationsSizeSync(): i32;
 
 function isGeocoderAvailable(): bool;
 
-@gen_async("getAddressesFromLocationName")
-@gen_promise("getAddressesFromLocationName")
+@async("getAddressesFromLocationName")
+@promise("getAddressesFromLocationName")
 function GetAddressesFromLocationNameSync(request: GeoCodeRequest): Array<GeoAddress>;
 
 function SetLocationSwitchIgnored(isIgnored: bool): void;
@@ -340,15 +340,15 @@ function IsLocationEnabledByUserId(userId: i32): bool;
 
 function DisableLocationByUserId(userId: i32): void;
 
-@gen_promise("enableLocationByUserId")
+@promise("enableLocationByUserId")
 function EnableLocationByUserIdSync(userId: i32): void;
 
 function GetCurrentWifiBssidForLocating(): String;
 
-@gen_promise("addGnssGeofence")
+@promise("addGnssGeofence")
 function AddGnssGeofenceSync(fenceRequest: GnssGeofenceRequest): i32;
 
-@gen_promise("removeGnssGeofence")
+@promise("removeGnssGeofence")
 function RemoveGnssGeofenceSync(geofenceId: i32): void;
 
 function GetGeofenceSupportedCoordTypes(): Array<CoordinateSystemType>;
@@ -359,23 +359,23 @@ function IsPoiServiceSupported(): bool;
 
 function GetDistanceBetweenLocations(location1: Location, location2: Location): f64;
 
-@gen_promise("getLocatingRequiredData")
+@promise("getLocatingRequiredData")
 function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
 
 function IsGnssServiceSupported(): bool;
 function IsGnssFenceServiceSupported(): bool;
 function IsCachedGnssServiceSupported(): bool;
 
-@gen_promise("getActiveGeoFences")
+@promise("getActiveGeoFences")
 function GetActiveGeoFencesSync(): Map<i32, Geofence>;
 
-@gen_promise("isWlanBssidMatched")
+@promise("isWlanBssidMatched")
 function IsWlanBssidMatchedSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): bool;
 
-@gen_promise("findMatchingWlan")
+@promise("findMatchingWlan")
 function FindMatchingWlanSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): Array<MatchingWlanInfo>;
 
-@gen_promise("getCurrentDistrict")
+@promise("getCurrentDistrict")
 function GetCurrentDistrictSync(request: DistrictInfoRequest): DistrictInfo;
 
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
