@@ -283,19 +283,23 @@ struct DistrictInfoRequest {
 }
 
 function IsLocationEnabled(): bool;
-@async("getAddressesFromLocation")
-@promise("getAddressesFromLocation")
+@rename("getAddressesFromLocation")
+@async
+@promise
 function GetAddressesFromLocationSync(request: ReverseGeoCodeRequest): Array<GeoAddress>;
 
-@async("getCurrentLocation")
-@promise("getCurrentLocation")
+@rename("getCurrentLocation")
+@async
+@promise
 function GetCurrentLocationSync(request: Optional<CurrentRequest>): Location;
 
-@async("getCurrentLocation")
+@rename("getCurrentLocation")
+@async
 function GetCurrentLocationSyncNoRequest(): Location;
 
-@async("enableLocation")
-@promise("enableLocation")
+@rename("enableLocation")
+@async
+@promise
 function EnableLocationSync(): void;
 
 function DisableLocation(): void;
@@ -312,26 +316,31 @@ function DisableLocationMock(): void;
 function SetMockedLocations(config: LocationMockConfig): void;
 function SetLocationPrivacyConfirmStatus(type: LocationPrivacyType, isConfirmed: bool): void;
 
-@async("getCountryCode")
-@promise("getCountryCode")
+@rename("getCountryCode")
+@async
+@promise
 function GetCountryCodeSync(): CountryCode;
 
-@async("sendCommand")
-@promise("sendCommand")
+@rename("sendCommand")
+@async
+@promise
 function SendCommandSync(command: LocationCommand): void;
 
-@async("flushCachedGnssLocations")
-@promise("flushCachedGnssLocations")
+@rename("flushCachedGnssLocations")
+@async
+@promise
 function FlushCachedGnssLocationsSync(): void;
 
-@async("getCachedGnssLocationsSize")
-@promise("getCachedGnssLocationsSize")
+@rename("getCachedGnssLocationsSize")
+@async
+@promise
 function GetCachedGnssLocationsSizeSync(): i32;
 
 function isGeocoderAvailable(): bool;
 
-@async("getAddressesFromLocationName")
-@promise("getAddressesFromLocationName")
+@rename("getAddressesFromLocationName")
+@async
+@promise
 function GetAddressesFromLocationNameSync(request: GeoCodeRequest): Array<GeoAddress>;
 
 function SetLocationSwitchIgnored(isIgnored: bool): void;
@@ -340,15 +349,18 @@ function IsLocationEnabledByUserId(userId: i32): bool;
 
 function DisableLocationByUserId(userId: i32): void;
 
-@promise("enableLocationByUserId")
+@rename("enableLocationByUserId")
+@promise
 function EnableLocationByUserIdSync(userId: i32): void;
 
 function GetCurrentWifiBssidForLocating(): String;
 
-@promise("addGnssGeofence")
+@rename("addGnssGeofence")
+@promise
 function AddGnssGeofenceSync(fenceRequest: GnssGeofenceRequest): i32;
 
-@promise("removeGnssGeofence")
+@rename("removeGnssGeofence")
+@promise
 function RemoveGnssGeofenceSync(geofenceId: i32): void;
 
 function GetGeofenceSupportedCoordTypes(): Array<CoordinateSystemType>;
@@ -359,23 +371,28 @@ function IsPoiServiceSupported(): bool;
 
 function GetDistanceBetweenLocations(location1: Location, location2: Location): f64;
 
-@promise("getLocatingRequiredData")
+@rename("getLocatingRequiredData")
+@promise
 function GetLocatingRequiredDataSync(config: LocatingRequiredDataConfig): Array<LocatingRequiredData>;
 
 function IsGnssServiceSupported(): bool;
 function IsGnssFenceServiceSupported(): bool;
 function IsCachedGnssServiceSupported(): bool;
 
-@promise("getActiveGeoFences")
+@rename("getActiveGeoFences")
+@promise
 function GetActiveGeoFencesSync(): Map<i32, Geofence>;
 
-@promise("isWlanBssidMatched")
+@rename("isWlanBssidMatched")
+@promise
 function IsWlanBssidMatchedSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): bool;
 
-@promise("findMatchingWlan")
+@rename("findMatchingWlan")
+@promise
 function FindMatchingWlanSync(wlanBssidArray: Array<String>, rssidThreshold: i32, needStartScan: bool): Array<MatchingWlanInfo>;
 
-@promise("getCurrentDistrict")
+@rename("getCurrentDistrict")
+@promise
 function GetCurrentDistrictSync(request: DistrictInfoRequest): DistrictInfo;
 
 function OnCachedGnssLocationsChange(request: CachedGnssLocationsRequest, callback: (data: Array<Location>) => void): void;
