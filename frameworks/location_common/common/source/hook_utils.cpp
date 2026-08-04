@@ -317,6 +317,15 @@ void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
         LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&userId, nullptr);
 }
 
+void HookUtils::ExecuteHookWhenGnssDelayOptimization(long long speedPriorityTotal, long long delayNetworkFirst)
+{
+    GnssDelayOptimizationInfo info;
+    info.speedPriorityTotal = speedPriorityTotal;
+    info.delayNetworkFirst = delayNetworkFirst;
+    ExecuteHook(
+        LocationProcessStage::GNSS_DELAY_OPTIMIZATION_REPORT, (void *)&info, nullptr);
+}
+
 void HookUtils::ExecuteHookWhenStartCellScan(
     std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
     void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result))

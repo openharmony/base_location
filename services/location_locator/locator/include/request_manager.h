@@ -80,6 +80,9 @@ public:
     bool IsGnssDelayEligible(std::shared_ptr<Request>& request, size_t requestCount);
     void AddGnssDelayUuid(const std::string& uuid);
     void RemoveGnssDelayUuid(const std::string& uuid);
+    void IncGnssSpeedPriorityRequestCount();
+    void IncGnssDelayNetworkFirstCount();
+    void ReportGnssDelayOptimizationToHa();
 
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
@@ -108,6 +111,9 @@ private:
     ffrt::mutex workingPidsCountMutex_;
     ffrt::mutex gnssDelayUuidsMutex_;
     ffrt::mutex gnssDelayStatsMutex_;
+    int64_t gnssSpeedPriorityRequestCount_;
+    int64_t gnssDelayNetworkFirstCount_;
+    int64_t gnssDelayLastReportTime_;
     std::map<pid_t, int32_t> workingPidsCountMap_;
     std::set<std::string> gnssDelayUuids_;
 };

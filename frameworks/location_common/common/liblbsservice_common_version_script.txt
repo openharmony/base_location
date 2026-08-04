@@ -38,6 +38,7 @@
     "*BeaconFence*";
     "*ExecuteHookWhenOnUserSwitch*";
     "*ExecuteHookWhenStartCellScan*";
+    "*ExecuteHookWhenGnssDelayOptimization*";
   local:
     *;
 };
