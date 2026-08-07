@@ -284,21 +284,17 @@ struct DistrictInfoRequest {
 
 function IsLocationEnabled(): bool;
 @rename("getAddressesFromLocation")
-@async
 @promise
 function GetAddressesFromLocationSync(request: ReverseGeoCodeRequest): Array<GeoAddress>;
 
 @rename("getCurrentLocation")
-@async
 @promise
 function GetCurrentLocationSync(request: Optional<CurrentRequest>): Location;
 
 @rename("getCurrentLocation")
-@async
 function GetCurrentLocationSyncNoRequest(): Location;
 
 @rename("enableLocation")
-@async
 @promise
 function EnableLocationSync(): void;
 
@@ -317,29 +313,24 @@ function SetMockedLocations(config: LocationMockConfig): void;
 function SetLocationPrivacyConfirmStatus(type: LocationPrivacyType, isConfirmed: bool): void;
 
 @rename("getCountryCode")
-@async
 @promise
 function GetCountryCodeSync(): CountryCode;
 
 @rename("sendCommand")
-@async
 @promise
 function SendCommandSync(command: LocationCommand): void;
 
 @rename("flushCachedGnssLocations")
-@async
 @promise
 function FlushCachedGnssLocationsSync(): void;
 
 @rename("getCachedGnssLocationsSize")
-@async
 @promise
 function GetCachedGnssLocationsSizeSync(): i32;
 
 function isGeocoderAvailable(): bool;
 
 @rename("getAddressesFromLocationName")
-@async
 @promise
 function GetAddressesFromLocationNameSync(request: GeoCodeRequest): Array<GeoAddress>;
 
