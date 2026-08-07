@@ -28,6 +28,7 @@ ohos_unittest("LocationMockIpcTest") {
     "$MOCK_IPC_UNIT_TEST_DIR/include",
     "$LOCATION_ROOT_DIR/interfaces/inner_api/include",
     "$LOCATION_GNSS_ROOT/include",
+    "$LOCATION_GNSS_ROOT/include/ntp",
     "$LOCATION_NETWORK_ROOT/include",
     "$LOCATION_GEOCONVERT_ROOT/include",
     "$LOCATION_PASSIVE_ROOT/include",
@@ -124,6 +125,16 @@ ohos_unittest("LocationMockIpcTest") {
 
   if (location_feature_with_network) {
     defines += [ "FEATURE_NETWORK_SUPPORT" ]
+  }
+
+  if (net_manager_enable) {
+    external_deps += [ "netmanager_base:net_conn_manager_if" ]
+    defines += [ "NET_MANAGER_ENABLE" ]
+  }
+
+  if (time_service_enable) {
+    external_deps += [ "time_service:time_client" ]
+    defines += [ "TIME_SERVICE_ENABLE" ]
   }
 
   module_out_path = module_output_path
