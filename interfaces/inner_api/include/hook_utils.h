@@ -166,11 +166,6 @@ typedef struct {
 } BeaconFenceStruct;
 
 typedef struct {
-    long long speedPriorityTotal;
-    long long delayNetworkFirst;
-} GnssDelayOptimizationInfo;
-
-typedef struct {
     LocatingRequiredDataConfig locatingRequiredDataConfig;
     void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result);
 } CellScanStruct;
