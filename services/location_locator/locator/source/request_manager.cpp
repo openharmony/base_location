@@ -57,7 +57,6 @@ namespace OHOS {
 namespace Location {
 ffrt::mutex RequestManager::requestMutex_;
 const int MAX_LOCATION_ERROR_CALLBACK_NUM = 1000;
-const int64_t GNSS_DELAY_REPORT_INTERVAL = 24LL * 60 * 60 * 1000; // 24 hours
 
 RequestManager* RequestManager::GetInstance()
 {
@@ -305,80 +304,9 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
         abilityName.c_str(), list->size());
 }
 
-void RequestManager::RemoveRequestFromGnssListByUuid(const std::string& uuid)
+void RequestManager::HandleGnssRequestHaEvent()
 {
-    std::unique_lock lock(requestMutex_);
-    {
-        std::unique_lock delayLock(gnssDelayUuidsMutex_);
-        if (gnssDelayUuids_.find(uuid) == gnssDelayUuids_.end()) {
-            return;
-        }
-        gnssDelayUuids_.erase(uuid);
-    }
-    auto locatorAbility = LocatorAbility::GetInstance();
-    auto requests = locatorAbility->GetRequests();
-    if (requests == nullptr) {
-        return;
-    }
-    auto gnssListIter = requests->find(GNSS_ABILITY);
-    if (gnssListIter == requests->end()) {
-        return;
-    }
-    auto& gnssList = gnssListIter->second;
-    for (auto iter = gnssList.begin(); iter != gnssList.end();) {
-        auto gnssRequest = *iter;
-        if (gnssRequest != nullptr && gnssRequest->GetUuid() == uuid) {
-            LBSLOGI(REQUEST_MANAGER, "remove same uuid from gnss list, uuid=%{public}s", uuid.c_str());
-            UpdateRunningUids(gnssRequest, GNSS_ABILITY, false);
-            iter = gnssList.erase(iter);
-        } else {
-            ++iter;
-        }
-    }
-}
- 
-void RequestManager::AddGnssDelayUuid(const std::string& uuid)
-{
-    std::unique_lock lock(gnssDelayUuidsMutex_);
-    gnssDelayUuids_.insert(uuid);
-}
- 
-void RequestManager::RemoveGnssDelayUuid(const std::string& uuid)
-{
-    std::unique_lock lock(gnssDelayUuidsMutex_);
-    gnssDelayUuids_.erase(uuid);
-}
- 
-void RequestManager::IncGnssSpeedPriorityRequestCount()
-{
-    int64_t currentTime = CommonUtils::GetCurrentTimeMilSec();
-    if (gnssDelayLastReportTime_ == 0) {
-        gnssDelayLastReportTime_ = currentTime;
-    } else if (currentTime - gnssDelayLastReportTime_ >= GNSS_DELAY_REPORT_INTERVAL) {
-        LBSLOGI(REQUEST_MANAGER, "[GNSS_DELAY_OPT] report triggered!");
-        ReportGnssDelayOptimizationToHa();
-        gnssDelayLastReportTime_ = currentTime;
-        gnssSpeedPriorityRequestCount_ = 0;
-        gnssDelayNetworkFirstCount_ = 0;
-    }
-    std::unique_lock lock(gnssDelayStatsMutex_);
-    gnssSpeedPriorityRequestCount_++;
-}
- 
-void RequestManager::ReportGnssDelayOptimizationToHa()
-{
-    if (gnssSpeedPriorityRequestCount_ <= 0) {
-        return;
-    }
-    HookUtils::ExecuteHookWhenGnssDelayOptimization(
-        static_cast<long long>(gnssSpeedPriorityRequestCount_),
-        static_cast<long long>(gnssDelayNetworkFirstCount_));
-}
- 
-void RequestManager::IncGnssDelayNetworkFirstCount()
-{
-    std::unique_lock lock(gnssDelayStatsMutex_);
-    gnssDelayNetworkFirstCount_++;
+    HookUtils::ExecuteHookWhenHandleRequest();
 }
 
 void RequestManager::HandleChrEvent(std::list<std::shared_ptr<Request>> requests)
@@ -504,16 +432,10 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}zu) work record:%{public}s",
         abilityName.c_str(), list.size(), workRecord->ToString().c_str());
     if (abilityName == GNSS_ABILITY && !list.empty()) {
-        auto request = list.front();
-        auto requestConfig = request->GetRequestConfig();
-        if (requestConfig != nullptr && requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED &&
-            requestConfig->GetFixNumber() == 1) {
-            IncGnssSpeedPriorityRequestCount();
-        }
-        if (IsGnssDelayEligible(list.front(), list.size())) {
+        auto firstRequest = list.back();
+        if (IsGnssDelayEligible(firstRequest, list.size())) {
             LBSLOGI(REQUEST_MANAGER, "condition matched, delay gnss 2s");
-            AddGnssDelayUuid(list.front()->GetUuid());
-            IncGnssDelayNetworkFirstCount();
+            HandleGnssRequestHaEvent();
             LocatorAbility::GetInstance()->ApplyRequests(2);
             return;
         }
@@ -523,6 +445,10 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
 
 bool RequestManager::IsGnssDelayEligible(std::shared_ptr<Request>& request, size_t requestCount)
 {
+    if (request == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "request is nullptr");
+        return false;
+    }
     auto requestConfig = request->GetRequestConfig();
     if (requestConfig == nullptr) {
         return false;
@@ -533,8 +459,10 @@ bool RequestManager::IsGnssDelayEligible(std::shared_ptr<Request>& request, size
         LBSLOGD(REQUEST_MANAGER, "time diff >= 2s, not eligible");
         return false;
     }
-    bool isSpeedPrioritySingle = (requestConfig->GetPriority() == LOCATION_PRIORITY_LOCATING_SPEED) &&
-                                 (requestConfig->GetFixNumber() == 1);
+    int scenario = requestConfig->GetScenario();
+    int priority = requestConfig->GetPriority();
+    bool isSpeedPrioritySingle = (scenario == SCENE_UNSET) && (priority == PRIORITY_FAST_FIRST_FIX ||
+        priority == LOCATION_PRIORITY_LOCATING_SPEED) && (requestConfig->GetFixNumber() == 1);
     if (!isSpeedPrioritySingle) {
         LBSLOGD(REQUEST_MANAGER, "not speed priority single, not eligible");
         return false;

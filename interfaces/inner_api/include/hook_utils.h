@@ -71,7 +71,7 @@ enum class LocationProcessStage {
     START_CELL_SCAN_PROCESS,
     NOTIFY_GEOFENCE_STATUS_BY_FENCEEXTENSION_PROCESS,
     FUSION_FENCE_REQUEST_PROCESS,
-    GNSS_DELAY_OPTIMIZATION_REPORT,
+    REQUEST_MANAGER_HANDLE_REQUEST_PROCESSS,
 };
 
 typedef struct {
@@ -213,7 +213,7 @@ public:
     static bool ExecuteHookWhenBeaconFenceTransitionStatusChange(const std::string& packageName);
     static void ExecuteHookWhenGnssEnable();
     static void ExecuteHookWhenOnUserSwitch(int32_t userId);
-    static void ExecuteHookWhenGnssDelayOptimization(long long speedPriorityTotal, long long delayNetworkFirst);
+    static void ExecuteHookWhenHandleRequest();
     static void ExecuteHookWhenStartCellScan(
         std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
         void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result));

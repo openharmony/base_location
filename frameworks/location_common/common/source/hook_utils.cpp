@@ -317,13 +317,9 @@ void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
         LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&userId, nullptr);
 }
 
-void HookUtils::ExecuteHookWhenGnssDelayOptimization(long long speedPriorityTotal, long long delayNetworkFirst)
+void HookUtils::ExecuteHookWhenHandleRequest()
 {
-    GnssDelayOptimizationInfo info;
-    info.speedPriorityTotal = speedPriorityTotal;
-    info.delayNetworkFirst = delayNetworkFirst;
-    ExecuteHook(
-        LocationProcessStage::GNSS_DELAY_OPTIMIZATION_REPORT, (void *)&info, nullptr);
+    ExecuteHook(LocationProcessStage::REQUEST_MANAGER_HANDLE_REQUEST_PROCESSS, nullptr, nullptr);
 }
 
 void HookUtils::ExecuteHookWhenStartCellScan(
