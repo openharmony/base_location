@@ -57,6 +57,7 @@ namespace OHOS {
 namespace Location {
 ffrt::mutex RequestManager::requestMutex_;
 const int MAX_LOCATION_ERROR_CALLBACK_NUM = 1000;
+const int HANDLE_GNSS_Request_DELAY = 2;
 
 RequestManager* RequestManager::GetInstance()
 {
@@ -436,7 +437,7 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
         if (IsGnssDelayEligible(firstRequest, list.size())) {
             LBSLOGI(REQUEST_MANAGER, "condition matched, delay gnss 2s");
             HandleGnssRequestHaEvent();
-            LocatorAbility::GetInstance()->ApplyRequests(2);
+            LocatorAbility::GetInstance()->ApplyRequests(HANDLE_GNSS_Request_DELAY);
             return;
         }
     }
