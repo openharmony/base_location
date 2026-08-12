@@ -75,7 +75,9 @@ public:
     static RequestManager* GetInstance();
     void IsStandby();
     void UpdateLocationError(std::shared_ptr<Request> request);
-
+    bool IsGnssDelayEligible(std::shared_ptr<Request>& request, size_t requestCount);
+    void HandleGnssRequestHaEvent();
+    
 private:
     bool RestorRequest(std::shared_ptr<Request> request);
     void HandleChrEvent(std::list<std::shared_ptr<Request>> requests);

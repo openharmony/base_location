@@ -317,6 +317,11 @@ void HookUtils::ExecuteHookWhenOnUserSwitch(int32_t userId)
         LocationProcessStage::ON_USER_SWITCH_PROCESS, (void *)&userId, nullptr);
 }
 
+void HookUtils::ExecuteHookWhenHandleRequest()
+{
+    ExecuteHook(LocationProcessStage::REQUEST_MANAGER_HANDLE_REQUEST_PROCESSS, nullptr, nullptr);
+}
+
 void HookUtils::ExecuteHookWhenStartCellScan(
     std::shared_ptr<LocatingRequiredDataConfig> locatingRequiredDataConfig,
     void (*OnCellScanInfoReceived)(std::vector<std::shared_ptr<LocatingRequiredData>> result))

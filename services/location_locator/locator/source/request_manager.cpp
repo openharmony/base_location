@@ -57,6 +57,7 @@ namespace OHOS {
 namespace Location {
 ffrt::mutex RequestManager::requestMutex_;
 const int MAX_LOCATION_ERROR_CALLBACK_NUM = 1000;
+const int HANDLE_GNSS_REQUEST_DELAY = 2;
 
 RequestManager* RequestManager::GetInstance()
 {
@@ -304,6 +305,11 @@ void RequestManager::UpdateRequestRecord(std::shared_ptr<Request> request, std::
         abilityName.c_str(), list->size());
 }
 
+void RequestManager::HandleGnssRequestHaEvent()
+{
+    HookUtils::ExecuteHookWhenHandleRequest();
+}
+
 void RequestManager::HandleChrEvent(std::list<std::shared_ptr<Request>> requests)
 {
     if (requests.size() > LBS_REQUEST_MAX_SIZE) {
@@ -426,8 +432,48 @@ void RequestManager::HandleRequest(std::string abilityName, std::list<std::share
     }
     LBSLOGD(REQUEST_MANAGER, "detect %{public}s ability requests(size:%{public}zu) work record:%{public}s",
         abilityName.c_str(), list.size(), workRecord->ToString().c_str());
-
+    if (abilityName == GNSS_ABILITY && !list.empty()) {
+        auto firstRequest = list.back();
+        if (IsGnssDelayEligible(firstRequest, list.size())) {
+            LBSLOGI(REQUEST_MANAGER, "condition matched, delay gnss 2s");
+            HandleGnssRequestHaEvent();
+            LocatorAbility::GetInstance()->ApplyRequests(HANDLE_GNSS_REQUEST_DELAY);
+            return;
+        }
+    }
     ProxySendLocationRequest(abilityName, *workRecord);
+}
+
+bool RequestManager::IsGnssDelayEligible(std::shared_ptr<Request>& request, size_t requestCount)
+{
+    if (request == nullptr) {
+        LBSLOGE(REQUEST_MANAGER, "request is nullptr");
+        return false;
+    }
+    auto requestConfig = request->GetRequestConfig();
+    if (requestConfig == nullptr) {
+        return false;
+    }
+    int64_t currentTime = CommonUtils::GetCurrentTime();
+    bool isTimeWithin2s = (currentTime - requestConfig->GetTimeStamp()) < 2;
+    if (!isTimeWithin2s) {
+        LBSLOGD(REQUEST_MANAGER, "time diff >= 2s, not eligible");
+        return false;
+    }
+    int scenario = requestConfig->GetScenario();
+    int priority = requestConfig->GetPriority();
+    bool isSpeedPrioritySingle = (scenario == SCENE_UNSET) && (priority == PRIORITY_FAST_FIRST_FIX ||
+        priority == LOCATION_PRIORITY_LOCATING_SPEED) && (requestConfig->GetFixNumber() == 1);
+    if (!isSpeedPrioritySingle) {
+        LBSLOGD(REQUEST_MANAGER, "not speed priority single, not eligible");
+        return false;
+    }
+    bool isSingleRequest = (requestCount == 1);
+    if (!isSingleRequest) {
+        LBSLOGD(REQUEST_MANAGER, "not single request, not eligible");
+        return false;
+    }
+    return true;
 }
 
 bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& request)
