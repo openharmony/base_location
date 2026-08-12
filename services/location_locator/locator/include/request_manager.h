@@ -103,13 +103,7 @@ private:
     std::atomic_bool isDeviceIdleMode_;
     std::atomic_bool isDeviceStillState_;
     ffrt::mutex workingPidsCountMutex_;
-    ffrt::mutex gnssDelayUuidsMutex_;
-    ffrt::mutex gnssDelayStatsMutex_;
-    int64_t gnssSpeedPriorityRequestCount_;
-    int64_t gnssDelayNetworkFirstCount_;
-    int64_t gnssDelayLastReportTime_;
     std::map<pid_t, int32_t> workingPidsCountMap_;
-    std::set<std::string> gnssDelayUuids_;
 };
 
 class LocatorErrCallbackDeathRecipient : public IRemoteObject::DeathRecipient {
