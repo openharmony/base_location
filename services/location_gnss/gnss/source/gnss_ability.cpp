@@ -1642,6 +1642,23 @@ void GnssAbility::NotifyGnssfenceStatusByFenceExtension(const std::shared_ptr<Ge
     if (request->GetFenceExtensionAbilityName().empty()) {
         return;
     }
+    AAFwk::Want want;
+    want.SetElementName(request->GetBundleName(), request->GetFenceExtensionAbilityName());
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    if (!BundleMgrHelper::QueryExtensionAbilityInfo(want, extensionInfos)) {
+        LBSLOGE(GNSS, "QueryExtensionAbilityInfo fail, bundleName: %{public}s, abilityName: %{public}s",
+            request->GetBundleName().c_str(), request->GetFenceExtensionAbilityName().c_str());
+    }
+    bool isAllowNotify = false;
+    for (const auto& extensionInfo : extensionInfos) {
+        if (extensionInfo.type == AppExecFwk::ExtensionAbilityType::FENCE) {
+            isAllowNotify = true;
+        }
+    }
+    if (!isAllowNotify) {
+        LBSLOGI(GNSS, "NotifyGnssfenceStatusByFenceExtension type is not 'fence'");
+        return;
+    }
     FenceStruct fenceStruct;
     fenceStruct.request = request;
     fenceStruct.transitionEvent = event;

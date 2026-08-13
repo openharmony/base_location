@@ -36,6 +36,9 @@ public:
     static bool GetBundleNameByUid(int32_t uid, std::string& bundleName);
     static bool GetAppInfo(const std::string& bundleName, AppExecFwk::ApplicationInfo& info);
     static bool CheckAppDebug(const std::string& bundleName);
+    static bool QueryExtensionAbilityInfo(const AAFwk::Want& want,
+        std::vector<AppExecFwk::ExtensionAbilityInfo>& extensionInfos);
+    static sptr<AppExecFwk::IBundleMgr> GetBundleManager();
 private:
 };
 
