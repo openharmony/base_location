@@ -68,6 +68,8 @@
 
 #include "parameters.h"
 #include "cJSON.h"
+#include "res_type.h"
+#include "res_sched_client.h"
 
 namespace OHOS {
 namespace Location {
@@ -2024,6 +2026,7 @@ void GnssAbility::StartGnss()
     if (GetRequestNum() == 0) {
         return;
     }
+    SetGnssHandlerQos();
     SetPositionMode();
     int ret = gnssInterface->StartGnss(GNSS_START_TYPE_NORMAL);
     if (ret == 0) {
@@ -2063,6 +2066,51 @@ void GnssAbility::StopGnss()
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
+    ResetGnssHandlerQos();
+}
+
+void GnssAbility::SetGnssHandlerQos()
+{
+    pid_t tid = gettid();
+    std::lock_guard<std::mutex> lock(gnssQosSetMapMutex_);
+    auto it = gnssQosSetMap_.find(tid);
+    if (it != gnssQosSetMap_.end() && it->second) {
+        return;
+    }
+    if (it == gnssQosSetMap_.end()) {
+        gnssQosSetMap_.emplace(tid, true);
+    } else {
+        it->second = true;
+    }
+    int qosLevel = 7;
+    SetHandlerQos(qosLevel);
+}
+ 
+void GnssAbility::ResetGnssHandlerQos()
+{
+    pid_t tid = gettid();
+    std::lock_guard<std::mutex> lock(gnssQosSetMapMutex_);
+    auto it = gnssQosSetMap_.find(tid);
+    if (it == gnssQosSetMap_.end() || !it->second) {
+        return;
+    }
+    it->second = false;
+    int qosLevel = -1;
+    SetHandlerQos(qosLevel);
+}
+ 
+void GnssAbility::SetHandlerQos(int qosLevel)
+{
+    std::string strBundleName = "gnssability";
+    std::string strPid = std::to_string(getpid());
+    std::string strTid = std::to_string(gettid());
+    std::string strQos = std::to_string(qosLevel);
+    std::unordered_map<std::string, std::string> mapPayLoad;
+    mapPayLoad["pid"] = strPid;
+    mapPayLoad[strTid] = strQos;
+    mapPayLoad["bundleName"] = strBundleName;
+    uint32_t type = OHOS::ResourceSchedule::ResType::RES_TYPE_THREAD_QOS_CHANGE;
+    OHOS::ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, 0, mapPayLoad);
 }
 
 int64_t GnssAbility::GetReportingPeriodSecParam()

@@ -118,6 +118,11 @@ private:
         (std::nothrow) NlpServiceDeathRecipient());
     ServiceRunningState state_ = ServiceRunningState::STATE_NOT_START;
     sptr<AAFwk::IAbilityConnection> conn_;
+    std::mutex networkQosSetMapMutex_;
+    std::map<pid_t, bool> networkQosSetMap_;
+    void SetNetworkHandlerQos();
+    void ResetNetworkHandlerQos();
+    void SetHandlerQos(int qosLevel);
 };
 } // namespace Location
 } // namespace OHOS

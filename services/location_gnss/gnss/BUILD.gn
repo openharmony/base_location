@@ -77,6 +77,7 @@ if (location_feature_with_gnss) {
       "relational_store:native_rdb",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
+      "resource_schedule_service:ressched_client",
     ]
 
     defines = []
@@ -213,6 +214,7 @@ if (location_feature_with_gnss) {
       "relational_store:native_rdb",
       "safwk:system_ability_fwk",
       "samgr:samgr_proxy",
+      "resource_schedule_service:ressched_client",
     ]
 
     defines = []

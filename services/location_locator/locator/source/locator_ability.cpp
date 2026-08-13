@@ -74,6 +74,8 @@
 #ifdef NOTIFICATION_ENABLE
 #include "notification_helper.h"
 #endif
+#include "res_type.h"
+#include "res_sched_client.h"
 
 namespace OHOS {
 namespace Location {
@@ -1567,6 +1569,7 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
             return LOCATION_ERRCODE_PERMISSION_DENIED;
         }
     }
+    SetLocatorHandlerQos();
     return StartLocatingProcess(requestConfig, cb, identity);
 }
 
@@ -1732,7 +1735,52 @@ ErrCode LocatorAbility::StopLocating(const sptr<ILocatorCallback>& cb)
         locatorHandler_->SendEvent(event);
     }
     ReportLocationStatus(cb, SESSION_STOP);
+    ResetLocatorHandlerQos();
     return ERRCODE_SUCCESS;
+}
+
+void LocatorAbility::SetLocatorHandlerQos()
+{
+    pid_t tid = gettid();
+    std::lock_guard<std::mutex> lock(locatorQosSetMapMutex_);
+    auto it = locatorQosSetMap_.find(tid);
+    if (it != locatorQosSetMap_.end() && it->second) {
+        return;
+    }
+    if (it == locatorQosSetMap_.end()) {
+        locatorQosSetMap_.emplace(tid, true);
+    } else {
+        it->second = true;
+    }
+    int qosLevel = 7;
+    SetHandlerQos(qosLevel);
+}
+ 
+void LocatorAbility::ResetLocatorHandlerQos()
+{
+    pid_t tid = gettid();
+    std::lock_guard<std::mutex> lock(locatorQosSetMapMutex_);
+    auto it = locatorQosSetMap_.find(tid);
+    if (it == locatorQosSetMap_.end() || !it->second) {
+        return;
+    }
+    it->second = false;
+    int qosLevel = -1;
+    SetHandlerQos(qosLevel);
+}
+ 
+void LocatorAbility::SetHandlerQos(int qosLevel)
+{
+    std::string strBundleName = "locatorability";
+    std::string strPid = std::to_string(getpid());
+    std::string strTid = std::to_string(gettid());
+    std::string strQos = std::to_string(qosLevel);
+    std::unordered_map<std::string, std::string> mapPayLoad;
+    mapPayLoad["pid"] = strPid;
+    mapPayLoad[strTid] = strQos;
+    mapPayLoad["bundleName"] = strBundleName;
+    uint32_t type = OHOS::ResourceSchedule::ResType::RES_TYPE_THREAD_QOS_CHANGE;
+    OHOS::ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, 0, mapPayLoad);
 }
 
 ErrCode LocatorAbility::GetCacheLocation(Location& location)

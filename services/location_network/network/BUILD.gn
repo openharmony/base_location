@@ -56,6 +56,7 @@ if (location_feature_with_network) {
       "ipc:ipc_single",
       "json:nlohmann_json_static",
       "safwk:system_ability_fwk",
+      "resource_schedule_service:ressched_client",
     ]
 
     defines = []
@@ -121,6 +122,7 @@ if (location_feature_with_network) {
       "ipc:ipc_single",
       "json:nlohmann_json_static",
       "safwk:system_ability_fwk",
+      "resource_schedule_service:ressched_client",
     ]
 
     defines = []
