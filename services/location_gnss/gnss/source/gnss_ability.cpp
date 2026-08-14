@@ -68,6 +68,7 @@
 
 #include "parameters.h"
 #include "cJSON.h"
+#include "bundle_mgr_helper.h"
 
 namespace OHOS {
 namespace Location {
