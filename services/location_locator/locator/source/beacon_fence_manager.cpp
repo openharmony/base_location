@@ -321,7 +321,7 @@ std::vector<std::shared_ptr<BeaconFenceRequest>> BeaconFenceManager::GetBeaconFe
 }
 
 bool BeaconFenceManager::MatchesData(
-    const std::vector<uint8_t> fData, const std::vector<uint8_t> fMask, const std::vector<uint8_t> scanData)
+    const std::vector<uint8_t>& fData, const std::vector<uint8_t>& fMask, const std::vector<uint8_t>& scanData)
 {
     size_t len = fData.size();
     if (scanData.size() != len || fMask.size() != len) {
