@@ -2426,9 +2426,6 @@ ErrCode LocatorAbility::RemoveBeaconFence(const BeaconFence& beaconFence)
     if (!CheckLocationSwitchState()) {
         return ERRCODE_SWITCH_OFF;
     }
-    if (!PermissionManager::CheckLocationPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
     std::shared_ptr<BeaconFence> beacon =
         std::make_shared<BeaconFence>(const_cast<BeaconFence&>(beaconFence));
     ErrCode locationErrCode = BeaconFenceManager::GetInstance()->RemoveBeaconFence(beacon, identity.GetBundleName());
