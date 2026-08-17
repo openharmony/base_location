@@ -320,6 +320,11 @@ private:
     std::shared_ptr<USBStatusEventClass> eventSubscriber_ = nullptr;
     void SendLocationMockNotification();
     void CancelNotification();
+    std::mutex locatorQosSetMapMutex_;
+    std::map<pid_t, bool> locatorQosSetMap_;
+    void SetLocatorHandlerQos();
+    void ResetLocatorHandlerQos();
+    void SetHandlerQos(int qosLevel);
 };
 
 class LocationMessage {

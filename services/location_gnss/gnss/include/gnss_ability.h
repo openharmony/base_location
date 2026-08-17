@@ -367,6 +367,11 @@ private:
     ffrt::mutex fenceWantAgentMapMutex_;
     std::vector<std::shared_ptr<GeofenceRequest>> gnssGeofenceRequestList_;
     std::map<std::string, int> gnssGeofenceRequestCountMap_;
+    std::mutex gnssQosSetMapMutex_;
+    std::map<pid_t, bool> gnssQosSetMap_;
+    void SetGnssHandlerQos();
+    void ResetGnssHandlerQos();
+    void SetHandlerQos(int qosLevel);
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {

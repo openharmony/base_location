@@ -42,6 +42,8 @@
 #include "xcollie/xcollie.h"
 #include "xcollie/xcollie_define.h"
 #endif
+#include "res_type.h"
+#include "res_sched_client.h"
 
 namespace OHOS {
 namespace Location {
@@ -236,6 +238,50 @@ LocationErrCode NetworkAbility::SendLocationRequest(WorkRecord &workrecord)
     return ERRCODE_SUCCESS;
 }
 
+void NetworkAbility::SetNetworkHandlerQos()
+{
+    pid_t tid = gettid();
+    std::lock_guard<std::mutex> lock(networkQosSetMapMutex_);
+    auto it = networkQosSetMap_.find(tid);
+    if (it != networkQosSetMap_.end() && it->second) {
+        return;
+    }
+    if (it == networkQosSetMap_.end()) {
+        networkQosSetMap_.emplace(tid, true);
+    } else {
+        it->second = true;
+    }
+    int qosLevel = 7;
+    SetHandlerQos(qosLevel);
+}
+ 
+void NetworkAbility::ResetNetworkHandlerQos()
+{
+    pid_t tid = gettid();
+    std::lock_guard<std::mutex> lock(networkQosSetMapMutex_);
+    auto it = networkQosSetMap_.find(tid);
+    if (it == networkQosSetMap_.end() || !it->second) {
+        return;
+    }
+    it->second = false;
+    int qosLevel = -1;
+    SetHandlerQos(qosLevel);
+}
+ 
+void NetworkAbility::SetHandlerQos(int qosLevel)
+{
+    std::string strBundleName = "networkability";
+    std::string strPid = std::to_string(getpid());
+    std::string strTid = std::to_string(gettid());
+    std::string strQos = std::to_string(qosLevel);
+    std::unordered_map<std::string, std::string> mapPayLoad;
+    mapPayLoad["pid"] = strPid;
+    mapPayLoad[strTid] = strQos;
+    mapPayLoad["bundleName"] = strBundleName;
+    uint32_t type = OHOS::ResourceSchedule::ResType::RES_TYPE_THREAD_QOS_CHANGE;
+    OHOS::ResourceSchedule::ResSchedClient::GetInstance().ReportData(type, 0, mapPayLoad);
+}
+
 LocationErrCode NetworkAbility::SetEnable(bool state)
 {
     LBSLOGD(NETWORK, "SetEnable: %{public}d", state);
@@ -362,6 +408,7 @@ bool NetworkAbility::RequestNetworkLocation(WorkRecord &workRecord)
         LBSLOGE(NETWORK, "can not get valid callback.");
         return false;
     }
+    SetNetworkHandlerQos();
     HookUtils::ExecuteHookWhenAddNetworkRequest(workRecord.GetUuid(0));
     std::unique_lock<ffrt::mutex> uniqueLock(nlpServiceMutex_);
     if (nlpServiceProxy_ == nullptr) {
@@ -406,6 +453,7 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
     int error = nlpServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
+    ResetNetworkHandlerQos();
     if (error != ERR_OK) {
         LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
         return false;
