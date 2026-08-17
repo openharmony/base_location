@@ -80,7 +80,7 @@ private:
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByCallback(sptr<IRemoteObject> callbackObj);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByPackageName(std::string& packageName);
     bool MatchesData(
-        const std::vector<uint8_t> fData, const std::vector<uint8_t> fMask, const std::vector<uint8_t> scanData);
+        const std::vector<uint8_t>& fData, const std::vector<uint8_t>& fMask, const std::vector<uint8_t>& scanData);
     std::string ExtractiBeaconUUID(const std::vector<uint8_t>& data);
     void RemoveBeaconFenceRequestByBeacon(std::shared_ptr<BeaconFence> beaconFence);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByBeacon(std::shared_ptr<BeaconFence> beaconFence);
