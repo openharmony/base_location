@@ -272,7 +272,7 @@ std::string BeaconFenceManager::ExtractiBeaconUUID(const std::vector<uint8_t>& d
 #ifdef BLUETOOTH_ENABLE
 void BeaconFenceManager::ReportFoundOrLost(const Bluetooth::BleScanResult &result, uint8_t type)
 {
-     std::vector<std::shared_ptr<BeaconFenceRequest>> matchedRequests =
+    std::vector<std::shared_ptr<BeaconFenceRequest>> matchedRequests =
         GetBeaconFenceRequestByScanResult(result);
     if (matchedRequests.empty()) {
         return;
@@ -325,7 +325,6 @@ bool BeaconFenceManager::MatchesData(
 {
     size_t len = fData.size();
     if (scanData.size() != len || fMask.size() != len) {
-
         return false;
     }
     for (size_t i = 0; i < len; i++) {
