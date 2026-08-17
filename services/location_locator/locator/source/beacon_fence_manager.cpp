@@ -272,53 +272,67 @@ std::string BeaconFenceManager::ExtractiBeaconUUID(const std::vector<uint8_t>& d
 #ifdef BLUETOOTH_ENABLE
 void BeaconFenceManager::ReportFoundOrLost(const Bluetooth::BleScanResult &result, uint8_t type)
 {
-    std::shared_ptr<BeaconFenceRequest> beaconFenceRequest = GetBeaconFenceRequestByScanResult(result);
-    if (beaconFenceRequest == nullptr) {
+     std::vector<std::shared_ptr<BeaconFenceRequest>> matchedRequests =
+        GetBeaconFenceRequestByScanResult(result);
+    if (matchedRequests.empty()) {
         return;
     }
-    AppIdentity identity = GetAppIdentityByBeaconFenceRequest(beaconFenceRequest);
-    if (type == Bluetooth::BLE_SCAN_CALLBACK_TYPE_FIRST_MATCH) {
-        // 首次进入围栏
-        TransitionStatusChange(beaconFenceRequest, GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER, identity);
-    } else if (type == Bluetooth::BLE_SCAN_CALLBACK_TYPE_LOST_MATCH) {
-        // 首次退出围栏
-        TransitionStatusChange(beaconFenceRequest, GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT, identity);
+    for (auto& beaconFenceRequest : matchedRequests) {
+        AppIdentity identity = GetAppIdentityByBeaconFenceRequest(beaconFenceRequest);
+        if (type == Bluetooth::BLE_SCAN_CALLBACK_TYPE_FIRST_MATCH) {
+            // 首次进入围栏
+            TransitionStatusChange(
+                beaconFenceRequest, GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_ENTER, identity);
+        } else if (type == Bluetooth::BLE_SCAN_CALLBACK_TYPE_LOST_MATCH) {
+            // 首次退出围栏
+            TransitionStatusChange(
+                beaconFenceRequest, GeofenceTransitionEvent::GEOFENCE_TRANSITION_EVENT_EXIT, identity);
+        }
     }
 }
 
-std::shared_ptr<BeaconFenceRequest> BeaconFenceManager::GetBeaconFenceRequestByScanResult(
+std::vector<std::shared_ptr<BeaconFenceRequest>> BeaconFenceManager::GetBeaconFenceRequestByScanResult(
     const Bluetooth::BleScanResult &result)
 {
+    std::vector<std::shared_ptr<BeaconFenceRequest>> matchedRequests;
     std::map<uint16_t, std::string> dataMap = result.GetManufacturerData();
-    std::string scanData;
-    for (const auto& pair : dataMap) {
-        scanData = pair.second;
-    }
 
     std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
         auto request = iter->first;
-        if (MatchesData(request->GetBeaconFence()->GetBeaconManufactureData().manufactureData, scanData)) {
-            return request;
+        auto beaconFence = request->GetBeaconFence();
+        if (request == nullptr || beaconFence == nullptr) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "request or beaconFence is nullptr");
+            continue;
+        }
+        auto manufactureData = beaconFence->GetBeaconManufactureData();
+        for (auto it = dataMap.begin(); it != dataMap.end(); it++) {
+            std::vector<uint8_t> scanData(it->second.begin(), it->second.end());
+            if (MatchesData(manufactureData.manufactureData, manufactureData.manufactureDataMask, scanData)) {
+                matchedRequests.push_back(request);
+                break;
+            }
         }
     }
-    LBSLOGE(BEACON_FENCE_MANAGER, "can not get request by BleScanResult");
-    return nullptr;
+    if (matchedRequests.empty()) {
+        LBSLOGE(BEACON_FENCE_MANAGER, "can not get request by BleScanResult");
+    }
+    return matchedRequests;
 }
 
-bool BeaconFenceManager::MatchesData(std::vector<uint8_t> fData, std::string scanData)
+bool BeaconFenceManager::MatchesData(
+    const std::vector<uint8_t> fData, const std::vector<uint8_t> fMask, const std::vector<uint8_t> scanData)
 {
-    if (scanData.empty()) {
-        return false;
-    }
     size_t len = fData.size();
-    std::vector<uint8_t> vec(scanData.begin(), scanData.end());
-    if (vec.size() < len) {
+    if (scanData.size() != len || fMask.size() != len) {
+
         return false;
     }
     for (size_t i = 0; i < len; i++) {
-        if (fData[i] != vec[i]) {
-            return false;
+        if (fMask[i] != 0x00) {
+            if ((fData[i] & fMask[i]) != (scanData[i] & fMask[i])) {
+                return false;
+            }
         }
     }
     return true;
@@ -421,13 +435,9 @@ AppIdentity BeaconFenceManager::GetAppIdentityByBeaconFenceRequest(
     if (beaconFenceRequest == nullptr) {
         return appIdentity;
     }
-    for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
-        auto request = iter->first;
-        if (beaconFenceRequest->GetServiceUuid() == request->GetServiceUuid()) {
-            auto callbackPair = iter->second;
-            auto identity = callbackPair.second;
-            return identity;
-        }
+    auto iter = beaconFenceRequestMap_.find(beaconFenceRequest);
+    if (iter != beaconFenceRequestMap_.end()) {
+        return iter->second.second;
     }
     return appIdentity;
 }
