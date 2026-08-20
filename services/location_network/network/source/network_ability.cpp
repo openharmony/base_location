@@ -252,7 +252,7 @@ void NetworkAbility::SetNetworkHandlerQos()
         it->second = true;
     }
     int qosLevel = 7;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
 void NetworkAbility::ResetNetworkHandlerQos()
@@ -265,14 +265,14 @@ void NetworkAbility::ResetNetworkHandlerQos()
     }
     it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
-void NetworkAbility::SetHandlerQos(int qosLevel)
+void NetworkAbility::SetHandlerQos(pid_t tid, int qosLevel)
 {
     std::string strBundleName = "networkability";
     std::string strPid = std::to_string(getpid());
-    std::string strTid = std::to_string(gettid());
+    std::string strTid = std::to_string(tid);
     std::string strQos = std::to_string(qosLevel);
     std::unordered_map<std::string, std::string> mapPayLoad;
     mapPayLoad["pid"] = strPid;
@@ -721,6 +721,7 @@ void NetworkHandler::HandleLocationRequest(const AppExecFwk::InnerEvent::Pointer
     std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
     if (workrecord != nullptr) {
         auto networkAbility = NetworkAbility::GetInstance();
+        networkAbility->SetNetworkHandlerQos();
         networkAbility->LocationRequest(*workrecord);
     }
 }
