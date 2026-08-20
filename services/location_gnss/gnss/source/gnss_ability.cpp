@@ -1795,7 +1795,7 @@ bool GnssAbility::SetGeofenceCallback()
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
     std::unique_lock<ffrt::mutex> lock(hdiMutex_);
-    bool isV3 = IsGeofenceHdiV3Supported();IsDeviceLoaded
+    bool isV3 = IsGeofenceHdiV3Supported();
     SetGeofenceHdiVersion(isV3);
     if (isV3) {
         if (geofenceCallbackV3_ == nullptr) {
