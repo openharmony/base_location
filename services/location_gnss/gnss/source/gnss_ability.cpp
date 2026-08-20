@@ -1626,6 +1626,9 @@ void GnssAbility::NotifyGnssfenceStatusByNotification(const std::shared_ptr<Geof
         auto notificationRequest = notificationRequestList[i];
         if (notificationRequest != nullptr) {
             notificationRequest->SetCreatorUid(request->GetUid());
+            notificationRequest->SetOwnerUid(request->GetUid());
+            notificationRequest->SetCreatorBundleName(request->GetBundleName());
+            notificationRequest->SetOwnerBundleName(request->GetBundleName());
             int ret = Notification::NotificationHelper::PublishNotification(*notificationRequest);
             if (ret != ERR_OK) {
                 LBSLOGE(GNSS, "PublishNotification faild ret :%{public}d", ret);
