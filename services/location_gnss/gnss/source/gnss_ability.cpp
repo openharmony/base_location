@@ -2083,7 +2083,7 @@ void GnssAbility::SetGnssHandlerQos()
         it->second = true;
     }
     int qosLevel = 7;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
 void GnssAbility::ResetGnssHandlerQos()
@@ -2096,14 +2096,14 @@ void GnssAbility::ResetGnssHandlerQos()
     }
     it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
-void GnssAbility::SetHandlerQos(int qosLevel)
+void GnssAbility::SetHandlerQos(pid_t tid, int qosLevel)
 {
     std::string strBundleName = "gnssability";
     std::string strPid = std::to_string(getpid());
-    std::string strTid = std::to_string(gettid());
+    std::string strTid = std::to_string(tid);
     std::string strQos = std::to_string(qosLevel);
     std::unordered_map<std::string, std::string> mapPayLoad;
     mapPayLoad["pid"] = strPid;
@@ -2867,6 +2867,7 @@ void GnssHandler::HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointe
     auto gnssAbility = GnssAbility::GetInstance();
     std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
     if (workrecord != nullptr) {
+        gnssAbility->SetGnssHandlerQos();
         gnssAbility->LocationRequest(*workrecord);
     }
 }

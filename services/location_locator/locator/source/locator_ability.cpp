@@ -1753,7 +1753,7 @@ void LocatorAbility::SetLocatorHandlerQos()
         it->second = true;
     }
     int qosLevel = 7;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
 void LocatorAbility::ResetLocatorHandlerQos()
@@ -1766,14 +1766,14 @@ void LocatorAbility::ResetLocatorHandlerQos()
     }
     it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
-void LocatorAbility::SetHandlerQos(int qosLevel)
+void LocatorAbility::SetHandlerQos(pid_t tid, int qosLevel)
 {
     std::string strBundleName = "locatorability";
     std::string strPid = std::to_string(getpid());
-    std::string strTid = std::to_string(gettid());
+    std::string strTid = std::to_string(tid);
     std::string strQos = std::to_string(qosLevel);
     std::unordered_map<std::string, std::string> mapPayLoad;
     mapPayLoad["pid"] = strPid;
@@ -1833,6 +1833,7 @@ ErrCode LocatorAbility::GetCacheLocation(Location& location)
 
 ErrCode LocatorAbility::ReportLocation(const std::string& abilityName, const Location& location)
 {
+    SetLocatorHandlerQos();
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::REPORT_LOCATION, identity)) {
@@ -3419,6 +3420,8 @@ void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& e
         return;
     }
     if (requestManager != nullptr) {
+        auto locatorAbility = LocatorAbility::GetInstance();
+        locatorAbility->SetLocatorHandlerQos();
         HookUtils::ExecuteHookWhenStartLocation(request);
         requestManager->HandleStartLocating(request);
     }
@@ -3432,6 +3435,8 @@ void LocatorHandler::StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& ev
         return;
     }
     if (requestManager != nullptr) {
+        auto locatorAbility = LocatorAbility::GetInstance();
+        locatorAbility->ResetLocatorHandlerQos();
         requestManager->HandleStopLocating(callbackMessage->GetCallback());
     }
 }
