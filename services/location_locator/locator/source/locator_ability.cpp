@@ -3437,8 +3437,6 @@ void LocatorHandler::StopLocatingEvent(const AppExecFwk::InnerEvent::Pointer& ev
         return;
     }
     if (requestManager != nullptr) {
-        auto locatorAbility = LocatorAbility::GetInstance();
-        locatorAbility->ResetLocatorHandlerQos();
         requestManager->HandleStopLocating(callbackMessage->GetCallback());
     }
 }
