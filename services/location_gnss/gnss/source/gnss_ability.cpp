@@ -2066,7 +2066,9 @@ void GnssAbility::StopGnss()
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
-    ResetGnssHandlerQos();
+    if (GetRequestNum() <= 0) {
+        ResetGnssHandlerQos();
+    }
 }
 
 void GnssAbility::SetGnssHandlerQos()
@@ -2088,15 +2090,14 @@ void GnssAbility::SetGnssHandlerQos()
  
 void GnssAbility::ResetGnssHandlerQos()
 {
-    pid_t tid = gettid();
     std::lock_guard<std::mutex> lock(gnssQosSetMapMutex_);
-    auto it = gnssQosSetMap_.find(tid);
-    if (it == gnssQosSetMap_.end() || !it->second) {
-        return;
-    }
-    it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(tid, qosLevel);
+    for (auto it = gnssQosSetMap_.begin(); it != gnssQosSetMap_.end(); ++it) {
+        if (it->second) {
+            it->second = false;
+            SetHandlerQos(it->first, qosLevel);
+        }
+    }
 }
  
 void GnssAbility::SetHandlerQos(pid_t tid, int qosLevel)

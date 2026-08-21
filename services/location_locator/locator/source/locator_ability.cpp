@@ -1735,7 +1735,9 @@ ErrCode LocatorAbility::StopLocating(const sptr<ILocatorCallback>& cb)
         locatorHandler_->SendEvent(event);
     }
     ReportLocationStatus(cb, SESSION_STOP);
-    ResetLocatorHandlerQos();
+    if (GetActiveRequestNum() <= 0) {
+        ResetLocatorHandlerQos();
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -1758,15 +1760,14 @@ void LocatorAbility::SetLocatorHandlerQos()
  
 void LocatorAbility::ResetLocatorHandlerQos()
 {
-    pid_t tid = gettid();
     std::lock_guard<std::mutex> lock(locatorQosSetMapMutex_);
-    auto it = locatorQosSetMap_.find(tid);
-    if (it == locatorQosSetMap_.end() || !it->second) {
-        return;
-    }
-    it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(tid, qosLevel);
+    for (auto it = locatorQosSetMap_.begin(); it != locatorQosSetMap_.end(); ++it) {
+        if (it->second) {
+            it->second = false;
+            SetHandlerQos(it->first, qosLevel);
+        }
+    }
 }
  
 void LocatorAbility::SetHandlerQos(pid_t tid, int qosLevel)
