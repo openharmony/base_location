@@ -257,15 +257,14 @@ void NetworkAbility::SetNetworkHandlerQos()
  
 void NetworkAbility::ResetNetworkHandlerQos()
 {
-    pid_t tid = gettid();
     std::lock_guard<std::mutex> lock(networkQosSetMapMutex_);
-    auto it = networkQosSetMap_.find(tid);
-    if (it == networkQosSetMap_.end() || !it->second) {
-        return;
-    }
-    it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(tid, qosLevel);
+    for (auto it = networkQosSetMap_.begin(); it != networkQosSetMap_.end(); ++it) {
+        if (it->second) {
+            it->second = false;
+            SetHandlerQos(it->first, qosLevel);
+        }
+    }
 }
  
 void NetworkAbility::SetHandlerQos(pid_t tid, int qosLevel)
@@ -453,7 +452,9 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
     int error = nlpServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
-    ResetNetworkHandlerQos();
+    if (GetRequestNum() <= 0) {
+        ResetNetworkHandlerQos();
+    }
     if (error != ERR_OK) {
         LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
         return false;
