@@ -459,6 +459,7 @@ int32_t LocatorAbility::CallbackExit(uint32_t code, int32_t result)
 
 bool LocatorAbility::CheckRequestAvailable(LocatorInterfaceCode code, AppIdentity &identity)
 {
+    SetLocatorHandlerQos();
     LBSLOGI(LOCATOR, "OnReceived cmd = %{public}u, identity= [%{private}s], timestamp = %{public}s",
             code, identity.ToString().c_str(), std::to_string(CommonUtils::GetCurrentTimeStamp()).c_str());
     if (code == LocatorInterfaceCode::UNREG_SWITCH_CALLBACK ||
