@@ -261,6 +261,7 @@ public:
     void SetLocatorHandlerQos();
     void ResetLocatorHandlerQos();
     void SetHandlerQos(pid_t tid, int qosLevel);
+
 private:
     bool Init();
     bool CheckSaValid();
