@@ -171,16 +171,6 @@ bool HookUtils::ExecuteHookEnableAbility(
     return enableAbilityStruct.result;
 }
 
-bool HookUtils::ExecuteHookWhenPreStartLocating(std::string packageName)
-{
-    LocatorRequestStruct locatorRequestStruct;
-    locatorRequestStruct.bundleName = packageName;
-    locatorRequestStruct.result = true;
-    ExecuteHook(
-        LocationProcessStage::PRE_START_LOCATING_PROCESS, (void *)&locatorRequestStruct, nullptr);
-    return locatorRequestStruct.result;
-}
-
 bool HookUtils::ExecuteHookWhenAddNetworkRequest(std::string uuidTemp)
 {
     NetworkRequestInfo info;
