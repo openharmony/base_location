@@ -1542,8 +1542,7 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
-    bool res = HookUtils::ExecuteHookWhenPreStartLocating(identity.GetBundleName());
-    if (res && !CheckRequestAvailable(LocatorInterfaceCode::START_LOCATING, identity)) {
+    if (!CheckRequestAvailable(LocatorInterfaceCode::START_LOCATING, identity)) {
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
                 "NETWORK_FAIL_CODE", std::to_string(LOCATION_ERRCODE_NOT_CURRENT_USER_ID)});
         return LOCATION_ERRCODE_PERMISSION_DENIED;
@@ -1557,17 +1556,6 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
             "NETWORK_FAIL_CODE", std::to_string(ERRCODE_PERMISSION_DENIED)});
         return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
-    auto reportManager = ReportManager::GetInstance();
-    if (reportManager != nullptr && res) {
-        if (reportManager->IsAppBackground(identity.GetBundleName(), identity.GetTokenId(),
-            identity.GetTokenIdEx(), identity.GetUid(), identity.GetPid()) &&
-            !PermissionManager::CheckBackgroundPermission(identity.GetTokenId(), identity.GetFirstTokenId())) {
-            WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
-                "NETWORK_FAIL_CODE", std::to_string(LOCATION_ERRCODE_BACKGROUND_PERMISSION_DENIED)});
-            LBSLOGE(LOCATOR, "CheckBackgroundPermission return false, [%{private}s]", identity.ToString().c_str());
-            return LOCATION_ERRCODE_PERMISSION_DENIED;
-        }
     }
     SetLocatorHandlerQos();
     return StartLocatingProcess(requestConfig, cb, identity);

@@ -25,7 +25,6 @@
     "*LOCATOR_SA_LOCATION_PERMISSION_CHECK*";
     "*ExecuteHookReportManagerGetCacheLocation*";
     "*ExecuteHookEnableAbility*";
-    "*ExecuteHookWhenPreStartLocating*";
     "*ExecuteHookWhenSetAgnssServer*";
     "*ExecuteHookWhenSimStateChange*";
     "*BluetoothScanResult*";
