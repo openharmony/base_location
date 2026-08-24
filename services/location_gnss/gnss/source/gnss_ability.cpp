@@ -255,6 +255,13 @@ LocationErrCode GnssAbility::SetEnable(bool state)
     if (state && gnssEnableState) {
         EnableGnss();
         StartGnss();
+#ifdef HDF_DRIVERS_INTERFACE_AGNSS_ENABLE
+        SetAgnssCallback();
+        SetAgnssServer();
+#endif
+#ifdef HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE
+        SetGeofenceCallback();
+#endif
     } else {
         StopGnssBatching();
         /*
@@ -1792,22 +1799,28 @@ bool GnssAbility::SetGeofenceCallback()
         LBSLOGI(GNSS, "Is Not Support Geofence");
         return LOCATION_ERRCODE_NOT_SUPPORTED;
     }
+    std::unique_lock<ffrt::mutex> lock(hdiMutex_);
+    bool isV3 = IsGeofenceHdiV3Supported();
+    SetGeofenceHdiVersion(isV3);
+    if (isV3) {
+        if (geofenceCallbackV3_ == nullptr) {
+            geofenceCallbackV3_ = sptr<GeofenceEventCallbackV3>(new (std::nothrow) GeofenceEventCallbackV3);
+        }
+    } else {
+        if (geofenceCallback_ == nullptr) {
+            geofenceCallback_ = sptr<GeofenceEventCallback>(new (std::nothrow) GeofenceEventCallback);
+        }
+    }
     if (LocationDataRdbManager::QuerySystemSwitchState() != ENABLED) {
         LBSLOGE(GNSS, "QuerySwitchState is DISABLED");
         return false;
     }
-    bool isV3 = IsGeofenceHdiV3Supported();
-    SetGeofenceHdiVersion(isV3);
     if (isV3) {
         sptr<HDI::Location::Geofence::V3_0::IGeofenceInterface> geofenceInterfaceV3 =
             HDI::Location::Geofence::V3_0::IGeofenceInterface::Get();
         if (geofenceInterfaceV3 == nullptr) {
             LBSLOGE(GNSS, "geofenceInterfaceV3 get failed");
             return false;
-        }
-        if (geofenceCallbackV3_ == nullptr) {
-            geofenceCallbackV3_ =
-                sptr<GeofenceEventCallbackV3>(new (std::nothrow) GeofenceEventCallbackV3);
         }
         int32_t ret = geofenceInterfaceV3->SetGeofenceCallback(geofenceCallbackV3_);
         LBSLOGD(GNSS, "set geofence V3 callback, ret:%{public}d", ret);
@@ -1820,9 +1833,6 @@ bool GnssAbility::SetGeofenceCallback()
         if (geofenceInterface == nullptr) {
             LBSLOGE(GNSS, "geofenceInterface get failed");
             return false;
-        }
-        if (geofenceCallback_ == nullptr) {
-            geofenceCallback_ = sptr<GeofenceEventCallback>(new (std::nothrow) GeofenceEventCallback);
         }
         int32_t ret = geofenceInterface->SetGeofenceCallback(geofenceCallback_);
         LBSLOGD(GNSS, "set geofence V2 callback, ret:%{public}d", ret);
@@ -2234,7 +2244,6 @@ bool GnssAbility::IsDeviceLoaded(const std::string &servName)
         LBSLOGE(GNSS, "The devices is not found:%{public}s in host %{public}s", servName.c_str(), LOCATION_HOST_NAME);
         return false;
     }
-    std::unique_lock<ffrt::mutex> lock(hdiMutex_, std::defer_lock);
     LBSLOGD(GNSS, "check host:%{public}s dev:%{public}s loaded",
         itDevicesInfo->hostName.c_str(), itDevInfo->servName.c_str());
     return true;
@@ -2308,10 +2317,6 @@ bool GnssAbility::ConnectGeofenceHdi()
             LBSLOGE(GNSS, "Load geofence service failed!");
             return false;
         }
-    }
-    std::unique_lock<ffrt::mutex> lock(hdiMutex_);
-    if (geofenceCallback_ == nullptr) {
-        geofenceCallback_ = sptr<GeofenceEventCallback>(new (std::nothrow) GeofenceEventCallback);
     }
     bool ret = SetGeofenceCallback();
     if (!ret) {
