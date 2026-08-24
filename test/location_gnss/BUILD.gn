@@ -112,6 +112,7 @@ if (location_feature_with_gnss) {
       defines += [ "HDF_DRIVERS_INTERFACE_GEOFENCE_ENABLE" ]
     }
     if (notification_distributed_notification_service_enable) {
+      external_deps += [ "image_framework:image_native" ]
       defines += [ "NOTIFICATION_ENABLE" ]
     }
     if (call_manager_enable) {
