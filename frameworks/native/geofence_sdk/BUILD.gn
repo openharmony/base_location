@@ -66,6 +66,7 @@ ohos_shared_library("geofence_sdk") {
 
   if (notification_distributed_notification_service_enable) {
     public_external_deps += [ "distributed_notification_service:ans_innerkits" ]
+    external_deps += [ "image_framework:image_native" ]
     defines += [ "NOTIFICATION_ENABLE" ]
   }
 
