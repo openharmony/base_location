@@ -69,7 +69,8 @@ private:
     void StartBluetoothScan();
     void StopBluetoothScan();
     void ConstructFilter(std::vector<Bluetooth::BleScanFilter>& filters);
-    std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByScanResult(const Bluetooth::BleScanResult &result);
+    std::vector<std::shared_ptr<BeaconFenceRequest>> GetBeaconFenceRequestByScanResult(
+        const Bluetooth::BleScanResult &result);
 #endif
     int32_t GenerateBeaconFenceId();
     bool IsStrValidForStoi(const std::string &str);
@@ -78,7 +79,8 @@ private:
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByServiceUuid(std::string serviceUuid);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByCallback(sptr<IRemoteObject> callbackObj);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByPackageName(std::string& packageName);
-    bool MatchesData(std::vector<uint8_t> fData, std::string scanData);
+    bool MatchesData(
+        const std::vector<uint8_t>& fData, const std::vector<uint8_t>& fMask, const std::vector<uint8_t>& scanData);
     std::string ExtractiBeaconUUID(const std::vector<uint8_t>& data);
     void RemoveBeaconFenceRequestByBeacon(std::shared_ptr<BeaconFence> beaconFence);
     std::shared_ptr<BeaconFenceRequest> GetBeaconFenceRequestByBeacon(std::shared_ptr<BeaconFence> beaconFence);

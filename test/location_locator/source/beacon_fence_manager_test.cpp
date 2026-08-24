@@ -238,8 +238,9 @@ HWTEST_F(BeaconFenceManagerTest, MatchesDataTest001, TestSize.Level0)
         << "BeaconFenceManagerTest, MatchesDataTest001, TestSize.Level0";
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest001 begin");
     std::vector<uint8_t> fData;
-    std::string scanData;
-    EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, scanData));
+    std::vector<uint8_t> fMask;
+    std::vector<uint8_t> scanData;
+    EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, fMask, scanData));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest001 end");
 }
 
@@ -250,8 +251,11 @@ HWTEST_F(BeaconFenceManagerTest, MatchesDataTest002, TestSize.Level0)
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 begin");
     std::vector<uint8_t> fData;
     fData.push_back(8);
-    std::string scanData = "scanData";
-    EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, scanData));
+    std::vector<uint8_t> fMask;
+    fMask.push_back(0xFF);
+    std::vector<uint8_t> scanData;
+    scanData.push_back(9);
+    EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, fMask, scanData));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest002 end");
 }
 
@@ -549,8 +553,30 @@ HWTEST_F(BeaconFenceManagerTest, MatchesDataTest003, TestSize.Level0)
     fData.push_back(0x00);
     fData.push_back(0x00);
     fData.push_back(0xC5);
-    std::string scanData = "\x4C\x00\x12\xFB\x5B\xBF\x8D\x9E\x4E\x14\x9F\xBB\x62\x00\x00\x00\x00\xC5";
-    beaconFenceManager_->MatchesData(fData, scanData);
+    std::vector<uint8_t> fMask;
+    for (size_t i = 0; i < fData.size(); i++) {
+        fMask.push_back(0xFF);
+    }
+    std::vector<uint8_t> scanData;
+    scanData.push_back(0x4C);
+    scanData.push_back(0x00);
+    scanData.push_back(0x12);
+    scanData.push_back(0xFB);
+    scanData.push_back(0x5B);
+    scanData.push_back(0xBF);
+    scanData.push_back(0x8D);
+    scanData.push_back(0x9E);
+    scanData.push_back(0x4E);
+    scanData.push_back(0x14);
+    scanData.push_back(0x9F);
+    scanData.push_back(0xBB);
+    scanData.push_back(0x62);
+    scanData.push_back(0x00);
+    scanData.push_back(0x00);
+    scanData.push_back(0x00);
+    scanData.push_back(0x00);
+    scanData.push_back(0xC5);
+    EXPECT_EQ(true, beaconFenceManager_->MatchesData(fData, fMask, scanData));
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest003 end");
 }
 
@@ -953,6 +979,41 @@ HWTEST_F(BeaconFenceManagerTest, GetBeaconManufactureDataForFilterTest002, TestS
     auto filters = beaconFenceManager_->GetBeaconManufactureDataForFilter();
     EXPECT_GT(filters.size(), 0);
     LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconManufactureDataForFilterTest002 end");
+}
+
+HWTEST_F(BeaconFenceManagerTest, MatchesDataTest004, TestSize.Level0)
+{
+    GTEST_LOG_(INFO)
+        << "BeaconFenceManagerTest, MatchesDataTest004, TestSize.Level0";
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest004 begin");
+    std::vector<uint8_t> fData = {0x4C, 0x00, 0x12, 0xFB};
+    std::vector<uint8_t> fMask = {0xFF, 0x00, 0xFF, 0x00};
+    std::vector<uint8_t> scanData = {0x4C, 0xFF, 0x12, 0xFF};
+    EXPECT_EQ(true, beaconFenceManager_->MatchesData(fData, fMask, scanData));
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest004 end");
+}
+
+HWTEST_F(BeaconFenceManagerTest, MatchesDataTest005, TestSize.Level0)
+{
+    GTEST_LOG_(INFO)
+        << "BeaconFenceManagerTest, MatchesDataTest005, TestSize.Level0";
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest005 begin");
+    std::vector<uint8_t> fData = {0x4C, 0x00, 0x12, 0xFB};
+    std::vector<uint8_t> fMask = {0xFF, 0xFF, 0xFF, 0xFF};
+    std::vector<uint8_t> scanData = {0x4C, 0x00, 0x12, 0xFC};
+    EXPECT_EQ(false, beaconFenceManager_->MatchesData(fData, fMask, scanData));
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] MatchesDataTest005 end");
+}
+
+HWTEST_F(BeaconFenceManagerTest, GetBeaconFenceRequestByScanResultTest001, TestSize.Level0)
+{
+    GTEST_LOG_(INFO)
+        << "BeaconFenceManagerTest, GetBeaconFenceRequestByScanResultTest001, TestSize.Level0";
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByScanResultTest001 begin");
+    Bluetooth::BleScanResult result;
+    auto matchedRequests = beaconFenceManager_->GetBeaconFenceRequestByScanResult(result);
+    EXPECT_EQ(0, matchedRequests.size());
+    LBSLOGI(BEACON_FENCE_MANAGER, "[BeaconFenceManagerTest] GetBeaconFenceRequestByScanResultTest001 end");
 }
 } // namespace Location
 } // namespace OHOS
