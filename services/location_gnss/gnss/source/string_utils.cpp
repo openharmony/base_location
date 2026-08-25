@@ -175,7 +175,8 @@ std::string StringUtils::Gsm7Decode(const std::string &gsm7Str)
         } else if (index < 0x60) {
             bits = gsm7Chars[index - 0x20];
         } else {
-            bits = extChar[index - 0x60];
+            const unsigned int extIndex = index - 0x60;
+            bits = (extIndex < extChar.size()) ? extChar[extIndex] : 0;
         }
 
         for (int i = 6; i >= 0; --i) {
