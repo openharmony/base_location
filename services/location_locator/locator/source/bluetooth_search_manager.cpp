@@ -102,6 +102,8 @@ bool BluetoothSearchManager::MatchFilter(const BluetoothScanResult& result,
         if (!found) {
             return false;
         }
+    } else {
+        return false;
     }
     return true;
 }
