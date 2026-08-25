@@ -1735,7 +1735,9 @@ ErrCode LocatorAbility::StopLocating(const sptr<ILocatorCallback>& cb)
         locatorHandler_->SendEvent(event);
     }
     ReportLocationStatus(cb, SESSION_STOP);
-    ResetLocatorHandlerQos();
+    if (GetActiveRequestNum() <= 0) {
+        ResetLocatorHandlerQos();
+    }
     return ERRCODE_SUCCESS;
 }
 
@@ -1753,27 +1755,26 @@ void LocatorAbility::SetLocatorHandlerQos()
         it->second = true;
     }
     int qosLevel = 7;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
 void LocatorAbility::ResetLocatorHandlerQos()
 {
-    pid_t tid = gettid();
     std::lock_guard<std::mutex> lock(locatorQosSetMapMutex_);
-    auto it = locatorQosSetMap_.find(tid);
-    if (it == locatorQosSetMap_.end() || !it->second) {
-        return;
-    }
-    it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(qosLevel);
+    for (auto it = locatorQosSetMap_.begin(); it != locatorQosSetMap_.end(); ++it) {
+        if (it->second) {
+            it->second = false;
+            SetHandlerQos(it->first, qosLevel);
+        }
+    }
 }
  
-void LocatorAbility::SetHandlerQos(int qosLevel)
+void LocatorAbility::SetHandlerQos(pid_t tid, int qosLevel)
 {
     std::string strBundleName = "locatorability";
     std::string strPid = std::to_string(getpid());
-    std::string strTid = std::to_string(gettid());
+    std::string strTid = std::to_string(tid);
     std::string strQos = std::to_string(qosLevel);
     std::unordered_map<std::string, std::string> mapPayLoad;
     mapPayLoad["pid"] = strPid;
@@ -1833,6 +1834,7 @@ ErrCode LocatorAbility::GetCacheLocation(Location& location)
 
 ErrCode LocatorAbility::ReportLocation(const std::string& abilityName, const Location& location)
 {
+    SetLocatorHandlerQos();
     AppIdentity identity;
     GetAppIdentityInfo(identity);
     if (!CheckRequestAvailable(LocatorInterfaceCode::REPORT_LOCATION, identity)) {
@@ -3416,6 +3418,8 @@ void LocatorHandler::StartLocatingEvent(const AppExecFwk::InnerEvent::Pointer& e
         return;
     }
     if (requestManager != nullptr) {
+        auto locatorAbility = LocatorAbility::GetInstance();
+        locatorAbility->SetLocatorHandlerQos();
         HookUtils::ExecuteHookWhenStartLocation(request);
         requestManager->HandleStartLocating(request);
     }

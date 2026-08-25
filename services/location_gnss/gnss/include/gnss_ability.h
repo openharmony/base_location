@@ -282,6 +282,9 @@ public:
     GnssGeofenceOperateResult DealOperationResult(LocationErrCode code);
     LocationErrCode GetActiveGeoFences(std::string bundleName,
         std::map<int, std::shared_ptr<Geofence>>& fenceMap) override;
+    void SetGnssHandlerQos();
+    void ResetGnssHandlerQos();
+    void SetHandlerQos(pid_t tid, int qosLevel);
 
 private:
     bool Init();
@@ -369,9 +372,6 @@ private:
     std::map<std::string, int> gnssGeofenceRequestCountMap_;
     std::mutex gnssQosSetMapMutex_;
     std::map<pid_t, bool> gnssQosSetMap_;
-    void SetGnssHandlerQos();
-    void ResetGnssHandlerQos();
-    void SetHandlerQos(int qosLevel);
 };
 
 class LocationHdiDeathRecipient : public IRemoteObject::DeathRecipient {
