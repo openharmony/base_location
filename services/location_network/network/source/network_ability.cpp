@@ -252,27 +252,26 @@ void NetworkAbility::SetNetworkHandlerQos()
         it->second = true;
     }
     int qosLevel = 7;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
 void NetworkAbility::ResetNetworkHandlerQos()
 {
-    pid_t tid = gettid();
     std::lock_guard<std::mutex> lock(networkQosSetMapMutex_);
-    auto it = networkQosSetMap_.find(tid);
-    if (it == networkQosSetMap_.end() || !it->second) {
-        return;
-    }
-    it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(qosLevel);
+    for (auto it = networkQosSetMap_.begin(); it != networkQosSetMap_.end(); ++it) {
+        if (it->second) {
+            it->second = false;
+            SetHandlerQos(it->first, qosLevel);
+        }
+    }
 }
  
-void NetworkAbility::SetHandlerQos(int qosLevel)
+void NetworkAbility::SetHandlerQos(pid_t tid, int qosLevel)
 {
     std::string strBundleName = "networkability";
     std::string strPid = std::to_string(getpid());
-    std::string strTid = std::to_string(gettid());
+    std::string strTid = std::to_string(tid);
     std::string strQos = std::to_string(qosLevel);
     std::unordered_map<std::string, std::string> mapPayLoad;
     mapPayLoad["pid"] = strPid;
@@ -453,7 +452,9 @@ bool NetworkAbility::RemoveNetworkLocation(WorkRecord &workRecord)
     data.WriteString16(Str8ToStr16(workRecord.GetUuid(0)));
     data.WriteString16(Str8ToStr16(workRecord.GetName(0))); // bundleName
     int error = nlpServiceProxy_->SendRequest(REMOVE_NETWORK_LOCATION, data, reply, option);
-    ResetNetworkHandlerQos();
+    if (GetRequestNum() <= 0) {
+        ResetNetworkHandlerQos();
+    }
     if (error != ERR_OK) {
         LBSLOGE(NETWORK, "SendRequest to cloud service failed.");
         return false;
@@ -721,6 +722,7 @@ void NetworkHandler::HandleLocationRequest(const AppExecFwk::InnerEvent::Pointer
     std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
     if (workrecord != nullptr) {
         auto networkAbility = NetworkAbility::GetInstance();
+        networkAbility->SetNetworkHandlerQos();
         networkAbility->LocationRequest(*workrecord);
     }
 }

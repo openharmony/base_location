@@ -2079,7 +2079,9 @@ void GnssAbility::StopGnss()
     if (errCode != ERRCODE_SUCCESS) {
         LBSLOGE(GNSS, "%{public}s ExecuteHook failed err = %{public}d", __func__, (int)errCode);
     }
-    ResetGnssHandlerQos();
+    if (GetRequestNum() <= 0) {
+        ResetGnssHandlerQos();
+    }
 }
 
 void GnssAbility::SetGnssHandlerQos()
@@ -2096,27 +2098,26 @@ void GnssAbility::SetGnssHandlerQos()
         it->second = true;
     }
     int qosLevel = 7;
-    SetHandlerQos(qosLevel);
+    SetHandlerQos(tid, qosLevel);
 }
  
 void GnssAbility::ResetGnssHandlerQos()
 {
-    pid_t tid = gettid();
     std::lock_guard<std::mutex> lock(gnssQosSetMapMutex_);
-    auto it = gnssQosSetMap_.find(tid);
-    if (it == gnssQosSetMap_.end() || !it->second) {
-        return;
-    }
-    it->second = false;
     int qosLevel = -1;
-    SetHandlerQos(qosLevel);
+    for (auto it = gnssQosSetMap_.begin(); it != gnssQosSetMap_.end(); ++it) {
+        if (it->second) {
+            it->second = false;
+            SetHandlerQos(it->first, qosLevel);
+        }
+    }
 }
  
-void GnssAbility::SetHandlerQos(int qosLevel)
+void GnssAbility::SetHandlerQos(pid_t tid, int qosLevel)
 {
     std::string strBundleName = "gnssability";
     std::string strPid = std::to_string(getpid());
-    std::string strTid = std::to_string(gettid());
+    std::string strTid = std::to_string(tid);
     std::string strQos = std::to_string(qosLevel);
     std::unordered_map<std::string, std::string> mapPayLoad;
     mapPayLoad["pid"] = strPid;
@@ -2875,6 +2876,7 @@ void GnssHandler::HandleSendLocationRequest(const AppExecFwk::InnerEvent::Pointe
     auto gnssAbility = GnssAbility::GetInstance();
     std::unique_ptr<WorkRecord> workrecord = event->GetUniqueObject<WorkRecord>();
     if (workrecord != nullptr) {
+        gnssAbility->SetGnssHandlerQos();
         gnssAbility->LocationRequest(*workrecord);
     }
 }

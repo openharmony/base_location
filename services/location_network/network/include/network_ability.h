@@ -96,6 +96,9 @@ public:
     void RestartNlpRequests();
     void DisconnectAbilityConnect();
     void ClearServiceProxy();
+    void SetNetworkHandlerQos();
+    void ResetNetworkHandlerQos();
+    void SetHandlerQos(pid_t tid, int qosLevel);
 private:
     bool Init();
     static void SaDumpInfo(std::string& result);
@@ -120,9 +123,6 @@ private:
     sptr<AAFwk::IAbilityConnection> conn_;
     std::mutex networkQosSetMapMutex_;
     std::map<pid_t, bool> networkQosSetMap_;
-    void SetNetworkHandlerQos();
-    void ResetNetworkHandlerQos();
-    void SetHandlerQos(int qosLevel);
 };
 } // namespace Location
 } // namespace OHOS

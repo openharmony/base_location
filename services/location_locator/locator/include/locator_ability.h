@@ -258,6 +258,9 @@ public:
     void SetUSBState(bool status);
     bool GetUSBState();
     bool IsDeveloperMode();
+    void SetLocatorHandlerQos();
+    void ResetLocatorHandlerQos();
+    void SetHandlerQos(pid_t tid, int qosLevel);
 
 private:
     bool Init();
@@ -322,9 +325,6 @@ private:
     void CancelNotification();
     std::mutex locatorQosSetMapMutex_;
     std::map<pid_t, bool> locatorQosSetMap_;
-    void SetLocatorHandlerQos();
-    void ResetLocatorHandlerQos();
-    void SetHandlerQos(int qosLevel);
 };
 
 class LocationMessage {
