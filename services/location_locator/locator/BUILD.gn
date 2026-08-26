@@ -161,6 +161,7 @@ ohos_shared_library("lbsservice_locator") {
   }
 
   if (notification_distributed_notification_service_enable) {
+    external_deps += [ "image_framework:image_native" ]
     defines += [ "NOTIFICATION_ENABLE" ]
   }
 
@@ -285,6 +286,7 @@ ohos_static_library("lbsservice_locator_static") {
   }
 
   if (notification_distributed_notification_service_enable) {
+    external_deps += [ "image_framework:image_native" ]
     defines += [ "NOTIFICATION_ENABLE" ]
   }
 
