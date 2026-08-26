@@ -30,8 +30,8 @@
 namespace OHOS {
 namespace Location {
 const int TIMEOUT_WATCHDOG = 60; // s
-const int MAX_GNSS_GEOFENCE_REQUEST_NUM = 10;
-const int MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP = 5;
+const int MAX_GNSS_GEOFENCE_REQUEST_NUM = 1000;
+const int MAX_GNSS_GEOFENCE_REQUEST_NUM_FOR_ONE_APP = 100;
 
 FusionFenceAbility::FusionFenceAbility()
     : totalGnssFenceCount_(0)
