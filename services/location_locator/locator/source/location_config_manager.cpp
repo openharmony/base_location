@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 #include "location_config_manager.h"
+#include "parse_int_parameter.h"
 
 #include <fstream>
 
@@ -180,24 +181,18 @@ bool LocationConfigManager::GetStringParameter(const std::string& type, std::str
 int LocationConfigManager::GetIntParameter(const std::string& type)
 {
     char result[MAX_BUFF_SIZE] = {0};
-    std::string value = "";
     auto res = GetParameter(type.c_str(), "", result, MAX_BUFF_SIZE);
     if (res < 0 || strlen(result) == 0) {
         LBSLOGE(LOCATOR, "%{public}s get para value failed, res: %{public}d",
             __func__, res);
         return UNKNOW_ERROR;
     }
-    value = result;
-    for (auto ch : value) {
-        if (std::isdigit(ch) == 0) {
-            LBSLOGE(LOCATOR, "wrong para");
-            return UNKNOW_ERROR;
-        }
-    }
-    if (value.size() == 0) {
+    int parsed = 0;
+    if (!ParseIntParameter(result, parsed)) {
+        LBSLOGE(LOCATOR, "wrong para");
         return UNKNOW_ERROR;
     }
-    return std::stoi(value);
+    return parsed;
 }
 
 bool LocationConfigManager::GetSettingsBundleName(std::string& name)
