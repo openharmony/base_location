@@ -324,7 +324,7 @@ bool BeaconFenceManager::MatchesData(
     const std::vector<uint8_t>& fData, const std::vector<uint8_t>& fMask, const std::vector<uint8_t>& scanData)
 {
     size_t len = fData.size();
-    if (scanData.size() != len || fMask.size() != len) {
+    if (len == 0 || scanData.size() != len || fMask.size() != len) {
         return false;
     }
     for (size_t i = 0; i < len; i++) {
