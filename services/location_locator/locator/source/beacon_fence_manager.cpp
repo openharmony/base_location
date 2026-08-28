@@ -399,7 +399,9 @@ void BeaconFenceManager::ReportByFenceExtension(std::shared_ptr<BeaconFenceReque
     }
     std::string fenceId = beaconFenceRequest->GetFenceId();
     // 拉起fenceExtension
-    if (!beaconFenceRequest->GetFenceExtensionAbilityName().empty()) {
+    if (!beaconFenceRequest->GetFenceExtensionAbilityName().empty() &&
+        BundleMgrHelperExt::CheckFenceExtensionAbilityType(
+        beaconFenceRequest->GetBundleName(), beaconFenceRequest->GetFenceExtensionAbilityName())) {
         HookUtils::ExecuteHookWhenReportBeaconFenceOperateResult(fenceId, static_cast<int>(event),
             beaconFenceRequest->GetFenceExtensionAbilityName(), beaconFenceRequest->GetBundleName());
     }

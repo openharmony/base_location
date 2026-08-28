@@ -46,6 +46,7 @@
 #include "permission_manager.h"
 #include "proxy_freeze_manager.h"
 #include "app_background_status_manager.h"
+#include "bundle_mgr_helper.h"
 
 #ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
@@ -68,7 +69,6 @@
 
 #include "parameters.h"
 #include "cJSON.h"
-#include "bundle_mgr_helper.h"
 
 namespace OHOS {
 namespace Location {
@@ -1643,21 +1643,9 @@ void GnssAbility::NotifyGnssfenceStatusByFenceExtension(const std::shared_ptr<Ge
     if (request->GetFenceExtensionAbilityName().empty()) {
         return;
     }
-    AAFwk::Want want;
-    want.SetElementName(request->GetBundleName(), request->GetFenceExtensionAbilityName());
-    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
-    if (!BundleMgrHelper::QueryExtensionAbilityInfo(want, extensionInfos)) {
-        LBSLOGE(GNSS, "QueryExtensionAbilityInfo fail, bundleName: %{public}s, abilityName: %{public}s",
-            request->GetBundleName().c_str(), request->GetFenceExtensionAbilityName().c_str());
-    }
-    bool isAllowNotify = false;
-    for (const auto& extensionInfo : extensionInfos) {
-        if (extensionInfo.type == AppExecFwk::ExtensionAbilityType::FENCE) {
-            isAllowNotify = true;
-        }
-    }
-    if (!isAllowNotify) {
-        LBSLOGI(GNSS, "NotifyGnssfenceStatusByFenceExtension type is not 'fence'");
+    if (!BundleMgrHelperExt::CheckFenceExtensionAbilityType(
+        request->GetBundleName(), request->GetFenceExtensionAbilityName())) {
+        LBSLOGI(GNSS, "check fenceExtension ability type fail.");
         return;
     }
     FenceStruct fenceStruct;
