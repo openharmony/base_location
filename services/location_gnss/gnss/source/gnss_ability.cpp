@@ -1643,7 +1643,7 @@ void GnssAbility::NotifyGnssfenceStatusByFenceExtension(const std::shared_ptr<Ge
     if (request->GetFenceExtensionAbilityName().empty()) {
         return;
     }
-    if (!BundleMgrHelperExt::CheckFenceExtensionAbilityType(
+    if (!BundleMgrHelper::CheckFenceExtensionAbilityType(
         request->GetBundleName(), request->GetFenceExtensionAbilityName())) {
         LBSLOGI(GNSS, "check fenceExtension ability type fail.");
         return;
