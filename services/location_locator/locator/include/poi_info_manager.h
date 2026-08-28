@@ -40,6 +40,7 @@ namespace Location {
 typedef struct StrPoiInfoStruct {
     uint64_t poiInfosTime = 0;
     std::string latestPoiInfos = "";
+    std::string latestPoiInfosJson = "";
 } StrPoiInfoStruct;
 
 class PoiInfoHandler : public AppExecFwk::EventHandler {
@@ -48,7 +49,6 @@ public:
     using PoiInfoEventHandleMap = std::map<int, PoiInfoEventHandler>;
     explicit PoiInfoHandler(const std::shared_ptr<AppExecFwk::EventRunner>& runner);
     ~PoiInfoHandler() override;
-
 private:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer& event) override;
     void InitPoiInfoEventProcessMap();
@@ -73,6 +73,7 @@ public:
     void OnPoiInfoChange(std::shared_ptr<PoiInfo> &results) override;
     void OnErrorReport(const std::string errorCode) override;
     bool ReportPoiPermissionCheck(AppIdentity identity);
+    bool UpdatePoiUsingPermission(AppIdentity identity);
     sptr<IRemoteObject> cb_;
     AppIdentity identity_;
 };
@@ -80,16 +81,18 @@ public:
 typedef struct PoiInfoRequest {
     sptr<IRemoteObject> callback;
     AppIdentity identity;
-}PoiInfoRequest;
+} PoiInfoRequest;
 
 class PoiInfoManager {
 public:
     PoiInfoManager();
     ~PoiInfoManager();
     static PoiInfoManager* GetInstance();
+
     void UpdateCachedPoiInfo(const std::unique_ptr<Location>& location);
     void ClearPoiInfos(const std::unique_ptr<Location>& finalLocation);
-    void UpdateLocationPoiInfo(const std::unique_ptr<Location>& finalLocation);
+    bool UpdateLocationPoiInfo(const std::unique_ptr<Location>& finalLocation);
+    bool CheckIfLastBestPoiValid(const std::unique_ptr<Location>& finalLocation);
 
     void PreRequestPoiInfo(const sptr<IRemoteObject>& cb, AppIdentity identity);
     void RequestPoiInfo(sptr<IRemoteObject>& cb, AppIdentity identity);
@@ -106,18 +109,25 @@ public:
 
     std::string GetLatestPoiInfo();
     void SetLatestPoiInfo(std::string poiInfo);
+    std::string GetLatestPoiInfoJson();
+    void SetLatestPoiInfoJson(std::string poiInfoJson);
     uint64_t GetLatestPoiInfoTime();
     void SetLatestPoiInfoTime(uint64_t poiInfoTime);
+    std::string GetPoiInfoFromAdditions(std::vector<std::string> additions);
 
     uint64_t GetPoiInfoTime(const std::string& poiInfos);
     bool IsPoiInfoValid(std::string poiInfos, uint64_t poiInfoTime);
     void AddCachedPoiInfoToLocation(const std::unique_ptr<Location>& finalLocation);
     Poi ParsePoiInfo(cJSON* poiJson);
     PoiInfo ParsePoiInfoFromStr(const std::string& jsonString);
+    std::string UpdateLastPoiInfoTime(std::string& lastPoiInfo, std::string& curPoiInfo);
+    bool IsLastPoiIdInCurPoiInfo(std::string& curPoiInfo, std::string& lastBestPoiId);
 
 private:
     std::mutex latestPoiInfoMutex_;
     StrPoiInfoStruct latestPoiInfoStruct_;
+    std::string lastBestPoiId_ = "";
+    int64_t delayedReportTime_ = 0;
     std::shared_ptr<PoiInfoHandler> poiInfoHandler_;
     ffrt::mutex poiServiceMutex_;
     ffrt::mutex connMutex_;
