@@ -128,12 +128,25 @@ bool BundleMgrHelper::QueryExtensionAbilityInfo(
         LBSLOGE(COMMON_UTILS, "QueryExtensionAbilityInfo failed");
         return false;
     }
-    AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
-    if (extensionInfo.bundleName.empty() || extensionInfo.name.empty()) {
-        LBSLOGE(COMMON_UTILS, "ExtensionAbilityInfo is empty.");
+    return true;
+}
+
+bool BundleMgrHelperExt::CheckFenceExtensionAbilityType(const std::string& bundleName, const std::string& abilityName)
+{
+    AAFwk::Want want;
+    want.SetElementName(bundleName, abilityName);
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    if (!QueryExtensionAbilityInfo(want, extensionInfos)) {
+        LBSLOGE(GNSS, "QueryExtensionAbilityInfo fail, bundleName: %{public}s, abilityName: %{public}s",
+            bundleName.c_str(), abilityName.c_str());
         return false;
     }
-    return true;
+    LBSLOGI(GNSS, "QueryExtensionAbilityInfo , extensionInfos size: %{public}zu", extensionInfos.size());
+    AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
+    if (extensionInfo.type == AppExecFwk::ExtensionAbilityType::FENCE) {
+        return true;
+    }
+    return false;
 }
 }
 }
