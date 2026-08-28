@@ -131,17 +131,17 @@ bool BundleMgrHelper::QueryExtensionAbilityInfo(
     return true;
 }
 
-bool BundleMgrHelperExt::CheckFenceExtensionAbilityType(const std::string& bundleName, const std::string& abilityName)
+bool BundleMgrHelper::CheckFenceExtensionAbilityType(const std::string& bundleName, const std::string& abilityName)
 {
     AAFwk::Want want;
     want.SetElementName(bundleName, abilityName);
     std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
     if (!QueryExtensionAbilityInfo(want, extensionInfos)) {
-        LBSLOGE(GNSS, "QueryExtensionAbilityInfo fail, bundleName: %{public}s, abilityName: %{public}s",
+        LBSLOGE(COMMON_UTILS, "QueryExtensionAbilityInfo fail, bundleName: %{public}s, abilityName: %{public}s",
             bundleName.c_str(), abilityName.c_str());
         return false;
     }
-    LBSLOGI(GNSS, "QueryExtensionAbilityInfo , extensionInfos size: %{public}zu", extensionInfos.size());
+    LBSLOGI(COMMON_UTILS, "QueryExtensionAbilityInfo , extensionInfos size: %{public}zu", extensionInfos.size());
     AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
     if (extensionInfo.type == AppExecFwk::ExtensionAbilityType::FENCE) {
         return true;
