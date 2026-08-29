@@ -132,12 +132,11 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> fuseLocation;
     std::unique_ptr<Location> finalLocation;
     if (IsRequestFuse(request)) {
-        if (request->GetBestLocation() == nullptr ||
-            request->GetBestLocation()->GetLocationSourceType() == 0) {
-            auto cacheGnssLocation = GetCacheGnssLocation();
-            if (cacheGnssLocation != nullptr) {
-                request->SetBestLocation(std::make_unique<Location>(*cacheGnssLocation));
-            }
+        auto cacheGnssLocation = GetCacheGnssLocation();
+        if (cacheGnssLocation != nullptr &&
+            (request->GetBestLocation() == nullptr ||
+            request->GetBestLocation()->GetLocationSourceType() == 0)) {
+            request->SetBestLocation(std::make_unique<Location>(*cacheGnssLocation));
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
