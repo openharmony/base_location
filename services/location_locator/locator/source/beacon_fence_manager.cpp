@@ -300,9 +300,13 @@ std::vector<std::shared_ptr<BeaconFenceRequest>> BeaconFenceManager::GetBeaconFe
     std::lock_guard<std::mutex> lock(beaconFenceRequestMapMutex_);
     for (auto iter = beaconFenceRequestMap_.begin(); iter != beaconFenceRequestMap_.end(); iter++) {
         auto request = iter->first;
+        if (request == nullptr) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "request is nullptr");
+            continue;
+        }
         auto beaconFence = request->GetBeaconFence();
-        if (request == nullptr || beaconFence == nullptr) {
-            LBSLOGE(BEACON_FENCE_MANAGER, "request or beaconFence is nullptr");
+        if (beaconFence == nullptr) {
+            LBSLOGE(BEACON_FENCE_MANAGER, "beaconFence is nullptr");
             continue;
         }
         auto manufactureData = beaconFence->GetBeaconManufactureData();
