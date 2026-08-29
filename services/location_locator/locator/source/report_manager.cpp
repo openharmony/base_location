@@ -134,7 +134,10 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     if (IsRequestFuse(request)) {
         if (request->GetBestLocation() == nullptr ||
             request->GetBestLocation()->GetLocationSourceType() == 0) {
-            request->SetBestLocation(std::make_unique<Location>(*GetCacheGnssLocation()));
+            auto cacheGnssLocation = GetCacheGnssLocation();
+            if (cacheGnssLocation != nullptr) {
+                request->SetBestLocation(std::make_unique<Location>(*cacheGnssLocation));
+            }
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
         if (request->GetLastLocation() != nullptr && request->GetLastLocation()->LocationEqual(fuseLocation)) {
@@ -486,13 +489,31 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
     std::string packageName = request->GetPackageName();
     int cachedTime = CACHED_TIME;
     cachedTime = HookUtils::ExecuteHookReportManagerGetCacheLocation(packageName, request->GetNlpRequestType());
-    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - GetCacheGnssLocation()->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
-        cacheLocation = std::make_unique<Location>(*GetCacheGnssLocation());
-    } else if (GetCacheNlpLocation() != nullptr &&
-        !CommonUtils::DoubleEqual(GetCacheNlpLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - GetCacheNlpLocation()->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
-        cacheLocation = std::make_unique<Location>(*GetCacheNlpLocation());
+    auto cacheGnssLocation = GetCacheGnssLocation();
+    auto cacheNlpLocation = GetCacheNlpLocation();
+    if (cacheGnssLocation != nullptr &&
+        !CommonUtils::DoubleEqual(cacheGnssLocation->GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheGnssLocation->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
+        cacheLocation = std::make_unique<Location>(*cacheGnssLocation);
+    } else if (cacheNlpLocation != nullptr &&
+        !CommonUtils::DoubleEqual(cacheNlpLocation->GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheNlpLocation->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
+        cacheLocation = std::make_unique<Location>(*cacheNlpLocation);
+    }
+    if (cacheLocation == nullptr  &&
+        (request->GetRequestConfig() != nullptr && request->GetRequestConfig()->GetFixNumber() == 1) &&
+        LocatorRequiredDataManager::GetInstance()->IsSimilarWifi() && cacheNlpLocation != nullptr &&
+        !CommonUtils::DoubleEqual(cacheNlpLocation->GetLatitude(), MIN_LATITUDE - 1) &&
+        !LocatorRequiredDataManager::GetInstance()->IsCellIdChanged()) {
+        cacheLocation = std::make_unique<Location>(*cacheNlpLocation);
+        if (cacheLocation != nullptr) {
+            cacheLocation->SetTimeStamp(CommonUtils::GetCurrentTimeMilSec());
+            cacheLocation->SetTimeSinceBoot(CommonUtils::GetSinceBootTime());
+            LBSLOGI(REPORT_MANAGER, "cached location valid, report cached location to %{public}s",
+                request->GetPackageName().c_str());
+        } else {
+            LBSLOGE(REPORT_MANAGER, "null cacheLocation");
+        }
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
@@ -628,8 +649,10 @@ bool ReportManager::IsAppBackground(std::string bundleName, uint32_t tokenId, ui
 bool ReportManager::IsCacheGnssLocationValid()
 {
     int64_t curTime = CommonUtils::GetCurrentTimeStamp();
-    if (!CommonUtils::DoubleEqual(GetCacheGnssLocation()->GetLatitude(), MIN_LATITUDE - 1) &&
-        (curTime - GetCacheGnssLocation()->GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
+    auto cacheGnssLocation = GetCacheGnssLocation();
+    if (cacheGnssLocation != nullptr &&
+        !CommonUtils::DoubleEqual(cacheGnssLocation->GetLatitude(), MIN_LATITUDE - 1) &&
+        (curTime - cacheGnssLocation->GetTimeStamp() / MILLI_PER_SEC) <= CACHED_TIME) {
         return true;
     }
     return false;
