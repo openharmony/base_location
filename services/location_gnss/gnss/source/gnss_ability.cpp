@@ -46,6 +46,7 @@
 #include "permission_manager.h"
 #include "proxy_freeze_manager.h"
 #include "app_background_status_manager.h"
+#include "bundle_mgr_helper.h"
 
 #ifdef NOTIFICATION_ENABLE
 #include "notification_request.h"
@@ -1652,6 +1653,11 @@ void GnssAbility::NotifyGnssfenceStatusByFenceExtension(const std::shared_ptr<Ge
         return;
     }
     if (request->GetFenceExtensionAbilityName().empty()) {
+        return;
+    }
+    if (!BundleMgrHelper::CheckFenceExtensionAbilityType(
+        request->GetBundleName(), request->GetFenceExtensionAbilityName())) {
+        LBSLOGI(GNSS, "check fenceExtension ability type fail.");
         return;
     }
     FenceStruct fenceStruct;

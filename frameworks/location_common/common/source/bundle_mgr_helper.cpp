@@ -77,6 +77,21 @@ bool BundleMgrHelper::CheckAppDebug(const std::string& bundleName)
     return true;
 }
 
+sptr<AppExecFwk::IBundleMgr> BundleMgrHelper::GetBundleManager()
+{
+    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemManager == nullptr) {
+        LBSLOGE(COMMON_UTILS, "fail to get system ability manager!");
+        return nullptr;
+    }
+    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
+    if (bundleMgrSa == nullptr) {
+        LBSLOGE(COMMON_UTILS, "fail to get bundle manager system ability!");
+        return nullptr;
+    }
+    return iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
+}
+
 bool BundleMgrHelper::GetAppInfo(const std::string& bundleName, AppExecFwk::ApplicationInfo& info)
 {
     int userId = 0;
@@ -85,23 +100,53 @@ bool BundleMgrHelper::GetAppInfo(const std::string& bundleName, AppExecFwk::Appl
         LBSLOGE(COMMON_UTILS, "GetCurrentUserId failed");
         return false;
     }
-    auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemManager == nullptr) {
-        LBSLOGE(COMMON_UTILS, "fail to get system ability manager!");
-        return false;
-    }
-    auto bundleMgrSa = systemManager->GetSystemAbility(BUNDLE_MGR_SERVICE_SYS_ABILITY_ID);
-    if (bundleMgrSa == nullptr) {
-        LBSLOGE(COMMON_UTILS, "fail to get bundle manager system ability!");
-        return false;
-    }
-    auto bundleMgr = iface_cast<AppExecFwk::IBundleMgr>(bundleMgrSa);
+    auto bundleMgr = GetBundleManager();
     if (bundleMgr == nullptr) {
         LBSLOGE(COMMON_UTILS, "Bundle mgr is nullptr.");
         return false;
     }
     bundleMgr->GetApplicationInfoV9(bundleName, 0, userId, info);
     return true;
+}
+
+bool BundleMgrHelper::QueryExtensionAbilityInfo(
+    const AAFwk::Want& want, std::vector<AppExecFwk::ExtensionAbilityInfo>& extensionInfos)
+{
+    int userId = 0;
+    bool ret = GetCurrentUserId(userId);
+    if (!ret) {
+        LBSLOGE(COMMON_UTILS, "GetCurrentUserId failed");
+        return false;
+    }
+    auto bundleMgr = GetBundleManager();
+    if (bundleMgr == nullptr) {
+        LBSLOGE(COMMON_UTILS, "Bundle mgr is nullptr.");
+        return false;
+    }
+    bundleMgr->QueryExtensionAbilityInfosV9(want, 0, userId, extensionInfos);
+    if (extensionInfos.empty()) {
+        LBSLOGE(COMMON_UTILS, "QueryExtensionAbilityInfo failed");
+        return false;
+    }
+    return true;
+}
+
+bool BundleMgrHelper::CheckFenceExtensionAbilityType(const std::string& bundleName, const std::string& abilityName)
+{
+    AAFwk::Want want;
+    want.SetElementName(bundleName, abilityName);
+    std::vector<AppExecFwk::ExtensionAbilityInfo> extensionInfos;
+    if (!QueryExtensionAbilityInfo(want, extensionInfos)) {
+        LBSLOGE(COMMON_UTILS, "QueryExtensionAbilityInfo fail, bundleName: %{public}s, abilityName: %{public}s",
+            bundleName.c_str(), abilityName.c_str());
+        return false;
+    }
+    LBSLOGI(COMMON_UTILS, "QueryExtensionAbilityInfo , extensionInfos size: %{public}zu", extensionInfos.size());
+    AppExecFwk::ExtensionAbilityInfo extensionInfo = extensionInfos.front();
+    if (extensionInfo.type == AppExecFwk::ExtensionAbilityType::FENCE) {
+        return true;
+    }
+    return false;
 }
 }
 }
