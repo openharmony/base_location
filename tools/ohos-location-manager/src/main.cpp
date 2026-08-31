@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include <charconv>
 #include <iostream>
 #include <string>
 #include <cstring>
@@ -276,7 +277,12 @@ static bool ParseIntArg(int argc, char** argv, const char* argName, int& value, 
         }
         if (strncmp(argv[i], argName, strlen(argName)) == 0) {
             if (i + 1 < argc && argv[i + 1] != nullptr && CommonUtils::isValidInteger(argv[i + 1])) {
-                value = std::stoi(argv[i + 1]);
+                const char *first = argv[i + 1];
+                const char *last = first + strlen(first);
+                auto result = std::from_chars(first, last, value);
+                if (result.ec != std::errc{} || result.ptr != last) {
+                    return false;
+                }
                 return true;
             }
             return false;
