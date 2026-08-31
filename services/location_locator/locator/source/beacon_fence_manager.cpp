@@ -401,9 +401,9 @@ void BeaconFenceManager::ReportByFenceExtension(std::shared_ptr<BeaconFenceReque
     // 拉起fenceExtension
     if (!beaconFenceRequest->GetFenceExtensionAbilityName().empty() &&
         BundleMgrHelper::CheckFenceExtensionAbilityType(
-        beaconFenceRequest->GetBundleName(), beaconFenceRequest->GetFenceExtensionAbilityName())) {
-        HookUtils::ExecuteHookWhenReportBeaconFenceOperateResult(fenceId, static_cast<int>(event),
-            beaconFenceRequest->GetFenceExtensionAbilityName(), beaconFenceRequest->GetBundleName());
+            beaconFenceRequest->GetBundleName(), beaconFenceRequest->GetFenceExtensionAbilityName())) {
+            HookUtils::ExecuteHookWhenReportBeaconFenceOperateResult(fenceId, static_cast<int>(event),
+                beaconFenceRequest->GetFenceExtensionAbilityName(), beaconFenceRequest->GetBundleName());
     }
 }
 
