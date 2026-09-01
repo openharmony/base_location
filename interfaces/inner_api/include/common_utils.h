@@ -202,6 +202,22 @@ public:
     static int ConvertErrorCode(int errorCode);
     static std::map<int, std::string> GetErrorCodeMap();
     static void GetErrorCodeMapExt(std::map<int, std::string>& errorCodeMap);
+
+private:
+    class ProxyDeathRecipient : public IRemoteObject::DeathRecipient {
+    public:
+        explicit ProxyDeathRecipient(int abilityId) : abilityId_{abilityId} {}
+        virtual ~ProxyDeathRecipient() = default;
+        virtual void OnRemoteDied(const wptr<IRemoteObject>& remoteObject) override
+        {
+            LBSLOGW(COMMON_UTILS, "Remote process died, abilityId: %{public}d", abilityId_);
+            RemoveProxyFromMap(abilityId_);
+        }
+
+    private:
+        int abilityId_;
+    };
+    static void RemoveProxyFromMap(int abilityId);
 };
 
 class CountDownLatch {
