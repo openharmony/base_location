@@ -41,6 +41,8 @@ namespace Location {
 static std::shared_ptr<std::map<int, sptr<IRemoteObject>>> g_proxyMap =
     std::make_shared<std::map<int, sptr<IRemoteObject>>>();
 std::mutex g_proxyMutex;
+static std::shared_ptr<std::map<int, sptr<IRemoteObject::DeathRecipient>>> g_deathRecipientMap =
+    std::make_shared<std::map<int, sptr<IRemoteObject::DeathRecipient>>>();
 static std::random_device g_randomDevice;
 static std::mt19937 g_gen(g_randomDevice());
 static std::uniform_int_distribution<> g_dis(0, 15);   // random between 0 and 15
@@ -118,12 +120,30 @@ sptr<IRemoteObject> CommonUtils::GetRemoteObject(int abilityId, std::string devi
             LBSLOGE(COMMON_UTILS, "GetSystemAbility is null.");
             return nullptr;
         }
+        sptr<IRemoteObject::DeathRecipient> deathRecipient;
+        auto it = g_deathRecipientMap->find(abilityId);
+        if (it == g_deathRecipientMap->end()) {
+            deathRecipient = new ProxyDeathRecipient(abilityId);
+            g_deathRecipientMap->insert({abilityId, deathRecipient});
+            // 注册死亡回调
+            LBSLOGI(COMMON_UTILS, "AddDeathRecipient for abilityId: %{public}d", abilityId);
+            object->AddDeathRecipient(deathRecipient);
+        } else {
+            deathRecipient = it->second;
+        }
         g_proxyMap->insert(std::make_pair(abilityId, object));
         return object;
-    } else {
-        sptr<IRemoteObject> remoteObject = objectGnss->second;
-        return remoteObject;
     }
+    sptr<IRemoteObject> remoteObject = objectGnss->second;
+    return remoteObject;
+}
+
+void CommonUtils::RemoveProxyFromMap(int abilityId)
+{
+    std::unique_lock<std::mutex> lock(g_proxyMutex);
+    // 清理对应proxy和死亡回调
+    g_proxyMap->erase(abilityId);
+    g_deathRecipientMap->erase(abilityId);
 }
 
 std::string CommonUtils::InitDeviceId()
