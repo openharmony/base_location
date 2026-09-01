@@ -133,9 +133,11 @@ bool ReportManager::ProcessRequestForReport(std::shared_ptr<Request>& request,
     std::unique_ptr<Location> finalLocation;
     if (IsRequestFuse(request)) {
         auto cacheGnssLocation = GetCacheGnssLocation();
+        if (request->GetBestLocation() == nullptr) {
+            return false;
+        }
         if (cacheGnssLocation != nullptr &&
-            (request->GetBestLocation() == nullptr ||
-            request->GetBestLocation()->GetLocationSourceType() == 0)) {
+            request->GetBestLocation()->GetLocationSourceType() == 0) {
             request->SetBestLocation(std::make_unique<Location>(*cacheGnssLocation));
         }
         fuseLocation = FusionController::GetInstance()->GetFuseLocation(location, request->GetBestLocation());
@@ -498,21 +500,6 @@ std::unique_ptr<Location> ReportManager::GetCacheLocation(const std::shared_ptr<
         !CommonUtils::DoubleEqual(cacheNlpLocation->GetLatitude(), MIN_LATITUDE - 1) &&
         (curTime - cacheNlpLocation->GetTimeStamp() / MILLI_PER_SEC) <= cachedTime) {
         cacheLocation = std::make_unique<Location>(*cacheNlpLocation);
-    }
-    if (cacheLocation == nullptr  &&
-        (request->GetRequestConfig() != nullptr && request->GetRequestConfig()->GetFixNumber() == 1) &&
-        LocatorRequiredDataManager::GetInstance()->IsSimilarWifi() && cacheNlpLocation != nullptr &&
-        !CommonUtils::DoubleEqual(cacheNlpLocation->GetLatitude(), MIN_LATITUDE - 1) &&
-        !LocatorRequiredDataManager::GetInstance()->IsCellIdChanged()) {
-        cacheLocation = std::make_unique<Location>(*cacheNlpLocation);
-        if (cacheLocation != nullptr) {
-            cacheLocation->SetTimeStamp(CommonUtils::GetCurrentTimeMilSec());
-            cacheLocation->SetTimeSinceBoot(CommonUtils::GetSinceBootTime());
-            LBSLOGI(REPORT_MANAGER, "cached location valid, report cached location to %{public}s",
-                request->GetPackageName().c_str());
-        } else {
-            LBSLOGE(REPORT_MANAGER, "null cacheLocation");
-        }
     }
     std::unique_ptr<Location> finalLocation = GetPermittedLocation(request, cacheLocation);
     if (!ResultCheck(finalLocation, request)) {
