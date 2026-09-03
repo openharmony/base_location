@@ -161,9 +161,9 @@ napi_value GetLocationType(napi_env env, napi_callback_info cbinfo)
     NAPI_ASSERT(env, argc == 1, "number of parameters is error");
     NAPI_CALL(env, napi_typeof(env, argv[0], &valueType));
     NAPI_ASSERT(env, valueType == napi_object, "type of parameters is error");
-    napi_value nVsuccessCallback;
-    napi_value nVfailCallback;
-    napi_value nVcompleteCallback;
+    napi_value nVsuccessCallback = nullptr;
+    napi_value nVfailCallback = nullptr;
+    napi_value nVcompleteCallback = nullptr;
     bool hasProperty = false;
     NAPI_CALL(env, napi_has_named_property(env, argv[0], "success", &hasProperty));
     if (hasProperty) {
