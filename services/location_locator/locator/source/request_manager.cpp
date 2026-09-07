@@ -657,24 +657,6 @@ void RequestManager::ProxySendLocationRequest(std::string abilityName, WorkRecor
     }
 }
 
-sptr<IRemoteObject> RequestManager::GetRemoteObject(std::string abilityName)
-{
-    sptr<IRemoteObject> remoteObject = nullptr;
-    auto locatorAbility = LocatorAbility::GetInstance();
-    auto remoteManagerMap = locatorAbility->GetProxyMap();
-    if (remoteManagerMap == nullptr) {
-        LBSLOGE(REQUEST_MANAGER, "proxy map is empty");
-        return remoteObject;
-    }
-    auto remoteObjectIter = remoteManagerMap->find(abilityName);
-    if (remoteObjectIter == remoteManagerMap->end()) {
-        LBSLOGE(REQUEST_MANAGER, "sa init fail!");
-        return remoteObject;
-    }
-    remoteObject = remoteObjectIter->second;
-    return remoteObject;
-}
-
 void RequestManager::HandlePowerSuspendChanged(int32_t pid, int32_t uid, int32_t state)
 {
     if (!IsUidInProcessing(uid)) {
