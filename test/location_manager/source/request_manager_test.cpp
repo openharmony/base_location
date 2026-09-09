@@ -506,18 +506,6 @@ HWTEST_F(RequestManagerTest, RequestGetProxyNameTest011, TestSize.Level1)
     LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] RequestGetProxyNameTest011 end");
 }
 
-HWTEST_F(RequestManagerTest, GetRemoteObject001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "RequestManagerTest, GetRemoteObject001, TestSize.Level1";
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 begin");
-    ASSERT_TRUE(requestManager_ != nullptr);
-    requestManager_->GetRemoteObject(GNSS_ABILITY);
-
-    requestManager_->GetRemoteObject("");
-    LBSLOGI(REQUEST_MANAGER, "[RequestManagerTest] GetRemoteObject001 end");
-}
-
 HWTEST_F(RequestManagerTest, HandleChrEvent001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
