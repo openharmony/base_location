@@ -293,7 +293,7 @@ std::unique_ptr<Location> ReportManager::GetPermittedLocation(const std::shared_
             LBSLOGD(REPORT_MANAGER, "Fail to Get bundle name: uid = %{public}d.", uid);
         }
     }
-    if (request->GetRequestConfig()->GetFixNumber() == 0 &&
+    if (request->GetRequestConfig() != nullptr && request->GetRequestConfig()->GetFixNumber() == 0 &&
         IsAppBackground(bundleName, tokenId, tokenIdEx, uid, request->GetPid()) &&
         !PermissionManager::CheckBackgroundPermission(tokenId, firstTokenId)) {
         //app background, no background permission, not ContinuousTasks
