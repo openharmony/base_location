@@ -331,12 +331,6 @@ std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>
     return receivers_;
 }
 
-std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> LocatorAbility::GetProxyMap()
-{
-    std::unique_lock<std::mutex> lock(proxyMapMutex_);
-    return proxyMap_;
-}
-
 void LocatorAbility::ApplyRequests(int delay)
 {
     if (locatorHandler_ != nullptr) {
