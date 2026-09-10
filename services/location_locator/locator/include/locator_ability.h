@@ -213,7 +213,6 @@ public:
 
     std::shared_ptr<std::map<std::string, std::list<std::shared_ptr<Request>>>> GetRequests();
     std::shared_ptr<std::map<sptr<IRemoteObject>, std::list<std::shared_ptr<Request>>>> GetReceivers();
-    std::shared_ptr<std::map<std::string, sptr<IRemoteObject>>> GetProxyMap();
     void UpdateSaAbilityHandler();
     void ApplyRequests(int delay);
     void RegisterAction();

@@ -672,28 +672,6 @@ HWTEST_F(LocatorServiceTest, LocatorAbilityStubDump001, TestSize.Level1)
     LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityStubDump001 end");
 }
 
-HWTEST_F(LocatorServiceTest, LocatorAbilityGetProxyMap001, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, LocatorAbilityGetProxyMap001, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityGetProxyMap001 begin");
-    auto locatorAbility = LocatorAbility::GetInstance();
-    ASSERT_TRUE(locatorAbility != nullptr);
-    locatorAbility->GetProxyMap();
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityGetProxyMap001 end");
-}
-
-HWTEST_F(LocatorServiceTest, LocatorAbilityGetProxyMap002, TestSize.Level1)
-{
-    GTEST_LOG_(INFO)
-        << "LocatorServiceTest, LocatorAbilityGetProxyMap002, TestSize.Level1";
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityGetProxyMap002 begin");
-    auto locatorAbility = LocatorAbility::GetInstance();
-    ASSERT_TRUE(locatorAbility != nullptr);
-    locatorAbility->InitRequestManagerMap();
-    LBSLOGI(LOCATOR, "[LocatorServiceTest] LocatorAbilityGetProxyMap002 end");
-}
-
 HWTEST_F(LocatorServiceTest, locatorServicePreProxyForFreeze001, TestSize.Level1)
 {
     GTEST_LOG_(INFO)
