@@ -502,10 +502,12 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
     if (!request->GetIsRequesting()) {
+        LBSLOGE(LOCATOR, "isRequesting_ is false.");
         return false;
     }
     // for frozen app, do not add to workRecord
     if (ProxyFreezeManager::GetInstance()->IsProxyPid(request->GetPid())) {
+        LBSLOGE(LOCATOR, "%{public}d app frozen.", request->GetPid());
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
             request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE", 
             std::to_string(ERRCODE_LOCATING_FREEZE)});
@@ -516,7 +518,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     identity.SetTokenId(request->GetTokenId());
     std::vector<int> activeIds = LocationAccountManager::GetInstance()->GetActiveUserIds();
     if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
-        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
+        LBSLOGE(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
             request->GetUid());
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
             request->ToString().c_str(), "TRANS_ID", request->GetUuid(), 
@@ -558,6 +560,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     std::shared_ptr<WorkRecord>& workRecord)
 {
     if (request == nullptr || !IsRequestAvailable(request)) {
+        LBSLOGI(LOCATOR, "%{public}s:request is null or IsRequestAvailable return false", __func__);
         return false;
     }
     int userId = CommonUtils::GetUserIdByUid(request->GetUid());
@@ -615,6 +618,7 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO", 
             request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE", 
             std::to_string(LOCATION_ERRCODE_USING_PERMISSION)});
+        LBSLOGE(REPORT_MANAGER, "UpdateUsingPermission return false, Id=%{public}d", tokenId);
         return false;
     }
     // add request info to work record
