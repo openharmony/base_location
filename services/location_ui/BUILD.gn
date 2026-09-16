@@ -31,8 +31,8 @@ ohos_hap("location_dialog_hap") {
   module_install_dir = "app/LocationDialog"
   if (defined(sign_hap_py_path)) {
     certificate_profile = "${certificate_profile_path}"
-    key_alias = "LocationDialog Release"
-    private_key_path = "LocationDialog Release"
+    key_alias = "LocationDialog Release V2"
+    private_key_path = "LocationDialog Release V2"
     compatible_version = "10"
   }
 }
