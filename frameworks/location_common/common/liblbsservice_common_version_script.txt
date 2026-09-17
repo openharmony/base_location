@@ -24,6 +24,7 @@
     "*ExecuteHookWhenAddWorkRecord*";
     "*LOCATOR_SA_LOCATION_PERMISSION_CHECK*";
     "*ExecuteHookReportManagerGetCacheLocation*";
+    "*ExecuteHookEnableAbility*";
     "*ExecuteHookWhenSetAgnssServer*";
     "*ExecuteHookWhenSimStateChange*";
     "*BluetoothScanResult*";

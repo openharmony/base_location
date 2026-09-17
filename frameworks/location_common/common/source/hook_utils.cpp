@@ -157,6 +157,20 @@ int HookUtils::ExecuteHookReportManagerGetCacheLocation(std::string packageName,
     return locatorRequestStruct.cacheTime;
 }
 
+bool HookUtils::ExecuteHookEnableAbility(
+    std::string packageName, bool isEnabled, int32_t userId, uint32_t callerTokenId)
+{
+    EnableAbilityStruct enableAbilityStruct;
+    enableAbilityStruct.bundleName = packageName;
+    enableAbilityStruct.isEnabled = isEnabled;
+    enableAbilityStruct.userId = userId;
+    enableAbilityStruct.callerTokenId = callerTokenId;
+    enableAbilityStruct.result = true;
+    ExecuteHook(
+        LocationProcessStage::ENABLE_ABILITY_PROCESS, (void *)&enableAbilityStruct, nullptr);
+    return enableAbilityStruct.result;
+}
+
 bool HookUtils::ExecuteHookWhenAddNetworkRequest(std::string uuidTemp)
 {
     NetworkRequestInfo info;
