@@ -570,6 +570,11 @@ ErrCode LocatorAbility::EnableAbility(bool isEnabled)
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
     }
+    if (!HookUtils::ExecuteHookEnableAbility(
+        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
+        isEnabled, userId, identity.GetTokenId())) {
+        return ERRCODE_SUCCESS;
+    }
     LocationErrCode errCode = SetSwitchStateForUser(isEnabled, userId, identity.GetBundleName());
     std::string bundleName;
     bool result = LocationConfigManager::GetInstance()->GetSettingsBundleName(bundleName);
@@ -606,11 +611,6 @@ ErrCode LocatorAbility::EnableAbilityForUser(bool isEnabled, int32_t userId)
         LocationConfigManager::GetInstance()->OpenPrivacyDialog();
         LBSLOGE(LOCATOR, "OpenPrivacyDialog");
         return ERRCODE_SERVICE_UNAVAILABLE;
-    }
-    if (!HookUtils::ExecuteHookEnableAbility(
-        identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
-        isEnabled, userId, identity.GetTokenId())) {
-        return ERRCODE_SUCCESS;
     }
     if (!HookUtils::ExecuteHookEnableAbility(
         identity.GetBundleName().size() == 0 ? std::to_string(identity.GetUid()) : identity.GetBundleName(),
