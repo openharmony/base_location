@@ -560,7 +560,6 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
     std::shared_ptr<WorkRecord>& workRecord)
 {
     if (request == nullptr || !IsRequestAvailable(request)) {
-        LBSLOGI(LOCATOR, "%{public}s:request is null or IsRequestAvailable return false", __func__);
         return false;
     }
     int userId = CommonUtils::GetUserIdByUid(request->GetUid());
@@ -618,7 +617,6 @@ bool RequestManager::AddRequestToWorkRecord(std::string abilityName, std::shared
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO", 
             request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE", 
             std::to_string(LOCATION_ERRCODE_USING_PERMISSION)});
-        LBSLOGE(REPORT_MANAGER, "UpdateUsingPermission return false, Id=%{public}d", tokenId);
         return false;
     }
     // add request info to work record
