@@ -1541,11 +1541,6 @@ ErrCode LocatorAbility::StartLocating(const RequestConfig& requestConfig, const 
 {
     AppIdentity identity;
     GetAppIdentityInfo(identity);
-    if (!CheckRequestAvailable(LocatorInterfaceCode::START_LOCATING, identity)) {
-        WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
-                "NETWORK_FAIL_CODE", std::to_string(LOCATION_ERRCODE_NOT_CURRENT_USER_ID)});
-        return LOCATION_ERRCODE_PERMISSION_DENIED;
-    }
     if (!GetLocationSwitchIgnoredFlag(identity.GetTokenId()) && !CheckLocationSwitchState()) {
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", identity.GetBundleName(),
                 "NETWORK_FAIL_CODE", std::to_string(ERRCODE_SWITCH_OFF)});
