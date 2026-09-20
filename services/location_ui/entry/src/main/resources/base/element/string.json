@@ -75,6 +75,10 @@
             }
         },
         {
+            "name":"location_target_statement_content_orig",
+            "value":"Location Services requires an Internet connection and uses GNSS or network information (WiFi, cellular network, Bluetooth, IP) to provide you with location-based services. When this is enabled, your device's location information will be shared with services that have been granted location access. Your location information will also be used by system services, for purposes such as updating your time zone and emergency calls. For more information about Location Services, refer to the <a>Statement About Location Services and Privacy</a>."
+        },
+        {
             "name":"LocationPrivacyExtAbility_label",
             "value":"label"
         },
@@ -100,6 +104,10 @@
             }
         },
         {
+            "name":"wifi_portal_connect_timeout_notify_title_orig",
+            "value":"Authentication expired"
+        },
+        {
             "name":"wifi_portal_connect_timeout_notify_text",
             "value":"Tap to log in to %s.",
             "attr":{
@@ -114,6 +122,10 @@
             }
         },
         {
+            "name":"wifi_portal_found_notify_title_orig",
+            "value":"Authentication required"
+        },
+        {
             "name":"wifi_portal_found_notify_text",
             "value":"Tap to log in to %s.",
             "attr":{
@@ -126,6 +138,10 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifi_cdd_notify_title_orig",
+            "value":"This WiFi network has no Internet access. Connect anyway?"
         },
         {
             "name":"wifi_cdd_notify_no_button",
@@ -147,6 +163,10 @@
             "attr":{
                 "priority":"translate"
             }
+        },
+        {
+            "name":"wifi_three_vap_notify_title_orig",
+            "value":"Can't create a hotspot while the WiFi channel is in use. If you're using WLAN Direct or screen casting, disconnect and try again."
         },
         {
             "name":"wifi_three_vap_notify_no_button",
@@ -191,6 +211,10 @@
             }
         },
         {
+            "name":"wifipro_auto_connect_dialog_context_orig",
+            "value":"Allow connection to a better network \"%s\" using the password for the current WiFi network?"
+        },
+        {
             "name":"wifipro_auto_connect_dialog_ok_button",
             "value":"Allow",
             "attr":{
@@ -217,6 +241,10 @@
             "attr":{
                 "priority":"LT"
             }
+        },
+        {
+            "name":"wifipro_better_network_pop_up_title_orig",
+            "value":"Found a better WiFi network"
         },
         {
             "name":"wifipro_better_network_notify_text",
