@@ -535,9 +535,7 @@ void LocatorRequiredDataManager::ReportData(const std::vector<std::shared_ptr<Lo
             continue;
         }
         if (CommonUtils::IsAppBelongCurrentAccount(locatorRequiredInfo.appIdentity_)) {
-            if (type == LocatingRequiredDataType::WIFI &&
-                locatorRequiredInfo.config_.GetIsWlanMatchCalled() &&
-                !locatorRequiredInfo.config_.GetWlanBssidArray().empty()) {
+            if (locatorRequiredInfo.config_.GetIsWlanMatchCalled()) {
                 ReportMatchData(result, locatingRequiredDataCallback, locatorRequiredInfo);
             } else {
                 locatingRequiredDataCallback->OnLocatingDataChange(result);
