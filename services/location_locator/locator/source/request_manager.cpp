@@ -502,7 +502,7 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
     if (!request->GetIsRequesting()) {
-        LBSLOGE(LOCATOR, "isRequesting_ is false.");
+        LBSLOGE(LOCATOR, "uuid:%{public}s, isRequesting_ is false.", request->GetUuid().c_str());
         return false;
     }
     // for frozen app, do not add to workRecord
