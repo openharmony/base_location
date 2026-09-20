@@ -507,7 +507,6 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     }
     // for frozen app, do not add to workRecord
     if (ProxyFreezeManager::GetInstance()->IsProxyPid(request->GetPid())) {
-        LBSLOGE(LOCATOR, "%{public}d app frozen.", request->GetPid());
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
             request->ToString().c_str(), "TRANS_ID", request->GetUuid(), "ERR_CODE", 
             std::to_string(ERRCODE_LOCATING_FREEZE)});
