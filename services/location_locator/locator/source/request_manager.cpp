@@ -502,6 +502,7 @@ bool RequestManager::ActiveLocatingStrategies(const std::shared_ptr<Request>& re
 bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
 {
     if (!request->GetIsRequesting()) {
+        LBSLOGE(LOCATOR, "uuid:%{public}s, isRequesting_ is false.", request->GetUuid().c_str());
         return false;
     }
     // for frozen app, do not add to workRecord
@@ -516,7 +517,7 @@ bool RequestManager::IsRequestAvailable(std::shared_ptr<Request>& request)
     identity.SetTokenId(request->GetTokenId());
     std::vector<int> activeIds = LocationAccountManager::GetInstance()->GetActiveUserIds();
     if (!CommonUtils::IsAppBelongActiveAccounts(identity, activeIds)) {
-        LBSLOGD(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
+        LBSLOGE(REPORT_MANAGER, "AddRequestToWorkRecord uid: %{public}d ,CheckAppIsCurrentUser fail",
             request->GetUid());
         WriteLocationInnerEvent(LBS_REQUEST_FAIL_DETAIL, {"REQ_APP_NAME", request->GetPackageName(), "REQ_INFO",
             request->ToString().c_str(), "TRANS_ID", request->GetUuid(), 
