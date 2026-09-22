@@ -1,174 +1,61 @@
-# AGENTS.md - 位置服务代码仓知识入口
+# AGENTS.md - 位置服务开发与知识入口
 
-## 项目定位
+## 适用范围与使用方式
 
-本仓库对应 OpenHarmony `base/location/location`，提供设备定位、地理编码、围栏服务能力。
+本文件适用于整个仓库，面向修改代码、测试或文档的 Agent。本仓库在完整 OpenHarmony 源码树中对应 `base/location/location`，提供定位、地理编码和围栏服务；独立克隆不包含完整系统构建环境。
 
-**核心能力：**
-- GNSS全球导航卫星系统定位
-- 网络定位（基站、WLAN、蓝牙）
-- 地理编码/反编码
-- 地理围栏
-- 被动定位
+1. 修改前根据下表中的任务、路径或术语读取相关知识；命中多类时合并阅读。
+2. 简要说明任务类别、已读文档、需要保持的约束和拟执行的验证，不必重复整篇文档。
+3. 进入目标目录时检查是否存在更局部的 `AGENTS.md`，并读取其目录范围内适用的指引。
+4. 知识文档提供导航与约束，具体实现以当前源码为准。入口失效或文档与源码冲突时，先核实并说明差异；不能据此直接删除权限、兼容性或诊断逻辑。
 
----
+## 按任务、路径与术语查找
 
-## 代码地图
+下表路径均相对仓库根目录。入口函数放在对应知识页，用于继续检索源码，不在此重复完整调用链。
 
-### 一级目录职责
+| 任务 / 路径 / 术语触发条件 | 代码目录与职责 | 必读知识 |
+| --- | --- | --- |
+| 定位请求、缓存、请求分发、Locator；修改 `services/location_locator/` | `services/location_locator/locator/`：定位服务与请求管理 | [Locator](docs/knowledge/code_map/locator-service.md)；涉及请求或结果访问时加读权限约束 |
+| GNSS、卫星、NMEA、HDI；修改 `services/location_gnss/` | `services/location_gnss/gnss/`：GNSS 驱动接口接入与状态管理 | [GNSS](docs/knowledge/code_map/gnss-service.md)；改回调或驱动通信时加读 IPC 约束 |
+| 网络定位、NLP；修改 `services/location_network/` | `services/location_network/network/`：网络定位服务接入 | [网络定位](docs/knowledge/code_map/network-location.md) |
+| 地理编码、GeoConvert、地址坐标转换；修改 `services/location_geocode/` | `services/location_geocode/geocode/`：地理编码服务接入 | [地理编码](docs/knowledge/code_map/geocode-service.md) |
+| 围栏、Geofence、Fence、Beacon；修改 `frameworks/native/geofence_sdk/` 或围栏扩展 | `frameworks/native/geofence_sdk/`、`services/location_locator/`、`services/location_gnss/`：按围栏类型选择入口 | [围栏路由](docs/knowledge/routing/geofence-routing.md)及权限约束 |
+| JS/NAPI、ArkTS、ETS/Taihe、CJ/FFI、Native API；修改 `frameworks/js/`、`frameworks/ets/`、`frameworks/cj/` 或 `frameworks/native/` 下 Native C 接口目录 | 各语言绑定与 C 接口适配 | [API 绑定路由](docs/knowledge/routing/js-napi-routing.md)；跨进程接口变化加读 IPC 约束 |
+| 权限、Token、精确/模糊定位、后台定位；修改权限判断或位置返回路径 | `frameworks/location_common/common/`、`services/location_locator/locator/`：权限工具与服务端判断 | [权限约束](docs/knowledge/expert/permission-constraints.md) |
+| SA、IPC、IDL、序列化、注册/回调生命周期；修改 `sa_profile/`、`frameworks/native/locator_sdk/`、`frameworks/native/locator_agent/` 或 IPC 接口 | SA 配置、Native SDK 与跨进程契约 | [SA / IPC 约束](docs/knowledge/expert/sa-ipc-constraints.md) |
+| 被动定位、Passive；修改 `services/location_passive/` | 被动定位服务，结合 Locator 的分发入口检索 | [Locator](docs/knowledge/code_map/locator-service.md)及 IPC 约束 |
+| 公共数据类型、接口契约；修改 `interfaces/` 或 `frameworks/base_module/` | `interfaces/c_api/`、`interfaces/inner_api/`：公开/内部接口；`frameworks/base_module/`：基础数据类型。Inner API 不等于仅进程内调用 | IPC 约束；涉及位置数据访问时加读权限约束 |
+| SysCap、功能开关、组件依赖、编译测试；修改 `bundle.json`、`config.gni`、`BUILD.gn` 或 `test/` | 组件描述、产品裁剪与测试目标 | [构建与验证](docs/knowledge/verify/build-and-test.md) |
+| 定位弹窗、资源、工具；修改 `services/location_ui/`、`services/utils/`、`tools/` | UI、公共工具/资源及命令行工具 | 对应目录实现；定位授权变化加读权限约束，工具操作先读其使用文档 |
+| HiLog、HiSysEvent、DFX、卡顿、回调耗时；修改日志或事件记录 | 相关模块及 `services/location_locator/hisysevent.yaml` | IPC 约束中的回调与诊断规则 |
 
-| 目录 | 职责 | 关键路径 |
-|------|------|---------|
-| `services/` | SA系统能力服务实现 | location服务核心 |
-| `frameworks/` | SDK框架和API适配层 | 对外接口实现 |
-| `interfaces/` | 公共API定义 | C API / Inner API |
-| `test/` | 单元测试和模糊测试 | 验证覆盖 |
-| `sa_profile/` | SA配置描述文件 | 服务启动配置 |
-| `tools/` | 命令行工具 | ohos-location |
+所有改动均按[构建与验证](docs/knowledge/verify/build-and-test.md)选择最低必要检查；纯文档修改不要求整机编译。
 
-### services/ 服务模块
+## 修改边界
 
-| 模块 | 职责 | 代码路径 |
-|------|------|---------|
-| **location_locator** | 主定位服务，位置请求分发、缓存管理 | `services/location_locator/locator/` |
-| **location_gnss** | GNSS定位实现，卫星信号处理 | `services/location_gnss/gnss/` |
-| **location_network** | 网络定位，基站/WLAN定位 | `services/location_network/` |
-| **location_geocode** | 地理编码/反编码服务 | `services/location_geocode/` |
-| **location_passive** | 被动定位，消息订阅机制 | `services/location_passive/` |
-| **location_ui** | 定位权限弹窗HAP | `services/location_ui/` |
-| **utils** | 公共服务：配置解析、日志、IPC | `services/utils/` |
+以下是修改规则，不是对所有现有实现的穷尽描述。性能建议不能替代权限与契约检查。
 
-### frameworks/ 框架模块
+| 触发条件 | 必须保持的边界 / 行动 |
+| --- | --- |
+| 修改定位、缓存、围栏或后台访问 | 保留服务端调用者身份和权限校验；SDK 检查不能替代服务端鉴权。按权限文档区分不同接口及现有特权路径，不推广例外。 |
+| 修改公共 API 或 IPC | 核对签名、错误码、回调生命周期、IPC 编号与序列化读写双方；不得把不兼容变更混入普通修复。具体检查见 IPC 文档。 |
+| 修改 SA ID/名称、SysCap、功能开关或依赖 | 核查注册、发现、配置及消费者；依赖变化同时核对 `bundle.json` 和相关 `BUILD.gn`，不得只改单个引用。 |
+| 修改生成接口 | 从 `frameworks/native/locator_sdk/ILocatorService.idl`、其 `type/` 数据定义或 `frameworks/ets/taihe/locator_sdk/idl/` 及对应 `BUILD.gn` 确认来源；修改源定义并重新生成，不手改构建输出目录中的代理、桩或绑定产物。 |
+| 修改 IPC/GNSS 回调或日志 | 检查新增操作是否阻塞回调、延长持锁时间或造成同步重入；按执行频率评估逐次日志和格式化开销。沿用模块现有日志设施，不为满足笼统性能建议删除必要诊断，不扩大位置等敏感数据的日志可见范围。 |
+| 新增第三方依赖或导入代码 | 核对来源、许可和组件依赖；保留已有版权与许可声明。 |
+| 涉及公共契约不兼容、权限/信任边界变化、数据格式迁移或新外部依赖 | 先说明影响、兼容方案及验证范围；若超出本次授权范围，取得维护者确认后再实施。已有明确授权不重复确认。 |
+| 设备测试、定位开关、Mock 或权限状态操作 | 仅在已授权测试设备上进行，确认设备身份和恢复方案；刷机、清数据等破坏性操作需要明确授权，不视为普通测试的默认步骤。 |
 
-| 模块 | 职责 | 代码路径 |
-|------|------|---------|
-| **locator_sdk** | Native定位SDK，服务端代理 | `frameworks/native/locator_sdk/` |
-| **locator_agent** | 定位代理，跨进程通信 | `frameworks/native/locator_agent/` |
-| **geofence_sdk** | 围栏SDK | `frameworks/native/geofence_sdk/` |
-| **location_ndk** | NDK接口 | `frameworks/native/location_ndk/` |
-| **js/napi** | JS NAPI绑定（geolocation/geolocationmanager） | `frameworks/js/napi/` |
-| **cj** | CJ FFI绑定 | `frameworks/cj/` |
-| **ets/taihe** | ETS框架绑定 | `frameworks/ets/taihe/` |
-| **location_common** | 公共基础能力 | `frameworks/location_common/` |
+## 验证与交付
 
-### interfaces/ API模块
+- 先说明环境：独立仓库可做静态核查；系统构建和设备测试需要完整源码树、匹配产品及测试设备。命令与目标集中维护在[构建与验证](docs/knowledge/verify/build-and-test.md)。
+- 文档改动检查路径、入口符号和链接；代码改动按模块选择构建与测试；接口、权限与生成代码改动增加对应专项检查。
+- 交付时报告修改范围、实际执行的命令与结果、未执行项目及原因。只有对应检查有证据通过才能标为通过；“未执行”“构建成功”“测试通过”分别陈述。
 
-| 模块 | 职责 | 代码路径 |
-|------|------|---------|
-| **c_api** | C语言公共接口 | `interfaces/c_api/` |
-| **inner_api** | 进程内Inner API | `interfaces/inner_api/include/` |
+## 知识维护约定
 
----
-
-## 知识索引
-
-稳定背景知识放在 `docs/knowledge/`。改动前按场景读取对应文件：
-
-### 任务到路径映射
-
-| 任务类型 | 先读 | 原因 |
-|----------|------|------|
-| **定位请求处理** | `docs/knowledge/code_map/locator-service.md` | 理解位置请求分发链路 |
-| **GNSS定位实现** | `docs/knowledge/code_map/gnss-service.md` | 卫星定位核心逻辑 |
-| **网络定位实现** | `docs/knowledge/code_map/network-location.md` | 基站/WLAN定位 |
-| **地理编码服务** | `docs/knowledge/code_map/geocode-service.md` | 地址与坐标转换 |
-| **围栏功能** | `docs/knowledge/routing/geofence-routing.md` | 围栏触发和回调 |
-| **JS API绑定** | `docs/knowledge/routing/js-napi-routing.md` | NAPI接口实现 |
-| **权限校验** | `docs/knowledge/expert/permission-constraints.md` | 位置权限检查约束 |
-| **SA服务通信** | `docs/knowledge/expert/sa-ipc-constraints.md` | IPC通信禁止事项 |
-| **编译验证** | `docs/knowledge/verify/build-and-test.md` | 构建和测试命令 |
-
-### 术语触发路由
-
-| 术语/缩写 | 含义 | 指向 |
-|-----------|------|------|
-| **Locator** | 主定位服务 | `services/location_locator/` |
-| **GNSS** | 全球导航卫星系统 | `services/location_gnss/` |
-| **Geofence** | 地理围栏 | `frameworks/native/geofence_sdk/` |
-| **NAPI** | Node API绑定 | `frameworks/js/napi/` |
-| **SA** | System Ability | `services/*/` |
-| **SysCap** | 系统能力 | `bundle.json` |
-
----
-
-## 项目约束
-
-### 禁止事项
-
-- **禁止** 修改SA服务ID或service name，可能导致服务无法启动
-- **禁止** 在IPC回调中执行耗时操作，可能导致ANR
-- **禁止** 跳过位置权限检查，位置信息属于敏感数据
-- **禁止** 在GNSS定位回调中进行字符串格式化或日志打印（高频路径）
-- **禁止** 修改系统能力定义（SystemCapability）而不同步更新依赖
-- **禁止** 对公共接口做不兼容变更
-
-### 架构约束
-
-- 位置请求必须经过Locator服务分发，不得绕过
-- 所有定位结果通过IPC回调返回，调用方不应阻塞
-- 配置变更需通过配置解析服务，不得硬编码
-- 日志输出使用HiLog，禁止使用printf
-
----
-
-## 构建和验证
-
-### 构建命令
-
-```sh
-# 全量编译
-./build.sh --product-name {product_name} --build-target location
-
-# 单独编译服务
-./build.sh --product-name {product_name} --build-target lbsservice_locator
-./build.sh --product-name {product_name} --build-target lbsservice_gnss
-
-# 单独编译SDK
-./build.sh --product-name {product_name} --build-target locator_sdk
-./build.sh --product-name {product_name} --build-target geolocation
-```
-
-### 测试命令
-
-```sh
-# 运行单元测试
-./build.sh --product-name {product_name} --build-target location_unittest
-# 或通过以下测试目录
-# test/location_locator/unittest
-# test/location_gnss/unittest
-# test/location_geocode/unittest
-# test/location_network/unittest
-# test/location_passive/unittest
-```
-
-### 验证通过标准
-
-任务完成必须满足：
-
-1. ✅ 所有修改的文件 LSP 诊断无新增 error
-2. ✅ 编译成功
-3. ✅ 相关测试用例通过
-4. ✅ 未引入公共 API 不兼容变更
-5. ✅ 未违反任何约束和边界中列出的禁止事项
-6. ✅ 敏感API权限检查路径未被绕过
-
----
-
-## 知识文档目录
-
-```
-docs/knowledge/
-├── code_map/           # 代码地图
-│   ├── locator-service.md
-│   ├── gnss-service.md
-│   ├── network-location.md
-│   └── geocode-service.md
-├── routing/            # 知识路由
-│   ├── geofence-routing.md
-│   └── js-napi-routing.md
-├── expert/             # 专家经验
-│   ├── permission-constraints.md
-│   └── sa-ipc-constraints.md
-└── verify/             # 验证方法
-    └── build-and-test.md
-```
+- 维护粒度为“目录＋少量关键入口函数＋修改约束＋验证入口”，不复制实现步骤、源码行号、内部辅助函数清单或完整调用链。
+- 模块入口和职责只在对应知识页维护；根文件维护路由与共性规则，验证命令只在验证页维护。
+- 改动模块边界、入口名称、契约或测试目标时同步检查受影响知识页；内部重构且上述信息不变时无需更新文档。
+- 新知识必须能在源码、接口定义、构建配置或实际验证记录中确认；未证实的推测明确标为待核实，不写成既定能力或强制规则。
+- 一次性审查报告、运行日志与历史评分不作为长期知识正文，避免与当前源码事实混淆。
