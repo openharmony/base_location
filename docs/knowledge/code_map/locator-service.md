@@ -1,46 +1,34 @@
-# Locator主服务代码地图
+# Locator 主服务代码导览
 
-## 模块职责
+## 何时读取
 
-Locator服务是位置服务的核心入口，负责：
-- 接收应用定位请求
-- 选择合适的定位方式（GNSS/网络/被动）
-- 位置结果缓存管理
-- 多客户端请求管理
+修改定位请求、停止订阅、位置缓存、结果分发，或 `services/location_locator/` 时读取。权限及后台行为还需联读[权限约束](../expert/permission-constraints.md)。
 
-## 关键文件
+## 职责与目录
 
-| 文件 | 职责 |
-|------|------|
-| `services/location_locator/locator/` | Locator SA主目录 |
-| `services/location_locator/callback/` | 回调处理 |
-| `services/location_locator/hisysevent.yaml` | HiSysEvent配置 |
+Locator 接收客户端请求，检查调用条件，管理请求并协调定位子服务；位置结果的分发与缓存处理也在本模块。不要把所有围栏事件或所有服务回调都视为普通定位订阅。
 
-## 高风险入口
+| 目录 | 查找内容 |
+|------|----------|
+| `services/location_locator/locator/` | 服务入口、请求管理、结果处理与缓存 |
+| `services/location_locator/callback/` | 向客户端发送回调的代理实现 |
+| `frameworks/native/locator_sdk/` | 客户端 SDK 及 Locator IPC 接口 |
 
-| 入口函数 | 说明 |
-|----------|------|
-| `OnStart()` | SA服务启动，可能触发配置加载 |
-| `OnRequest()` | 处理位置请求消息 |
-| `OnLocation报告()` | 接收底层定位结果 |
-| `GetLocation()` | 同步获取位置（注意ANR风险） |
+## 关键入口
 
-## 调用链路
+以下入口均在 `services/location_locator/locator/`，从符号检索继续追踪当前实现。
 
-```
-应用请求 → Locator SDK → IPC → Locator SA → 选择定位策略
-                                              ├── GNSS定位 → location_gnss SA
-                                              ├── 网络定位 → location_network SA
-                                              └── 被动定位 → location_passive SA
-```
+| 入口 | 适用问题 |
+|------|----------|
+| `LocatorAbility::StartLocating` / `LocatorAbility::StopLocating` | 请求校验、订阅启动与停止 |
+| `LocatorAbility::GetCacheLocation` | 缓存位置的访问条件与返回行为 |
+| `LocatorAbility::ReportLocation` | 子服务上报的位置如何进入 Locator |
+| `ReportManager::ReportLocationByCallback` | 客户端回调及发送前检查 |
 
-## 配置依赖
+## 修改边界与验证
 
-- `services/utils/` 提供配置解析公共能力
-- `bundle.json` 中的 `hisysevent_config` 指定事件配置文件
-
-## 编译单元
-
-```gn
-//base/location/location/services/location_locator/locator:lbsservice_locator
-```
+- 修改请求或缓存路径时，核对服务端调用身份、位置开关、精确/模糊定位及后台访问分支；不能以 SDK 已校验替代服务端校验。
+- 修改结果分发或停止请求时，检查回调生命周期、客户端死亡及停止后的结果处理；增加对应回归用例，不能只验证正常启动。
+- 修改 IPC 或跨服务交互时，联读 [SA/IPC 约束](../expert/sa-ipc-constraints.md)；涉及具体定位方式时再读 [GNSS](gnss-service.md)或[网络定位](network-location.md)。
+- 测试入口：`test/location_locator/`、`test/location_manager/`；先按受影响入口查找用例，再补充缺失场景。
+- 构建入口：`services/location_locator/locator/BUILD.gn` 的 `lbsservice_locator`；环境、测试目标与执行方法统一见[构建和测试](../verify/build-and-test.md)。
