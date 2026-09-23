@@ -47,7 +47,6 @@ enum class LocationProcessStage {
     LOCATOR_SA_COMMAND_PROCESS,
     REPORT_MANAGER_GET_CACHE_LOCATION_PROCESS,
     ENABLE_ABILITY_PROCESS,
-    PRE_START_LOCATING_PROCESS,
     NETWORK_SA_ADD_REQUEST_PROCESS,
     NETWORK_SA_REMOVE_REQUEST_PROCESS,
     GNSS_REQUEST_RECORD_PROCESS,
@@ -190,7 +189,6 @@ public:
     static int ExecuteHookReportManagerGetCacheLocation(std::string packageName, int nlpRequestType);
     static bool ExecuteHookEnableAbility(
         std::string packageName, bool isEnabled, int32_t userId, uint32_t callerTokenId);
-    static bool ExecuteHookWhenPreStartLocating(std::string packageName);
     static bool ExecuteHookWhenAddNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenRemoveNetworkRequest(std::string uuid);
     static bool ExecuteHookWhenSetAgnssServer(std::string& addrName, int& port);
